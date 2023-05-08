@@ -26,6 +26,7 @@ export default {
         },
         onLogin() {
             // 处理登录逻辑
+            this.$router.push({ path: '/game'});
         },
     },
 };

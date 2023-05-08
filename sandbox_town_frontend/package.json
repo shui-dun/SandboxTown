@@ -12,7 +12,6 @@
     "core-js": "^3.8.3",
     "lodash.uniqueid": "^4.0.1",
     "phaser": "^3.60.0",
-    "save": "^2.9.0",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },
