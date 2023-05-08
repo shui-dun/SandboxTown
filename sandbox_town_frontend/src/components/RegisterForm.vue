@@ -34,7 +34,7 @@ export default {
   
 <style scoped>
 #register-form {
-    width: 30%;
+    width: 80%;
     margin: 0 auto;
 }
 </style>
