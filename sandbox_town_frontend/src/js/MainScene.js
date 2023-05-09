@@ -8,6 +8,7 @@ const mainScene = {
         this.load.image("river", require("@/assets/img/river.jpg"));
         this.load.image("grass", require("@/assets/img/grass.jpg"));
         this.load.image("land", require("@/assets/img/land.jpg"));
+        this.load.image("store", require("@/assets/img/store.png"));
 
         this.load.json('shapes', require("@/assets/json/shape.json"));
     },
@@ -17,17 +18,23 @@ const mainScene = {
         // 创建地图
         // createMap(this);
 
+        // 创建商店
+        this.store = this.matter.add.image(700, 400, "store", null, { isStatic: true });
+        this.store.setDisplaySize(200, 200);
+        this.store.setInteractive();
+        this.store.on('pointerdown', () => {
+            this.game.events.emit('itemClicked');
+        });
+
         // 创建角色
         this.player = this.matter.add.sprite(100, 100, "player", null, { shape: shapes.player });
         this.player.setDisplaySize(100, 100);
-        // this.player.setCollideWorldBounds(true);
+        this.player.setFixedRotation();
+
 
         this.player2 = this.matter.add.sprite(400, 100, "player", null, { shape: shapes.player });
         this.player2.setDisplaySize(100, 100);
-        // this.player2.setCollideWorldBounds(true);
-
-        // 设置两个玩家之间的碰撞检测
-        // this.matter.add.collider(this.player, this.player2);
+        this.player2.setFixedRotation();
 
         // this.cameras.main.follow(this.player);
 

@@ -5,9 +5,9 @@
 		"label": "player",
 		"isStatic": false,
 		"density": 0.1,
-		"restitution": 0,
+		"restitution": -1,
 		"friction": 0.1,
-		"frictionAir": 0.01,
+		"frictionAir": 0.1,
 		"frictionStatic": 0.5,
 		"collisionFilter": {
 			"group": 0,

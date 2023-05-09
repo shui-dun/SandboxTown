@@ -26,7 +26,9 @@ export default {
 
         this.game = new Phaser.Game(config);
 
-
+        this.game.events.on('itemClicked', () => {
+            this.$emit('itemClicked');
+        });
 
     },
     methods: {
