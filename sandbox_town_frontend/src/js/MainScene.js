@@ -4,37 +4,39 @@
 const mainScene = {
     key: 'main',
     preload: function () {
-        this.load.image("player", require("@/assets/player.png"));
-        this.load.image("river", require("@/assets/river.jpg"));
-        this.load.image("grass", require("@/assets/grass.jpg"));
-        this.load.image("land", require("@/assets/land.jpg"));
+        this.load.image("player", require("@/assets/img/player.png"));
+        this.load.image("river", require("@/assets/img/river.jpg"));
+        this.load.image("grass", require("@/assets/img/grass.jpg"));
+        this.load.image("land", require("@/assets/img/land.jpg"));
 
+        this.load.json('shapes', require("@/assets/json/shape.json"));
     },
     create: function () {
+        let shapes = this.cache.json.get('shapes');
+        this.cameras.main.setBackgroundColor('#d3c6a6');
         // 创建地图
         // createMap(this);
 
         // 创建角色
-        this.player = this.physics.add.sprite(100, 100, "player");
+        this.player = this.matter.add.sprite(100, 100, "player", null, { shape: shapes.player });
         this.player.setDisplaySize(100, 100);
-        // this.player.setBounce(1);
-        this.player.setCollideWorldBounds(true);
+        // this.player.setCollideWorldBounds(true);
 
-        this.player2 = this.physics.add.sprite(400, 100, "player");
+        this.player2 = this.matter.add.sprite(400, 100, "player", null, { shape: shapes.player });
         this.player2.setDisplaySize(100, 100);
-        this.player2.setCollideWorldBounds(true);
+        // this.player2.setCollideWorldBounds(true);
 
         // 设置两个玩家之间的碰撞检测
-        this.physics.add.collider(this.player, this.player2);
+        // this.matter.add.collider(this.player, this.player2);
 
-        // this.camera.follow(player);
+        // this.cameras.main.follow(this.player);
 
         // // 创建建筑
-        // this.buildings = this.physics.add.staticGroup();
+        // this.buildings = this.matter.add.staticGroup();
         // this.buildings.create(200, 200, "building");
 
         // // 设置角色与建筑下半部分的碰撞检测
-        // this.physics.add.collider(this.player, this.buildings, (player, building) => {
+        // this.matter.add.collider(this.player, this.buildings, (player, building) => {
         //     if (player.y > building.y) {
         //         player.y = building.y + building.height / 2;
         //     }
@@ -46,7 +48,7 @@ const mainScene = {
     update: function () {
         // 在这里编写游戏逻辑，例如角色移动、碰撞检测等
         // 角色移动速度
-        const speed = 160;
+        const speed = 8;
 
         // 根据方向键输入更新角色速度
         if (this.cursors.left.isDown) {

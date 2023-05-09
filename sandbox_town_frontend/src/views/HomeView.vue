@@ -52,7 +52,7 @@ export default {
 #home-page-bg {
   width: 100%;
   height: 100%;
-  background: url("../assets/home-page-bg.png") center center no-repeat;
+  background: url("../assets/img/home-page-bg.png") center center no-repeat;
   background-size: 100% 100%;
   position: fixed;
 

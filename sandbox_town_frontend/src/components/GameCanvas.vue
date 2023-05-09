@@ -15,9 +15,10 @@ export default {
             height: window.innerHeight - 7,
             parent: "game-canvas",
             physics: {
-                default: 'arcade',
-                arcade: {
-                    debug: false
+                default: 'matter',
+                matter: {
+                    debug: true,
+                    gravity: { y: 0 },
                 }
             },
             scene: [mainScene, storeScene],
