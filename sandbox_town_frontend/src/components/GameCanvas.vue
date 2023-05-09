@@ -11,16 +11,22 @@ export default {
     mounted() {
         const config = {
             type: Phaser.AUTO,
-            width: window.innerWidth - 6,
-            height: window.innerHeight - 6,
+            width: window.innerWidth - 7,
+            height: window.innerHeight - 7,
             parent: "game-canvas",
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    debug: false
+                }
+            },
             scene: [mainScene, storeScene],
         };
 
         this.game = new Phaser.Game(config);
 
-        
-        
+
+
     },
     methods: {
     },
