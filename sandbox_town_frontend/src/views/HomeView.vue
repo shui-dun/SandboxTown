@@ -1,5 +1,25 @@
 <template>
-  <div v-if="!isMobile" id="home-page-bg">
+  <div class="simple-bg" v-if="isMobile">
+    <div class="simple-prompt">
+      <h1>沙盒小镇 🏠</h1>
+      <p class="simple-p">请使用电脑或平板等大屏幕设备访问</p>
+      <button class="btn btn-secondary" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
+          href="https://github.com/shui-dun/SandboxTown" target="_blank">
+          关于
+        </a></button>
+    </div>
+  </div>
+  <div class="simple-bg" v-else-if="isVertical">
+    <div class="simple-prompt">
+      <h1>沙盒小镇 🏠</h1>
+      <p class="simple-p">请切换到横屏模式后刷新重新访问</p>
+      <button class="btn btn-secondary" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
+          href="https://github.com/shui-dun/SandboxTown" target="_blank">
+          关于
+        </a></button>
+    </div>
+  </div>
+  <div v-else id="home-page-bg">
     <div class="container" id="home-page">
       <div class="d-flex justify-content-center">
         <button class="btn" @click="showLoginForm" buttonClass="me-2">登录</button>
@@ -15,12 +35,6 @@
       <div v-if="isRegisterFormVisible" class="form">
         <register-form></register-form>
       </div>
-    </div>
-  </div>
-  <div id="mobile-bg" v-else>
-    <div id="mobile-prompt">
-      <h1 id="mobile-h">沙盒小镇 🏠</h1>
-      <p>请使用电脑或平板等大屏幕设备访问</p>
     </div>
   </div>
 </template>
@@ -41,6 +55,12 @@ export default {
       this.isMobile = true;
     } else {
       this.isMobile = false;
+    }
+    if (window.screen.width < window.screen.height) {
+      // 当前设备是竖屏
+      this.isVertical = true;
+    } else {
+      this.isVertical = false;
     }
   },
   data() {
@@ -72,18 +92,19 @@ export default {
 
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 #home-page {
   padding-bottom: 30px;
   padding-top: 10px;
 
-  width: 30%;
+  width: 400px;
   background: rgba(255, 255, 255, 0.7);
   border-radius: 30px;
 }
 
-#mobile-bg {
+.simple-bg {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -92,7 +113,7 @@ export default {
   position: fixed;
 }
 
-#mobile-prompt {
+.simple-prompt {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -103,9 +124,9 @@ export default {
 
 }
 
-#mobile-h {
-  margin-bottom: 30px;
-  text-align: center;
+.simple-p {
+  margin-top: 15px;
+  margin-bottom: 20px;
 }
 </style>
   
