@@ -13,8 +13,15 @@ const mainScene = {
         this.load.json('shapes', require("@/assets/json/shape.json"));
     },
     create: function () {
+        // 地图大小
+        this.mapWidth = 1500;
+        this.mapHeight = 1000;
+        this.matter.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
+
+
         let shapes = this.cache.json.get('shapes');
         this.cameras.main.setBackgroundColor('#d3c6a6');
+        this.cameras.main.setBounds(0, 0, this.mapWidth, this.mapHeight);
         // 创建地图
         // createMap(this);
 
@@ -36,7 +43,7 @@ const mainScene = {
         this.player2.setDisplaySize(100, 100);
         this.player2.setFixedRotation();
 
-        // this.cameras.main.follow(this.player);
+        this.cameras.main.startFollow(this.player);
 
         // // 创建建筑
         // this.buildings = this.matter.add.staticGroup();
@@ -79,10 +86,6 @@ const mainScene = {
 
 
 // function createMap(scene) {
-//     // 地图大小
-//     scene.mapWidth = 2000;
-//     scene.mapHeight = 2000;
-//     // scene.world.setBounds(0, 0, scene.mapWidth, scene.mapHeight);
 
 //     // 地形纹理
 //     // const textures = ["land", "stone", "river"];
