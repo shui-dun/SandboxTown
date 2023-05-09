@@ -18,15 +18,19 @@ const mainScene = {
         this.mapHeight = 1000;
         this.matter.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
-
+        // 相机设置
         let shapes = this.cache.json.get('shapes');
         this.cameras.main.setBackgroundColor('#d3c6a6');
         this.cameras.main.setBounds(0, 0, this.mapWidth, this.mapHeight);
+
+        const layer1 = this.add.layer();
+        const layer2 = this.add.layer();
+
         // 创建地图
         // createMap(this);
 
         // 创建商店
-        this.store = this.matter.add.image(700, 400, "store", null, { isStatic: true });
+        this.store = this.matter.add.image(700, 400, "store", null, { isStatic: true, shape: shapes.store });
         this.store.setDisplaySize(200, 200);
         this.store.setInteractive();
         this.store.on('pointerdown', () => {
@@ -58,6 +62,10 @@ const mainScene = {
 
         // 设置键盘输入监听
         this.cursors = this.input.keyboard.createCursorKeys();
+
+        layer1.add([this.player, this.player2]);
+        layer2.add([this.store])
+
     },
     update: function () {
         // 在这里编写游戏逻辑，例如角色移动、碰撞检测等

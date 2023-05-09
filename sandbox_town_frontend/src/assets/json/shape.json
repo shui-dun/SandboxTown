@@ -33,5 +33,31 @@
 				]
 			}
 		]
+	},
+	"store": {
+		"type": "fromPhysicsEditor",
+		"label": "store",
+		"isStatic": false,
+		"density": 0.1,
+		"restitution": 0,
+		"friction": 0.1,
+		"frictionAir": 0.01,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": [
+			{
+				"label": "",
+				"isSensor": false,
+				"vertices": [
+					[ { "x":67, "y":428 }, { "x":76, "y":453 }, { "x":356, "y":454 }, { "x":83, "y":427 } ],
+					[ { "x":482, "y":446 }, { "x":442, "y":388 }, { "x":356, "y":454 } ],
+					[ { "x":88, "y":244 }, { "x":83, "y":427 }, { "x":356, "y":454 }, { "x":442, "y":388 }, { "x":446, "y":244 } ]
+				]
+			}
+		]
 	}
 }
