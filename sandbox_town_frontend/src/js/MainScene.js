@@ -1,41 +1,17 @@
+import SimplexNoise from "perlin-simplex";
+
 const mainScene = {
     key: 'main',
     preload: function () {
-        console.log(this);
-        // this.game.add.text(0,0,"hello,123");
-        // this.game.load.setBaseURL('http://localhost:8080')
-        // 在这里预加载游戏资源，例如地图、角色、建筑等
-        // this.load.image("player", require("@/assets/player.png"));
-        // this.load.image("tree", "./assets/tree.png");
-        // this.load.image("land", "./assets/land.png");
-        // this.load.image("stone", "./assets/stone.png");
-
-        // this.game.scene.scenes[0].load.image("river", "/assets/river.jpg");
-        // let river = require("@/assets/river.jpg");
-
+        this.load.image("player", require("@/assets/player.png"));
         this.load.image("river", require("@/assets/river.jpg"));
-        // this.game.scene.scenes[0].load.image("river", require("@/assets/river.jpg"));
+        this.load.image("grass", require("@/assets/grass.jpg"));
+        this.load.image("land", require("@/assets/land.jpg"));
 
-
-
-        // this.load.image("building", "./assets/building.png");
     },
     create: function () {
-        this.add.text(0, 0, "hello,main");
-        const item = this.add.image(400, 300, 'river');
-        item.setInteractive();
-
-        item.on('pointerdown', () => {
-            console.log(this);
-            clearScene(this);
-            this.game.scene.start('store');
-            this.game.events.emit('itemClicked');
-        });
-
-        // this.game.scene.scenes[0].add.text(0, 0, "hello,123");
-        // this.game.scene.scenes[0].add.image(400, 300, 'river');
         // 创建地图
-        createMap();
+        createMap(this);
 
         // // 创建角色
         // this.player = this.physics.add.sprite(100, 100, "player");
@@ -82,47 +58,38 @@ const mainScene = {
 
 
 
-function createMap() {
-    alert("create map");
-    // this.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
+function createMap(scene) {
+    // 地图大小
+    scene.mapWidth = 2000;
+    scene.mapHeight = 2000;
+    // scene.world.setBounds(0, 0, scene.mapWidth, scene.mapHeight);
 
-    // // 创建 Tilemap
-    // const map = this.make.tilemap({ tileWidth: 32, tileHeight: 32, width: this.worldWidth, height: this.worldHeight });
+    // 地形纹理
+    // const textures = ["land", "stone", "river"];
 
-    // // 添加地形图块集合
-    // const tileset = map.addTilesetImage("land", "land");
+    // 创建地图
+    let simplex = new SimplexNoise();
+    for (let x = 0; x < scene.mapWidth; x += 32) {
+        for (let y = 0; y < scene.mapHeight; y += 32) {
+            // 使用 Perlin 噪声生成随机值
+            const noiseValue = simplex.noise(x * 0.1, y * 0.1);
 
-    // // 创建地形图层
-    // const terrainLayer = map.createBlankDynamicLayer("terrain", tileset);
+            // 根据噪声值选择地形纹理
+            let texture;
+            if (noiseValue < 0.3) {
+                texture = "land";
+            } else if (noiseValue < 0.6) {
+                texture = "river";
+            } else {
+                texture = "grass";
+            }
 
-    // // 随机生成地形
-    // for (let x = 0; x < this.worldWidth; x++) {
-    //     for (let y = 0; y < this.worldHeight; y++) {
-    //         // 随机选择一种地形
-    //         let terrain = "river";
-    //         // if (Math.random() < 0.2) {
-    //         //     terrain = "stone";
-    //         // } else if (Math.random() < 0.1) {
-    //         //     terrain = "land";
-    //         // }
-
-    //         // 在当前位置添加地形
-    //         map.putTileByName(terrain, x, y, terrainLayer);
-    //         // const tile = map.putTileByName(terrain, x, y, terrainLayer);
-    //     }
-    // }
-}
-
-function clearScene(scene) {
-    // 遍历场景中的所有游戏对象
-    scene.children.each(function (gameObject) {
-        // 移除游戏对象上的所有事件监听器
-        gameObject.removeAllListeners();
-    });
-
-    // 清空场景的游戏对象和事件
-    scene.children.removeAll();
-    scene.events.off();
+            // 在当前位置创建地形
+            let item = scene.add.image(x, y, texture,);
+            item.displayWidth = 32;
+            item.displayHeight = 32;
+        }
+    }
 }
 
 

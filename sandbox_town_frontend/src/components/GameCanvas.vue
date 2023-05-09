@@ -9,25 +9,18 @@ import storeScene from "../js/StoreScene.js";
 
 export default {
     mounted() {
-        this.sceneWidth = window.innerWidth - 8;
-        this.sceneHeight = window.innerHeight - 8;
-        this.worldWidth = 2000;
-        this.worldHeight = 2000;
-        console.log(this);
         const config = {
             type: Phaser.AUTO,
-            width: this.sceneWidth,
-            height: this.sceneHeight,
+            width: window.innerWidth - 6,
+            height: window.innerHeight - 6,
             parent: "game-canvas",
             scene: [mainScene, storeScene],
         };
 
         this.game = new Phaser.Game(config);
 
-        // 事件处理
-        this.game.events.on('itemClicked', () => {
-            this.$emit('itemClicked');
-        });
+        
+        
     },
     methods: {
     },
