@@ -13,30 +13,63 @@
             <button class="close-btn" @click="closeComponent">×</button>
             <div class="container">
                 <div class="row">
-                    <div class="col-md-3">
-                        <b-nav vertical>
-                            <b-nav-item @click="changeTab('basicInfo')">基础信息</b-nav-item>
-                            <b-nav-item @click="changeTab('items')">物品栏</b-nav-item>
-                        </b-nav>
+                    <div class="nav nav-pills flex-column col-md-2">
+                        <div class="nav-link my-nav-item" @click="changeTab('basicInfo')">基础信息</div>
+                        <div class="nav-link my-nav-item" @click="changeTab('items')">物品栏</div>
                     </div>
-                    <div class="col-md-9">
+                    <div class="col-md-10">
                         <div v-if="currentTab === 'basicInfo'">
-                            <h3>基础信息</h3>
-                            <!-- ... -->
+                            <h4>🔍 基础信息</h4>
+                            <table class="custom-table">
+                                <tbody>
+                                    <tr>
+                                        <td>👨‍💼 用户名</td>
+                                        <td>{{ player.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>💰 金钱数目</td>
+                                        <td>{{ player.money }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>🍾 经验值</td>
+                                        <td>{{ player.exp }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>⬆️ 等级</td>
+                                        <td>{{ player.level }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>🥪 饥饿值</td>
+                                        <td>{{ player.hunger }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>🩸 血量</td>
+                                        <td>{{ player.hp }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <div v-else-if="currentTab === 'items'">
-                            <h3>物品栏</h3>
-                            <!-- <b-button-group> -->
-                                <!-- <b-button variant="outline-primary" @click="filterItems('all')">全部</b-button> -->
-                                <!-- <b-button variant="outline-primary" @click="filterItems('food')">食品</b-button> -->
-                                <!-- <b-button variant="outline-primary" @click="filterItems('equipment')">装备</b-button> -->
-                                <!-- <b-button variant="outline-primary" @click="filterItems('item')">物品</b-button> -->
-                            <!-- </b-button-group> -->
-                            <!-- <b-container fluid> -->
-                                ...
-                            <!-- </b-container> -->
-                            <!-- <b-pagination v-model="currentPage" :total-rows="filteredItems.length" :per-page="itemsPerPage" -->
-                                <!-- aria-controls="items-grid"></b-pagination> -->
+                            <h4>🎁 物品栏</h4>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary" @click="filterItems('all')">全部</button>
+                                <button class="btn btn-outline-primary" @click="filterItems('food')">食品</button>
+                                <button class="btn btn-outline-primary" @click="filterItems('equipment')">装备</button>
+                                <button class="btn btn-outline-primary" @click="filterItems('item')">物品</button>
+                            </div>
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-4 item" v-for="item in filteredItems" :key="item.id"
+                                        @mouseover="showTooltip(item)" @mouseleave="hideTooltip">
+                                        <img :src="item.image" :alt="item.name" class="item-image" />
+                                        <p>{{ item.name }}</p>
+                                        <div class="tooltip" v-if="tooltip.show" :target="item.id" :title="tooltip.content"
+                                            placement="top"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- <div class="pagination" v-model="currentPage" :total-rows="filteredItems.length" :per-page="itemsPerPage"
+                                aria-controls="items-grid"></div> -->
                         </div>
                     </div>
                 </div>
@@ -49,40 +82,61 @@
 export default {
     data() {
         return {
-            // ...
             currentTab: 'basicInfo',
-            // currentPage: 1,
-            // itemsPerPage: 9,
-            // filteredItems: [],
+            player: {
+                username: 'Player1',
+                money: 1000,
+                exp: 200,
+                level: 5,
+                hunger: 50,
+                hp: 100,
+                items: [
+                    { id: 1, name: '物品1', image: 'item1.png', category: 'food', description: '物品1的描述' },
+                    { id: 2, name: '物品2', image: 'item2.png', category: 'equipment', description: '物品2的描述' },
+                ],
+            },
+            tooltip: {
+                show: false,
+                content: '',
+            },
+            currentPage: 1,
+            itemsPerPage: 9,
+            filteredItems: [],
         };
     },
-    // computed: {
-    //     paginatedItems() {
-    //         const start = (this.currentPage - 1) * this.itemsPerPage;
-    //         const end = start + this.itemsPerPage;
-    //         return this.filteredItems.slice(start, end);
-    //     },
-    // },
+    computed: {
+        paginatedItems() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.filteredItems.slice(start, end);
+        },
+    },
     methods: {
-        // ...
-        // filterItems(category) {
-        //     if (category === 'all') {
-        //         this.filteredItems = this.player.items;
-        //     } else {
-        //         this.filteredItems = this.player.items.filter((item) => item.category === category);
-        //     }
-        //     this.currentPage = 1;
-        // },
+        filterItems(category) {
+            if (category === 'all') {
+                this.filteredItems = this.player.items;
+            } else {
+                this.filteredItems = this.player.items.filter((item) => item.category === category);
+            }
+            this.currentPage = 1;
+        },
         closeComponent() {
             this.$emit('close');
         },
         changeTab(tabname) {
             this.currentTab = tabname;
-        }
+        },
+        showTooltip(item) {
+            this.tooltip.show = true;
+            this.tooltip.content = item.description;
+        },
+        hideTooltip() {
+            this.tooltip.show = false;
+        },
     },
-    // mounted() {
-    //     this.filterItems('all');
-    // },
+    mounted() {
+        this.filterItems('all');
+    },
 };
 </script>
 
@@ -125,5 +179,22 @@ export default {
 .item-image {
     width: 100%;
     height: auto;
+}
+
+/* .custom-table {
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+} */
+.custom-table th,
+.custom-table td {
+    padding: 10px;
+    text-align: left;
+}
+
+.my-nav-item {
+    cursor: pointer;
+    background-color: #f7d7c4;
+    margin-top: 7px;
+    margin-bottom: 7px;
 }
 </style>
