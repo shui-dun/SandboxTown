@@ -6,6 +6,4 @@ const storeScene = {
 };
 
 
-
-
 export default storeScene;

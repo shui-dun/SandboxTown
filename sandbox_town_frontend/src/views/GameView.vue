@@ -1,18 +1,20 @@
 <template>
     <game-canvas @itemClicked="bar"></game-canvas>
     <FloatingButton @click="clickBackpack" />
-    <div v-if="backpackOpened"></div>
+    <BackpackWindow v-if="backpackOpened" @close="closeBackpack"></BackpackWindow>
 </template>
 
 <script>
 import GameCanvas from '@/components/GameCanvas.vue';
 import FloatingButton from '@/components/FloatingButton.vue';
+import BackpackWindow from '@/components/BackpackWindow.vue';
 
 
 export default {
     components: {
         GameCanvas,
         FloatingButton,
+        BackpackWindow,
     },
     props: {
     },
@@ -27,6 +29,9 @@ export default {
         },
         clickBackpack() {
             this.backpackOpened = true;
+        },
+        closeBackpack() {
+            this.backpackOpened = false;
         }
     },
     computed: {

@@ -1,18 +1,8 @@
 <template>
-  <div class="simple-bg" v-if="isMobile">
+  <div class="simple-bg" v-if="isVertical">
     <div class="simple-prompt">
       <h1>沙盒小镇 🏠</h1>
-      <p class="simple-p">请使用电脑或平板等大屏幕设备访问</p>
-      <button class="btn btn-secondary" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
-          href="https://github.com/shui-dun/SandboxTown" target="_blank">
-          关于
-        </a></button>
-    </div>
-  </div>
-  <div class="simple-bg" v-else-if="isVertical">
-    <div class="simple-prompt">
-      <h1>沙盒小镇 🏠</h1>
-      <p class="simple-p">请切换到横屏模式后刷新重新访问</p>
+      <p class="simple-p">请切换到横屏模式后重新访问<br>推荐使用电脑和平板等大屏设备</p>
       <button class="btn btn-secondary" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
           href="https://github.com/shui-dun/SandboxTown" target="_blank">
           关于
@@ -49,24 +39,19 @@ export default {
     LoginForm,
     RegisterForm,
   },
-  created() {
-    if (window.screen.width < 500) {
-      // 当前设备是移动设备
-      this.isMobile = true;
-    } else {
-      this.isMobile = false;
-    }
-    if (window.screen.width < window.screen.height) {
-      // 当前设备是竖屏
-      this.isVertical = true;
-    } else {
-      this.isVertical = false;
-    }
+  mounted() {
+    setInterval(() => {
+      if (window.innerWidth > window.innerHeight) {
+        // 当前设备是横屏
+        this.isVertical = false;
+      }
+    }, 1000);
   },
   data() {
     return {
       isLoginFormVisible: true,
       isRegisterFormVisible: false,
+      isVertical: window.innerWidth < window.innerHeight,
     };
   },
   methods: {
@@ -100,7 +85,7 @@ export default {
   padding-top: 10px;
 
   width: 400px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 30px;
 }
 
@@ -127,6 +112,7 @@ export default {
 .simple-p {
   margin-top: 15px;
   margin-bottom: 20px;
+  text-align: center;
 }
 </style>
   
