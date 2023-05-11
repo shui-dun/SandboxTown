@@ -11,65 +11,63 @@
     <div class="player-info-wrapper">
         <div class="player-info">
             <button class="close-btn" @click="closeComponent">×</button>
-            <div class="container">
-                <div class="row">
-                    <div class="nav nav-pills flex-column col-md-2">
-                        <div class="nav-link my-nav-item" @click="changeTab('basicInfo')">基础信息</div>
-                        <div class="nav-link my-nav-item" @click="changeTab('items')">物品栏</div>
+            <div class="my-pannel">
+                <div class="nav nav-pills my-pannel-nav">
+                    <div class="nav-link my-nav-item" @click="changeTab('basicInfo')">基础信息</div>
+                    <div class="nav-link my-nav-item" @click="changeTab('items')">物品栏</div>
+                </div>
+                <div>
+                    <div v-if="currentTab === 'basicInfo'">
+                        <h4>🔍 基础信息</h4>
+                        <table class="custom-table">
+                            <tbody>
+                                <tr>
+                                    <td>👨‍💼 用户名</td>
+                                    <td>{{ player.username }}</td>
+                                </tr>
+                                <tr>
+                                    <td>💰 金钱数目</td>
+                                    <td>{{ player.money }}</td>
+                                </tr>
+                                <tr>
+                                    <td>🍾 经验值</td>
+                                    <td>{{ player.exp }}</td>
+                                </tr>
+                                <tr>
+                                    <td>⬆️ 等级</td>
+                                    <td>{{ player.level }}</td>
+                                </tr>
+                                <tr>
+                                    <td>🥪 饥饿值</td>
+                                    <td>{{ player.hunger }}</td>
+                                </tr>
+                                <tr>
+                                    <td>🩸 血量</td>
+                                    <td>{{ player.hp }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="col-md-10">
-                        <div v-if="currentTab === 'basicInfo'">
-                            <h4>🔍 基础信息</h4>
-                            <table class="custom-table">
-                                <tbody>
-                                    <tr>
-                                        <td>👨‍💼 用户名</td>
-                                        <td>{{ player.username }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>💰 金钱数目</td>
-                                        <td>{{ player.money }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>🍾 经验值</td>
-                                        <td>{{ player.exp }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>⬆️ 等级</td>
-                                        <td>{{ player.level }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>🥪 饥饿值</td>
-                                        <td>{{ player.hunger }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>🩸 血量</td>
-                                        <td>{{ player.hp }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div v-else-if="currentTab === 'items'">
+                        <h4>🎁 物品栏</h4>
+                        <div class="btn-group" style="margin-bottom: 20px;">
+                            <button class="btn btn-outline-primary" @click="filterItemsByCategory('all')">全部</button>
+                            <button class="btn btn-outline-primary" @click="filterItemsByCategory('food')">食品</button>
+                            <button class="btn btn-outline-primary" @click="filterItemsByCategory('pet')">宠物</button>
+                            <button class="btn btn-outline-primary" @click="filterItemsByCategory('item')">物品</button>
                         </div>
-                        <div v-else-if="currentTab === 'items'">
-                            <h4>🎁 物品栏</h4>
-                            <div class="btn-group">
-                                <button class="btn btn-outline-primary" @click="filterItems('all')">全部</button>
-                                <button class="btn btn-outline-primary" @click="filterItems('food')">食品</button>
-                                <button class="btn btn-outline-primary" @click="filterItems('equipment')">装备</button>
-                                <button class="btn btn-outline-primary" @click="filterItems('item')">物品</button>
-                            </div>
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-4 item" v-for="item in filteredItems" :key="item.id"
-                                        @mouseover="showTooltip(item)" @mouseleave="hideTooltip">
-                                        <img :src="item.image" :alt="item.name" class="item-image" />
-                                        <p>{{ item.name }}</p>
-                                        <div class="tooltip" v-if="tooltip.show" :target="item.id" :title="tooltip.content"
-                                            placement="top"></div>
-                                    </div>
+                        <div class="container">
+                            <div class="row" style="width: 400px;">
+                                <div class="col-3 item" v-for="item in filteredItems" :key="item.id">
+                                    <img :src="item.image" :alt="item.name" class="item-image" />
+                                    <div>{{ item.name }}</div>
+                                    <div class="tool-tip">{{ item.description }}</div>
                                 </div>
                             </div>
-                            <!-- <div class="pagination" v-model="currentPage" :total-rows="filteredItems.length" :per-page="itemsPerPage"
-                                aria-controls="items-grid"></div> -->
+                        </div>
+                        <div class="btn-group" style="margin-bottom: 20px;">
+                            <button class="btn btn-outline-primary" @click="filterItemsByPage(currentPage-1)">&lt;上一页</button>
+                            <button class="btn btn-outline-primary" @click="filterItemsByPage(currentPage+1)">下一页&gt;</button>
                         </div>
                     </div>
                 </div>
@@ -91,47 +89,68 @@ export default {
                 hunger: 50,
                 hp: 100,
                 items: [
-                    { id: 1, name: '物品1', image: 'item1.png', category: 'food', description: '物品1的描述' },
-                    { id: 2, name: '物品2', image: 'item2.png', category: 'equipment', description: '物品2的描述' },
+                    { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和丰富的口感' },
+                    { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'item', description: '用来锯木头' },
+                    { id: 3, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+                    { id: 4, name: '猫', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发、灵活的身体和独立的性格' },
+                    { id: 5, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和丰富的口感' },
+                    { id: 6, name: '锯子', image: require("@/assets/img/saw.png"), category: 'item', description: '用来锯木头' },
+                    { id: 7, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+                    { id: 8, name: '猫', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发、灵活的身体和独立的性格' },
+                    { id: 9, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和丰富的口感' },
+                    { id: 10, name: '锯子', image: require("@/assets/img/saw.png"), category: 'item', description: '用来锯木头' },
+                    { id: 11, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+                    { id: 11, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+                    { id: 11, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+                    { id: 11, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+                    { id: 11, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+                    { id: 11, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+                    { id: 11, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+                    { id: 11, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+                    { id: 11, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
+
                 ],
             },
-            tooltip: {
-                show: false,
-                content: '',
-            },
+            filterdcategory: 'all',
             currentPage: 1,
-            itemsPerPage: 9,
+            itemsPerPage: 8,
             filteredItems: [],
         };
     },
     computed: {
-        paginatedItems() {
-            const start = (this.currentPage - 1) * this.itemsPerPage;
-            const end = start + this.itemsPerPage;
-            return this.filteredItems.slice(start, end);
-        },
     },
     methods: {
-        filterItems(category) {
-            if (category === 'all') {
-                this.filteredItems = this.player.items;
-            } else {
-                this.filteredItems = this.player.items.filter((item) => item.category === category);
-            }
+        filterItemsByCategory(category) {
+            this.filterdcategory = category;
             this.currentPage = 1;
+            this.filterItems();
+        },
+        filterItemsByPage(page) {
+            if (page === 0) {
+                return;
+            }
+            if (this.filteredItems.length < this.itemsPerPage && page > this.currentPage) {
+                return;
+            }
+            this.currentPage = page;
+            this.filterItems();
+        },
+        filterItems() {
+            let tmpItems = [];
+            if (this.filterdcategory === 'all') {
+                tmpItems = this.player.items;
+            } else {
+                tmpItems = this.player.items.filter((item) => item.category === this.filterdcategory);
+            }
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            this.filteredItems = tmpItems.slice(start, end);
         },
         closeComponent() {
             this.$emit('close');
         },
         changeTab(tabname) {
             this.currentTab = tabname;
-        },
-        showTooltip(item) {
-            this.tooltip.show = true;
-            this.tooltip.content = item.description;
-        },
-        hideTooltip() {
-            this.tooltip.show = false;
         },
     },
     mounted() {
@@ -163,11 +182,11 @@ export default {
 
 .close-btn {
     position: absolute;
-    top: 10px;
+    top: 0px;
     right: 10px;
     background: none;
     border: none;
-    font-size: 1.5rem;
+    font-size: 3.5rem;
     cursor: pointer;
 }
 
@@ -177,14 +196,10 @@ export default {
 }
 
 .item-image {
-    width: 100%;
-    height: auto;
+    width: 80px;
+    height: 80px;
 }
 
-/* .custom-table {
-    border-top: 1px solid #ccc;
-    border-left: 1px solid #ccc;
-} */
 .custom-table th,
 .custom-table td {
     padding: 10px;
@@ -197,4 +212,25 @@ export default {
     margin-top: 7px;
     margin-bottom: 7px;
 }
+
+.tool-tip {
+    display: none;
+}
+
+.item:hover .tool-tip {
+    display: block;
+}
+
+.my-pannel {
+    display: flex;
+
+}
+
+.my-pannel .my-pannel-nav {
+    display: flex;
+    flex-direction: column;
+    width: 50px;
+    margin-right: 20px;
+}
+
 </style>
