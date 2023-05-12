@@ -58,16 +58,18 @@
                         </div>
                         <div class="container">
                             <div class="row" style="width: 400px;">
-                                <div class="col-3 item" v-for="item in filteredItems" :key="item.id">
-                                    <img :src="item.image" :alt="item.name" class="item-image" />
+                                <div class="col-3 item" v-for="item in filteredItems" :key="item.id" style="position: relative;">
+                                    <img :src="item.image" :alt="item.name" class="item-image" ref=""/>
                                     <div>{{ item.name }}</div>
                                     <div class="tool-tip">{{ item.description }}</div>
                                 </div>
                             </div>
                         </div>
                         <div class="btn-group" style="margin-bottom: 20px;">
-                            <button class="btn btn-outline-primary" @click="filterItemsByPage(currentPage-1)">&lt;上一页</button>
-                            <button class="btn btn-outline-primary" @click="filterItemsByPage(currentPage+1)">下一页&gt;</button>
+                            <button class="btn btn-outline-primary"
+                                @click="filterItemsByPage(currentPage - 1)">&lt;上一页</button>
+                            <button class="btn btn-outline-primary"
+                                @click="filterItemsByPage(currentPage + 1)">下一页&gt;</button>
                         </div>
                     </div>
                 </div>
@@ -219,6 +221,16 @@ export default {
 
 .item:hover .tool-tip {
     display: block;
+    position: absolute;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+    top: 40px;
+    left: 40px;
+    z-index: 3;
+    width: 100px;
 }
 
 .my-pannel {
@@ -232,5 +244,4 @@ export default {
     width: 50px;
     margin-right: 20px;
 }
-
 </style>
