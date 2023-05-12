@@ -1,7 +1,7 @@
 <template>
     <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation"></BackpackWindow>
     <game-canvas @itemClicked="bar"></game-canvas>
-    <FloatingButton @click="clickBackpack" />
+    <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
 </template>
 
 <script>
