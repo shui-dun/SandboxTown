@@ -1,7 +1,7 @@
 <template>
+    <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation"></BackpackWindow>
     <game-canvas @itemClicked="bar"></game-canvas>
     <FloatingButton @click="clickBackpack" />
-    <BackpackWindow v-if="backpackOpened" @close="closeBackpack"></BackpackWindow>
 </template>
 
 <script>
@@ -32,6 +32,9 @@ export default {
         },
         closeBackpack() {
             this.backpackOpened = false;
+        },
+        preventMousedownPropagation(event) {
+            event.stopPropagation();
         }
     },
     computed: {

@@ -33,9 +33,13 @@ const mainScene = {
         this.store = this.matter.add.image(700, 400, "store", null, { isStatic: true, shape: shapes.store });
         this.store.setDisplaySize(200, 200);
         this.store.setInteractive();
-        // this.store.on('pointerdown', () => {
-        //     this.game.events.emit('itemClicked');
-        // });
+        this.store.on('pointerdown', () => {
+            // const bodiesUnderPointer = Query.point(this.store.bodies, pointer);
+            // if (bodiesUnderPointer.includes(shapes.store)) {
+            //     this.game.events.emit('itemClicked');
+            // }
+            this.game.events.emit('itemClicked');
+        });
 
         // 创建角色
         this.player = this.matter.add.sprite(100, 100, "player", null, { shape: shapes.player });

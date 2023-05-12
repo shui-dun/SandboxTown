@@ -58,7 +58,7 @@
                                 <button class="btn btn-outline-primary" @click="filterItemsByCategory('item')">物品</button>
                             </div>
                             <div class="input-group" style="width: 170px;">
-                                <input type="text" class="form-control" v-model="searchTerm" placeholder="关键词">
+                                <input type="text" class="form-control" v-model="searchTerm" placeholder="关键词" @keyup.enter="filterItemsBySearch()">
                                 <button class="btn btn-primary" @click="filterItemsBySearch()">查询</button>
                             </div>
                         </div>
@@ -101,11 +101,11 @@ export default {
                     { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和丰富的口感' },
                     { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'item', description: '用来锯木头' },
                     { id: 3, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
-                    { id: 4, name: '猫', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发、灵活的身体和独立的性格' },
+                    { id: 4, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发、灵活的身体和独立的性格' },
                     { id: 5, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和丰富的口感' },
                     { id: 6, name: '锯子', image: require("@/assets/img/saw.png"), category: 'item', description: '用来锯木头' },
                     { id: 7, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
-                    { id: 8, name: '猫', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发、灵活的身体和独立的性格' },
+                    { id: 8, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发、灵活的身体和独立的性格' },
                     { id: 9, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和丰富的口感' },
                     { id: 10, name: '锯子', image: require("@/assets/img/saw.png"), category: 'item', description: '用来锯木头' },
                     { id: 11, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火' },
@@ -191,6 +191,7 @@ export default {
     align-items: center;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 9999;
+    pointer-events: auto;
 }
 
 .player-info {
@@ -213,6 +214,7 @@ export default {
 .item {
     text-align: center;
     margin-bottom: 1rem;
+    cursor: pointer;
 }
 
 .item-image {
