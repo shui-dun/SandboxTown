@@ -1,5 +1,5 @@
 // import SimplexNoise from "perlin-simplex";
-// import Phaser from "phaser";
+import Phaser from "phaser";
 
 const mainScene = {
     key: 'main',
@@ -11,6 +11,7 @@ const mainScene = {
         this.load.image("store", require("@/assets/img/store.png"));
 
         this.load.json('shapes', require("@/assets/json/shape.json"));
+        this.load.json('clickShapes', require("@/assets/json/clickShapes.json"));
     },
     create: function () {
         // 地图大小
@@ -20,6 +21,7 @@ const mainScene = {
 
         // 相机设置
         let shapes = this.cache.json.get('shapes');
+        let clickShapes = this.cache.json.get('clickShapes');
         this.cameras.main.setBackgroundColor('#d3c6a6');
         this.cameras.main.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
@@ -30,14 +32,12 @@ const mainScene = {
         // createMap(this);
 
         // 创建商店
-        this.store = this.matter.add.image(700, 400, "store", null, { isStatic: true, shape: shapes.store });
+        this.store = this.matter.add.sprite(700, 400, "store", null, { isStatic: true, shape: shapes.store });
         this.store.setDisplaySize(200, 200);
-        this.store.setInteractive();
+
+        this.store.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.store), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
+
         this.store.on('pointerdown', () => {
-            // const bodiesUnderPointer = Query.point(this.store.bodies, pointer);
-            // if (bodiesUnderPointer.includes(shapes.store)) {
-            //     this.game.events.emit('itemClicked');
-            // }
             this.game.events.emit('itemClicked');
         });
 
@@ -56,13 +56,6 @@ const mainScene = {
         // // 创建建筑
         // this.buildings = this.matter.add.staticGroup();
         // this.buildings.create(200, 200, "building");
-
-        // // 设置角色与建筑下半部分的碰撞检测
-        // this.matter.add.collider(this.player, this.buildings, (player, building) => {
-        //     if (player.y > building.y) {
-        //         player.y = building.y + building.height / 2;
-        //     }
-        // });
 
         // 设置键盘输入监听
         this.cursors = this.input.keyboard.createCursorKeys();

@@ -30,6 +30,31 @@ export default {
             this.$emit('itemClicked');
         });
 
+
+        // 测试websocket
+        var ws = new WebSocket("ws://localhost:9090/event");
+
+        ws.onopen = function () {
+            console.log("Connection open ...");
+            ws.send("Hello WebSockets!");
+        };
+
+        ws.onmessage = function (event) {
+            if (typeof event.data === String) {
+                console.log("Received data string");
+            }
+        }
+
+        ws.onerror = function (event) {
+            console.log(`Connection error:`, event);
+        };
+
+        ws.onclose = function () {
+            console.log("Connection closed.");
+        };
+
+        
+
     },
     methods: {
     },
