@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.ws;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
@@ -15,23 +16,24 @@ import java.util.Map;
  * 握手阶段的拦截器，对连接进行过滤，可以对连接前和连接后自定义处理
  */
 @Service
+@Slf4j
 public class EventWebSocketInterceptor extends HttpSessionHandshakeInterceptor {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     /**
      * 握手前
      */
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) throws Exception {
-        logger.info("call beforeHandshake");
+        log.info("call beforeHandshake");
+        // 先要通过shiro获取当前用户的信息
+        attributes.put("userName", "player1");
         return super.beforeHandshake(request, response, wsHandler, attributes);
     }
 
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
                                Exception ex) {
-        logger.info("call afterHandshake");
+        log.info("call afterHandshake");
         super.afterHandshake(request, response, wsHandler, ex);
     }
 
