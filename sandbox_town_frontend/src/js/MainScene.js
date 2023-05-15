@@ -9,6 +9,7 @@ const mainScene = {
         this.load.image("grass", require("@/assets/img/grass.jpg"));
         this.load.image("land", require("@/assets/img/land.jpg"));
         this.load.image("store", require("@/assets/img/store.png"));
+        this.load.image("tree", require("@/assets/img/tree.jpg"));
 
         this.load.json('shapes', require("@/assets/json/shape.json"));
         this.load.json('clickShapes', require("@/assets/json/clickShapes.json"));
@@ -25,6 +26,26 @@ const mainScene = {
         this.cameras.main.setBackgroundColor('#d3c6a6');
         this.cameras.main.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
+        // 创建角色
+        this.player = this.matter.add.sprite(100, 100, "player", null, { shape: shapes.player });
+        this.player.setDisplaySize(100, 100);
+        this.player.setFixedRotation();
+        this.cameras.main.startFollow(this.player);
+
+        this.player2 = this.matter.add.sprite(400, 100, "player", null, { shape: shapes.player });
+        this.player2.setDisplaySize(100, 100);
+        this.player2.setFixedRotation();
+
+        // 创建树木
+        this.tree = this.matter.add.sprite(400, 400, "tree", null, { isStatic: true, shape: shapes.tree });
+        this.tree.setDisplaySize(400, 400);
+
+        // 树木点击事件
+        this.tree.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.tree), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
+        this.tree.on('pointerdown', () => {
+            // 
+        });
+
         // 创建商店
         this.store = this.matter.add.sprite(700, 400, "store", null, { isStatic: true, shape: shapes.store });
         this.store.setDisplaySize(200, 200);
@@ -32,20 +53,10 @@ const mainScene = {
         // 商店点击事件
         this.store.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.store), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         this.store.on('pointerdown', () => {
-            this.game.events.emit('itemClicked', {"a": "xixi", "b": "haha"});
+            // 
         });
 
-        // 创建角色
-        this.player = this.matter.add.sprite(100, 100, "player", null, { shape: shapes.player });
-        this.player.setDisplaySize(100, 100);
-        this.player.setFixedRotation();
-
-
-        this.player2 = this.matter.add.sprite(400, 100, "player", null, { shape: shapes.player });
-        this.player2.setDisplaySize(100, 100);
-        this.player2.setFixedRotation();
-
-        // 角色与商店碰撞检测
+        // 碰撞检测
         this.matter.world.on('collisionstart', (event) => {
             var pairs = event.pairs;
             for (var i = 0; i < pairs.length; i++) {
@@ -57,17 +68,19 @@ const mainScene = {
                 }
                 // 如果是玩家与商店碰撞
                 if (item1 === this.player && item2.body.label === 'store'
-                || item1.body.label === 'store' && item2 === this.player) {
-                    this.game.events.emit('showFadeInfo', {"msg": '按空格键进入商店'});
+                    || item1.body.label === 'store' && item2 === this.player) {
+                    this.game.events.emit('showFadeInfo', { "msg": '按空格键进入商店' });
+                }
+                // 如果是玩家与树木碰撞
+                if (item1 === this.player && item2.body.label === 'tree'
+                    || item1.body.label === 'tree' && item2 === this.player) {
+                    this.game.events.emit('showInfoModal', { "msg": "恭喜获得1个苹果🍎" });
                 }
             }
         });
 
         // 设置键盘输入监听
         this.cursors = this.input.keyboard.createCursorKeys();
-
-        // 设置相机跟随角色
-        this.cameras.main.startFollow(this.player);
 
         // 层级设置
         const layer1 = this.add.layer();

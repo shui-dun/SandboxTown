@@ -26,12 +26,12 @@ export default {
 
         this.game = new Phaser.Game(config);
 
-        this.game.events.on('itemClicked', (event) => {
-            this.$emit('itemClicked', event.a, event.b);
-        });
-
         this.game.events.on('showFadeInfo', (event) => {
             this.$emit('showFadeInfo', event.msg);
+        });
+
+        this.game.events.on('showInfoModal', (event) => {
+            this.$emit('showInfoModal', event.msg);
         });
 
 
