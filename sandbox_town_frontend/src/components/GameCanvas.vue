@@ -21,6 +21,7 @@ export default {
                     gravity: { y: 0 },
                 }
             },
+            pixelArt: false,
             scene: [mainScene, storeScene],
         };
 

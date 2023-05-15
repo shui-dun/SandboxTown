@@ -5,9 +5,7 @@ const mainScene = {
     key: 'main',
     preload: function () {
         this.load.image("player", require("@/assets/img/player.png"));
-        this.load.image("river", require("@/assets/img/river.jpg"));
-        this.load.image("grass", require("@/assets/img/grass.jpg"));
-        this.load.image("land", require("@/assets/img/land.jpg"));
+        this.load.image("dog", require("@/assets/img/dog.png"));
         this.load.image("store", require("@/assets/img/store.png"));
         this.load.image("tree", require("@/assets/img/tree.jpg"));
 
@@ -28,19 +26,31 @@ const mainScene = {
 
         // 创建角色
         this.player = this.matter.add.sprite(100, 100, "player", null, { shape: shapes.player });
-        this.player.setDisplaySize(100, 100);
+        this.player.setDisplaySize(120, 120);
         this.player.setFixedRotation();
         this.cameras.main.startFollow(this.player);
 
         this.player2 = this.matter.add.sprite(400, 100, "player", null, { shape: shapes.player });
-        this.player2.setDisplaySize(100, 100);
+        this.player2.setDisplaySize(120, 120);
         this.player2.setFixedRotation();
+        this.player2.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.player), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
+        this.player2.on('pointerdown', () => {
+            // 
+        });
+
+        // 创建狗
+        this.dog = this.matter.add.sprite(100, 400, "dog", null, { shape: shapes.dog });
+        this.dog.setDisplaySize(120, 120);
+        this.dog.setFixedRotation();
+        this.dog.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.dog), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
+        this.dog.on('pointerdown', () => {
+            // 
+        });
 
         // 创建树木
-        this.tree = this.matter.add.sprite(400, 400, "tree", null, { isStatic: true, shape: shapes.tree });
+        this.tree = this.matter.add.sprite(300, 500, "tree", null, { isStatic: true, shape: shapes.tree });
         this.tree.setDisplaySize(400, 400);
 
-        // 树木点击事件
         this.tree.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.tree), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         this.tree.on('pointerdown', () => {
             // 
@@ -48,9 +58,8 @@ const mainScene = {
 
         // 创建商店
         this.store = this.matter.add.sprite(700, 400, "store", null, { isStatic: true, shape: shapes.store });
-        this.store.setDisplaySize(200, 200);
+        this.store.setDisplaySize(250, 250);
 
-        // 商店点击事件
         this.store.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.store), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         this.store.on('pointerdown', () => {
             // 
@@ -74,7 +83,8 @@ const mainScene = {
                 // 如果是玩家与树木碰撞
                 if (item1 === this.player && item2.body.label === 'tree'
                     || item1.body.label === 'tree' && item2 === this.player) {
-                    this.game.events.emit('showInfoModal', { "msg": "恭喜获得1个苹果🍎" });
+                        this.game.events.emit('showFadeInfo', { "msg": '恭喜获得1个苹果🍎' });
+                    // this.game.events.emit('showInfoModal', { "msg": "恭喜获得1个苹果🍎" });
                 }
             }
         });
@@ -86,7 +96,7 @@ const mainScene = {
         const layer1 = this.add.layer();
         const layer2 = this.add.layer();
         layer1.add([this.player, this.player2]);
-        layer2.add([this.store])
+        layer2.add([this.store, this.tree])
 
     },
     update: function () {
