@@ -10,17 +10,16 @@
   
 <script>
 export default {
-    props: {
-        message: {type: String},
-    },
     data() {
         return {
+            message: '',
             show: false,
         };
     },
     mounted() {},
     methods: {
-        showAlert() {
+        showInfo(msg) {
+            this.message = msg;
             this.show = true;
             setTimeout(() => {
                 this.show = false;

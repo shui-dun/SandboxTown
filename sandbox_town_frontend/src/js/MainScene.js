@@ -56,8 +56,8 @@ const mainScene = {
                     continue;
                 }
                 // 如果是玩家与商店碰撞
-                if (item1.body.label === 'player' && item2.body.label === 'store'
-                || item1.body.label === 'store' && item2.body.label === 'player') {
+                if (item1 === this.player && item2.body.label === 'store'
+                || item1.body.label === 'store' && item2 === this.player) {
                     this.game.events.emit('showFadeInfo', {"msg": '按空格键进入商店'});
                 }
             }

@@ -1,8 +1,9 @@
 <template>
     <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation"></BackpackWindow>
-    <game-canvas @itemClicked="bar" @showFadeInfo="fadeInfoShow"></game-canvas>
+    <game-canvas @itemClicked="bar" @showFadeInfo="fadeInfoShow" @showInfoModal="infoModalShow"></game-canvas>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
-    <FadeInfo :message="fadeInfoMsg" ref="fadeInfo" />
+    <FadeInfo ref="fadeInfo" />
+    <InfoModal ref="infoModal" @mousedown="preventMousedownPropagation"/>
 </template>
 
 <script>
@@ -10,6 +11,7 @@ import GameCanvas from '@/components/GameCanvas.vue';
 import FloatingButton from '@/components/FloatingButton.vue';
 import BackpackWindow from '@/components/BackpackWindow.vue';
 import FadeInfo from '@/components/FadeInfo.vue';
+import InfoModal from '@/components/InfoModal.vue';
 
 
 export default {
@@ -18,6 +20,7 @@ export default {
         FloatingButton,
         BackpackWindow,
         FadeInfo,
+        InfoModal,
     },
     props: {
     },
@@ -41,8 +44,10 @@ export default {
             event.stopPropagation();
         },
         fadeInfoShow(msg) {
-            this.fadeInfoMsg = msg;
-            this.$refs.fadeInfo.showAlert();
+            this.$refs.fadeInfo.showInfo(msg);
+        },
+        infoModalShow(msg) {
+            this.$refs.infoModal.showInfo(msg);
         },
     },
     computed: {
