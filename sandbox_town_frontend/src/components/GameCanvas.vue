@@ -26,8 +26,12 @@ export default {
 
         this.game = new Phaser.Game(config);
 
-        this.game.events.on('itemClicked', () => {
-            this.$emit('itemClicked');
+        this.game.events.on('itemClicked', (event) => {
+            this.$emit('itemClicked', event.a, event.b);
+        });
+
+        this.game.events.on('showFadeInfo', (event) => {
+            this.$emit('showFadeInfo', event.msg);
         });
 
 
@@ -36,13 +40,18 @@ export default {
 
         ws.onopen = function () {
             console.log("Connection open ...");
-            ws.send("Hello WebSockets!");
+            ws.send(JSON.stringify({
+                "type": "foo",
+                "data": {
+                    "xixi": "haha",
+                    "hehe": "nani"
+                }
+            }));
         };
 
         ws.onmessage = function (event) {
-            if (typeof event.data === String) {
-                console.log("Received data string");
-            }
+            console.log("Received data");
+            console.log(JSON.parse(event.data));
         }
 
         ws.onerror = function (event) {

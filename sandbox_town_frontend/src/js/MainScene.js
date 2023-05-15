@@ -25,20 +25,14 @@ const mainScene = {
         this.cameras.main.setBackgroundColor('#d3c6a6');
         this.cameras.main.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
-        const layer1 = this.add.layer();
-        const layer2 = this.add.layer();
-
-        // 创建地图
-        // createMap(this);
-
         // 创建商店
         this.store = this.matter.add.sprite(700, 400, "store", null, { isStatic: true, shape: shapes.store });
         this.store.setDisplaySize(200, 200);
 
+        // 商店点击事件
         this.store.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.store), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
-
         this.store.on('pointerdown', () => {
-            this.game.events.emit('itemClicked');
+            this.game.events.emit('itemClicked', {"a": "xixi", "b": "haha"});
         });
 
         // 创建角色
@@ -51,15 +45,33 @@ const mainScene = {
         this.player2.setDisplaySize(100, 100);
         this.player2.setFixedRotation();
 
-        this.cameras.main.startFollow(this.player);
-
-        // // 创建建筑
-        // this.buildings = this.matter.add.staticGroup();
-        // this.buildings.create(200, 200, "building");
+        // 角色与商店碰撞检测
+        this.matter.world.on('collisionstart', (event) => {
+            var pairs = event.pairs;
+            for (var i = 0; i < pairs.length; i++) {
+                var pair = pairs[i];
+                var item1 = pair.bodyA.gameObject;
+                var item2 = pair.bodyB.gameObject;
+                if (item1 === null || item2 === null) {
+                    continue;
+                }
+                // 如果是玩家与商店碰撞
+                if (item1.body.label === 'player' && item2.body.label === 'store'
+                || item1.body.label === 'store' && item2.body.label === 'player') {
+                    this.game.events.emit('showFadeInfo', {"msg": '按空格键进入商店'});
+                }
+            }
+        });
 
         // 设置键盘输入监听
         this.cursors = this.input.keyboard.createCursorKeys();
 
+        // 设置相机跟随角色
+        this.cameras.main.startFollow(this.player);
+
+        // 层级设置
+        const layer1 = this.add.layer();
+        const layer2 = this.add.layer();
         layer1.add([this.player, this.player2]);
         layer2.add([this.store])
 
@@ -87,39 +99,5 @@ const mainScene = {
         }
     },
 }
-
-
-
-// function createMap(scene) {
-
-//     // 地形纹理
-//     // const textures = ["land", "stone", "river"];
-
-//     // 创建地图
-//     let simplex = new SimplexNoise();
-//     for (let x = 0; x < scene.mapWidth; x += 32) {
-//         for (let y = 0; y < scene.mapHeight; y += 32) {
-//             // 使用 Perlin 噪声生成随机值
-//             const noiseValue = simplex.noise(x * 0.1, y * 0.1);
-
-//             // 根据噪声值选择地形纹理
-//             let texture;
-//             if (noiseValue < 0.3) {
-//                 texture = "land";
-//             } else if (noiseValue < 0.6) {
-//                 texture = "river";
-//             } else {
-//                 texture = "grass";
-//             }
-
-//             // 在当前位置创建地形
-//             let item = scene.add.image(x, y, texture,);
-//             item.displayWidth = 32;
-//             item.displayHeight = 32;
-//         }
-//     }
-// }
-
-
 
 export default mainScene;

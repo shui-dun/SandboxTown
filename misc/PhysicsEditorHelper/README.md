@@ -1,0 +1,3 @@
+# PhysicsEditorHelper
+
+更改PhysicsEditor生成的Plain Text配置文件里面的多边形节点的坐标原点
