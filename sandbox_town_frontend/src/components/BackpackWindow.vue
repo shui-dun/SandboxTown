@@ -22,7 +22,7 @@ export default {
     },
     data() {
         return {
-            initTab: 'InfoList',
+            initTab: 'baseInfo',
             player: {
                 username: 'Player1',
                 money: 1000,
@@ -69,11 +69,13 @@ export default {
         this.componentItems = [
             {
                 label: '基础信息',
+                tabName: 'baseInfo',
                 name: 'InfoList',
                 props: { title: '🔍 基础信息', data: this.userInfo },
             },
             {
                 label: '物品栏',
+                tabName: 'ItemGrid',
                 name: 'GridItems',
                 props: { title: '🎁 物品栏', items: this.player.items, categories: this.categories },
             }

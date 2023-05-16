@@ -35,6 +35,14 @@ export default {
             this.$emit('showInfoModal', event.msg);
         });
 
+        this.game.events.on('showAttributeList', (event) => {
+            this.$emit('showAttributeList', event.itemID);
+        });
+
+        this.game.events.on('clickStore', (event) => {
+            this.$emit('showStore', event.storeID);
+        });
+
 
         // 测试websocket
         var ws = new WebSocket("ws://localhost:9090/event");

@@ -1,15 +1,15 @@
 <template>
-    <div class="player-info-wrapper">
-        <div class="player-info">
+    <div class="nav-group-wrapper">
+        <div class="nav-group">
             <button class="close-btn" @click="close">×</button>
             <div class="my-pannel">
-                <div class="nav nav-pills my-pannel-nav">
+                <div v-if="items.length > 1" class="nav nav-pills my-pannel-nav">
                     <div v-for="item in items" :key="'nav-tab-' + item.name" class="nav-link my-nav-item"
-                        @click="changeTab(item.name)">{{ item.label }}</div>
+                        @click="changeTab(item.tabName)">{{ item.label }}</div>
                 </div>
                 <div>
                     <div v-for="item in items" :key="'nav-item-' + item.name">
-                        <component :is="item.name" v-if="currentTab === item.name" v-bind="item.props" />
+                        <component :is="item.name" v-if="currentTab === item.tabName" v-bind="item.props" />
                     </div>
                 </div>
             </div>
@@ -58,7 +58,7 @@ export default {
 </script>
 
 <style scoped>
-.player-info-wrapper {
+.nav-group-wrapper {
     position: fixed;
     top: 0;
     left: 0;
@@ -72,7 +72,7 @@ export default {
     pointer-events: auto;
 }
 
-.player-info {
+.nav-group {
     background-color: #fff;
     border-radius: 5px;
     padding: 1rem;

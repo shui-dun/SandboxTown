@@ -35,7 +35,7 @@ const mainScene = {
         this.player2.setFixedRotation();
         this.player2.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.player), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         this.player2.on('pointerdown', () => {
-            // 
+            this.game.events.emit('showAttributeList', { "itemID": 'player2' });
         });
 
         // 创建狗
@@ -62,7 +62,7 @@ const mainScene = {
 
         this.store.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.store), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         this.store.on('pointerdown', () => {
-            // 
+            this.game.events.emit('clickStore', { "storeID": 'store' });
         });
 
         // 碰撞检测

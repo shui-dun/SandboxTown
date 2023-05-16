@@ -1,6 +1,9 @@
 <template>
+    <game-canvas @showAttributeList="attributeListShow" @showStore="storeShow" 
+    @showFadeInfo="fadeInfoShow" @showInfoModal="infoModalShow"></game-canvas>
     <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation"></BackpackWindow>
-    <game-canvas @itemClicked="bar" @showFadeInfo="fadeInfoShow" @showInfoModal="infoModalShow"></game-canvas>
+    <AttributeList v-if="attributeListOpened" @close="closeAttributeList" @mousedown="preventMousedownPropagation"></AttributeList>
+    <StorePannel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation"></StorePannel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <FadeInfo ref="fadeInfo" />
     <InfoModal ref="infoModal" @mousedown="preventMousedownPropagation"/>
@@ -12,6 +15,8 @@ import FloatingButton from '@/components/FloatingButton.vue';
 import BackpackWindow from '@/components/BackpackWindow.vue';
 import FadeInfo from '@/components/FadeInfo.vue';
 import InfoModal from '@/components/InfoModal.vue';
+import AttributeList from '@/components/AttributeList.vue';
+import StorePannel from '@/components/StorePannel.vue';
 
 
 export default {
@@ -21,6 +26,8 @@ export default {
         BackpackWindow,
         FadeInfo,
         InfoModal,
+        AttributeList,
+        StorePannel
     },
     props: {
     },
@@ -28,18 +35,32 @@ export default {
         return {
             fadeInfoMsg: '',
             backpackOpened: false,
+            attributeListOpened: false,
+            storeOpened: false,
         };
     },
     methods: {
-        bar(a, b) {
-            alert(`itemClicked!${a},${b}`);
-        },
         clickBackpack() {
             this.backpackOpened = true;
         },
         closeBackpack() {
             this.backpackOpened = false;
         },
+
+        attributeListShow(itemID) {
+            this.attributeListOpened = true;
+        },
+        closeAttributeList() {
+            this.attributeListOpened = false;
+        },
+
+        storeShow(storeID) {
+            this.storeOpened = true;
+        },
+        closeStore() {
+            this.storeOpened = false;
+        },
+
         preventMousedownPropagation(event) {
             event.stopPropagation();
         },

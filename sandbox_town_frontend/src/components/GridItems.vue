@@ -3,7 +3,8 @@
     <div style="margin-bottom: 20px; display:flex;">
         <div class="btn-group">
             <button class="btn btn-outline-primary" @click="filterItemsByCategory('all')">全部</button>
-            <button v-for="item in categories" class="btn btn-outline-primary" @click="filterItemsByCategory(item.label)" :key="'button-' + item.label">{{ item.prompt }}</button>
+            <button v-for="item in categories" class="btn btn-outline-primary" @click="filterItemsByCategory(item.label)"
+                :key="'button-' + item.label">{{ item.prompt }}</button>
         </div>
         <div class="input-group" style="width: 170px;">
             <input type="text" class="form-control" v-model="searchTerm" placeholder="关键词"
@@ -13,9 +14,12 @@
     </div>
     <div class="container">
         <div class="row" style="width: 400px;">
-            <div class="col-3 item" v-for="item in filteredItems" :key="item.id" style="position: relative;">
+            <div class="col-3 item" v-for="item in filteredItems" :key="'grid-' + item.id" style="position: relative;">
                 <img :src="item.image" :alt="item.name" class="item-image" ref="" />
                 <div>{{ item.name }}</div>
+                <div v-if="item.extra != undefined">
+                    <div class="extra" v-for="(extraItemVal, extraItemKey) in item.extra" :key="'grid-extra-' + item.id + extraItemKey"> {{ extraItemVal }}</div>
+                </div>
                 <div class="tool-tip">{{ item.description }}</div>
             </div>
         </div>
@@ -121,5 +125,11 @@ export default {
     left: 40px;
     z-index: 3;
     width: 100px;
+}
+
+.extra {
+  background-color: #ddd;
+  border-radius: 5px;
+  font-size: 14px;
 }
 </style>
