@@ -14,7 +14,7 @@ const mainScene = {
     },
     create: function () {
         // 地图大小
-        this.mapWidth = 1500;
+        this.mapWidth = 1900;
         this.mapHeight = 1000;
         this.matter.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
