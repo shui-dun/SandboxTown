@@ -1,16 +1,14 @@
 <template>
-    <div class="nav-group-wrapper">
-        <div class="nav-group">
+    <div class="pannel-wrapper">
+        <div class="my-pannel">
             <button class="close-btn" @click="close">×</button>
-            <div class="my-pannel">
-                <div v-if="items.length > 1" class="nav nav-pills my-pannel-nav">
-                    <div v-for="(item, ind) in items" :key="'nav-tab-' + item.name" class="nav-link my-nav-item"
-                        @click="changeTab('tab' + ind)">{{ item.label }}</div>
+            <div class="nav-group">
+                <div v-if="items.length > 1" class="nav nav-pills nav-group-nav">
+                    <div v-for="(item, ind) in items" :key="ind" class="nav-link my-nav-item" @click="changeTab(ind)">
+                        {{ item }}</div>
                 </div>
                 <div>
-                    <div v-for="(item, ind) in items" :key="'nav-item-' + item.name">
-                        <component :is="item.name" v-if="currentTab === 'tab' + ind" v-bind="item.props" />
-                    </div>
+                    <slot :name="currentInd"></slot>
                 </div>
             </div>
         </div>
@@ -18,23 +16,20 @@
 </template>
 
 <script>
-import InfoList from './InfoList.vue';
-import GridItems from './GridItems.vue';
+
 
 export default {
     props: {
         items: {
             type: Array,
-            required: true,
+            default: () => [],
         },
     },
     components: {
-        InfoList,
-        GridItems
     },
     data() {
         return {
-            currentTab: 'tab0'
+            currentInd: 0
         };
     },
     mounted() {
@@ -46,15 +41,15 @@ export default {
         close() {
             this.$emit('close');
         },
-        changeTab(tabname) {
-            this.currentTab = tabname;
+        changeTab(tabInd) {
+            this.currentInd = tabInd;
         },
     },
 };
 </script>
 
 <style scoped>
-.nav-group-wrapper {
+.pannel-wrapper {
     position: fixed;
     top: 0;
     left: 0;
@@ -68,7 +63,7 @@ export default {
     pointer-events: auto;
 }
 
-.nav-group {
+.my-pannel {
     background-color: #fff;
     border-radius: 5px;
     padding: 1rem;
@@ -95,12 +90,12 @@ export default {
 
 
 
-.my-pannel {
+.nav-group {
     display: flex;
 
 }
 
-.my-pannel .my-pannel-nav {
+.nav-group .nav-group-nav {
     display: flex;
     flex-direction: column;
     width: 50px;

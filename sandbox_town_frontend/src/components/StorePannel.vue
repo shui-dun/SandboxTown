@@ -1,15 +1,24 @@
 <template>
     <div>
-        <NavGroup :items="componentItems" @close="$emit('close')"></NavGroup>
+        <NavGroup :items="componentItems" @close="$emit('close')">
+            <template v-slot:0>
+                <GridItems title="🏪 购买商品" :items="this.buyItems" :categories="this.categories" />
+            </template>
+            <template v-slot:1>
+                <GridItems title="🏬 卖出商品" :items="this.soldItems" :categories="this.categories" />
+            </template>
+        </NavGroup>
     </div>
 </template>
 
 <script>
 import NavGroup from './NavGroup.vue';
+import GridItems from './GridItems.vue';
 
 export default {
     components: {
-        NavGroup
+        NavGroup,
+        GridItems
     },
     data() {
         return {
@@ -57,18 +66,7 @@ export default {
         };
     },
     mounted() {
-        this.componentItems = [
-            {
-                label: '买入',
-                name: 'GridItems',
-                props: { title: '🏪 购买商品', items: this.buyItems, categories: this.categories },
-            },
-            {
-                label: '卖出',
-                name: 'GridItems',
-                props: { title: '🏬 卖出商品', items: this.soldItems, categories: this.categories },
-            }
-        ]
+        this.componentItems = ['买入','卖出'];
     },
     computed: {
     },

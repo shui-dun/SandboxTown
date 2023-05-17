@@ -9,16 +9,27 @@
     <!-- 这个组件我想要始终位于页面的正中央，并且是在页面的最上层，不管下层的页面元素如何变化，这个组件都不受影响 -->
     <!-- 最后，请在组下右上角增添一个关闭按钮 -->
     <div>
-        <NavGroup :items="componentItems" @close="$emit('close')"></NavGroup>
+        <NavGroup :items="tabs" @close="$emit('close')">
+            <template v-slot:0>
+                <InfoList title="🔍 基础信息" :items="this.userInfo" />
+            </template>
+            <template v-slot:1>
+                <GridItems title="🎒 物品栏" :items="this.player.items" :categories="this.categories" />
+            </template>
+        </NavGroup>
     </div>
 </template>
 
 <script>
 import NavGroup from './NavGroup.vue';
+import InfoList from './InfoList.vue';
+import GridItems from './GridItems.vue';
 
 export default {
     components: {
-        NavGroup
+        NavGroup,
+        InfoList,
+        GridItems
     },
     data() {
         return {
@@ -58,7 +69,7 @@ export default {
                 { 'label': 'equipment', 'prompt': '装备' },
                 { 'label': 'pet', 'prompt': '宠物' },
             ],
-            componentItems: []
+            tabs: []
         };
     },
     mounted() {
@@ -66,22 +77,12 @@ export default {
         this.userInfo.forEach((item) => {
             item.value = this.player[item.label];
         });
-        this.componentItems = [
-            {
-                label: '基础信息',
-                name: 'InfoList',
-                props: { title: '🔍 基础信息', data: this.userInfo },
-            },
-            {
-                label: '物品栏',
-                name: 'GridItems',
-                props: { title: '🎁 物品栏', items: this.player.items, categories: this.categories },
-            }
-        ]
+        this.tabs = ['基础信息', '物品栏'];
     },
     computed: {
     },
     methods: {
+
     },
 };
 </script>

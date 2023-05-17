@@ -1,15 +1,21 @@
 <template>
     <div>
-        <NavGroup :items="componentItems" @close="$emit('close')"></NavGroup>
+        <NavGroup @close="$emit('close')">
+            <template v-slot:0>
+                <InfoList title="🔍 基础信息" :items="itemInfo" />
+            </template>
+        </NavGroup>
     </div>
 </template>
 
 <script>
 import NavGroup from './NavGroup.vue';
+import InfoList from './InfoList.vue';
 
 export default {
     components: {
-        NavGroup
+        NavGroup,
+        InfoList,
     },
     data() {
         return {
@@ -37,13 +43,6 @@ export default {
         this.itemInfo.forEach((item) => {
             item.value = this.info[item.label];
         });
-        this.componentItems = [
-            {
-                label: '',
-                name: 'InfoList',
-                props: { title: '🔍 基础信息', data: this.itemInfo },
-            }
-        ]
     },
     computed: {
     },

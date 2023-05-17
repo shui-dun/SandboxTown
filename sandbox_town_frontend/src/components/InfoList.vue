@@ -2,7 +2,7 @@
     <h4>{{ title }}</h4>
     <table class="custom-table">
         <tbody>
-            <tr v-for="item in data" :key='item.label' :id="'tr-' + item.label">
+            <tr v-for="item in items" :key='item.label' :id="'tr-' + item.label">
                 <td>{{ item.show }}</td>
                 <td>{{ item.value }}</td>
             </tr>
@@ -16,7 +16,7 @@ export default {
             type: String,
             required: true,
         },
-        data: {
+        items: {
             type: Array,
             required: true,
         },
