@@ -5,9 +5,9 @@
             <p>{{ prompt }}</p>
         </div>
         <div class="content">
-            <button @click="decrement">←</button>
+            <button @click="decrement"><svg width="50" height="50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 12L14 6V18L8 12Z"></path></svg></button>
             <span>{{ number }}</span>
-            <button @click="increment">→</button>
+            <button @click="increment"><svg width="50" height="50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 12L10 18V6L16 12Z"></path></svg></button>
         </div>
         <div class="footer">
             <button class="cancel" @click="cancel">取消</button>
@@ -103,7 +103,7 @@ export default {
 .content button {
     background-color: transparent;
     border: none;
-    font-size: 40px;
+    font-size: 35px;
     cursor: pointer;
 }
 
