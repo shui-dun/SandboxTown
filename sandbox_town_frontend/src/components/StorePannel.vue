@@ -6,7 +6,8 @@
                     @clickGridItem="bugItemEvent($event)" />
             </template>
             <template v-slot:1>
-                <GridItems title="🏬 卖出商品" :items="this.soldItems" :categories="this.categories" />
+                <GridItems title="🏬 卖出商品" :items="this.soldItems" :categories="this.categories"
+                    @clickGridItem="soldItemEvent($event)" />
             </template>
         </NavGroup>
         <NumberChoose v-if="showNumberChoose" :maxNumber="maxNumber" @onConfirm="confirm" @onCancel="cancel" />
@@ -50,7 +51,7 @@ export default {
             // 用户可以卖的物品
             soldItems: [
                 { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { price: '￥10', num: 1 } },
-                { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { price: '￥12', num: 1 } },
+                { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { price: '￥12', num: 3 } },
                 { id: 3, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { price: '￥8', num: 1 } },
                 { id: 4, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { price: '￥20', num: 1 } },
                 { id: 5, name: '柯基', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { price: '￥20', num: 1 } },
@@ -90,12 +91,28 @@ export default {
             this.maxNumber = 20;
             this.showNumberChoose = true;
         },
+        soldItemEvent(item) {
+            if (item.extra.num === 0) {
+                this.$emit('trade', `你没有${item.name}了`)
+                return;
+            }
+            this.willingOperation = 'sold';
+            this.selectedItem = item;
+            this.maxNumber = item.extra.num;
+            this.showNumberChoose = true;
+        },
         confirm(value) {
             this.willingNumber = value;
             if (this.willingOperation === 'buy') {
                 // 处理购买请求
                 // 由父节点显示提示信息
                 this.$emit('trade', `购买${this.willingNumber}个${this.selectedItem.name}`)
+            } else if (this.willingOperation === 'sold') {
+                // 处理出售请求
+                let item = this.selectedItem;
+                item.extra.num -= this.willingNumber;
+                // 由父节点显示提示信息
+                this.$emit('trade', `出售${this.willingNumber}个${this.selectedItem.name}`)
             }
             this.showNumberChoose = false;
         },
