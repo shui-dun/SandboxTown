@@ -3,7 +3,7 @@
     @showFadeInfo="fadeInfoShow" @showInfoModal="infoModalShow"></game-canvas>
     <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation"></BackpackWindow>
     <AttributeList v-if="attributeListOpened" @close="closeAttributeList" @mousedown="preventMousedownPropagation"></AttributeList>
-    <StorePannel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation"></StorePannel>
+    <StorePannel v-if="storeOpened" @trade="$refs.fadeInfo.showInfo($event)" @close="closeStore" @mousedown="preventMousedownPropagation"></StorePannel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <FadeInfo ref="fadeInfo" />
     <InfoModal ref="infoModal" @mousedown="preventMousedownPropagation"/>

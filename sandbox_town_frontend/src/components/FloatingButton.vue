@@ -27,7 +27,7 @@ export default {
     /* justify-content: center; */
     /* align-items: center; */
     cursor: pointer;
-    z-index: 9999;
+    z-index: 100;
     /* 确保按钮位于页面的最上层 */
 }
 </style>

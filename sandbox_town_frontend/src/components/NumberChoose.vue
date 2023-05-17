@@ -1,48 +1,141 @@
 <template>
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="myModalLabel">Hello</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body text-center">
-            <div class="input-group mb-3">
-              <button class="btn btn-outline-secondary" type="button" @click="decrement">-</button>
-              <input type="text" class="form-control" v-model="count" readonly>
-              <button class="btn btn-outline-secondary" type="button" @click="increment">+</button>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-            <button type="button" class="btn btn-primary" @click="confirm">确定</button>
-          </div>
+    <div class="popup-window-wrapper">
+        <div class="popup-window">
+        <div class="header">
+            <p>{{ prompt }}</p>
         </div>
-      </div>
+        <div class="content">
+            <button @click="decrement">←</button>
+            <span>{{ number }}</span>
+            <button @click="increment">→</button>
+        </div>
+        <div class="footer">
+            <button class="cancel" @click="cancel">取消</button>
+            <button class="confirm" @click="confirm">确定</button>
+        </div>
     </div>
-  </template>
+    </div>
+</template>
   
-  <script>
-  export default {
+<script>
+export default {
+    props: {
+        minNumber: {
+            type: Number,
+            default: 1,
+        },
+        maxNumber: {
+            type: Number,
+            required: true,
+        },
+        prompt: {
+            type: String,
+            default: '请选择数目',
+        },
+    },
     data() {
-      return {
-        count: 0
-      };
+        return {
+            number: this.minNumber,
+        };
     },
     methods: {
-      increment() {
-        this.count++;
-      },
-      decrement() {
-        this.count--;
-      },
-      confirm() {
-        // 处理确定按钮的逻辑
-      }
-    }
-  };
-  </script>
+        increment() {
+            if (this.number >= this.maxNumber) {
+                return;
+            }
+            this.number++;
+        },
+        decrement() {
+            if (this.number <= this.minNumber) {
+                return;
+            }
+            this.number--;
+        },
+        cancel() {
+            this.$emit('onCancel');
+        },
+        confirm() {
+            this.$emit('onConfirm', this.number);
+        },
+    },
+};
+</script>
   
-  <style>
-  /* 在这里添加样式以美化弹出窗口 */
-  </style>
+<style scoped>
+.popup-window-wrapper {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.popup-window {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* width: 100%; */
+    margin-bottom: 20px;
+}
+
+.content button {
+    background-color: transparent;
+    border: none;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+.content span {
+    font-size: 30px;
+    font-weight: bold;
+    color: #333;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.footer button {
+    width: 100px;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.cancel {
+    background-color: #999999;
+}
+
+.confirm {
+    background-color: #1165d5;
+}
+</style>
+  

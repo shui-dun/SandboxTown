@@ -47,6 +47,7 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     /* 使子元素根据其内容自适应宽度，而不是填满容器 */
+    z-index: 300;
 }
 
 .fade-info-alert {
@@ -58,7 +59,6 @@ export default {
     border: 1px solid #f5c6cb;
     border-radius: 5px;
     padding: 10px;
-    z-index: 1000;
 }
 
 .fade-info-edge {

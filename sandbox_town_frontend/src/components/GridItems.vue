@@ -14,7 +14,7 @@
     </div>
     <div class="container">
         <div class="row" style="width: 400px;">
-            <div class="col-3 item" v-for="item in filteredItems" :key="'grid-' + item.id" @click="clickItem(item.id)">
+            <div class="col-3 item" v-for="item in filteredItems" :key="'grid-' + item.id" @click="clickItem(item)">
                 <img :src="item.image" :alt="item.name" class="item-image" ref="" />
                 <div>{{ item.name }}</div>
                 <div v-if="item.extra != undefined">
@@ -32,6 +32,7 @@
 </template>
 <script>
 export default {
+    emits: ['clickGridItem'],
     props: {
         title: {
             type: String,
@@ -96,8 +97,8 @@ export default {
             const end = start + this.itemsPerPage;
             this.filteredItems = tmpItems.slice(start, end);
         },
-        clickItem(itemID) {
-            this.$emit('click', itemID);
+        clickItem(item) {
+            this.$emit('clickGridItem', item);
         }
     }
 };
@@ -117,6 +118,7 @@ export default {
 
 .tool-tip {
     display: none;
+    z-index: 101;
 }
 
 .item:hover .tool-tip {
@@ -129,7 +131,6 @@ export default {
     font-size: 14px;
     top: 40px;
     left: 40px;
-    z-index: 3;
     width: 100px;
 }
 
