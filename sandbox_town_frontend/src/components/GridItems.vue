@@ -18,7 +18,8 @@
                 <img :src="item.image" :alt="item.name" class="item-image" ref="" />
                 <div>{{ item.name }}</div>
                 <div v-if="item.extra != undefined">
-                    <div class="extra" v-for="(extraItemVal, extraItemKey) in item.extra" :key="'grid-extra-' + item.id + extraItemKey"> {{ extraItemVal }}</div>
+                    <div class="extra" v-for="(extraItemVal, extraItemKey) in item.extra"
+                        :key="'grid-extra-' + item.id + extraItemKey"> {{ extraItemVal }}</div>
                 </div>
                 <div class="tool-tip">{{ item.description }}</div>
             </div>
@@ -67,7 +68,8 @@ export default {
             if (page === 0) {
                 return;
             }
-            if (this.filteredItems.length < this.itemsPerPage && page > this.currentPage) {
+            if (page > this.currentPage && (this.filteredItems.length < this.itemsPerPage ||
+                this.filteredItems.at(-1).id == this.items.at(-1).id)) {
                 return;
             }
             this.currentPage = page;
@@ -128,8 +130,9 @@ export default {
 }
 
 .extra {
-  background-color: #ddd;
-  border-radius: 5px;
-  font-size: 14px;
+    background-color: #ddd;
+    border-radius: 5px;
+    margin-bottom: 3px;
+    font-size: 14px;
 }
 </style>

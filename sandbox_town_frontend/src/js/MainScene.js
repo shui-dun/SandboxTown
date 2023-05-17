@@ -65,28 +65,35 @@ const mainScene = {
             this.game.events.emit('clickStore', { "storeID": 'store' });
         });
 
+        let lastCollisionTime = 0;
+
         // 碰撞检测
         this.matter.world.on('collisionstart', (event) => {
+            const now = Date.now();
             var pairs = event.pairs;
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i];
-                var item1 = pair.bodyA.gameObject;
-                var item2 = pair.bodyB.gameObject;
-                if (item1 === null || item2 === null) {
-                    continue;
-                }
-                // 如果是玩家与商店碰撞
-                if (item1 === this.player && item2.body.label === 'store'
-                    || item1.body.label === 'store' && item2 === this.player) {
-                    this.game.events.emit('showFadeInfo', { "msg": '按空格键进入商店' });
-                }
-                // 如果是玩家与树木碰撞
-                if (item1 === this.player && item2.body.label === 'tree'
-                    || item1.body.label === 'tree' && item2 === this.player) {
-                        this.game.events.emit('showFadeInfo', { "msg": '恭喜获得1个苹果🍎' });
-                    // this.game.events.emit('showInfoModal', { "msg": "恭喜获得1个苹果🍎" });
-                }
+            var pair = pairs[0];
+            var item1 = pair.bodyA.gameObject;
+            var item2 = pair.bodyB.gameObject;
+            if (item1 === null || item2 === null) {
+                return;
             }
+            // 如果是玩家与商店碰撞
+            if (item1 === this.player && item2.body.label === 'store'
+                || item1.body.label === 'store' && item2 === this.player) {
+                if (now - lastCollisionTime < 1000) {
+                    return;
+                }
+                this.game.events.emit('showFadeInfo', { "msg": '按空格键进入商店' });
+            }
+            // 如果是玩家与树木碰撞
+            if (item1 === this.player && item2.body.label === 'tree'
+                || item1.body.label === 'tree' && item2 === this.player) {
+                if (now - lastCollisionTime < 1000) {
+                    return;
+                }
+                this.game.events.emit('showFadeInfo', { "msg": '恭喜获得1个苹果🍎' });
+            }
+            lastCollisionTime = now;
         });
 
         // 设置键盘输入监听

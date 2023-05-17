@@ -1,40 +1,58 @@
 <template>
-    <transition name="fade">
-        <div v-if="show" class="torn-paper-alert">
-            <div class="torn-paper-edge"></div>
-            <div class="alert-content">{{ message }}</div>
-            <div class="torn-paper-edge"></div>
-        </div>
-    </transition>
+    <div class="fade-info-wrapper">
+        <transition name="fade" v-for="(itemVal, itemKey) in messages" :key="itemKey">
+            <div v-if="show[itemKey]" class="fade-info-alert">
+                <div class="fade-info-edge"></div>
+                <div class="alert-content">{{ itemVal }}</div>
+                <div class="fade-info-edge"></div>
+            </div>
+        </transition>
+    </div>
 </template>
   
 <script>
+const { v4: uuidv4 } = require('uuid');
+
 export default {
     data() {
         return {
-            message: '',
-            show: false,
+            messages: {},
+            show: {}
         };
     },
-    mounted() {},
+    mounted() { },
     methods: {
         showInfo(msg) {
-            this.message = msg;
-            this.show = true;
+            const uuid = uuidv4();
+            this.messages[uuid] = msg;
+            this.show[uuid] = true;
             setTimeout(() => {
-                this.show = false;
-            }, 3000);
+                this.show[uuid] = false;
+                setTimeout(() => {
+                    delete this.messages[uuid];
+                    delete this.show[uuid];
+                }, 800);
+            }, 2500);
         },
     },
 };
 </script>
   
 <style scoped>
-.torn-paper-alert {
+.fade-info-wrapper {
     display: flex;
     position: fixed;
     bottom: 10%;
     left: 50%;
+    flex-direction: column;
+    align-items: flex-start;
+    /* 使子元素根据其内容自适应宽度，而不是填满容器 */
+}
+
+.fade-info-alert {
+    /* display: flex; */
+    flex-grow: 0;
+    margin: 5px;
     transform: translateX(-50%);
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
@@ -43,7 +61,7 @@ export default {
     z-index: 1000;
 }
 
-.torn-paper-edge {
+.fade-info-edge {
     width: 10px;
     height: 100%;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 100" preserveAspectRatio="none"><path d="M0,0 Q5,50 10,0 Q5,50 0,100" fill="%23f5c6cb"/></svg>');

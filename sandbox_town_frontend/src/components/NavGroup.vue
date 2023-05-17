@@ -4,12 +4,12 @@
             <button class="close-btn" @click="close">×</button>
             <div class="my-pannel">
                 <div v-if="items.length > 1" class="nav nav-pills my-pannel-nav">
-                    <div v-for="item in items" :key="'nav-tab-' + item.name" class="nav-link my-nav-item"
-                        @click="changeTab(item.tabName)">{{ item.label }}</div>
+                    <div v-for="(item, ind) in items" :key="'nav-tab-' + item.name" class="nav-link my-nav-item"
+                        @click="changeTab('tab' + ind)">{{ item.label }}</div>
                 </div>
                 <div>
-                    <div v-for="item in items" :key="'nav-item-' + item.name">
-                        <component :is="item.name" v-if="currentTab === item.tabName" v-bind="item.props" />
+                    <div v-for="(item, ind) in items" :key="'nav-item-' + item.name">
+                        <component :is="item.name" v-if="currentTab === 'tab' + ind" v-bind="item.props" />
                     </div>
                 </div>
             </div>
@@ -27,10 +27,6 @@ export default {
             type: Array,
             required: true,
         },
-        initTab: {
-            type: String,
-            default: '',
-        },
     },
     components: {
         InfoList,
@@ -38,7 +34,7 @@ export default {
     },
     data() {
         return {
-            currentTab: this.initTab
+            currentTab: 'tab0'
         };
     },
     mounted() {

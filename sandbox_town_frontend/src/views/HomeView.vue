@@ -40,10 +40,11 @@ export default {
     RegisterForm,
   },
   mounted() {
-    setInterval(() => {
+    let myInterval = setInterval(() => {
       if (window.innerWidth > window.innerHeight) {
         // 当前设备是横屏
         this.isVertical = false;
+        clearInterval(myInterval);
       }
     }, 1000);
   },

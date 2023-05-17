@@ -13,6 +13,7 @@
     "lodash.uniqueid": "^4.0.1",
     "perlin-simplex": "^0.0.3",
     "phaser": "^3.60.0",
+    "uuid": "^9.0.0",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },

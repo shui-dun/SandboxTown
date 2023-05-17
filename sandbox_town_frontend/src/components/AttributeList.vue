@@ -1,6 +1,6 @@
 <template>
     <div>
-        <NavGroup :items="componentItems" :initTab="initTab" @close="$emit('close')"></NavGroup>
+        <NavGroup :items="componentItems" @close="$emit('close')"></NavGroup>
     </div>
 </template>
 
@@ -13,7 +13,6 @@ export default {
     },
     data() {
         return {
-            initTab: 'infoTab',
             info: {
                 username: 'Player2',
                 money: 1000,
@@ -41,7 +40,6 @@ export default {
         this.componentItems = [
             {
                 label: '',
-                tabName: 'infoTab',
                 name: 'InfoList',
                 props: { title: '🔍 基础信息', data: this.itemInfo },
             }
