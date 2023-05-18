@@ -1,12 +1,13 @@
 <template>
-    <game-canvas @showAttributeList="attributeListShow" @showStore="storeShow" 
-    @showFadeInfo="fadeInfoShow" @showInfoModal="infoModalShow"></game-canvas>
-    <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation"></BackpackWindow>
-    <AttributeList v-if="attributeListOpened" @close="closeAttributeList" @mousedown="preventMousedownPropagation"></AttributeList>
-    <StorePannel v-if="storeOpened" @trade="$refs.fadeInfo.showInfo($event)" @close="closeStore" @mousedown="preventMousedownPropagation"></StorePannel>
+    <game-canvas @showAttributeList="attributeListShow" @showStore="storeShow" @showFadeInfo="fadeInfoShow"></game-canvas>
+    <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation"
+        @info="$refs.fadeInfo.showInfo($event)"></BackpackWindow>
+    <AttributeList v-if="attributeListOpened" @close="closeAttributeList" @mousedown="preventMousedownPropagation">
+    </AttributeList>
+    <StorePannel v-if="storeOpened" @trade="$refs.fadeInfo.showInfo($event)" @close="closeStore"
+        @mousedown="preventMousedownPropagation"></StorePannel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <FadeInfo ref="fadeInfo" />
-    <InfoModal ref="infoModal" @mousedown="preventMousedownPropagation"/>
 </template>
 
 <script>
@@ -14,7 +15,6 @@ import GameCanvas from '@/components/GameCanvas.vue';
 import FloatingButton from '@/components/FloatingButton.vue';
 import BackpackWindow from '@/components/BackpackWindow.vue';
 import FadeInfo from '@/components/FadeInfo.vue';
-import InfoModal from '@/components/InfoModal.vue';
 import AttributeList from '@/components/AttributeList.vue';
 import StorePannel from '@/components/StorePannel.vue';
 
@@ -25,7 +25,6 @@ export default {
         FloatingButton,
         BackpackWindow,
         FadeInfo,
-        InfoModal,
         AttributeList,
         StorePannel
     },
@@ -66,9 +65,6 @@ export default {
         },
         fadeInfoShow(msg) {
             this.$refs.fadeInfo.showInfo(msg);
-        },
-        infoModalShow(msg) {
-            this.$refs.infoModal.showInfo(msg);
         },
     },
     computed: {

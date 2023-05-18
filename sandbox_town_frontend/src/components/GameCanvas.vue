@@ -31,10 +31,6 @@ export default {
             this.$emit('showFadeInfo', event.msg);
         });
 
-        this.game.events.on('showInfoModal', (event) => {
-            this.$emit('showInfoModal', event.msg);
-        });
-
         this.game.events.on('showAttributeList', (event) => {
             this.$emit('showAttributeList', event.itemID);
         });

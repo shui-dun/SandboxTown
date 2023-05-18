@@ -4,17 +4,6 @@
             <div class="header">
                 <p>{{ prompt }}</p>
             </div>
-            <div class="content">
-                <button @click="decrement"><svg width="50" height="50" xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24">
-                        <path d="M8 12L14 6V18L8 12Z"></path>
-                    </svg></button>
-                <span>{{ number }}</span>
-                <button @click="increment"><svg width="50" height="50" xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24">
-                        <path d="M16 12L10 18V6L16 12Z"></path>
-                    </svg></button>
-            </div>
             <div class="footer">
                 <button class="cancel" @click="cancel">取消</button>
                 <button class="confirm" @click="confirm">确定</button>
@@ -26,42 +15,22 @@
 <script>
 export default {
     props: {
-        minNumber: {
-            type: Number,
-            default: 1,
-        },
-        maxNumber: {
-            type: Number,
-            required: true,
-        },
         prompt: {
             type: String,
-            default: '请选择数目',
+            required: true,
         },
     },
     data() {
         return {
-            number: this.minNumber,
+
         };
     },
     methods: {
-        increment() {
-            if (this.number >= this.maxNumber) {
-                return;
-            }
-            this.number++;
-        },
-        decrement() {
-            if (this.number <= this.minNumber) {
-                return;
-            }
-            this.number--;
-        },
         cancel() {
             this.$emit('onCancel');
         },
         confirm() {
-            this.$emit('onConfirm', this.number);
+            this.$emit('onConfirm');
         },
     },
 };
@@ -99,27 +68,6 @@ export default {
     margin-bottom: 20px;
 }
 
-.content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    /* width: 100%; */
-    margin-bottom: 20px;
-}
-
-.content button {
-    background-color: transparent;
-    border: none;
-    font-size: 35px;
-    cursor: pointer;
-}
-
-.content span {
-    font-size: 30px;
-    font-weight: bold;
-    color: #333;
-}
-
 .footer {
     display: flex;
     justify-content: space-between;
@@ -143,5 +91,6 @@ export default {
 
 .confirm {
     background-color: #1165d5;
-}</style>
+}
+</style>
   

@@ -13,7 +13,7 @@
             <div class="container">
                 <div class="row" style="width: 250px;">
                     <div class="col-6 item" v-for="(item, itemKey) in equipmentItems" :key="itemKey"
-                        @click="clickGridItem(item)">
+                        @click="clickGridItem(itemKey, item)">
                         <div v-if="item.name">
                             <img :src="item.image" :alt="item.name" class="item-image" ref="" />
                             <div class="tool-tip">
@@ -33,6 +33,7 @@
 </template>
 <script>
 export default {
+    emits: ['onClickGridItem'],
     props: {
         title: {
             type: String,
@@ -48,8 +49,10 @@ export default {
         },
     },
     methods: {
-        clickGridItem(item) {
-            this.$emit('onClickGridItem', item)
+        clickGridItem(itemKey, item) {
+            if (item.name) {
+                this.$emit('onClickGridItem', { 'itemKey': itemKey, 'item': item })
+            }
         },
     },
 };
