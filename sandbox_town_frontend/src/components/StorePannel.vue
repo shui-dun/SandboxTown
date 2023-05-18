@@ -68,6 +68,7 @@ export default {
                 { 'label': 'item', 'prompt': '物品' },
                 { 'label': 'equipment', 'prompt': '装备' },
                 { 'label': 'pet', 'prompt': '宠物' },
+                { 'label': 'architecture', 'prompt': '建筑' },
             ],
             componentItems: ['买入', '卖出'],
             // 想要买入还是卖出

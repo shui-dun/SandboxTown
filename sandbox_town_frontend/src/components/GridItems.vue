@@ -6,10 +6,10 @@
             <button v-for="item in categories" class="btn btn-outline-primary" @click="filterItemsByCategory(item.label)"
                 :key="'button-' + item.label">{{ item.prompt }}</button>
         </div>
-        <div class="input-group" style="width: 170px;">
+        <div class="input-group" style="width: 120px;">
             <input type="text" class="form-control" v-model="searchTerm" placeholder="关键词"
                 @keyup.enter="filterItemsBySearch()">
-            <button class="btn btn-outline-primary" @click="filterItemsBySearch()"><svg fill="#1476fa" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
+            <button class="btn btn-outline-primary" @click="filterItemsBySearch()"><svg class="my-svg" xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24">
                     <path
                         d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z">
@@ -18,7 +18,7 @@
         </div>
     </div>
     <div class="container">
-        <div class="row" style="width: 400px;">
+        <div class="row" style="width: 450px;">
             <div class="col-3 item" v-for="item in filteredItems" :key="'grid-' + item.id" @click="clickItem(item)">
                 <img :src="item.image" :alt="item.name" class="item-image" ref="" />
                 <div>{{ item.name }}</div>
@@ -31,13 +31,13 @@
         </div>
     </div>
     <div class="btn-group">
-        <button class="btn btn-outline-primary" @click="filterItemsByPage(currentPage - 1)"><svg width="20" height="20" fill="#1476fa"
+        <button class="btn btn-outline-primary" @click="filterItemsByPage(currentPage - 1)"><svg class="my-svg"
                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path
                     d="M13.9142 12.0001L18.7071 7.20718L17.2929 5.79297L11.0858 12.0001L17.2929 18.2072L18.7071 16.793L13.9142 12.0001ZM7 18.0001V6.00008H9V18.0001H7Z">
                 </path>
             </svg>上一页</button>
-        <button class="btn btn-outline-primary" @click="filterItemsByPage(currentPage + 1)">下一页<svg width="20" height="20" fill="#1476fa"
+        <button class="btn btn-outline-primary" @click="filterItemsByPage(currentPage + 1)">下一页<svg class="my-svg"
                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path
                     d="M10.0859 12.0001L5.29297 16.793L6.70718 18.2072L12.9143 12.0001L6.70718 5.79297L5.29297 7.20718L10.0859 12.0001ZM17.0001 6.00008L17.0001 18.0001H15.0001L15.0001 6.00008L17.0001 6.00008Z">
@@ -154,4 +154,15 @@ export default {
     border-radius: 5px;
     margin-bottom: 3px;
     font-size: 14px;
-}</style>
+}
+
+.my-svg {
+    width: 20px;
+    height: 20px;
+    fill: #1476fa;
+}
+
+button:hover .my-svg {
+    fill: white;
+}
+</style>

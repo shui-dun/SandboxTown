@@ -11,10 +11,10 @@
     <div>
         <NavGroup :items="tabs" @close="$emit('close')">
             <template v-slot:0>
-                <InfoList title="🔍 基础信息" :items="this.userInfo" />
+                <EquipmentArea title="⚔️ 装备栏" :listItems="userInfo" :equipmentItems="player.equipment" />
             </template>
             <template v-slot:1>
-                <GridItems title="🎒 物品栏" :items="this.player.items" :categories="this.categories" />
+                <GridItems title="🎒 物品栏" :items="player.items" :categories="categories" />
             </template>
         </NavGroup>
     </div>
@@ -22,13 +22,13 @@
 
 <script>
 import NavGroup from './NavGroup.vue';
-import InfoList from './InfoList.vue';
+import EquipmentArea from './EquipmentArea.vue';
 import GridItems from './GridItems.vue';
 
 export default {
     components: {
         NavGroup,
-        InfoList,
+        EquipmentArea,
         GridItems
     },
     data() {
@@ -54,6 +54,12 @@ export default {
                     { id: 11, name: '柯基', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
                     { id: 12, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识的诱惑', extra: { num: 1 } }
                 ],
+                equipment: {
+                    '护甲': {},
+                    '鞋子': {},
+                    '左手': {},
+                    '右手': { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具' },
+                }
             },
             userInfo: [
                 { 'label': 'username', 'show': '👨‍💼 用户名' },
@@ -68,8 +74,9 @@ export default {
                 { 'label': 'item', 'prompt': '物品' },
                 { 'label': 'equipment', 'prompt': '装备' },
                 { 'label': 'pet', 'prompt': '宠物' },
+                { 'label': 'architecture', 'prompt': '建筑' },
             ],
-            tabs: []
+            tabs: ['装备栏', '物品栏']
         };
     },
     mounted() {
@@ -77,7 +84,6 @@ export default {
         this.userInfo.forEach((item) => {
             item.value = this.player[item.label];
         });
-        this.tabs = ['基础信息', '物品栏'];
     },
     computed: {
     },

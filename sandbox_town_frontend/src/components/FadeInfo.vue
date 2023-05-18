@@ -42,7 +42,7 @@ export default {
 .fade-info-wrapper {
     display: flex;
     position: fixed;
-    bottom: 10%;
+    bottom: 2%;
     left: 50%;
     flex-direction: column;
     align-items: flex-start;
