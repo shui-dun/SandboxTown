@@ -41,9 +41,12 @@ export default {
             player: {
                 username: 'Player1',
                 money: 1000,
-                exp: 200,
                 level: 5,
+                exp: 200,
                 hunger: 50,
+                attack: 10,
+                defense: 10,
+                speed: 8,
                 hp: 100,
                 items: [
                     { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
@@ -68,11 +71,14 @@ export default {
             },
             userInfo: [
                 { 'label': 'username', 'show': '👨‍💼 用户名' },
-                { 'label': 'money', 'show': '💰 金钱数目' },
-                { 'label': 'exp', 'show': '🍾 经验值' },
+                { 'label': 'money', 'show': '💰 金钱' },
                 { 'label': 'level', 'show': '⬆️ 等级' },
+                { 'label': 'exp', 'show': '🍾 经验值' },
                 { 'label': 'hunger', 'show': '🥪 饱腹值' },
-                { 'label': 'hp', 'show': '🩸 血量' }
+                { 'label': 'attack', 'show': '⚔️ 攻击力' },
+                { 'label': 'defense', 'show': '🛡️ 防御力' },
+                { 'label': 'speed', 'show': '🏃 速度' },
+                { 'label': 'hp', 'show': '🩸 血量' },
             ],
             categories: [
                 { 'label': 'food', 'prompt': '食物' },
@@ -126,6 +132,8 @@ export default {
             this.showInquiryPanel = false;
         },
         onClickBackpackItem(item) {
+            this.willingOperation = 'useItem';
+            this.selectedItem = item;
             if (item.extra.num <= 0) {
                 this.$emit('info', `你没有${this.selectedItem.name}`)
                 return;
@@ -141,8 +149,6 @@ export default {
             } else {
                 return;
             }
-            this.willingOperation = 'useItem';
-            this.selectedItem = item;
             this.showInquiryPanel = true;
         },
         onRemoveEquipment(event) {

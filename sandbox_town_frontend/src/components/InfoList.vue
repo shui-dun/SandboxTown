@@ -1,5 +1,5 @@
 <template>
-    <h4>{{ title }}</h4>
+    <h4 style="">{{ title }}</h4>
     <table class="custom-table">
         <tbody>
             <tr v-for="item in items" :key='item.label' :id="'tr-' + item.label">
@@ -24,9 +24,13 @@ export default {
 };
 </script>
 <style scoped>
+.custom-table {
+    margin-top: 20px;
+}
 .custom-table th,
 .custom-table td {
-    padding: 10px;
+    padding-bottom: 10px;
+    padding-right: 30px;
     text-align: left;
 }
 </style>

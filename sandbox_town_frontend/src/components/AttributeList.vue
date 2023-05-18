@@ -22,18 +22,24 @@ export default {
             info: {
                 username: 'Player2',
                 money: 1000,
-                exp: 200,
                 level: 5,
+                exp: 200,
                 hunger: 50,
+                attack: 10,
+                defense: 10,
+                speed: 8,
                 hp: 100,
             },
             itemInfo: [
-                { 'label': 'username', 'show': '👨‍💼 名称' },
-                { 'label': 'money', 'show': '💰 金钱数目' },
-                { 'label': 'exp', 'show': '🍾 经验值' },
+                { 'label': 'username', 'show': '👨‍💼 用户名' },
+                { 'label': 'money', 'show': '💰 金钱' },
                 { 'label': 'level', 'show': '⬆️ 等级' },
+                { 'label': 'exp', 'show': '🍾 经验值' },
                 { 'label': 'hunger', 'show': '🥪 饱腹值' },
-                { 'label': 'hp', 'show': '🩸 血量' }
+                { 'label': 'attack', 'show': '⚔️ 攻击力' },
+                { 'label': 'defense', 'show': '🛡️ 防御力' },
+                { 'label': 'speed', 'show': '🏃 速度' },
+                { 'label': 'hp', 'show': '🩸 血量' },
             ],
             componentItems: []
         };

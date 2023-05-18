@@ -11,7 +11,7 @@ export default {
     mounted() {
         const config = {
             type: Phaser.AUTO,
-            width: window.innerWidth - 7,
+            width: window.innerWidth,
             height: window.innerHeight - 7,
             parent: "game-canvas",
             physics: {

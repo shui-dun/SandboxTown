@@ -127,7 +127,7 @@ export default {
 }
 
 .footer button {
-    width: 100px;
+    width: 110px;
     padding: 10px;
     font-size: 16px;
     font-weight: bold;

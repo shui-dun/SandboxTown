@@ -1,5 +1,5 @@
 <template>
-    <h4>{{ title }}</h4>
+    <h4 style="margin-bottom: 20px;">{{ title }}</h4>
     <div class="equipment-area">
         <table class="custom-table">
             <tbody>
@@ -11,7 +11,7 @@
         </table>
         <div class="equipment-grid">
             <div class="container">
-                <div class="row" style="width: 250px;">
+                <div class="row" style="width: 300px;">
                     <div class="col-6 item" v-for="(item, itemKey) in equipmentItems" :key="itemKey"
                         @click="clickGridItem(itemKey, item)">
                         <div v-if="item.name">
@@ -64,7 +64,8 @@ export default {
 
 .custom-table th,
 .custom-table td {
-    padding: 10px;
+    padding-bottom: 10px;
+    padding-right: 30px;
     text-align: left;
 }
 
@@ -77,8 +78,8 @@ export default {
 }
 
 .item-image {
-    width: 80px;
-    height: 80px;
+    width: 100%;
+    height: 100%;
     border-radius: 5px;
 }
 
