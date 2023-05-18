@@ -43,7 +43,7 @@ export default {
             required: true,
         },
         equipmentItems: {
-            type: Array,
+            type: Object,
             required: true,
         },
     },
