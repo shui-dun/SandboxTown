@@ -7,9 +7,9 @@ const mainScene = {
         this.load.image("player", require("@/assets/img/player.png"));
         this.load.image("dog", require("@/assets/img/dog.png"));
         this.load.image("store", require("@/assets/img/store.png"));
-        this.load.image("tree", require("@/assets/img/tree.jpg"));
+        this.load.image("tree", require("@/assets/img/tree.png"));
 
-        this.load.json('shapes', require("@/assets/json/shape.json"));
+        this.load.json('collapseShapes', require("@/assets/json/collapseShapes.json"));
         this.load.json('clickShapes', require("@/assets/json/clickShapes.json"));
     },
     create: function () {
@@ -19,18 +19,18 @@ const mainScene = {
         this.matter.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
         // 相机设置
-        let shapes = this.cache.json.get('shapes');
+        let collapseShapes = this.cache.json.get('collapseShapes');
         let clickShapes = this.cache.json.get('clickShapes');
         this.cameras.main.setBackgroundColor('#d3c6a6');
         this.cameras.main.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
         // 创建角色
-        this.player = this.matter.add.sprite(100, 100, "player", null, { shape: shapes.player });
+        this.player = this.matter.add.sprite(100, 100, "player", null, { shape: collapseShapes.player });
         this.player.setDisplaySize(120, 120);
         this.player.setFixedRotation();
         this.cameras.main.startFollow(this.player);
 
-        this.player2 = this.matter.add.sprite(400, 100, "player", null, { shape: shapes.player });
+        this.player2 = this.matter.add.sprite(400, 100, "player", null, { shape: collapseShapes.player });
         this.player2.setDisplaySize(120, 120);
         this.player2.setFixedRotation();
         this.player2.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.player), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
@@ -39,7 +39,7 @@ const mainScene = {
         });
 
         // 创建狗
-        this.dog = this.matter.add.sprite(100, 400, "dog", null, { shape: shapes.dog });
+        this.dog = this.matter.add.sprite(100, 400, "dog", null, { shape: collapseShapes.dog });
         this.dog.setDisplaySize(120, 120);
         this.dog.setFixedRotation();
         this.dog.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.dog), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
@@ -48,7 +48,7 @@ const mainScene = {
         });
 
         // 创建树木
-        this.tree = this.matter.add.sprite(300, 500, "tree", null, { isStatic: true, shape: shapes.tree });
+        this.tree = this.matter.add.sprite(300, 500, "tree", null, { isStatic: true, shape: collapseShapes.tree });
         this.tree.setDisplaySize(400, 400);
 
         this.tree.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.tree), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
@@ -57,7 +57,7 @@ const mainScene = {
         });
 
         // 创建商店
-        this.store = this.matter.add.sprite(700, 400, "store", null, { isStatic: true, shape: shapes.store });
+        this.store = this.matter.add.sprite(700, 400, "store", null, { isStatic: true, shape: collapseShapes.store });
         this.store.setDisplaySize(250, 250);
 
         this.store.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.store), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
