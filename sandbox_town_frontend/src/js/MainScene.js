@@ -53,7 +53,7 @@ const mainScene = {
 
         this.tree.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.tree), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         this.tree.on('pointerdown', () => {
-            // 
+            this.game.events.emit('clickTree', { "treeID": 'tree' });
         });
 
         // 创建商店

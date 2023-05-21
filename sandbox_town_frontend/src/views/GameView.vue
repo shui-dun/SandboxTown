@@ -1,5 +1,6 @@
 <template>
-    <game-canvas @showAttributeList="attributeListShow" @showStore="storeShow" @showFadeInfo="fadeInfoShow"></game-canvas>
+    <game-canvas @showAttributeList="attributeListShow" @showStore="storeShow" @showFadeInfo="fadeInfoShow"
+        @processBarShow="onProcessBarShow($event)"></game-canvas>
     <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation"
         @info="$refs.fadeInfo.showInfo($event)"></BackpackWindow>
     <AttributeList v-if="attributeListOpened" @close="closeAttributeList" @mousedown="preventMousedownPropagation">
@@ -8,6 +9,8 @@
         @mousedown="preventMousedownPropagation"></StorePannel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <FadeInfo ref="fadeInfo" />
+    <ProcessBar v-if="showProcessBar" :duration="processBarDuration" :text="processBarText"
+        :progressCompleteEvent="EventOfProgressComplete" @progressComplete="onProgressComplete" />
 </template>
 
 <script>
@@ -17,6 +20,7 @@ import BackpackWindow from '@/components/BackpackWindow.vue';
 import FadeInfo from '@/components/FadeInfo.vue';
 import AttributeList from '@/components/AttributeList.vue';
 import StorePannel from '@/components/StorePannel.vue';
+import ProcessBar from '@/components/ProcessBar.vue';
 
 
 export default {
@@ -26,7 +30,8 @@ export default {
         BackpackWindow,
         FadeInfo,
         AttributeList,
-        StorePannel
+        StorePannel,
+        ProcessBar
     },
     props: {
     },
@@ -36,6 +41,11 @@ export default {
             backpackOpened: false,
             attributeListOpened: false,
             storeOpened: false,
+            // 进度条相关设置
+            showProcessBar: false,
+            processBarDuration: 5,
+            processBarText: '加载中...',
+            EventOfProgressComplete: () => { },
         };
     },
     methods: {
@@ -66,6 +76,15 @@ export default {
         fadeInfoShow(msg) {
             this.$refs.fadeInfo.showInfo(msg);
         },
+        onProgressComplete() {
+            this.showProcessBar = false;
+        },
+        onProcessBarShow(event) {
+            this.processBarDuration = event.duration;
+            this.processBarText = event.text;
+            this.EventOfProgressComplete = event.progressCompleteEvent;
+            this.showProcessBar = true;
+        }
     },
     computed: {
     },

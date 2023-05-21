@@ -39,6 +39,17 @@ export default {
             this.$emit('showStore', event.storeID);
         });
 
+        this.game.events.on('clickTree', (event) => {
+            let msg = {
+                duration: 5,
+                text: '正在摘苹果...',
+                progressCompleteEvent: () => {
+                    this.$emit('showFadeInfo', '恭喜获得一个苹果！');
+                },
+            }
+            this.$emit('processBarShow', msg);
+        });
+
 
         // 测试websocket
         var ws = new WebSocket("ws://localhost:9090/event");
