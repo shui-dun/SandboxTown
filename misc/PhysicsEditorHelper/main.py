@@ -30,8 +30,8 @@ def genClickShape():
         nameList = re.findall(r'Name:\s+(\S+)', s)
         sizeList = re.findall(r'Size:\s+\{\s*(\S+),(\S+)\s*\}', s)
         sizeList = [(int(float(item[0])), int(float(item[1]))) for item in sizeList]
-        polygonList = re.findall(r'Hull polygon:\s+((\((-?\d+(\.\d+)?), (-?\d+(\.\d+)?)\)\s+,?\s+)+)Convex sub polygons', s, re.S)
-        polygonList = [re.findall(r'\((-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)\)', item[0]) for item in polygonList]
+        polygonList = re.findall(r'Hull polygon:[\s\n]+(.+)[\s\n]+Convex sub polygons', s)
+        polygonList = [re.findall(r'\((-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)\)', item) for item in polygonList]
         polygonList = [[(int(float(item[0])), int(float(item[1]))) for item in polygon] for polygon in polygonList]
         jsonData = dict()
         for i in range(len(nameList)):
