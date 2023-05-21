@@ -24,29 +24,6 @@ const mainScene = {
         this.cameras.main.setBackgroundColor('#d3c6a6');
         this.cameras.main.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
-        // 创建角色
-        this.player = this.matter.add.sprite(100, 100, "player", null, { shape: collapseShapes.player });
-        this.player.setDisplaySize(120, 120);
-        this.player.setFixedRotation();
-        this.cameras.main.startFollow(this.player);
-
-        this.player2 = this.matter.add.sprite(400, 100, "player", null, { shape: collapseShapes.player });
-        this.player2.setDisplaySize(120, 120);
-        this.player2.setFixedRotation();
-        this.player2.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.player), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
-        this.player2.on('pointerdown', () => {
-            this.game.events.emit('showAttributeList', { "itemID": 'player2' });
-        });
-
-        // 创建狗
-        this.dog = this.matter.add.sprite(100, 400, "dog", null, { shape: collapseShapes.dog });
-        this.dog.setDisplaySize(120, 120);
-        this.dog.setFixedRotation();
-        this.dog.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.dog), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
-        this.dog.on('pointerdown', () => {
-            // 
-        });
-
         // 创建树木
         this.tree = this.matter.add.sprite(300, 500, "tree", null, { isStatic: true, shape: collapseShapes.tree });
         this.tree.setDisplaySize(400, 400);
@@ -55,6 +32,7 @@ const mainScene = {
         this.tree.on('pointerdown', () => {
             this.game.events.emit('clickTree', { "treeID": 'tree' });
         });
+        this.tree.setDepth(this.tree.y);
 
         // 创建商店
         this.store = this.matter.add.sprite(700, 400, "store", null, { isStatic: true, shape: collapseShapes.store });
@@ -64,10 +42,37 @@ const mainScene = {
         this.store.on('pointerdown', () => {
             this.game.events.emit('clickStore', { "storeID": 'store' });
         });
+        this.store.setDepth(this.store.y);
 
-        let lastCollisionTime = 0;
+        // 创建角色
+        this.player = this.matter.add.sprite(100, 100, "player", null, { shape: collapseShapes.player });
+        this.player.setDisplaySize(120, 120);
+        this.player.setFixedRotation();
+        this.player.setDepth(this.player.y);
+        this.cameras.main.startFollow(this.player);
+
+        this.player2 = this.matter.add.sprite(400, 100, "player", null, { shape: collapseShapes.player });
+        this.player2.setDisplaySize(120, 120);
+        this.player2.setFixedRotation();
+        this.player2.setDepth(this.player2.y);
+        this.player2.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.player), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
+        this.player2.on('pointerdown', () => {
+            this.game.events.emit('showAttributeList', { "itemID": 'player2' });
+        });
+
+        // 创建狗
+        this.dog = this.matter.add.sprite(100, 400, "dog", null, { shape: collapseShapes.dog });
+        this.dog.setDisplaySize(120, 120);
+        this.dog.setFixedRotation();
+        this.dog.setDepth(this.dog.y);
+        this.dog.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.dog), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
+        this.dog.on('pointerdown', () => {
+            // 
+        });
+
 
         // 碰撞检测
+        let lastCollisionTime = 0;
         this.matter.world.on('collisionstart', (event) => {
             const now = Date.now();
             var pairs = event.pairs;
@@ -98,15 +103,12 @@ const mainScene = {
 
         // 设置键盘输入监听
         this.cursors = this.input.keyboard.createCursorKeys();
-
-        // 层级设置
-        const layer1 = this.add.layer();
-        const layer2 = this.add.layer();
-        layer1.add([this.player, this.player2]);
-        layer2.add([this.store, this.tree])
-
     },
     update: function () {
+        // 更新层数
+        this.player.setDepth(this.player.y);
+        this.player2.setDepth(this.player2.y);
+        this.dog.setDepth(this.dog.y);
         // 在这里编写游戏逻辑，例如角色移动、碰撞检测等
         // 角色移动速度
         const speed = 8;
