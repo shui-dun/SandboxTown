@@ -1,0 +1,278 @@
+Simple plain text exporter for demo purposes
+
+See http://www.grantlee.org/apidox/for_themers.html for more information
+
+Custom values (from the <bodies> section)
+    Grav: 9.81
+
+List of all bodies:
+
+
+    Name:               cat
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 250.000,250.000 }
+        Size:           { 500.000,500.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (123, -18)  , (114, 11)  , (77, 43)  , (82, 130)  , (56, 169)  , (-53, 171)  , (-125, 129)  , (-126, 77)  , (-87, 92)  , (-78, 44)  , (-124, 4)  , (-132, -41)  , (-114, -88)  , (-108, -160)  , (-51, -148)  , (-8, -163)  , (49, -151)  , (106, -165)  , (102, -105)  , (120, -58)  , (123, -41) 
+
+        Convex sub polygons:
+
+             (102, -105)  , (77, 43)  , (49, -151)  , (106, -165) 
+             (-87, 92)  , (56, 169)  , (-53, 171)  , (-125, 129)  , (-126, 77) 
+             (-51, -148)  , (77, 43)  , (-78, 44)  , (-114, -88)  , (-108, -160) 
+             (-132, -41)  , (-114, -88)  , (-78, 44)  , (-124, 4) 
+             (-87, 92)  , (-78, 44)  , (77, 43)  , (82, 130)  , (56, 169) 
+             (49, -151)  , (77, 43)  , (-51, -148)  , (-8, -163) 
+             (102, -105)  , (120, -58)  , (123, -41)  , (123, -18)  , (114, 11)  , (77, 43) 
+
+
+
+
+    Name:               dog
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 250.000,250.000 }
+        Size:           { 500.000,500.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (144, -178)  , (125, -79)  , (149, -17)  , (94, 54)  , (73, 216)  , (50, 224)  , (12, 209)  , (-29, 212)  , (-57, 225)  , (-86, 218)  , (-147, 110)  , (-149, 86)  , (-104, 68)  , (-163, -20)  , (-141, -79)  , (-150, -198)  , (-63, -163)  , (1, -171)  , (52, -157)  , (114, -178) 
+
+        Convex sub polygons:
+
+             (-63, -163)  , (12, 209)  , (-29, 212)  , (-104, 68)  , (-141, -79)  , (-150, -198) 
+             (94, 54)  , (52, -157)  , (125, -79)  , (149, -17) 
+             (-104, 68)  , (-29, 212)  , (-57, 225)  , (-86, 218)  , (-147, 110)  , (-149, 86) 
+             (-141, -79)  , (-104, 68)  , (-163, -20) 
+             (125, -79)  , (52, -157)  , (114, -178)  , (144, -178) 
+             (12, 209)  , (-63, -163)  , (1, -171)  , (52, -157)  , (94, 54)  , (73, 216)  , (50, 224) 
+
+
+
+
+    Name:               player
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 250.000,250.000 }
+        Size:           { 500.000,500.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (114, -22)  , (115, 20)  , (149, 56)  , (150, 137)  , (120, 124)  , (76, 150)  , (83, 219)  , (46, 203)  , (58, 153)  , (-44, 154)  , (-40, 203)  , (-71, 225)  , (-70, 158)  , (-111.42322097378278, 127.34082397003749)  , (-144, 137)  , (-148, 54)  , (-117, 17)  , (-109, -165)  , (-56.179775280898895, -195.69288389513105)  , (28, -203)  , (87, -187)  , (114, -151) 
+
+        Convex sub polygons:
+
+             (46, 203)  , (58, 153)  , (76, 150)  , (83, 219) 
+             (-70, 158)  , (-44, 154)  , (-40, 203)  , (-71, 225) 
+             (120, 124)  , (115, 20)  , (149, 56)  , (150, 137) 
+             (-148, 54)  , (-117, 17)  , (-111.4232177734375, 127.3408203125)  , (-144, 137) 
+             (76, 150)  , (58, 153)  , (-44, 154)  , (115, 20)  , (120, 124) 
+             (114, -151)  , (114, -22)  , (-70, 158)  , (-111.4232177734375, 127.3408203125)  , (-117, 17)  , (-56.179779052734375, -195.69287109375)  , (28, -203)  , (87, -187) 
+             (-56.179779052734375, -195.69287109375)  , (-117, 17)  , (-109, -165) 
+             (115, 20)  , (-44, 154)  , (-70, 158)  , (114, -22) 
+
+
+
+
+    Name:               store
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 512.000,512.000 }
+        Size:           { 1024.000,1024.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (-157, 418)  , (-375, 397)  , (-333, 301)  , (-336, -10)  , (-386, -115)  , (-350, -337)  , (414, -351)  , (472, -102)  , (431.2615384615385, -84.67692307692312)  , (405, -5)  , (394, 283)  , (475, 408)  , (-2, 418) 
+
+        Convex sub polygons:
+
+             (-333, 301)  , (-157, 418)  , (-375, 397) 
+             (-336, -10)  , (405, -5)  , (394, 283)  , (-2, 418)  , (-157, 418)  , (-333, 301) 
+             (-2, 418)  , (394, 283)  , (475, 408) 
+             (472, -102)  , (431.26153564453125, -84.67694091796875)  , (-386, -115)  , (-350, -337)  , (414, -351) 
+             (-386, -115)  , (431.26153564453125, -84.67694091796875)  , (405, -5)  , (-336, -10) 
+
+
+
+
+    Name:               tree
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 512.000,512.000 }
+        Size:           { 1024.000,1024.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (-151, 419)  , (-212, 413)  , (-159, 338)  , (-124, 100)  , (-251, 115)  , (-376, 59)  , (-376, -46)  , (-379, -150)  , (-224.4923076923077, -313.10769230769233)  , (-103, -358)  , (211, -284)  , (354, -99)  , (344, 6)  , (277, 72)  , (-19, 157)  , (-41.35384615384612, 212.676923076923)  , (-34, 273)  , (52, 412)  , (-18, 419) 
+
+        Convex sub polygons:
+
+             (-159, 338)  , (-18, 419)  , (-151, 419)  , (-212, 413) 
+             (-376, -46)  , (-124, 100)  , (-251, 115)  , (-376, 59) 
+             (-124, 100)  , (-41.353851318359375, 212.67691040039062)  , (-18, 419)  , (-159, 338) 
+             (-18, 419)  , (-34, 273)  , (52, 412) 
+             (277, 72)  , (-19, 157)  , (-379, -150)  , (-224.4923095703125, -313.107666015625)  , (-103, -358)  , (211, -284)  , (354, -99)  , (344, 6) 
+             (-379, -150)  , (-19, 157)  , (-376, -46) 
+             (-124, 100)  , (-19, 157)  , (-41.353851318359375, 212.67691040039062) 
+
+
+
+
+    Name:               tree-2
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 512.000,512.000 }
+        Size:           { 1024.000,1024.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (-151, 419)  , (-212, 413)  , (-159, 338)  , (-152, 272)  , (-34, 273)  , (52, 412)  , (-18, 419) 
+
+        Convex sub polygons:
+
+             (-159, 338)  , (-34, 273)  , (52, 412)  , (-18, 419)  , (-151, 419)  , (-212, 413) 
+             (-34, 273)  , (-159, 338)  , (-152, 272) 
+
+
+
+
+    Name:               store-2
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 512.000,512.000 }
+        Size:           { 1024.000,1024.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (-157, 418)  , (-375, 397)  , (-333, 301)  , (-325, 179)  , (398, 183)  , (394, 283)  , (475, 408)  , (-2, 418) 
+
+        Convex sub polygons:
+
+             (-333, 301)  , (-157, 418)  , (-375, 397) 
+             (-325, 179)  , (398, 183)  , (394, 283)  , (-2, 418)  , (-157, 418)  , (-333, 301) 
+             (-2, 418)  , (394, 283)  , (475, 408) 
+
+
+
