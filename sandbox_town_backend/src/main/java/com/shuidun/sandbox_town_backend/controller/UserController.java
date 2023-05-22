@@ -35,6 +35,12 @@ public class UserController {
         this.userService = userService;
     }
 
+    @RequiresAuthentication
+    @RequestMapping("/foo")
+    public Response<?> foo() {
+        return new Response<>(StatusCodeEnum.SUCCESS, "foo");
+    }
+
     @RequiresGuest
     @RequestMapping("/login")
     public Response<?> login(String username, String passwd) {
