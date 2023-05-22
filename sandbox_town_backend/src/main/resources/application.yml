@@ -1,5 +1,9 @@
 server:
   port: 9090
+  tomcat:
+    threads:
+      max: 20 # Maximum amount of worker threads.
+      min-spare: 1 # Minimum amount of worker threads
   servlet:
     context-path: /
 
@@ -11,7 +15,23 @@ spring:
     # redis有16个数据库，默认使用0号数据库
     database: 0
     lettuce:
+      # redis连接池配置
       pool:
-        max-idle: 16
-        max-active: 32
-        min-idle: 8
+        max-idle: 16 # Maximum number of "idle" connections in the pool
+        max-active: 32 # Maximum number of connections
+        min-idle: 8 # minimum number of idle connections
+  datasource:
+    url: jdbc:mysql://localhost:3306/seer?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8
+    username: root
+    password: root
+    # 数据库连接池配置
+    hikari:
+      # 连接池的最大连接数
+      maximum-pool-size: 30
+      # 连接池的最小空闲连接数
+      minimum-idle: 10
+
+mybatis:
+  configuration:
+    # 将数据库的下划线命令转换为Java的驼峰命名
+    map-underscore-to-camel-case: true

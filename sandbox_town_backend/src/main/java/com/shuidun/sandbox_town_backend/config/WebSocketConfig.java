@@ -1,8 +1,7 @@
 package com.shuidun.sandbox_town_backend.config;
 
-import com.shuidun.sandbox_town_backend.ws.EventWebSocketHandler;
-import com.shuidun.sandbox_town_backend.ws.EventWebSocketInterceptor;
-import org.springframework.context.annotation.Bean;
+import com.shuidun.sandbox_town_backend.websocket.EventWebSocketHandler;
+import com.shuidun.sandbox_town_backend.websocket.EventWebSocketInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;

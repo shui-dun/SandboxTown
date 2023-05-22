@@ -1,13 +1,9 @@
-package com.shuidun.sandbox_town_backend.ws;
+package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.EventBean;
 import com.shuidun.sandbox_town_backend.bean.MessageBean;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.AbstractWebSocketMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -16,7 +12,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**

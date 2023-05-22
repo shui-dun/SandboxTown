@@ -1,4 +1,4 @@
-package com.shuidun.sandbox_town_backend.ws;
+package com.shuidun.sandbox_town_backend.websocket;
 
 import org.springframework.web.socket.WebSocketSession;
 
