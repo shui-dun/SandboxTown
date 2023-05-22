@@ -3,7 +3,7 @@
     <div class="mt-4" id="login-form">
         <custom-input id="emailOrUsername" label="邮箱或用户名" @input="onInput" />
         <custom-input id="password" label="密码" type="password" @input="onInput" />
-        <button class="btn btn-primary" @click="onLogin">登录</button>
+        <button class="btn btn-secondary" @click="onLogin">登录</button>
     </div>
 </template>
   

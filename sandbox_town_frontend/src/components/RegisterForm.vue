@@ -3,7 +3,7 @@
         <custom-input id="email" label="邮箱" @input="onInput" />
         <custom-input id="username" label="用户名" @input="onInput" />
         <custom-input id="password" label="密码" type="password" @input="onInput" />
-        <button class="btn btn-primary" @click="onRegister">注册</button>
+        <button class="btn btn-secondary" @click="onRegister">注册</button>
     </div>
 </template>
   
