@@ -1,11 +1,16 @@
 <template>
-    <div id="circle-bg"></div>
+    <div v-show="ready" id="circle-bg"></div>
 </template>
   
 <script>
 import Phaser from "phaser";
 
 export default {
+    data() {
+        return {
+            ready: false,
+        };
+    },
     mounted() {
         const config = {
             type: Phaser.AUTO,
@@ -36,7 +41,7 @@ export default {
                         key: "circle",
                         frameQuantity: 5,
                     });
-                    
+
                     // 放置在随机位置
                     Phaser.Actions.RandomRectangle(
                         this.circles.getChildren(),
@@ -62,6 +67,10 @@ export default {
         };
 
         this.game = new Phaser.Game(config);
+
+        this.game.events.on('ready', () => {
+            this.ready = true;
+        });
     },
     methods: {
     },

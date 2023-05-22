@@ -52,7 +52,9 @@ def genClickShape():
 
 
 
-"""生成bitmap.json：只取下面一部分的凹多面体（用于寻路算法，需要配合下面要将的算法）"""
+def genBitmap():
+    """生成bitmap.json：只取下面一部分的凹多面体（用于寻路算法，需要配合下面要将的算法）"""
+    pass
 
 if __name__ == "__main__":
     # genCollapseShapes()
