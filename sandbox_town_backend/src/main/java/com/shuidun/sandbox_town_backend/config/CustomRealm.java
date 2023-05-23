@@ -16,14 +16,17 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-@Configuration
+@Component
 @Slf4j
-public class CustomRealm extends AuthorizingRealm {
+/** Shiro可以从Realm中获取安全数据（如用户、角色、权限），即认证和授权等操作所需要的安全数据都需要从Realm中获得 */
+ public class CustomRealm extends AuthorizingRealm {
 
     @Autowired
     @Lazy
@@ -36,16 +39,6 @@ public class CustomRealm extends AuthorizingRealm {
     @Autowired
     @Lazy
     private PermService permService;
-
-    // 告诉shiro如何根据获取到的用户信息中的密码和盐值来校验密码
-    {
-        // 设置用于匹配密码的CredentialsMatcher
-        HashedCredentialsMatcher hashMatcher = new HashedCredentialsMatcher();
-        hashMatcher.setHashAlgorithmName(Sha256Hash.ALGORITHM_NAME);
-        hashMatcher.setStoredCredentialsHexEncoded(false);
-        hashMatcher.setHashIterations(3);
-        this.setCredentialsMatcher(hashMatcher);
-    }
 
     /** 授权 */
     @Override
