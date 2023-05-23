@@ -21,6 +21,7 @@ public class RedisController {
 
     @RequestMapping("/foo")
     public String foo() {
+        log.info("foo triggered");
         EventBean eventBean = new EventBean();
         eventBean.setType(EventBean.EventTypeEnum.FOO);
         eventBean.setData(Map.of("a", "b", "c", "d"));
@@ -35,11 +36,11 @@ public class RedisController {
         return ans.toString();
     }
 
-    @Cacheable(unless = "#result == null")
+    @Cacheable(value = "baz", key = "'baz'+#name", unless = "#result == null")
     @RequestMapping("/baz")
-    public String baz() {
+    public String baz(String name) {
         log.info("baz triggered");
-        return "hehe";
+        return name;
     }
 
     @Cacheable(value = "users", key = "#id")

@@ -12,8 +12,10 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
+    /** websocket处理器 */
     private final EventWebSocketHandler eventWebSocketHandler;
 
+    /** websocket拦截器 */
     private final EventWebSocketInterceptor eventWebSocketInterceptor;
 
     public WebSocketConfig(EventWebSocketHandler eventWebSocketHandler, EventWebSocketInterceptor eventWebSocketInterceptor) {
@@ -27,7 +29,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
         // 配置websocket的监听url
         // 配置拦截器
         registry.addHandler(eventWebSocketHandler, "/event").addInterceptors(eventWebSocketInterceptor).setAllowedOrigins("*");
-        // registry.addHandler(eventWebSocketHandler, "/event");
         registry.addHandler(eventWebSocketHandler, "/sockjs").addInterceptors(eventWebSocketInterceptor).setAllowedOrigins("*").withSockJS();
     }
 

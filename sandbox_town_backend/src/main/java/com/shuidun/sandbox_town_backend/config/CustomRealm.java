@@ -16,26 +16,30 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import java.util.Set;
 
+@Configuration
 @Slf4j
 public class CustomRealm extends AuthorizingRealm {
 
-    @Lazy
     @Autowired
+    @Lazy
     private UserService userService;
-    @Lazy
+
     @Autowired
+    @Lazy
     private RoleService roleService;
-    @Lazy
+
     @Autowired
+    @Lazy
     private PermService permService;
 
-    //告诉shiro如何根据获取到的用户信息中的密码和盐值来校验密码
+    // 告诉shiro如何根据获取到的用户信息中的密码和盐值来校验密码
     {
-        //设置用于匹配密码的CredentialsMatcher
+        // 设置用于匹配密码的CredentialsMatcher
         HashedCredentialsMatcher hashMatcher = new HashedCredentialsMatcher();
         hashMatcher.setHashAlgorithmName(Sha256Hash.ALGORITHM_NAME);
         hashMatcher.setStoredCredentialsHexEncoded(false);
@@ -43,7 +47,7 @@ public class CustomRealm extends AuthorizingRealm {
         this.setCredentialsMatcher(hashMatcher);
     }
 
-    /** 获取权限信息 */
+    /** 授权 */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         //null usernames are invalid
