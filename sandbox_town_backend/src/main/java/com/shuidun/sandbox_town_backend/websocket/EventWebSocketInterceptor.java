@@ -1,8 +1,7 @@
 package com.shuidun.sandbox_town_backend.websocket;
 
+import cn.dev33.satoken.stp.StpUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Service;
@@ -24,10 +23,9 @@ public class EventWebSocketInterceptor extends HttpSessionHandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) throws Exception {
         log.info("call beforeHandshake");
-        // 先要通过shiro判断用户是否登录
-        Subject subject = SecurityUtils.getSubject();
-        if (!subject.isAuthenticated()) {
-            log.info("用户未登录");
+        // 先要通过sa-token判断用户是否登录
+        if (!StpUtil.isLogin()) {
+            log.info("user not login");
             return false;
         }
         attributes.put("userName", "player1");

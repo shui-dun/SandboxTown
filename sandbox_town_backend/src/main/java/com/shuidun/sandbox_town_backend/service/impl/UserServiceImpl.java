@@ -1,17 +1,14 @@
 package com.shuidun.sandbox_town_backend.service.impl;
 
 import com.shuidun.sandbox_town_backend.bean.User;
+import com.shuidun.sandbox_town_backend.mapper.RoleMapper;
 import com.shuidun.sandbox_town_backend.mapper.UserMapper;
-import org.apache.shiro.authz.UnauthorizedException;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.shuidun.sandbox_town_backend.service.RoleService;
+import com.shuidun.sandbox_town_backend.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
-
-import com.shuidun.sandbox_town_backend.service.UserService;
-import com.shuidun.sandbox_town_backend.mapper.RoleMapper;
-import com.shuidun.sandbox_town_backend.service.RoleService;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -44,7 +41,7 @@ public class UserServiceImpl implements UserService {
     public int deleteNotAdminUser(String name) {
         Set<String> roleSet = roleService.getRolesByUserName(name);
         if (roleSet.contains("admin")) {
-            throw new UnauthorizedException("无权删除该用户");
+            throw new RuntimeException("无权删除该用户");
         }
         roleMapper.deleteByUsername(name);
         return userMapper.deleteUser(name);
