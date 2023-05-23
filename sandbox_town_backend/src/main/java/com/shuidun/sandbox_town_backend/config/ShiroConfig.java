@@ -45,7 +45,7 @@ public class ShiroConfig {
     /**
      * 遇到一个特别恶心🤮的事情，shiro导致spring的一些注解失效（例如@Cacheable），弄了一天才找到解决办法：
      * 禁用shiro的注解，这样就不会和spring的注解冲突
-     * 禁用shiro的注解通过在配置类中添加如下两个bean DisableShiroAnnotationFilter和DefaultAdvisorAutoProxyCreator实现
+     * 禁用shiro的注解通过在配置类中添加如下两个bean DefaultAdvisorAutoProxyCreator和AuthorizationAttributeSourceAdvisor实现
      */
     @Bean
     public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
