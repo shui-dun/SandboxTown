@@ -3,18 +3,12 @@ package com.shuidun.sandbox_town_backend.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.annotation.SaCheckRole;
-import cn.dev33.satoken.annotation.SaCheckSafe;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.Response;
-import com.shuidun.sandbox_town_backend.bean.User;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -33,10 +27,10 @@ public class UserController {
     }
 
     @RequestMapping("/login")
-    public Response<?> login(String username, String passwd) {
+    public Response<?> login(String username, String passwd, boolean rememberMe) {
         if ("123".equals(passwd)) {
-            StpUtil.login(username);
-            log.info("{} login success", StpUtil.getLoginId());
+            StpUtil.login(username, rememberMe);
+            log.info("{} login success, rememberMe: {}", StpUtil.getLoginId(), rememberMe);
             return new Response<>(StatusCodeEnum.SUCCESS, "foo");
         } else {
             return new Response<>(StatusCodeEnum.INCORRECT_CREDENTIALS);
@@ -100,20 +94,17 @@ public class UserController {
         return new Response<>(StatusCodeEnum.SUCCESS);
     }
 
-    @SaCheckLogin
     @GetMapping("/tokenInfo")
     public Response<?> tokenInfo() {
         return new Response<>(StatusCodeEnum.SUCCESS, StpUtil.getTokenInfo());
     }
 
-    @SaCheckPermission("user:insert")
     @GetMapping("/roleList")
     public Response<?> roleList() {
         var roleList = StpUtil.getRoleList();
         return new Response<>(StatusCodeEnum.SUCCESS, roleList);
     }
 
-    @SaCheckRole("admin")
     @GetMapping("/permList")
     public Response<?> permList() {
         var permList = StpUtil.getPermissionList();
@@ -125,14 +116,13 @@ public class UserController {
      * 强制注销等价于对方主动调用了注销方法，再次访问会提示：Token无效。
      * 踢人下线不会清除Token信息，而是将其打上特定标记，再次访问会提示：Token已被踢下线。
      */
-    @SaCheckLogin
+    @SaCheckRole("admin")
     @GetMapping("/kickout")
-    public Response<?> kickout() {
-        StpUtil.kickout(StpUtil.getLoginId());
+    public Response<?> kickout(String userName) {
+        StpUtil.kickout(userName);
         return new Response<>(StatusCodeEnum.SUCCESS);
     }
 
-    // @SaCheckSafe()
     @GetMapping("/changePassword")
     public Response<?> changePassword(String oldPassword, String newPassword) {
     // public Response<?> changePassword(String oldPassword, String newPassword) {

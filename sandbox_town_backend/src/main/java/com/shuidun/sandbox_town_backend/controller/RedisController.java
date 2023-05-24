@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
-import com.shuidun.sandbox_town_backend.bean.EventBean;
+import com.shuidun.sandbox_town_backend.bean.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,10 +23,10 @@ public class RedisController {
     @RequestMapping("/foo")
     public String foo() {
         log.info("foo triggered");
-        EventBean eventBean = new EventBean();
-        eventBean.setType(EventBean.EventTypeEnum.FOO);
-        eventBean.setData(Map.of("a", "b", "c", "d"));
-        redisTemplate.opsForValue().set("test", eventBean);
+        Event event = new Event();
+        event.setType(Event.EventTypeEnum.FOO);
+        event.setData(Map.of("a", "b", "c", "d"));
+        redisTemplate.opsForValue().set("test", event);
         return "";
     }
 
@@ -44,14 +44,13 @@ public class RedisController {
         return name;
     }
 
-    @SaCheckLogin
     @Cacheable(value = "users", key = "#id")
     @RequestMapping("/find")
-    public EventBean find(Integer id) {
+    public Event find(Integer id) {
         log.info("findById triggered");
-        EventBean eventBean = new EventBean();
-        eventBean.setType(EventBean.EventTypeEnum.FOO);
-        eventBean.setData(Map.of("a", "b", "c", "d"));
-        return eventBean;
+        Event event = new Event();
+        event.setType(Event.EventTypeEnum.FOO);
+        event.setData(Map.of("a", "b", "c", "d"));
+        return event;
     }
 }

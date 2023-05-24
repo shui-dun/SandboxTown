@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class EventBean {
+public class Event {
     private EventTypeEnum type;
 
     private Map<String, Object> data;
