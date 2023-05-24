@@ -28,6 +28,7 @@ public class UserController {
 
     @RequestMapping("/login")
     public Response<?> login(String username, String passwd, boolean rememberMe) {
+        // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             return new Response<>(StatusCodeEnum.ALREADY_LOGGED_IN);
         }
@@ -54,6 +55,7 @@ public class UserController {
 
     @RequestMapping("/signup")
     public Response<?> signup(String username, String passwd) {
+        // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             return new Response<>(StatusCodeEnum.ALREADY_LOGGED_IN);
         }
