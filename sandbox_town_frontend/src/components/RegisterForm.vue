@@ -1,30 +1,34 @@
 <template>
     <div class="mt-4" id="register-form">
-        <custom-input id="email" label="邮箱" @input="onInput" />
-        <custom-input id="username" label="用户名" @input="onInput" />
-        <custom-input id="password" label="密码" type="password" @input="onInput" />
+        <div class="mb-3">
+            <label class="form-label">用户名</label>
+            <input v-model="username" type="text" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">密码</label>
+            <input v-model="password" type="password" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">再次输入密码</label>
+            <input v-model="repassword" type="password" class="form-control" />
+        </div>
         <button class="btn btn-secondary" @click="onRegister">注册</button>
     </div>
 </template>
   
 <script>
-import CustomInput from './CustomInput.vue';
 
 export default {
     components: {
-        CustomInput,
     },
     data() {
         return {
-            email: '',
             username: '',
             password: '',
+            repassword: '',
         };
     },
     methods: {
-        onInput(value) {
-            this.email = value;
-        },
         onRegister() {
             // 处理注册逻辑
         },

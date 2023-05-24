@@ -1,40 +1,45 @@
 
 <template>
     <div class="mt-4" id="login-form">
-        <custom-input id="emailOrUsername" label="邮箱或用户名" @input="onInput" />
-        <custom-input id="password" label="密码" type="password" @input="onInput" />
+        <div class="mb-3">
+            <label class="form-label">用户名</label>
+            <input v-model="username" type="text" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">密码</label>
+            <input v-model="password" type="password" class="form-control" />
+        </div>
+        <div class="mb-3 form-check">
+            <input v-model="rememberMe" type="checkbox" class="form-check-input" />
+            <label class="form-check-label">记住密码</label>
+        </div>
         <button class="btn btn-secondary" @click="onLogin">登录</button>
     </div>
 </template>
   
 <script>
-import CustomInput from './CustomInput.vue';
 
 export default {
     components: {
-        CustomInput,
     },
     data() {
         return {
-            emailOrUsername: '',
+            username: '',
             password: '',
+            rememberMe: true, // 默认记住密码
         };
     },
     methods: {
-        onInput(value) {
-            this.emailOrUsername = value;
-        },
         onLogin() {
             // 处理登录逻辑
-            this.$router.push({ path: '/game'});
+            this.$router.push({ path: '/game' });
         },
     },
 };
 </script>
 
-<style scoped> 
-#login-form {
-    width: 80%;
-    margin: 0 auto;
-}
+<style scoped> #login-form {
+     width: 80%;
+     margin: 0 auto;
+ }
 </style>
