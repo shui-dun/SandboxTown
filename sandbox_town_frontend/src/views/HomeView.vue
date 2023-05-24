@@ -1,8 +1,18 @@
 <template>
-  <div class="simple-bg" v-if="isVertical">
+  <div class="simple-bg" v-if="isMobile">
     <div class="simple-prompt">
       <h1>沙盒小镇 🏠</h1>
-      <p class="simple-p">请切换到横屏模式后重新访问<br>推荐使用电脑和平板等大屏设备</p>
+      <p class="simple-p">使用电脑或平板等大屏设备访问</p>
+      <button class="btn btn-secondary" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
+          href="https://github.com/shui-dun/SandboxTown" target="_blank">
+          关于
+        </a></button>
+    </div>
+  </div>
+  <div class="simple-bg" v-else-if="isVertical">
+    <div class="simple-prompt">
+      <h1>沙盒小镇 🏠</h1>
+      <p class="simple-p">请切换到横屏模式</p>
       <button class="btn btn-secondary" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
           href="https://github.com/shui-dun/SandboxTown" target="_blank">
           关于
@@ -46,7 +56,7 @@ export default {
   },
   mounted() {
     let myInterval = setInterval(() => {
-      if (window.innerWidth > window.innerHeight) {
+      if (!this.checkIsVertical()) {
         // 当前设备是横屏
         this.isVertical = false;
         clearInterval(myInterval);
@@ -57,7 +67,8 @@ export default {
     return {
       isLoginFormVisible: true,
       isRegisterFormVisible: false,
-      isVertical: window.innerWidth < window.innerHeight,
+      isVertical: this.checkIsVertical(),
+      isMobile: this.checkIsMobile(),
     };
   },
   methods: {
@@ -69,6 +80,12 @@ export default {
       this.isLoginFormVisible = false;
       this.isRegisterFormVisible = true;
     },
+    checkIsVertical() {
+      return window.innerWidth < window.innerHeight;
+    },
+    checkIsMobile() {
+      return window.innerWidth < 500 || window.innerHeight < 500;
+    }
   },
 };
 </script>
