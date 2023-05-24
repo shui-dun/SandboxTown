@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaCheckSafe;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.Response;
 import com.shuidun.sandbox_town_backend.bean.User;
@@ -35,6 +36,7 @@ public class UserController {
     public Response<?> login(String username, String passwd) {
         if ("123".equals(passwd)) {
             StpUtil.login(username);
+            log.info("{} login success", StpUtil.getLoginId());
             return new Response<>(StatusCodeEnum.SUCCESS, "foo");
         } else {
             return new Response<>(StatusCodeEnum.INCORRECT_CREDENTIALS);
@@ -116,5 +118,35 @@ public class UserController {
     public Response<?> permList() {
         var permList = StpUtil.getPermissionList();
         return new Response<>(StatusCodeEnum.SUCCESS, permList);
+    }
+
+    /**
+     * 强制注销 和 踢人下线 的区别在于：
+     * 强制注销等价于对方主动调用了注销方法，再次访问会提示：Token无效。
+     * 踢人下线不会清除Token信息，而是将其打上特定标记，再次访问会提示：Token已被踢下线。
+     */
+    @SaCheckLogin
+    @GetMapping("/kickout")
+    public Response<?> kickout() {
+        StpUtil.kickout(StpUtil.getLoginId());
+        return new Response<>(StatusCodeEnum.SUCCESS);
+    }
+
+    // @SaCheckSafe()
+    @GetMapping("/changePassword")
+    public Response<?> changePassword(String oldPassword, String newPassword) {
+    // public Response<?> changePassword(String oldPassword, String newPassword) {
+        // String username = StpUtil.getLoginIdAsString();
+        // User user = userService.getUserByUsername(username);
+        // String salt = user.getSalt();
+        // String oldPasswd = new SimpleHash(Sha256Hash.ALGORITHM_NAME, oldPassword, salt, 3).toBase64();
+        // if (!oldPasswd.equals(user.getPassword())) {
+        //     return new Response<>(StatusCodeEnum.INCORRECT_CREDENTIALS);
+        // }
+        // String newPasswd = new SimpleHash(Sha256Hash.ALGORITHM_NAME, newPassword, salt, 3).toBase64();
+        // user.setPassword(newPasswd);
+        // userService.updateUser(user);
+
+        return new Response<>(StatusCodeEnum.SUCCESS);
     }
 }

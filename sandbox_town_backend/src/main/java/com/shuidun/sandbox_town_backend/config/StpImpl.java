@@ -1,4 +1,4 @@
-package com.shuidun.sandbox_town_backend.satoken;
+package com.shuidun.sandbox_town_backend.config;
 
 import cn.dev33.satoken.stp.StpInterface;
 import org.springframework.stereotype.Component;

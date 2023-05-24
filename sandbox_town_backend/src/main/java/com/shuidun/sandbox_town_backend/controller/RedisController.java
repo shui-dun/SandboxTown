@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.shuidun.sandbox_town_backend.bean.EventBean;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -43,6 +44,7 @@ public class RedisController {
         return name;
     }
 
+    @SaCheckLogin
     @Cacheable(value = "users", key = "#id")
     @RequestMapping("/find")
     public EventBean find(Integer id) {

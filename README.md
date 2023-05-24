@@ -1,6 +1,6 @@
 # SandboxTown
 
-沙盒小镇，基于 Vue & Phaser.js & SpringBoot & WebSocket & MySQL & Redis 的沙盒游戏
+沙盒小镇，基于 Vue & Phaser.js & SpringBoot & WebSocket & MySQL & Redis & Sa-Token 的沙盒游戏
 
 ## 构建方法
 
