@@ -15,6 +15,7 @@ public class MySaTokenUtils {
         return sb.toString();
     }
 
+    /** 生成盐和加密后的密码 */
     public static String[] generateSaltedHash(String password) {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16];
@@ -23,6 +24,7 @@ public class MySaTokenUtils {
         return new String[]{saltBase64, encryptedPasswd(password, saltBase64)};
     }
 
+    /** 生成加密后的密码 */
     public static String encryptedPasswd(String password, String salt) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
