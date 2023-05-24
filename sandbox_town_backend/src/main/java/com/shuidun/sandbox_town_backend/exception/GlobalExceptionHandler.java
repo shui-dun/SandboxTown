@@ -15,15 +15,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Response<?> exceptionHandler(Exception e) {
-        e.printStackTrace();
-        // log.error("e=\"{}\". Stack is :\n", e.getMessage(), e);
+        log.error("e=\"{}\". Stack is :\n", e.getMessage(), e);
         return new Response<>(StatusCodeEnum.SERVER_ERROR);
     }
 
     @ExceptionHandler(NotLoginException.class)
     @ResponseBody
     public Response<?> exceptionHandler(NotLoginException e) {
-        log.error("e=\"{}\". Stack is :\n", e.getMessage(), e);
+        log.error(e.getMessage());
         return new Response<>(StatusCodeEnum.UNAUTHORIZED);
     }
 

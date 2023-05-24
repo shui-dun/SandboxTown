@@ -1,16 +1,13 @@
 package com.shuidun.sandbox_town_backend.controller;
 
-import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.Response;
 import com.shuidun.sandbox_town_backend.bean.User;
-import com.shuidun.sandbox_town_backend.config.MySaTokenUtils;
+import com.shuidun.sandbox_town_backend.utils.MySaTokenUtils;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

@@ -1,4 +1,4 @@
-package com.shuidun.sandbox_town_backend.config;
+package com.shuidun.sandbox_town_backend.utils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
