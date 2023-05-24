@@ -28,6 +28,9 @@ public class UserController {
 
     @RequestMapping("/login")
     public Response<?> login(String username, String passwd, boolean rememberMe) {
+        if (StpUtil.isLogin()) {
+            return new Response<>(StatusCodeEnum.ALREADY_LOGGED_IN);
+        }
         if ("123".equals(passwd)) {
             StpUtil.login(username, rememberMe);
             log.info("{} login success, rememberMe: {}", StpUtil.getLoginId(), rememberMe);
@@ -51,6 +54,9 @@ public class UserController {
 
     @RequestMapping("/signup")
     public Response<?> signup(String username, String passwd) {
+        if (StpUtil.isLogin()) {
+            return new Response<>(StatusCodeEnum.ALREADY_LOGGED_IN);
+        }
         // String salt = new SecureRandomNumberGenerator().nextBytes().toString();
         // String newPasswd = new SimpleHash(Sha256Hash.ALGORITHM_NAME, passwd, salt, 3).toBase64();
         // User user = new User(username, newPasswd, salt);

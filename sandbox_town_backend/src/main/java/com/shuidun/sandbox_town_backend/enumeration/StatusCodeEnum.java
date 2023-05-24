@@ -12,7 +12,8 @@ public enum StatusCodeEnum {
     SERVER_ERROR(3, "服务端错误"),
     UNAUTHENTICATED(4, "未登录"),
     USER_ALREADY_EXIST(5, "用户名已经存在"),
-    UNAUTHORIZED(6, "未授权的操作");
+    UNAUTHORIZED(6, "未授权的操作"),
+    ALREADY_LOGGED_IN(7, "已经登录");
 
     private final int code;
     private final String msg;
