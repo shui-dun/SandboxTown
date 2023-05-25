@@ -1,8 +1,9 @@
 package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.shuidun.sandbox_town_backend.bean.Event;
-import com.shuidun.sandbox_town_backend.bean.Message;
+import com.shuidun.sandbox_town_backend.bean.WSEvent;
+import com.shuidun.sandbox_town_backend.bean.WSResponseEvent;
+import com.shuidun.sandbox_town_backend.enumeration.ResponseEventEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.AbstractWebSocketMessage;
@@ -50,11 +51,10 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
         super.handleTextMessage(session, message);
         String messagePayload = message.getPayload();
         if (!"".equals(messagePayload)) {
-            Event event = JSONObject.parseObject(messagePayload, Event.class);
-            // sendMessageToUser(messageBean.getTargetUserName(), message);
+            WSEvent event = JSONObject.parseObject(messagePayload, WSEvent.class);
             log.info(event.toString());
-            Message newMessage = new Message("player2", Message.OperationTypeEnum.MOVE, Map.of("x", 1, "y", 2));
-            sendMessageToAllUsers(new TextMessage(JSONObject.toJSONString(newMessage)));
+            WSResponseEvent responseEvent = new WSResponseEvent(ResponseEventEnum.FOO, Map.of("x", 1, "y", 2));
+            sendMessageToAllUsers(new TextMessage(JSONObject.toJSONString(responseEvent)));
         }
 
     }

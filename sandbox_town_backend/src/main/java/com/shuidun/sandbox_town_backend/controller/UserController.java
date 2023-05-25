@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.shuidun.sandbox_town_backend.bean.Response;
+import com.shuidun.sandbox_town_backend.bean.RestResponse;
 import com.shuidun.sandbox_town_backend.bean.User;
 import com.shuidun.sandbox_town_backend.utils.MySaTokenUtils;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
@@ -22,36 +22,36 @@ public class UserController {
         this.userService = userService;
     }
     @RequestMapping("/login")
-    public Response<?> login(String username, String passwd, boolean rememberMe) {
+    public RestResponse<?> login(String username, String passwd, boolean rememberMe) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
-            return new Response<>(StatusCodeEnum.ALREADY_LOGGED_IN);
+            return new RestResponse<>(StatusCodeEnum.ALREADY_LOGGED_IN);
         }
         User user = userService.findUserByName(username);
         // 判断用户是否存在
         if (user == null) {
-            return new Response<>(StatusCodeEnum.USER_NOT_EXIST);
+            return new RestResponse<>(StatusCodeEnum.USER_NOT_EXIST);
         }
         // 判断密码是否正确
         String encryptedPasswd = MySaTokenUtils.encryptedPasswd(passwd, user.getSalt());
         if (encryptedPasswd.equals(user.getPasswd())) {
             StpUtil.login(username, rememberMe);
             log.info("{} login success, rememberMe: {}", StpUtil.getLoginId(), rememberMe);
-            return new Response<>(StatusCodeEnum.SUCCESS);
+            return new RestResponse<>(StatusCodeEnum.SUCCESS);
         } else {
-            return new Response<>(StatusCodeEnum.INCORRECT_CREDENTIALS);
+            return new RestResponse<>(StatusCodeEnum.INCORRECT_CREDENTIALS);
         }
     }
 
     @RequestMapping("/signup")
-    public Response<?> signup(String username, String passwd) {
+    public RestResponse<?> signup(String username, String passwd) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
-            return new Response<>(StatusCodeEnum.ALREADY_LOGGED_IN);
+            return new RestResponse<>(StatusCodeEnum.ALREADY_LOGGED_IN);
         }
         // 判断密码强度
         if (passwd == null || passwd.length() < 6) {
-            return new Response<>(StatusCodeEnum.PASSWORD_TOO_SHORT);
+            return new RestResponse<>(StatusCodeEnum.PASSWORD_TOO_SHORT);
         }
         // 生成盐和加密后的密码
         String[] saltAndPasswd = MySaTokenUtils.generateSaltedHash(passwd);
@@ -60,15 +60,15 @@ public class UserController {
             userService.signup(user);
             StpUtil.login(username);
         } catch (DataIntegrityViolationException e) {
-            return new Response<>(StatusCodeEnum.USER_ALREADY_EXIST);
+            return new RestResponse<>(StatusCodeEnum.USER_ALREADY_EXIST);
         }
-        return new Response<>(StatusCodeEnum.SUCCESS);
+        return new RestResponse<>(StatusCodeEnum.SUCCESS);
     }
 
     @RequestMapping("/logout")
-    public Response<?> logout() {
+    public RestResponse<?> logout() {
         StpUtil.logout();
-        return new Response<>(StatusCodeEnum.SUCCESS);
+        return new RestResponse<>(StatusCodeEnum.SUCCESS);
     }
 
 }
