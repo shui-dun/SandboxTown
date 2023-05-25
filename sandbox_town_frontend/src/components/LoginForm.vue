@@ -32,7 +32,8 @@ export default {
     methods: {
         onLogin() {
             // 处理登录逻辑
-            this.$router.push({ path: '/game' });
+            // 如果登录成功，发射 login 事件
+            this.$emit('login');
         },
     },
 };

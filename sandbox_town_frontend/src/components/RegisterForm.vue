@@ -31,6 +31,8 @@ export default {
     methods: {
         onRegister() {
             // 处理注册逻辑
+            // 如果登录成功，发射 login 事件
+            this.$emit('login');
         },
     },
 };

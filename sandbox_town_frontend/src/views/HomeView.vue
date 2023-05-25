@@ -1,4 +1,5 @@
 <template>
+  <!-- 如果是移动端，显示提示信息 -->
   <div class="simple-bg" v-if="isMobile">
     <div class="simple-prompt">
       <h1>沙盒小镇 🏠</h1>
@@ -9,6 +10,7 @@
         </a></button>
     </div>
   </div>
+  <!-- 如果是竖屏，显示提示信息 -->
   <div class="simple-bg" v-else-if="isVertical">
     <div class="simple-prompt">
       <h1>沙盒小镇 🏠</h1>
@@ -19,23 +21,31 @@
         </a></button>
     </div>
   </div>
+  <!-- 否则，显示主面板 -->
   <div v-else>
     <CircleBackground />
     <div id="home-page-bg">
       <div class="container" id="home-page">
-        <div class="d-flex justify-content-center">
-          <button class="btn" @click="showLoginForm" buttonClass="me-2">登录</button>
-          <button class="btn" @click="showRegisterForm" buttonClass="me-2">注册</button>
-          <button class="btn" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
-              href="https://github.com/shui-dun/SandboxTown" target="_blank">
-              关于
-            </a></button>
+        <!-- 如果登录了，显示地图选择界面 -->
+        <div v-if="isLogin">
+          <MapChoose @logout="isLogin=false" />
         </div>
-        <div v-if="isLoginFormVisible" class="form">
-          <login-form></login-form>
-        </div>
-        <div v-if="isRegisterFormVisible" class="form">
-          <register-form></register-form>
+        <!-- 否则，显示登录&注册界面 -->
+        <div v-else>
+          <div class="d-flex justify-content-center">
+            <button class="btn" @click="showLoginForm" buttonClass="me-2">登录</button>
+            <button class="btn" @click="showRegisterForm" buttonClass="me-2">注册</button>
+            <button class="btn" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
+                href="https://github.com/shui-dun/SandboxTown" target="_blank">
+                关于
+              </a></button>
+          </div>
+          <div v-if="isLoginFormVisible" class="form">
+            <login-form @login="isLogin=true"></login-form>
+          </div>
+          <div v-if="isRegisterFormVisible" class="form">
+            <register-form @login="isLogin=true"></register-form>
+          </div>
         </div>
       </div>
     </div>
@@ -47,12 +57,14 @@
 import LoginForm from '../components/LoginForm.vue';
 import RegisterForm from '../components/RegisterForm.vue';
 import CircleBackground from '@/components/CircleBackground.vue';
+import MapChoose from '@/components/MapChoose.vue';
 
 export default {
   components: {
     LoginForm,
     RegisterForm,
     CircleBackground,
+    MapChoose,
   },
   mounted() {
     let myInterval = setInterval(() => {
@@ -69,6 +81,7 @@ export default {
       isRegisterFormVisible: false,
       isVertical: this.checkIsVertical(),
       isMobile: this.checkIsMobile(),
+      isLogin: false,
     };
   },
   methods: {
