@@ -2,15 +2,17 @@
     <h4>{{ title }}</h4>
     <div style="margin-bottom: 20px; display:flex;">
         <div class="btn-group">
-            <button class="btn btn-outline-primary" @click="filterItemsByCategory('all')">全部</button>
-            <button v-for="item in categories" class="btn btn-outline-primary" @click="filterItemsByCategory(item.label)"
+            <button class="btn btn-outline-primary tab-btn" @click="filterItemsByCategory('all')"
+                :class="{ active: 'all' == filterdcategory }">全部</button>
+            <button v-for="item in categories" class="btn btn-outline-primary tab-btn"
+                :class="{ active: item.label == filterdcategory }" @click="filterItemsByCategory(item.label)"
                 :key="'button-' + item.label">{{ item.prompt }}</button>
         </div>
         <div class="input-group" style="width: 120px;">
             <input type="text" class="form-control" v-model="searchTerm" placeholder="关键词"
                 @keyup.enter="filterItemsBySearch()">
-            <button class="btn btn-outline-primary" @click="filterItemsBySearch()"><svg class="my-svg" xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24">
+            <button class="btn btn-outline-primary" @click="filterItemsBySearch()"><svg class="my-svg"
+                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path
                         d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 18C14.8675 18 18 14.8675 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18ZM19.4853 18.0711L22.3137 20.8995L20.8995 22.3137L18.0711 19.4853L19.4853 18.0711Z">
                     </path>
@@ -164,5 +166,13 @@ export default {
 
 button:hover .my-svg {
     fill: white;
+}
+
+.active {
+    background-color: #0079ba;
+}
+
+.tab-btn:hover {
+    background-color: #0079ba;
 }
 </style>
