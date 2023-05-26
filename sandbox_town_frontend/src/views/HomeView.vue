@@ -26,26 +26,25 @@
     <CircleBackground />
     <div id="home-page-bg">
       <div class="container" id="home-page">
-        <!-- 如果登录了，显示地图选择界面 -->
-        <div v-if="isLogin">
-          <MapChoose @logout="isLogin=false" />
+        <div class="d-flex justify-content-center">
+          <button class="btn" v-if="!isLogin" @click="curTab = 'login'" buttonClass="me-2">登录</button>
+          <button class="btn" v-if="!isLogin" @click="curTab = 'signup'" buttonClass="me-2">注册</button>
+          <button class="btn" v-if="isLogin" @click="curTab = 'mapChoose'" buttonClass="me-2">选择地图</button>
+          <button class="btn" v-if="isLogin" @click="doLogout" buttonClass="me-2">退出登录</button>
+          <button class="btn" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
+              href="https://github.com/shui-dun/SandboxTown" target="_blank">
+              关于
+            </a>
+          </button>
         </div>
-        <!-- 否则，显示登录&注册界面 -->
-        <div v-else>
-          <div class="d-flex justify-content-center">
-            <button class="btn" @click="showLoginForm" buttonClass="me-2">登录</button>
-            <button class="btn" @click="showRegisterForm" buttonClass="me-2">注册</button>
-            <button class="btn" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
-                href="https://github.com/shui-dun/SandboxTown" target="_blank">
-                关于
-              </a></button>
-          </div>
-          <div v-if="isLoginFormVisible" class="form">
-            <login-form @login="isLogin=true"></login-form>
-          </div>
-          <div v-if="isRegisterFormVisible" class="form">
-            <register-form @login="isLogin=true"></register-form>
-          </div>
+        <div v-if="curTab == 'login'" class="form">
+          <LoginForm @login="isLogin = true; curTab = 'mapChoose'" />
+        </div>
+        <div v-else-if="curTab == 'signup'" class="form">
+          <RegisterForm @signup="isLogin = true; curTab = 'mapChoose'" />
+        </div>
+        <div v-else-if="curTab == 'mapChoose'" class="form">
+          <MapChoose />
         </div>
       </div>
     </div>
@@ -77,27 +76,22 @@ export default {
   },
   data() {
     return {
-      isLoginFormVisible: true,
-      isRegisterFormVisible: false,
       isVertical: this.checkIsVertical(),
       isMobile: this.checkIsMobile(),
       isLogin: false,
+      curTab: 'login',
     };
   },
   methods: {
-    showLoginForm() {
-      this.isLoginFormVisible = true;
-      this.isRegisterFormVisible = false;
-    },
-    showRegisterForm() {
-      this.isLoginFormVisible = false;
-      this.isRegisterFormVisible = true;
-    },
     checkIsVertical() {
       return window.innerWidth < window.innerHeight;
     },
     checkIsMobile() {
       return window.innerWidth < 500 || window.innerHeight < 500;
+    },
+    doLogout() {
+      this.isLogin = false;
+      this.curTab = 'login';
     }
   },
 };

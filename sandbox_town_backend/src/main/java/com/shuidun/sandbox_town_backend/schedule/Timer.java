@@ -14,22 +14,22 @@ public class Timer {
     // 一天总时长为10分钟（600000ms）
 
     @Scheduled(initialDelay = 0, fixedDelay = 600000)
-    public void printMorning() {
+    public void enterMorning() {
         log.info("morning");
     }
 
     @Scheduled(initialDelay = 300000, fixedDelay = 600000)
-    public void printDusk() {
+    public void enterDusk() {
         log.info("dusk");
     }
 
     @Scheduled(initialDelay = 360000, fixedDelay = 600000)
-    public void printNight() {
+    public void enterNight() {
         log.info("night");
     }
 
     @Scheduled(initialDelay = 540000, fixedDelay = 600000)
-    public void printDawn() {
+    public void enterDawn() {
         log.info("dawn");
     }
 }

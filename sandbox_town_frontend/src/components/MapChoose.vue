@@ -1,13 +1,5 @@
 <template>
-    <div class="d-flex justify-content-center" style="margin-bottom: 20px;">
-        <button class="btn" buttonClass="me-2">选择地图</button>
-        <button class="btn" @click="doLogout" buttonClass="me-2">退出登录</button>
-        <button class="btn" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
-                href="https://github.com/shui-dun/SandboxTown" target="_blank">
-                关于
-            </a></button>
-    </div>
-    <div class="form" style="text-align: center;">
+    <div class="form" style="text-align: center; margin-top: 18px;">
         <div class="container">
             <div class="row">
                 <div class="col-6 item" v-for="item in filteredItems" :key="'grid-' + item.id" @click="clickItem(item)">
@@ -38,7 +30,6 @@
 export default {
     components: {
     },
-    emits: ['logout'],
     data() {
         return {
             items: [
@@ -71,9 +62,6 @@ export default {
             const start = (this.currentPage - 1) * this.itemsPerPage;
             const end = start + this.itemsPerPage;
             this.filteredItems = tmpItems.slice(start, end);
-        },
-        doLogout() {
-            this.$emit('logout');
         },
     },
 };
