@@ -26,28 +26,33 @@
     <CircleBackground />
     <div id="home-page-bg">
       <div class="container" id="home-page">
-        <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center mb-3">
           <button class="btn" v-if="!isLogin" @click="curTab = 'login'" buttonClass="me-2">登录</button>
           <button class="btn" v-if="!isLogin" @click="curTab = 'signup'" buttonClass="me-2">注册</button>
           <button class="btn" v-if="isLogin" @click="curTab = 'mapChoose'" buttonClass="me-2">选择地图</button>
           <button class="btn" v-if="isLogin" @click="doLogout" buttonClass="me-2">退出登录</button>
+          <button class="btn" v-if="isLogin" @click="curTab = 'changePasswd'" buttonClass="me-2">修改密码</button>
           <button class="btn" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
               href="https://github.com/shui-dun/SandboxTown" target="_blank">
               关于
             </a>
           </button>
         </div>
-        <div v-if="curTab == 'login'" class="form">
+        <div v-if="curTab == 'login'" class="form myform">
           <LoginForm @login="isLogin = true; curTab = 'mapChoose'" />
         </div>
-        <div v-else-if="curTab == 'signup'" class="form">
+        <div v-else-if="curTab == 'signup'" class="form myform">
           <RegisterForm @signup="isLogin = true; curTab = 'mapChoose'" />
         </div>
-        <div v-else-if="curTab == 'mapChoose'" class="form">
+        <div v-else-if="curTab == 'mapChoose'" class="form myform">
           <MapChoose />
+        </div>
+        <div v-else-if="curTab == 'changePasswd'" class="form myform">
+          <ChangePasswd @info="$refs.fadeInfo.showInfo($event)" />
         </div>
       </div>
     </div>
+    <FadeInfo ref="fadeInfo" />
   </div>
 </template>
   
@@ -57,6 +62,8 @@ import LoginForm from '../components/LoginForm.vue';
 import RegisterForm from '../components/RegisterForm.vue';
 import CircleBackground from '@/components/CircleBackground.vue';
 import MapChoose from '@/components/MapChoose.vue';
+import ChangePasswd from '@/components/ChangePasswd.vue';
+import FadeInfo from '@/components/FadeInfo.vue';
 
 export default {
   components: {
@@ -64,6 +71,8 @@ export default {
     RegisterForm,
     CircleBackground,
     MapChoose,
+    ChangePasswd,
+    FadeInfo,
   },
   mounted() {
     let myInterval = setInterval(() => {
@@ -144,6 +153,11 @@ export default {
   margin-top: 15px;
   margin-bottom: 20px;
   text-align: center;
+}
+
+.myform {
+  width: 80%;
+  margin: 0 auto;
 }
 </style>
   

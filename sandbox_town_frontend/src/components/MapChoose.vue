@@ -1,5 +1,5 @@
 <template>
-    <div class="form" style="text-align: center; margin-top: 18px;">
+    <div style="text-align: center">
         <div class="container">
             <div class="row">
                 <div class="col-6 item" v-for="item in filteredItems" :key="'grid-' + item.id" @click="clickItem(item)">

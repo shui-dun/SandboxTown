@@ -1,5 +1,5 @@
 <template>
-    <div class="mt-4" id="register-form">
+    <div>
         <div class="mb-3">
             <label class="form-label">用户名</label>
             <input v-model="username" type="text" class="form-control" />
@@ -39,8 +39,4 @@ export default {
 </script>
   
 <style scoped>
-#register-form {
-    width: 80%;
-    margin: 0 auto;
-}
 </style>

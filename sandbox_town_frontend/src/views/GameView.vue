@@ -1,6 +1,6 @@
 <template>
-    <game-canvas @showAttributeList="attributeListShow" @showStore="storeShow" @showFadeInfo="fadeInfoShow"
-        @processBarShow="onProcessBarShow($event)"></game-canvas>
+    <gameCanvas @showAttributeList="attributeListShow" @showStore="storeShow" @showFadeInfo="fadeInfoShow"
+        @processBarShow="onProcessBarShow($event)" />
     <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation"
         @info="$refs.fadeInfo.showInfo($event)"></BackpackWindow>
     <AttributeList v-if="attributeListOpened" @close="closeAttributeList" @mousedown="preventMousedownPropagation">
