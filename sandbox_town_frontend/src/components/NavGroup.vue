@@ -4,7 +4,7 @@
             <button class="close-btn" @click="close">×</button>
             <div class="nav-group">
                 <div v-if="items.length > 1" class="nav nav-pills nav-group-nav">
-                    <div v-for="(item, ind) in items" :key="ind" class="nav-link my-nav-item" @click="changeTab(ind)">
+                    <div v-for="(item, ind) in items" :key="ind" :class="{active: currentInd == ind}" class="nav-link my-nav-item" @click="changeTab(ind)">
                         {{ item }}</div>
                 </div>
                 <div>
@@ -100,5 +100,9 @@ export default {
     flex-direction: column;
     width: 50px;
     margin-right: 20px;
+}
+
+.my-nav-item.active {
+    background-color: #0079ba;
 }
 </style>

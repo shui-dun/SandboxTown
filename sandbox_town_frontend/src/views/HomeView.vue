@@ -4,7 +4,7 @@
     <div class="simple-prompt">
       <h1>沙盒小镇 🏠</h1>
       <p class="simple-p">使用电脑或平板等大屏设备访问</p>
-      <button class="btn btn-secondary" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
+      <button class="btn btn-secondary"><a style="text-decoration:none; color:inherit;"
           href="https://github.com/shui-dun/SandboxTown" target="_blank">
           关于
         </a></button>
@@ -15,7 +15,7 @@
     <div class="simple-prompt">
       <h1>沙盒小镇 🏠</h1>
       <p class="simple-p">请切换到横屏模式</p>
-      <button class="btn btn-secondary" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
+      <button class="btn btn-secondary"><a style="text-decoration:none; color:inherit;"
           href="https://github.com/shui-dun/SandboxTown" target="_blank">
           关于
         </a></button>
@@ -27,12 +27,12 @@
     <div id="home-page-bg">
       <div class="container" id="home-page">
         <div class="d-flex justify-content-center mb-3">
-          <button class="btn" v-if="!isLogin" @click="curTab = 'login'" buttonClass="me-2">登录</button>
-          <button class="btn" v-if="!isLogin" @click="curTab = 'signup'" buttonClass="me-2">注册</button>
-          <button class="btn" v-if="isLogin" @click="curTab = 'mapChoose'" buttonClass="me-2">选择地图</button>
-          <button class="btn" v-if="isLogin" @click="doLogout" buttonClass="me-2">退出登录</button>
-          <button class="btn" v-if="isLogin" @click="curTab = 'changePasswd'" buttonClass="me-2">修改密码</button>
-          <button class="btn" buttonClass="me-2"><a style="text-decoration:none; color:inherit;"
+          <button class="btn" v-if="!isLogin" @click="curTab = 'login'" :class="{ active: curTab == 'login' }">登录</button>
+          <button class="btn" v-if="!isLogin" @click="curTab = 'signup'" :class="{ active: curTab == 'signup' }">注册</button>
+          <button class="btn" v-if="isLogin" @click="curTab = 'mapChoose'" :class="{ active: curTab == 'mapChoose' }">选择地图</button>
+          <button class="btn" v-if="isLogin" @click="doLogout">退出登录</button>
+          <button class="btn" v-if="isLogin" @click="curTab = 'changePasswd'" :class="{ active: curTab == 'changePasswd' }">修改密码</button>
+          <button class="btn"><a style="text-decoration:none; color:inherit;"
               href="https://github.com/shui-dun/SandboxTown" target="_blank">
               关于
             </a>
@@ -158,6 +158,10 @@ export default {
 .myform {
   width: 80%;
   margin: 0 auto;
+}
+
+.active {
+  background: rgba(220, 220, 220, 0.8);
 }
 </style>
   
