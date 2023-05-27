@@ -10,10 +10,10 @@ public interface UserMapper {
     @Select("select * from user where username=#{username}")
     public User findUserByName(String username);
 
-    @Insert("insert into user values(#{username}, #{password}, #{salt}, #{banEndTime}, #{cheatCount})")
+    @Insert("insert into user values(#{username}, #{password}, #{salt}, #{banEndDate}, #{cheatCount})")
     void insertUser(User user);
 
-    @Update("update user set password=#{password}, salt=#{salt}, banEndTime=#{banEndTime}, cheatCount=#{cheatCount} where username=#{username}")
+    @Update("update user set password=#{password}, salt=#{salt}, ban_end_date=#{banEndDate}, cheat_count=#{cheatCount} where username=#{username}")
     void updateUser(User user);
 
     @Delete("delete from user where username=#{username}")

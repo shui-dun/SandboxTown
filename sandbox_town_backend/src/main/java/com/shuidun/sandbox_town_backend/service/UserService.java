@@ -13,9 +13,13 @@ public interface UserService {
 
     public void updateUser(User user);
 
-    // public StatusCodeEnum banUser(String username, int days);
+    public void banUser(String username, int days);
 
     public int deleteNotAdminUser(String username);
 
     Set<User> listAll();
+
+    void unbanUser(String username);
+
+    boolean isUserBanned(String username);
 }

@@ -12,9 +12,11 @@ public enum StatusCodeEnum {
     SERVER_ERROR(3, "服务端错误"),
     NOT_LOG_IN(4, "未登录"),
     USER_ALREADY_EXIST(5, "用户名已经存在"),
-    UNAUTHORIZED(6, "未授权的操作"),
+    NO_PERMISSION(6, "没有相应的权限"),
     ALREADY_LOGGED_IN(7, "已经登录"),
-    PASSWORD_TOO_SHORT(8, "密码太短");
+    PASSWORD_TOO_SHORT(8, "密码太短"),
+    REQUEST_METHOD_NOT_SUPPORTED(9, "请求方法不支持"),
+    USER_BEEN_BANNED(10, "用户已被封禁");
 
     private final int code;
     private final String msg;

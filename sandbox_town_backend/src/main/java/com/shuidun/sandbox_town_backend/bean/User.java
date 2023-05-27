@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +23,7 @@ public class User {
     // 用户所有角色值，用于权限的判断
     private Set<String> roles = new HashSet<>();
 
-    private Timestamp banEndTime;
+    private Timestamp banEndDate;
 
     private int cheatCount;
 

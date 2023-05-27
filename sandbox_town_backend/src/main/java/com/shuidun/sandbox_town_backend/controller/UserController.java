@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.RestResponse;
 import com.shuidun.sandbox_town_backend.bean.User;
@@ -35,6 +36,10 @@ public class UserController {
         // 判断用户是否存在
         if (user == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
+        }
+        // 用户是否被封禁
+        if (userService.isUserBanned(username)) {
+            throw new BusinessException(StatusCodeEnum.USER_BEEN_BANNED);
         }
         // 判断密码是否正确
         String encryptedPasswd = MySaTokenUtils.encryptedPasswd(passwd, user.getSalt());
@@ -84,14 +89,18 @@ public class UserController {
         }
     }
 
-    // @PostMapping("/ban")
-    // @SaCheckRole("admin")
-    // public RestResponse<?> ban(String username, int banDays) {
-    //     User user = userService.findUserByName(username);
-    //     if (user == null) {
-    //         return new RestResponse<>(StatusCodeEnum.USER_NOT_EXIST);
-    //     }
-    //     // 从1970年1月1日00:00:00 GMT开始计算的毫秒数
-    //     user.setBanEndTime(new Timestamp(System.currentTimeMillis() + (long) banDays * 24 * 60 * 60 * 1000));
-    // }
+    @PostMapping("/ban")
+    @SaCheckRole("admin")
+    public RestResponse<?> ban(String username, int banDays) {
+        userService.banUser(username, banDays);
+        StpUtil.kickout(username);
+        return new RestResponse<>(StatusCodeEnum.SUCCESS);
+    }
+
+    @PostMapping("/unban")
+    @SaCheckRole("admin")
+    public RestResponse<?> unban(String username) {
+        userService.unbanUser(username);
+        return new RestResponse<>(StatusCodeEnum.SUCCESS);
+    }
 }
