@@ -30,11 +30,45 @@ export default {
     },
     methods: {
         onRegister() {
-            // 处理注册逻辑
-            // 如果登录成功，发射 login 事件
-            this.$emit('signup');
+            // 检查用户名是否为空
+            if (this.username === '') {
+                this.fadeInfoShow('用户名不能为空');
+                return;
+            }
+            // 密码长度不能小于 6 位
+            if (this.password.length < 6) {
+                this.fadeInfoShow('密码长度不能小于 6 位');
+                return;
+            }
+            // 检查两次输入的密码是否一致
+            if (this.password !== this.repassword) {
+                this.fadeInfoShow('两次输入的密码不一致');
+                return;
+            }
+            // 向后端发送注册请求
+            fetch('/rest/user/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    username: this.username,
+                    password: this.password,
+                }),
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.code === 0) {
+                        this.$emit('signup');
+                    } else {
+                        this.fadeInfoShow(data.msg);
+                    }
+                })
+                .catch(error => {
+                    this.fadeInfoShow(`发生错误：${error}`);
+                }); 
         },
     },
+    inject: ['fadeInfoShow'],
 };
 </script>
   
