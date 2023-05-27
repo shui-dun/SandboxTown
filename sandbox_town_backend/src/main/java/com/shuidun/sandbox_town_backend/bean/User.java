@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,21 +15,22 @@ import java.util.Set;
 @AllArgsConstructor
 public class User {
 
-    private String name;
-    private String passwd;
+    private String username;
+    private String password;
 
     // 密码的盐
     private String salt;
 
-    // 用户所有角色值，用于shiro做角色权限的判断
+    // 用户所有角色值，用于权限的判断
     private Set<String> roles = new HashSet<>();
 
-    // 用户所有权限值，用于shiro做资源权限的判断
-    private Set<String> perms = new HashSet<>();
+    private Timestamp banEndTime;
 
-    public User(String name, String passwd, String salt) {
-        this.name = name;
-        this.passwd = passwd;
+    private int cheatCount;
+
+    public User(String username, String password, String salt) {
+        this.username = username;
+        this.password = password;
         this.salt = salt;
     }
 }

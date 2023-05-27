@@ -16,12 +16,9 @@ public class UserServiceImpl implements UserService {
 
     private final RoleMapper roleMapper;
 
-    private final RoleService roleService;
-
-    public UserServiceImpl(UserMapper userMapper, RoleMapper roleMapper, RoleService roleService) {
+    public UserServiceImpl(UserMapper userMapper, RoleMapper roleMapper) {
         this.userMapper = userMapper;
         this.roleMapper = roleMapper;
-        this.roleService = roleService;
     }
 
     @Override
@@ -33,18 +30,18 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void signup(User user) {
         userMapper.insertUser(user);
-        roleMapper.insertUserRole(user.getName(), "normal");
+        roleMapper.insertUserRole(user.getUsername(), "normal");
     }
 
     @Override
     @Transactional
-    public int deleteNotAdminUser(String name) {
-        Set<String> roleSet = roleService.getRolesByUserName(name);
+    public int deleteNotAdminUser(String username) {
+        Set<String> roleSet = roleMapper.getRolesByUserName(username);
         if (roleSet.contains("admin")) {
             throw new RuntimeException("无权删除该用户");
         }
-        roleMapper.deleteByUsername(name);
-        return userMapper.deleteUser(name);
+        roleMapper.deleteByUsername(username);
+        return userMapper.deleteUser(username);
     }
 
     @Override

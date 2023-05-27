@@ -10,7 +10,7 @@ public interface UserService {
 
     public void signup(User user);
 
-    public int deleteNotAdminUser(String name);
+    public int deleteNotAdminUser(String username);
 
     Set<User> listAll();
 }

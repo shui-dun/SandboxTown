@@ -8,6 +8,7 @@ import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +22,7 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    @RequestMapping("/login")
+    @PostMapping("/login")
     public RestResponse<?> login(String username, String passwd, boolean rememberMe) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
@@ -34,7 +35,7 @@ public class UserController {
         }
         // 判断密码是否正确
         String encryptedPasswd = MySaTokenUtils.encryptedPasswd(passwd, user.getSalt());
-        if (encryptedPasswd.equals(user.getPasswd())) {
+        if (encryptedPasswd.equals(user.getPassword())) {
             StpUtil.login(username, rememberMe);
             log.info("{} login success, rememberMe: {}", StpUtil.getLoginId(), rememberMe);
             return new RestResponse<>(StatusCodeEnum.SUCCESS);
@@ -43,7 +44,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping("/signup")
+    @PostMapping("/signup")
     public RestResponse<?> signup(String username, String passwd) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
@@ -65,7 +66,7 @@ public class UserController {
         return new RestResponse<>(StatusCodeEnum.SUCCESS);
     }
 
-    @RequestMapping("/logout")
+    @PostMapping("/logout")
     public RestResponse<?> logout() {
         StpUtil.logout();
         return new RestResponse<>(StatusCodeEnum.SUCCESS);

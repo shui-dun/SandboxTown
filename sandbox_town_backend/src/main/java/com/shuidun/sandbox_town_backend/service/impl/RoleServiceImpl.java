@@ -18,7 +18,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Set<String> getRolesByUserName(String name) {
-        return roleMapper.getRolesByUserName(name);
+    public Set<String> getRolesByUserName(String username) {
+        return roleMapper.getRolesByUserName(username);
     }
 }

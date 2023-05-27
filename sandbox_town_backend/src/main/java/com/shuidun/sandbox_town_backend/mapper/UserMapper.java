@@ -10,14 +10,14 @@ import java.util.Set;
 
 @Mapper
 public interface UserMapper {
-    @Select("select * from user where name=#{username}")
+    @Select("select * from user where username=#{username}")
     public User findUserByName(String username);
 
-    @Insert("insert into user values(#{name}, #{passwd}, #{salt})")
+    @Insert("insert into user (username, password, salt) values(#{username}, #{password}, #{salt})")
     void insertUser(User user);
 
-    @Delete("delete from user where name=#{name}")
-    int deleteUser(String name);
+    @Delete("delete from user where username=#{username}")
+    int deleteUser(String username);
 
     @Select("select * from user")
     Set<User> listAll();
