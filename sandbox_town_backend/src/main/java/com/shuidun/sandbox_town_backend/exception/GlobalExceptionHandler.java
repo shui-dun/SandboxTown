@@ -22,8 +22,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotLoginException.class)
     @ResponseBody
     public RestResponse<?> exceptionHandler(NotLoginException e) {
-        log.error(e.getMessage());
+        log.error("e=\"{}\". Stack is :\n", e.getMessage(), e);
         return new RestResponse<>(StatusCodeEnum.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    @ResponseBody
+    public RestResponse<?> exceptionHandler(BusinessException e) {
+        log.error("e=\"{}\". Stack is :\n", e.getMessage(), e);
+        return new RestResponse<>(e.getStatusCode());
     }
 
 }

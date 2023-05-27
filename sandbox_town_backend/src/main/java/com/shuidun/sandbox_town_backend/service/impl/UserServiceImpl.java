@@ -1,6 +1,7 @@
 package com.shuidun.sandbox_town_backend.service.impl;
 
 import com.shuidun.sandbox_town_backend.bean.User;
+import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.mapper.RoleMapper;
 import com.shuidun.sandbox_town_backend.mapper.UserMapper;
 import com.shuidun.sandbox_town_backend.service.RoleService;
@@ -28,10 +29,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void signup(User user) {
+    public void insertUser(User user) {
         userMapper.insertUser(user);
         roleMapper.insertUserRole(user.getUsername(), "normal");
     }
+
+    @Override
+    public void updateUser(User user) {
+        userMapper.updateUser(user);
+    }
+
+    // @Override
+    // public StatusCodeEnum banUser(String username, int days) {
+    //     Set<String> roleSet = roleMapper.getRolesByUserName(username);
+    //     if (roleSet.contains("admin")) {
+    //         throw new RuntimeException("无权封禁该用户");
+    //     }
+    //     userMapper.banUser(username, days);
+    //     return StatusCodeEnum.SUCCESS;
+    // }
 
     @Override
     @Transactional
