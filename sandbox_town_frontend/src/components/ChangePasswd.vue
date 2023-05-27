@@ -23,6 +23,7 @@
 <script>
 
 export default {
+    inject: ['fadeInfoShow'],
     components: {
     },
     data() {
@@ -36,7 +37,7 @@ export default {
         onChangePasswd() {
             // 处理修改密码逻辑
             // 如果登录成功，发射事件
-            this.$emit('info', '修改密码成功');
+            this.fadeInfoShow('修改密码成功');
         },
     },
 };

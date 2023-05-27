@@ -8,6 +8,7 @@ import mainScene from "../js/MainScene.js";
 import storeScene from "../js/StoreScene.js";
 
 export default {
+    inject: ['fadeInfoShow'],
     mounted() {
         const config = {
             type: Phaser.AUTO,
@@ -28,7 +29,7 @@ export default {
         this.game = new Phaser.Game(config);
 
         this.game.events.on('showFadeInfo', (event) => {
-            this.$emit('showFadeInfo', event.msg);
+            this.fadeInfoShow(event.msg);
         });
 
         this.game.events.on('showAttributeList', (event) => {

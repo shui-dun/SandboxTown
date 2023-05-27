@@ -94,7 +94,7 @@ export default {
         },
         soldItemEvent(item) {
             if (item.extra.num === 0) {
-                this.$emit('trade', `你没有${item.name}了`)
+                this.fadeInfoShow(`你没有${item.name}了`)
                 return;
             }
             this.willingOperation = 'sold';
@@ -107,13 +107,13 @@ export default {
             if (this.willingOperation === 'buy') {
                 // 处理购买请求
                 // 由父节点显示提示信息
-                this.$emit('trade', `购买${this.willingNumber}个${this.selectedItem.name}`)
+                this.fadeInfoShow(`购买${this.willingNumber}个${this.selectedItem.name}`)
             } else if (this.willingOperation === 'sold') {
                 // 处理出售请求
                 let item = this.selectedItem;
                 item.extra.num -= this.willingNumber;
                 // 由父节点显示提示信息
-                this.$emit('trade', `出售${this.willingNumber}个${this.selectedItem.name}`)
+                this.fadeInfoShow(`出售${this.willingNumber}个${this.selectedItem.name}`)
             }
             this.showNumberChoose = false;
         },
@@ -121,6 +121,7 @@ export default {
             this.showNumberChoose = false;
         },
     },
+    inject: ['fadeInfoShow'],
 };
 </script>
 

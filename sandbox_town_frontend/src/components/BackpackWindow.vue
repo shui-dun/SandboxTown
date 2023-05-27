@@ -30,6 +30,7 @@ import GridItems from './GridItems.vue';
 import InquiryPanel from './InquiryPanel.vue';
 
 export default {
+    inject: ['fadeInfoShow'],
     components: {
         NavGroup,
         EquipmentArea,
@@ -110,21 +111,21 @@ export default {
                 if (this.selectedItem.category === 'food') {
                     this.selectedItem.extra.num -= 1;
                     // 由父节点显示提示信息
-                    this.$emit('info', `吃下${this.selectedItem.name}，您的饱腹值+2，经验值+1`)
+                    this.fadeInfoShow(`吃下${this.selectedItem.name}，您的饱腹值+2，经验值+1`)
                 } else if (this.selectedItem.category === 'equipment') {
                     this.selectedItem.extra.num -= 1;
-                    this.$emit('info', `装备${this.selectedItem.name}`)
+                    this.fadeInfoShow(`装备${this.selectedItem.name}`)
                 } else if (this.selectedItem.category === 'pet') {
                     this.selectedItem.extra.num -= 1;
-                    this.$emit('info', `放置${this.selectedItem.name}`)
+                    this.fadeInfoShow(`放置${this.selectedItem.name}`)
                 } else if (this.selectedItem.category === 'architecture') {
                     // 先要进行放置操作
                     this.selectedItem.extra.num -= 1;
-                    this.$emit('info', `放置${this.selectedItem.name}`)
+                    this.fadeInfoShow(`放置${this.selectedItem.name}`)
                 }
             } else if (this.willingOperation === 'removeEquipment') {
                 this.player.equipment[this.selectedItemKey] = {};
-                this.$emit('info', `卸下${this.selectedItem.name}`)
+                this.fadeInfoShow(`卸下${this.selectedItem.name}`)
             }
             this.showInquiryPanel = false;
         },
@@ -135,7 +136,7 @@ export default {
             this.willingOperation = 'useItem';
             this.selectedItem = item;
             if (item.extra.num <= 0) {
-                this.$emit('info', `你没有${this.selectedItem.name}`)
+                this.fadeInfoShow(`你没有${this.selectedItem.name}`)
                 return;
             }
             if (item.category === 'food') {

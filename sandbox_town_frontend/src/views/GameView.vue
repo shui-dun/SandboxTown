@@ -1,11 +1,9 @@
 <template>
-    <gameCanvas @showAttributeList="attributeListShow" @showStore="storeShow" @showFadeInfo="fadeInfoShow"
-        @processBarShow="onProcessBarShow($event)" />
-    <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation"
-        @info="$refs.fadeInfo.showInfo($event)"></BackpackWindow>
+    <gameCanvas @showAttributeList="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
+    <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation" />
     <AttributeList v-if="attributeListOpened" @close="closeAttributeList" @mousedown="preventMousedownPropagation">
     </AttributeList>
-    <StorePannel v-if="storeOpened" @trade="$refs.fadeInfo.showInfo($event)" @close="closeStore"
+    <StorePannel v-if="storeOpened" @close="closeStore"
         @mousedown="preventMousedownPropagation"></StorePannel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <FadeInfo ref="fadeInfo" />
@@ -24,6 +22,13 @@ import ProcessBar from '@/components/ProcessBar.vue';
 
 
 export default {
+    provide() {
+        return {
+            fadeInfoShow: (msg) => {
+                this.$refs.fadeInfo.showInfo(msg);
+            },
+        };
+    },
     components: {
         GameCanvas,
         FloatingButton,
@@ -72,9 +77,6 @@ export default {
 
         preventMousedownPropagation(event) {
             event.stopPropagation();
-        },
-        fadeInfoShow(msg) {
-            this.$refs.fadeInfo.showInfo(msg);
         },
         onProgressComplete() {
             this.showProcessBar = false;
