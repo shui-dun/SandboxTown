@@ -11,8 +11,6 @@ const mainScene = {
 
         this.load.json('collapseShapes', require("@/assets/json/collapseShapes.json"));
         this.load.json('clickShapes', require("@/assets/json/clickShapes.json"));
-
-        this.load.image('bg', require('@/assets/img/bg.jpg'));
     },
     create: function () {
         // 地图大小
@@ -25,22 +23,6 @@ const mainScene = {
         let clickShapes = this.cache.json.get('clickShapes');
         this.cameras.main.setBackgroundColor('#d3c6a6');
         this.cameras.main.setBounds(0, 0, this.mapWidth, this.mapHeight);
-
-        // 获取游戏的宽度和高度
-        const gameWidth = this.scale.width;
-        const gameHeight = this.scale.height;
-
-        // 计算需要铺满背景的贴图数量
-        const tilesX = Math.ceil(gameWidth / 500);
-        const tilesY = Math.ceil(gameHeight / 500);
-
-        // 使用循环创建 TileSprite 对象，将其大小设置为 500x500，并铺满整个游戏背景
-        for (let i = 0; i <= tilesX; i++) {
-            for (let j = 0; j <= tilesY; j++) {
-                let tmp = this.add.image(i * 500, j * 500,'bg');
-                tmp.setDisplaySize(500, 500);
-            }
-        }
 
         // 创建树木
         this.tree = this.matter.add.sprite(300, 500, "tree", null, { isStatic: true, shape: collapseShapes.tree });
