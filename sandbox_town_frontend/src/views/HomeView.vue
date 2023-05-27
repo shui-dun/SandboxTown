@@ -72,9 +72,7 @@ import FadeInfo from '@/components/FadeInfo.vue';
 export default {
     provide() {
         return {
-            fadeInfoShow: (msg) => {
-                this.$refs.fadeInfo.showInfo(msg);
-            },
+            fadeInfoShow: this.fadeInfoShow,
         };
     },
     components: {
@@ -86,6 +84,7 @@ export default {
         FadeInfo,
     },
     mounted() {
+        // 判断是否是横屏
         let myInterval = setInterval(() => {
             if (!this.checkIsVertical()) {
                 // 当前设备是横屏
@@ -93,6 +92,8 @@ export default {
                 clearInterval(myInterval);
             }
         }, 1000);
+        // 检查是否登录
+        this.checkIsLogin();
     },
     data() {
         return {
@@ -109,10 +110,48 @@ export default {
         checkIsMobile() {
             return window.innerWidth < 500 || window.innerHeight < 500;
         },
+        checkIsLogin() {
+            // 向后端发送请求，检查是否登录
+            fetch('/rest/user/islogin', {
+                method: 'GET',
+            }).then((response) => response.json())
+                .then((data) => {
+                    if (data.code == 0) {
+                        if (data.data == true) {
+                            this.isLogin = true;
+                            this.curTab = 'mapChoose';
+                        } else {
+                            this.isLogin = false;
+                            this.curTab = 'login';
+                        }
+                    } else {
+                        this.fadeInfoShow(data.msg);
+                    }
+                })
+                .catch(error => {
+                    this.fadeInfoShow(`请求出错: ${error}`);
+                });
+        },
         doLogout() {
-            this.isLogin = false;
-            this.curTab = 'login';
-        }
+            // 向后端发送请求，退出登录
+            fetch('/rest/user/logout', {
+                method: 'POST',
+            }).then((response) => response.json())
+                .then((data) => {
+                    if (data.code == 0) {
+                        this.isLogin = false;
+                        this.curTab = 'login';
+                    } else {
+                        this.fadeInfoShow(data.msg);
+                    }
+                })
+                .catch(error => {
+                    this.fadeInfoShow(`请求出错: ${error}`);
+                });
+        },
+        fadeInfoShow(msg) {
+            this.$refs.fadeInfo.showInfo(msg);
+        },
     },
 };
 </script>

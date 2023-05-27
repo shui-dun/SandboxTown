@@ -35,9 +35,41 @@ export default {
     },
     methods: {
         onChangePasswd() {
-            // 处理修改密码逻辑
-            // 如果登录成功，发射事件
-            this.fadeInfoShow('修改密码成功');
+            // 检查旧密码是否为空
+            if (this.oldpassword === '') {
+                this.fadeInfoShow('旧密码不能为空');
+                return;
+            }
+            // 新密码长度不能小于 6 位
+            if (this.newpassword.length < 6) {
+                this.fadeInfoShow('新密码长度不能小于 6 位');
+                return;
+            }
+            // 检查两次输入的密码是否一致
+            if (this.newpassword !== this.repassword) {
+                this.fadeInfoShow('两次输入的密码不一致');
+                return;
+            }
+            // 向后端发送修改密码请求
+            fetch('/rest/user/changePassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    oldPassword: this.oldpassword,
+                    newPassword: this.newpassword,
+                }),
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.code === 0) {
+                        this.fadeInfoShow('修改密码成功');
+                    } else {
+                        this.fadeInfoShow(data.msg);
+                    }
+                }).catch(error => {
+                    this.fadeInfoShow(`请求出错: ${error}`);
+                });
         },
     },
 };

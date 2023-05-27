@@ -45,7 +45,7 @@ public class UserController {
         String encryptedPasswd = MySaTokenUtils.encryptedPasswd(password, user.getSalt());
         if (encryptedPasswd.equals(user.getPassword())) {
             StpUtil.login(username, rememberMe);
-            log.info("{} login success, rememberMe: {}", StpUtil.getLoginId(), rememberMe);
+            log.info("{} login success, rememberMe: {}", username, rememberMe);
             return new RestResponse<>(StatusCodeEnum.SUCCESS);
         } else {
             throw new BusinessException(StatusCodeEnum.INCORRECT_CREDENTIALS);
@@ -71,6 +71,8 @@ public class UserController {
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException(StatusCodeEnum.USER_ALREADY_EXIST);
         }
+        // 打印注册信息
+        log.info("{} signup success", username);
         return new RestResponse<>(StatusCodeEnum.SUCCESS);
     }
 
@@ -89,11 +91,43 @@ public class UserController {
         }
     }
 
+    @PostMapping("/changePassword")
+    public RestResponse<?> changePassword(String oldPassword, String newPassword) {
+        // 判断是否已经登陆
+        if (!StpUtil.isLogin()) {
+            throw new BusinessException(StatusCodeEnum.NOT_LOG_IN);
+        }
+        // 判断密码强度
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new BusinessException(StatusCodeEnum.PASSWORD_TOO_SHORT);
+        }
+        // 获取当前用户
+        String username = StpUtil.getLoginIdAsString();
+        User user = userService.findUserByName(username);
+        // 判断密码是否正确
+        String encryptedPasswd = MySaTokenUtils.encryptedPasswd(oldPassword, user.getSalt());
+        if (encryptedPasswd.equals(user.getPassword())) {
+            // 生成盐和加密后的密码
+            String[] saltAndPasswd = MySaTokenUtils.generateSaltedHash(newPassword);
+            user.setSalt(saltAndPasswd[0]);
+            user.setPassword(saltAndPasswd[1]);
+            userService.updateUser(user);
+            // 打印信息
+            log.info("{} change password success", username);
+            return new RestResponse<>(StatusCodeEnum.SUCCESS);
+        } else {
+            throw new BusinessException(StatusCodeEnum.INCORRECT_CREDENTIALS);
+        }
+    }
+
     @PostMapping("/ban")
     @SaCheckRole("admin")
     public RestResponse<?> ban(String username, int banDays) {
         userService.banUser(username, banDays);
+        // 踢出用户
         StpUtil.kickout(username);
+        // 打印信息
+        log.info("{} ban success, days: {}", username, banDays);
         return new RestResponse<>(StatusCodeEnum.SUCCESS);
     }
 
@@ -101,6 +135,8 @@ public class UserController {
     @SaCheckRole("admin")
     public RestResponse<?> unban(String username) {
         userService.unbanUser(username);
+        // 打印信息
+        log.info("{} unban success", username);
         return new RestResponse<>(StatusCodeEnum.SUCCESS);
     }
 }
