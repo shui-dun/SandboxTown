@@ -31,10 +31,37 @@ export default {
     },
     methods: {
         onLogin() {
-            // 处理登录逻辑
-            // 如果登录成功，发射 login 事件
-            this.$emit('login');
+            if (this.username === '') {
+                this.fadeInfoShow('用户名不能为空');
+                return;
+            }
+            if (this.password === '') {
+                this.fadeInfoShow('密码不能为空');
+                return;
+            }
+            fetch('/rest/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    username: this.username,
+                    password: this.password,
+                    rememberMe: this.rememberMe,
+                }),
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.code === 0) {
+                        this.$emit('login');
+                    } else {
+                        this.fadeInfoShow(data.msg);
+                    }
+                })
+                .catch(error => {
+                    this.fadeInfoShow(`请求出错: ${error}`);
+                });
         },
     },
+    inject: ['fadeInfoShow'],
 };
 </script>

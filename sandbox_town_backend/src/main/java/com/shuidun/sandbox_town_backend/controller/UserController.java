@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public RestResponse<?> login(String username, String passwd, boolean rememberMe) {
+    public RestResponse<?> login(String username, String password, boolean rememberMe) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
@@ -42,7 +42,7 @@ public class UserController {
             throw new BusinessException(StatusCodeEnum.USER_BEEN_BANNED);
         }
         // 判断密码是否正确
-        String encryptedPasswd = MySaTokenUtils.encryptedPasswd(passwd, user.getSalt());
+        String encryptedPasswd = MySaTokenUtils.encryptedPasswd(password, user.getSalt());
         if (encryptedPasswd.equals(user.getPassword())) {
             StpUtil.login(username, rememberMe);
             log.info("{} login success, rememberMe: {}", StpUtil.getLoginId(), rememberMe);
@@ -53,17 +53,17 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public RestResponse<?> signup(String username, String passwd) {
+    public RestResponse<?> signup(String username, String password) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
         }
         // 判断密码强度
-        if (passwd == null || passwd.length() < 6) {
+        if (password == null || password.length() < 6) {
             throw new BusinessException(StatusCodeEnum.PASSWORD_TOO_SHORT);
         }
         // 生成盐和加密后的密码
-        String[] saltAndPasswd = MySaTokenUtils.generateSaltedHash(passwd);
+        String[] saltAndPasswd = MySaTokenUtils.generateSaltedHash(password);
         try {
             User user = new User(username, saltAndPasswd[1], saltAndPasswd[0]);
             userService.insertUser(user);
