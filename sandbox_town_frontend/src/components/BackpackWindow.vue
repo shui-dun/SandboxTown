@@ -11,11 +11,11 @@
     <div>
         <NavGroup :items="tabs" @close="$emit('close')">
             <template v-slot:0>
-                <EquipmentArea title="⚔️ 装备栏" :listItems="userInfo" :equipmentItems="player.equipment"
+                <EquipmentArea title="⚔️ 装备栏" :listItems="userInfo" :equipmentItems="equipment"
                     @onClickGridItem="onRemoveEquipment($event)" />
             </template>
             <template v-slot:1>
-                <GridItems title="🎒 物品栏" :items="player.items" :categories="categories"
+                <GridItems title="🎒 物品栏" :items="items" :categories="categories"
                     @clickGridItem="onClickBackpackItem($event)" />
             </template>
         </NavGroup>
@@ -39,36 +39,25 @@ export default {
     },
     data() {
         return {
-            player: {
-                username: 'Player1',
-                money: 1000,
-                level: 5,
-                exp: 200,
-                hunger: 50,
-                attack: 10,
-                defense: 10,
-                speed: 8,
-                hp: 100,
-                items: [
-                    { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
-                    { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
-                    { id: 3, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { num: 1 } },
-                    { id: 4, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { num: 1 } },
-                    { id: 5, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
-                    { id: 6, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识之果', extra: { num: 1 } },
-                    { id: 7, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
-                    { id: 8, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
-                    { id: 9, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { num: 1 } },
-                    { id: 10, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { num: 1 } },
-                    { id: 11, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
-                    { id: 12, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识之果', extra: { num: 1 } }
-                ],
-                equipment: {
-                    '护甲': {},
-                    '鞋子': {},
-                    '左手': {},
-                    '右手': { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具' },
-                }
+            items: [
+                { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
+                { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
+                { id: 3, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { num: 1 } },
+                { id: 4, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { num: 1 } },
+                { id: 5, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
+                { id: 6, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识之果', extra: { num: 1 } },
+                { id: 7, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
+                { id: 8, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
+                { id: 9, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { num: 1 } },
+                { id: 10, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { num: 1 } },
+                { id: 11, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
+                { id: 12, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识之果', extra: { num: 1 } }
+            ],
+            equipment: {
+                '护甲': {},
+                '鞋子': {},
+                '左手': {},
+                '右手': { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具' },
             },
             userInfo: [
                 { 'label': 'username', 'show': '👨‍💼 用户名' },
@@ -98,10 +87,24 @@ export default {
         };
     },
     mounted() {
-        // 将player中的信息添加到userInfo中
-        this.userInfo.forEach((item) => {
-            item.value = this.player[item.label];
-        });
+        // 从后端获取玩家信息
+        fetch('/rest/player/listMine', {
+            method: 'GET',
+        }).then(response => response.json())
+            .then(data => {
+                if (data.code === 0) {
+                    data.data.username = data.data.username.split("_", 2)[1];
+                    // 将用户信息添加到userInfo中
+                    this.userInfo.forEach((item) => {
+                        item.value = data.data[item.label];
+                    });
+                } else {
+                    this.fadeInfoShow(data.msg);
+                }
+            })
+            .catch(error => {
+                this.fadeInfoShow(`发生错误：${error}`);
+            });
     },
     computed: {
     },
@@ -124,7 +127,7 @@ export default {
                     this.fadeInfoShow(`放置${this.selectedItem.name}`)
                 }
             } else if (this.willingOperation === 'removeEquipment') {
-                this.player.equipment[this.selectedItemKey] = {};
+                this.equipment[this.selectedItemKey] = {};
                 this.fadeInfoShow(`卸下${this.selectedItem.name}`)
             }
             this.showInquiryPanel = false;
