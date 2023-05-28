@@ -112,12 +112,13 @@ export default {
         },
         checkIsLogin() {
             // 向后端发送请求，检查是否登录
-            fetch('/rest/user/islogin', {
+            fetch('/rest/user/getUsername', {
                 method: 'GET',
             }).then((response) => response.json())
                 .then((data) => {
                     if (data.code == 0) {
-                        if (data.data == true) {
+                        // 如果用户名不为空，说明已经登录
+                        if (data.data !== "") {
                             this.isLogin = true;
                             this.curTab = 'mapChoose';
                         } else {

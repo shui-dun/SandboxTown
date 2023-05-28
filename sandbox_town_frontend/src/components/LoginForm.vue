@@ -45,13 +45,14 @@ export default {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    username: this.username,
+                    username: 'user_' + this.username,
                     password: this.password,
                     rememberMe: this.rememberMe,
                 }),
             }).then(response => response.json())
                 .then(data => {
                     if (data.code === 0) {
+                        this.fadeInfoShow('登录成功');
                         this.$emit('login');
                     } else {
                         this.fadeInfoShow(data.msg);

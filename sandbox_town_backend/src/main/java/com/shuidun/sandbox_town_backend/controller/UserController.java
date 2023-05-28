@@ -53,13 +53,13 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public RestResponse<?> signup(String username, String password) {
+    public RestResponse<?> signup(String usernameSuffix, String password) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
         }
         // 判断用户名是否合法
-        if (username == null || username.length() < 3) {
+        if (usernameSuffix == null || usernameSuffix.length() < 3) {
             throw new BusinessException(StatusCodeEnum.USERNAME_TOO_SHORT);
         }
         // 判断密码强度
@@ -68,6 +68,8 @@ public class UserController {
         }
         // 生成盐和加密后的密码
         String[] saltAndPasswd = MySaTokenUtils.generateSaltedHash(password);
+        // 用户名为"user_" + usernameSuffix
+        String username = "user_" + usernameSuffix;
         try {
             User user = new User(username, saltAndPasswd[1], saltAndPasswd[0]);
             userService.insertUser(user);
@@ -86,12 +88,14 @@ public class UserController {
         return new RestResponse<>(StatusCodeEnum.SUCCESS);
     }
 
-    @GetMapping("/islogin")
-    public RestResponse<?> isLogin() {
+    @GetMapping("/getUsername")
+    public RestResponse<?> getUsername() {
+        // 判断是否已经登陆
         if (StpUtil.isLogin()) {
-            return new RestResponse<>(StatusCodeEnum.SUCCESS, true);
+            return new RestResponse<>(StatusCodeEnum.SUCCESS, StpUtil.getLoginIdAsString());
         } else {
-            return new RestResponse<>(StatusCodeEnum.SUCCESS, false);
+            // 未登录返回空字符串
+            return new RestResponse<>(StatusCodeEnum.SUCCESS, "");
         }
     }
 

@@ -14,9 +14,9 @@ CREATE TABLE user (
   cheat_count INT DEFAULT 0
 );
 
-INSERT INTO user (username, password, salt) VALUES ('haha', '3ff432d13d5060159f9daf745c6c0c414624159bce95b32437e6e4c59211a144', 'I+zxIDZF1PJ/G/LGQrwtgw==');
-INSERT INTO user (username, password, salt) VALUES ('heihei', 'ed63891bacfd0861da88898ad002534f6d61058bce25c41e67b763a2d95f642a', 'ykzgDWYsa77gmD2bhMm41A==');
-INSERT INTO user (username, password, salt) VALUES ('xixi', '38232ca0c66eb3f33cc55696233fbf905fd02ceaad4242f5cd41b97b272c55d8', 'KaSg9wFMopkEaU/cDY+Xvg==');
+INSERT INTO user (username, password, salt) VALUES ('user_haha', '3ff432d13d5060159f9daf745c6c0c414624159bce95b32437e6e4c59211a144', 'I+zxIDZF1PJ/G/LGQrwtgw==');
+INSERT INTO user (username, password, salt) VALUES ('user_heihei', 'ed63891bacfd0861da88898ad002534f6d61058bce25c41e67b763a2d95f642a', 'ykzgDWYsa77gmD2bhMm41A==');
+INSERT INTO user (username, password, salt) VALUES ('user_xixi', '38232ca0c66eb3f33cc55696233fbf905fd02ceaad4242f5cd41b97b272c55d8', 'KaSg9wFMopkEaU/cDY+Xvg==');
 
 -- 创建用户权限表
 CREATE TABLE user_role (
@@ -27,6 +27,6 @@ CREATE TABLE user_role (
 );
 
 
-INSERT INTO user_role (username, role) VALUES ('haha', 'normal');
-INSERT INTO user_role (username, role) VALUES ('heihei', 'admin');
-INSERT INTO user_role (username, role) VALUES ('xixi', 'normal');
+INSERT INTO user_role (username, role) VALUES ('user_haha', 'normal');
+INSERT INTO user_role (username, role) VALUES ('user_heihei', 'admin');
+INSERT INTO user_role (username, role) VALUES ('user_xixi', 'normal');

@@ -52,7 +52,7 @@ export default {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    username: this.username,
+                    usernameSuffix: this.username,
                     password: this.password,
                 }),
             }).then(response => response.json())

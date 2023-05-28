@@ -2,7 +2,7 @@
     <div>
         <div class="mb-3">
             <label class="form-label">用户名</label>
-            <input value="player1" type="text" class="form-control" readonly />
+            <input :value="usernameSuffix" type="text" class="form-control" readonly />
         </div>
         <div class="mb-3">
             <label class="form-label">原密码</label>
@@ -31,7 +31,23 @@ export default {
             oldpassword: '',
             newpassword: '',
             repassword: '',
+            usernameSuffix: '',
         };
+    },
+    mounted() {
+        // 获取用户名后缀
+        fetch('/rest/user/getUsername', {
+            method: 'GET',
+        }).then(response => response.json())
+            .then(data => {
+                if (data.code === 0) {
+                    this.usernameSuffix = data.data.slice(5);
+                } else {
+                    this.fadeInfoShow(data.msg);
+                }
+            }).catch(error => {
+                this.fadeInfoShow(`请求出错: ${error}`);
+            });
     },
     methods: {
         onChangePasswd() {
