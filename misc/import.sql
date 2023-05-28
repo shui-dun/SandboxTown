@@ -30,3 +30,22 @@ CREATE TABLE user_role (
 INSERT INTO user_role (username, role) VALUES ('user_haha', 'normal');
 INSERT INTO user_role (username, role) VALUES ('user_heihei', 'admin');
 INSERT INTO user_role (username, role) VALUES ('user_xixi', 'normal');
+
+
+-- 创建玩家表
+CREATE TABLE player (
+    username VARCHAR(255) NOT NULL PRIMARY KEY,
+    money INT NOT NULL DEFAULT 0,
+    exp INT NOT NULL DEFAULT 0,
+    level INT NOT NULL DEFAULT 1,
+    hunger INT NOT NULL DEFAULT 100,
+    hp INT NOT NULL DEFAULT 100,
+    attack INT NOT NULL DEFAULT 10,
+    defense INT NOT NULL DEFAULT 10,
+    speed INT NOT NULL DEFAULT 10
+);
+
+INSERT INTO player (username, money, exp, level, hunger, hp, attack, defense, speed)
+VALUES ('user_xixi', 100, 0, 1, 100, 100, 10, 10, 10),
+       ('user_haha', 100, 0, 1, 100, 100, 10, 10, 10),
+       ('user_heihei', 100, 0, 1, 100, 100, 10, 10, 10);

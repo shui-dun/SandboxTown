@@ -20,9 +20,6 @@ public class User {
     // 密码的盐
     private String salt;
 
-    // 用户所有角色值，用于权限的判断
-    private Set<String> roles = new HashSet<>();
-
     private Timestamp banEndDate;
 
     private int cheatCount;

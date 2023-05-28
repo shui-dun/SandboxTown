@@ -72,7 +72,7 @@ public class UserController {
         String username = "user_" + usernameSuffix;
         try {
             User user = new User(username, saltAndPasswd[1], saltAndPasswd[0]);
-            userService.insertUser(user);
+            userService.createUser(user);
             StpUtil.login(username);
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException(StatusCodeEnum.USER_ALREADY_EXIST);
@@ -90,13 +90,7 @@ public class UserController {
 
     @GetMapping("/getUsername")
     public RestResponse<?> getUsername() {
-        // 判断是否已经登陆
-        if (StpUtil.isLogin()) {
-            return new RestResponse<>(StatusCodeEnum.SUCCESS, StpUtil.getLoginIdAsString());
-        } else {
-            // 未登录返回空字符串
-            return new RestResponse<>(StatusCodeEnum.SUCCESS, "");
-        }
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, StpUtil.getLoginIdAsString());
     }
 
     @PostMapping("/changePassword")
