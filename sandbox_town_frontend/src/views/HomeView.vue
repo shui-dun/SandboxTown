@@ -117,14 +117,12 @@ export default {
             }).then((response) => response.json())
                 .then((data) => {
                     if (data.code == 0) {
-                        // 如果用户名不为空，说明已经登录
-                        if (data.data !== "") {
-                            this.isLogin = true;
-                            this.curTab = 'mapChoose';
-                        } else {
-                            this.isLogin = false;
-                            this.curTab = 'login';
-                        }
+                        this.isLogin = true;
+                        this.curTab = 'mapChoose';
+                    } else if (data.code == 6) {
+                        // 未登录
+                        this.isLogin = false;
+                        this.curTab = 'login';
                     } else {
                         this.fadeInfoShow(data.msg);
                     }

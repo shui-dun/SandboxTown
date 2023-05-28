@@ -1,7 +1,7 @@
 <template>
     <gameCanvas @showAttributeList="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
     <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation" />
-    <AttributeList v-if="attributeListOpened" @close="closeAttributeList" @mousedown="preventMousedownPropagation">
+    <AttributeList v-if="attributeListOpened" :itemName="itemNameOfAttributeList" @close="closeAttributeList" @mousedown="preventMousedownPropagation">
     </AttributeList>
     <StorePannel v-if="storeOpened" @close="closeStore"
         @mousedown="preventMousedownPropagation"></StorePannel>
@@ -51,6 +51,7 @@ export default {
             processBarDuration: 5,
             processBarText: '加载中...',
             EventOfProgressComplete: () => { },
+            itemNameOfAttributeList: '',
         };
     },
     methods: {
@@ -62,6 +63,7 @@ export default {
         },
 
         attributeListShow(itemID) {
+            this.itemNameOfAttributeList = itemID;
             this.attributeListOpened = true;
         },
         closeAttributeList() {

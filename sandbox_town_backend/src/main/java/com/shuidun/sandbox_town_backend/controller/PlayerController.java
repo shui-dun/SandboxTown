@@ -16,14 +16,13 @@ public class PlayerController {
     private PlayerService playerService;
 
     @GetMapping("/list/{username}")
-    public RestResponse<?> getPlayerById(@PathVariable("username") String username) {
+    public RestResponse<?> getPlayerByUsername(@PathVariable("username") String username) {
         return new RestResponse<>(StatusCodeEnum.SUCCESS, playerService.getPlayerInfoByUsername(username));
     }
 
-    // @PostMapping("/update")
-    // public RestResponse<?> updatePlayerAttribute(@RequestParam("attribute") String attribute,
-    //                                              @RequestParam("value") int value) {
-    //     String username = StpUtil.getLoginIdAsString();
-    //     return new RestResponse<>(StatusCodeEnum.SUCCESS, playerService.updatePlayerAttribute(username, attribute, value));
-    // }
+    @GetMapping("/listMine")
+    public RestResponse<?> getMyPlayerInfo() {
+        String username = StpUtil.getLoginIdAsString();
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, playerService.getPlayerInfoByUsername(username));
+    }
 }

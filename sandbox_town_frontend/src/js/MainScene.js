@@ -57,7 +57,7 @@ const mainScene = {
         setDepth(this.player2);
         this.player2.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.player), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         this.player2.on('pointerdown', () => {
-            this.game.events.emit('showAttributeList', { "itemID": 'player2' });
+            this.game.events.emit('showAttributeList', { "itemID": 'user_haha' });
         });
 
         // 创建狗

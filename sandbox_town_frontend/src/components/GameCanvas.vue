@@ -79,10 +79,25 @@ export default {
             console.log("Connection closed.");
         };
 
-        
+
 
     },
     methods: {
+        // 得到指定用户属性信息
+        getAttributeList(playerName) {
+            fetch(`/rest/player/list/${playerName}`, {
+                method: 'GET',
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.code === 0) {
+                        return data.data;
+                    } else {
+                        this.fadeInfoShow(data.msg);
+                    }
+                }).catch(error => {
+                    this.fadeInfoShow(`请求出错: ${error}`);
+                });
+        },
     },
 };
 
