@@ -58,6 +58,10 @@ public class UserController {
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
         }
+        // 判断用户名是否合法
+        if (username == null || username.length() < 3) {
+            throw new BusinessException(StatusCodeEnum.USERNAME_TOO_SHORT);
+        }
         // 判断密码强度
         if (password == null || password.length() < 6) {
             throw new BusinessException(StatusCodeEnum.PASSWORD_TOO_SHORT);

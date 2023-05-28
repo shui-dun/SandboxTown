@@ -16,7 +16,8 @@ public enum StatusCodeEnum {
     ALREADY_LOGGED_IN(7, "已经登录"),
     PASSWORD_TOO_SHORT(8, "密码太短"),
     REQUEST_METHOD_NOT_SUPPORTED(9, "请求方法不支持"),
-    USER_BEEN_BANNED(10, "用户已被封禁");
+    USER_BEEN_BANNED(10, "用户已被封禁"),
+    USERNAME_TOO_SHORT(11, "用户名太短");
 
     private final int code;
     private final String msg;

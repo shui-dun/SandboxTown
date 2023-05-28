@@ -30,9 +30,9 @@ export default {
     },
     methods: {
         onRegister() {
-            // 检查用户名是否为空
-            if (this.username === '') {
-                this.fadeInfoShow('用户名不能为空');
+            // 检查用户名是否过短
+            if (this.username.length < 3) {
+                this.fadeInfoShow('用户名过短');
                 return;
             }
             // 密码长度不能小于 6 位
@@ -58,6 +58,7 @@ export default {
             }).then(response => response.json())
                 .then(data => {
                     if (data.code === 0) {
+                        this.fadeInfoShow('注册成功');
                         this.$emit('signup');
                     } else {
                         this.fadeInfoShow(data.msg);
