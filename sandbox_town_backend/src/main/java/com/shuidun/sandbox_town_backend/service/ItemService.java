@@ -57,8 +57,16 @@ public class ItemService {
             player.setLevel(player.getLevel() + 1);
             player.setExp(player.getExp() - EXP_PER_LEVEL);
         }
-        // 更新数据库
+        // 更新数据库中的玩家属性
         playerMapper.updatePlayer(player);
+        // 判断是否是最后一个物品
+        if (playerItem.getItemCount() <= 1) {
+            // 删除物品
+            itemMapper.deleteByUsernameAndItemId(username, itemId);
+        } else {
+            // 更新物品数量
+            itemMapper.updateCountByUsernameAndItemId(username, itemId, playerItem.getItemCount() - 1);
+        }
         return player;
     }
 

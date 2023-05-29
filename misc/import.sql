@@ -69,28 +69,28 @@ CREATE TABLE item
     name        VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
     # 注意这个价格只是参考价格，各个商店会有上下波动
-    basicPrice  INT          NOT NULL DEFAULT 0,
+    basic_price  INT          NOT NULL DEFAULT 0,
     # 是否能直接被使用
     usable      BOOLEAN      NOT NULL DEFAULT FALSE,
     # 增加金钱
-    moneyInc    INT          NOT NULL DEFAULT 0,
+    money_inc    INT          NOT NULL DEFAULT 0,
     # 增加经验值
-    expInc      INT          NOT NULL DEFAULT 0,
+    exp_inc      INT          NOT NULL DEFAULT 0,
     # 增加等级
-    levelInc    INT          NOT NULL DEFAULT 0,
+    level_inc    INT          NOT NULL DEFAULT 0,
     # 增加饱腹值
-    hungerInc   INT          NOT NULL DEFAULT 0,
+    hunger_inc   INT          NOT NULL DEFAULT 0,
     # 增加生命值
-    hpInc       INT          NOT NULL DEFAULT 0,
+    hp_inc       INT          NOT NULL DEFAULT 0,
     # 增加攻击力
-    attackInc   INT          NOT NULL DEFAULT 0,
+    attack_inc   INT          NOT NULL DEFAULT 0,
     # 增加防御力
-    defenseInc  INT          NOT NULL DEFAULT 0,
+    defense_inc  INT          NOT NULL DEFAULT 0,
     # 增加速度
-    speedInc    INT          NOT NULL DEFAULT 0
+    speed_inc    INT          NOT NULL DEFAULT 0
 );
 
-INSERT INTO item (id, name, description, basicPrice, usable, moneyInc, expInc, levelInc, hungerInc, hpInc, attackInc, defenseInc, speedInc)
+INSERT INTO item (id, name, description, basic_price, usable, money_inc, exp_inc, level_inc, hunger_inc, hp_inc, attack_inc, defense_inc, speed_inc)
 VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 2, FALSE, 0, 0, 0, 0, 0, 0, 0, 0),
        ('stone', '石头', '用于建造房屋和其他工具', 3, FALSE, 0, 0, 0, 0, 0, 0, 0, 0),
        ('bread', '面包', '具有松软的质地和微甜的口感', 3, TRUE, 0, 0, 0, 15, 0, 0, 0, 0),

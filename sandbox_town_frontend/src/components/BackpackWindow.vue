@@ -97,7 +97,7 @@ export default {
                     this.player = data.data;
                     // 将用户信息添加到userInfo中
                     this.userInfo.forEach((item) => {
-                        item.value = data.data[item.label];
+                        item.value = this.player[item.label];
                     });
                 } else {
                     this.fadeInfoShow(data.msg);
@@ -162,6 +162,7 @@ export default {
             }
             // 更新用户信息
             this.player = newPlayer;
+            this.player.username = this.player.username.split("_", 2)[1];
             // 将用户信息添加到userInfo中
             this.userInfo.forEach((item) => {
                 item.value = this.player[item.label];
