@@ -11,7 +11,9 @@ public class Item {
     private String description;
     private long basicPrice;
     private boolean usable;
+    private long moneyInc;
     private long expInc;
+    private long levelInc;
     private long hungerInc;
     private long hpInc;
     private long attackInc;

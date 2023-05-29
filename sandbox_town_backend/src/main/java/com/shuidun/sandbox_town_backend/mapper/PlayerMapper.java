@@ -15,4 +15,8 @@ public interface PlayerMapper {
             "VALUES (#{player.username}, #{player.money}, #{player.exp}, #{player.level}, #{player.hunger}, " +
             "#{player.hp}, #{player.attack}, #{player.defense}, #{player.speed})")
     void insertPlayer(@Param("player") Player player);
+
+    @Update("UPDATE player SET money = #{money}, exp = #{exp}, level = #{level}, hunger = #{hunger}, hp = #{hp}, " +
+            "attack = #{attack}, defense = #{defense}, speed = #{speed} WHERE username = #{username}")
+    void updatePlayer(Player player);
 }

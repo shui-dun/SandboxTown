@@ -39,6 +39,7 @@ export default {
     },
     data() {
         return {
+            player: {},
             items: [
                 // { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'item', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
                 // { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
@@ -93,6 +94,7 @@ export default {
             .then(data => {
                 if (data.code === 0) {
                     data.data.username = data.data.username.split("_", 2)[1];
+                    this.player = data.data;
                     // 将用户信息添加到userInfo中
                     this.userInfo.forEach((item) => {
                         item.value = data.data[item.label];
@@ -113,7 +115,7 @@ export default {
                     // 重命名物品的属性名
                     data.data.forEach((item) => {
                         item.id = item.itemId;
-                        item.extra = {num: item.itemCount};
+                        item.extra = { num: item.itemCount };
                         item.category = 'item';
                         item.image = require(`@/assets/img/${item.id}.png`);
                     });
@@ -130,12 +132,66 @@ export default {
     computed: {
     },
     methods: {
+        updataPlayerAttribute(newPlayer) {
+            // 映射表
+            const map = {
+                'level': '等级',
+                'money': '金钱',
+                'hunger': '饱腹值',
+                'attack': '攻击力',
+                'defense': '防御力',
+                'speed': '速度',
+                'hp': '血量',
+            };
+            // 检查每个属性变化（除开经验值）
+            for (const key in map) {
+                // 判断增加还是减少
+                if (newPlayer[key] < this.player[key]) {
+                    this.fadeInfoShow(`您的${map[key]}减少${this.player[key] - newPlayer[key]}`);
+                } else if (newPlayer[key] > this.player[key]) {
+                    this.fadeInfoShow(`您的${map[key]}增加${newPlayer[key] - this.player[key]}`);
+                }
+            }
+            // 如果等级不变，检查经验值变化
+            if (newPlayer.level === this.player.level && newPlayer.exp !== this.player.exp) {
+                if (newPlayer.exp < this.player.exp) {
+                    this.fadeInfoShow(`您的经验值减少${this.player.exp - newPlayer.exp}`);
+                } else {
+                    this.fadeInfoShow(`您的经验值增加${newPlayer.exp - this.player.exp}`);
+                }
+            }
+            // 更新用户信息
+            this.player = newPlayer;
+            // 将用户信息添加到userInfo中
+            this.userInfo.forEach((item) => {
+                item.value = this.player[item.label];
+            });
+        },
         confirm() {
             if (this.willingOperation === 'useItem') {
                 if (this.selectedItem.category === 'item') {
                     this.selectedItem.extra.num -= 1;
-                    // 由父节点显示提示信息
-                    this.fadeInfoShow(`吃下${this.selectedItem.name}，您的饱腹值+2，经验值+1`)
+                    // 使用物品
+                    fetch('/rest/item/use', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            itemId: this.selectedItem.id,
+                        }),
+                    }).then(response => response.json())
+                        .then(data => {
+                            if (data.code === 0) {
+                                // 更新用户信息
+                                this.updataPlayerAttribute(data.data);
+                            } else {
+                                this.fadeInfoShow(data.msg);
+                            }
+                        })
+                        .catch(error => {
+                            this.fadeInfoShow(`发生错误：${error}`);
+                        });
                 } else if (this.selectedItem.category === 'equipment') {
                     this.selectedItem.extra.num -= 1;
                     this.fadeInfoShow(`装备${this.selectedItem.name}`)

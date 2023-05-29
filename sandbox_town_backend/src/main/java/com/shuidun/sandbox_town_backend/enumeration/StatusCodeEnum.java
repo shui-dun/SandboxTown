@@ -18,7 +18,9 @@ public enum StatusCodeEnum {
     REQUEST_METHOD_NOT_SUPPORTED(9, "请求方法不支持"),
     USER_BEEN_BANNED(10, "用户已被封禁"),
     USERNAME_TOO_SHORT(11, "用户名太短"),
-    ILLEGAL_ARGUMENT(12, "参数不合法");
+    ILLEGAL_ARGUMENT(12, "参数不合法"),
+    ITEM_NOT_FOUND(13, "物品不存在"),
+    ITEM_NOT_USABLE(14, "物品不可用");
 
     private final int code;
     private final String msg;

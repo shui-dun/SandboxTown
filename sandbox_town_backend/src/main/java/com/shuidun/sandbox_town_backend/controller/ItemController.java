@@ -6,6 +6,7 @@ import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.ItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,5 +27,9 @@ public class ItemController {
         return new  RestResponse<>(StatusCodeEnum.SUCCESS, itemService.list(StpUtil.getLoginIdAsString()));
     }
 
-
+    /** 使用物品 */
+    @PostMapping("/use")
+    public RestResponse<?> use(String itemId) {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.use(StpUtil.getLoginIdAsString(), itemId));
+    }
 }
