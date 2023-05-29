@@ -35,8 +35,10 @@ const mainScene = {
         setDepth(this.tree);
 
         // 创建商店
-        this.store = this.matter.add.sprite(700, 400, "store", null, { isStatic: true, shape: collapseShapes.store });
+        this.store = this.matter.add.sprite(0, 0, "store", null, { isStatic: true, shape: collapseShapes.store });
         this.store.setDisplaySize(250, 250);
+        let axis = convertToCenter(this.store, 0, 0);
+        this.store.setPosition(axis.x, axis.y);
 
         this.store.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.store), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         this.store.on('pointerdown', () => {
@@ -135,6 +137,16 @@ const mainScene = {
 function setDepth(gameObject) {
     // shape中心的y坐标
     gameObject.setDepth(gameObject.y);
+}
+
+// 将图像左上角坐标转化为物体质心坐标
+function convertToCenter(gameObject, x, y) {
+    console.log(gameObject, x, y);
+    let massOffsetX = gameObject.body.centerOffset.x;
+    let massOffsetY = gameObject.body.centerOffset.y;
+    let massX = x + massOffsetX * gameObject.body.scale.x;
+    let massY = y + massOffsetY * gameObject.body.scale.y;
+    return { x: massX, y: massY};
 }
 
 export default mainScene;
