@@ -40,18 +40,18 @@ export default {
     data() {
         return {
             items: [
-                // { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
+                // { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'item', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
                 // { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
                 // { id: 3, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { num: 1 } },
                 // { id: 4, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { num: 1 } },
                 // { id: 5, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
-                // { id: 6, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识之果', extra: { num: 1 } },
-                // { id: 7, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
+                // { id: 6, name: '苹果', image: require("@/assets/img/apple.png"), category: 'item', description: '禁忌和知识之果', extra: { num: 1 } },
+                // { id: 7, name: '面包', image: require("@/assets/img/bread.png"), category: 'item', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
                 // { id: 8, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
                 // { id: 9, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { num: 1 } },
                 // { id: 10, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { num: 1 } },
                 // { id: 11, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
-                // { id: 12, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识之果', extra: { num: 1 } }
+                // { id: 12, name: '苹果', image: require("@/assets/img/apple.png"), category: 'item', description: '禁忌和知识之果', extra: { num: 1 } }
             ],
             equipment: {
                 '护甲': {},
@@ -71,7 +71,6 @@ export default {
                 { 'label': 'hp', 'show': '🩸 血量' },
             ],
             categories: [
-                { 'label': 'food', 'prompt': '食物' },
                 { 'label': 'item', 'prompt': '物品' },
                 { 'label': 'equipment', 'prompt': '装备' },
                 { 'label': 'pet', 'prompt': '宠物' },
@@ -133,7 +132,7 @@ export default {
     methods: {
         confirm() {
             if (this.willingOperation === 'useItem') {
-                if (this.selectedItem.category === 'food') {
+                if (this.selectedItem.category === 'item') {
                     this.selectedItem.extra.num -= 1;
                     // 由父节点显示提示信息
                     this.fadeInfoShow(`吃下${this.selectedItem.name}，您的饱腹值+2，经验值+1`)
@@ -164,8 +163,8 @@ export default {
                 this.fadeInfoShow(`你没有${this.selectedItem.name}`)
                 return;
             }
-            if (item.category === 'food') {
-                this.inquiryPanelPrompt = '确定食用' + item.name + '吗？';
+            if (item.category === 'item') {
+                this.inquiryPanelPrompt = '确定使用' + item.name + '吗？';
             } else if (item.category === 'equipment') {
                 this.inquiryPanelPrompt = '确定装备' + item.name + '吗？';
             } else if (item.category === 'pet') {
