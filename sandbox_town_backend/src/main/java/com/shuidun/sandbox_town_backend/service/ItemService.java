@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.shuidun.sandbox_town_backend.enumeration.Constants.EXP_PER_LEVEL;
-
 @Slf4j
 @Service
 public class ItemService {
@@ -22,9 +20,12 @@ public class ItemService {
 
     private final PlayerMapper playerMapper;
 
-    public ItemService(ItemMapper itemMapper, PlayerMapper playerMapper) {
+    private final PlayerService playerService;
+
+    public ItemService(ItemMapper itemMapper, PlayerMapper playerMapper, PlayerService playerService) {
         this.itemMapper = itemMapper;
         this.playerMapper = playerMapper;
+        this.playerService = playerService;
     }
 
     public List<PlayerItem> list(String playerName) {
@@ -52,13 +53,8 @@ public class ItemService {
         player.setAttack(player.getAttack() + playerItem.getAttackInc());
         player.setDefense(player.getDefense() + playerItem.getDefenseInc());
         player.setSpeed(player.getSpeed() + playerItem.getSpeedInc());
-        // 玩家是否升级
-        if (player.getExp() >= EXP_PER_LEVEL) {
-            player.setLevel(player.getLevel() + 1);
-            player.setExp(player.getExp() - EXP_PER_LEVEL);
-        }
-        // 更新数据库中的玩家属性
-        playerMapper.updatePlayer(player);
+        // 判断新属性是否在合理范围内（包含升级操作），随后写入数据库
+        player = playerService.normalizeAndUpdatePlayer(player);
         // 判断是否是最后一个物品
         if (playerItem.getItemCount() <= 1) {
             // 删除物品
@@ -69,5 +65,6 @@ public class ItemService {
         }
         return player;
     }
+
 
 }

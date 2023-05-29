@@ -112,12 +112,12 @@ INSERT INTO player_item
 values ('user_xixi', 'wood', 3),
        ('user_xixi', 'stone', 1),
        ('user_xixi', 'bread', 2),
-       ('user_xixi', 'apple', 1),
+       ('user_xixi', 'apple', 3),
        ('user_haha', 'wood', 3),
        ('user_haha', 'stone', 1),
        ('user_haha', 'bread', 2),
-       ('user_haha', 'apple', 1),
+       ('user_haha', 'apple', 3),
        ('user_heihei', 'wood', 3),
        ('user_heihei', 'stone', 1),
        ('user_heihei', 'bread', 2),
-       ('user_heihei', 'apple', 1);
+       ('user_heihei', 'apple', 3);
