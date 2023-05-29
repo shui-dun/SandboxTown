@@ -65,6 +65,7 @@ export default {
     },
     methods: {
     },
+    inject: ['fadeInfoShow'],
 };
 </script>
 
