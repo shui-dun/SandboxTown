@@ -40,18 +40,18 @@ export default {
     data() {
         return {
             items: [
-                { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
-                { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
-                { id: 3, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { num: 1 } },
-                { id: 4, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { num: 1 } },
-                { id: 5, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
-                { id: 6, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识之果', extra: { num: 1 } },
-                { id: 7, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
-                { id: 8, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
-                { id: 9, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { num: 1 } },
-                { id: 10, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { num: 1 } },
-                { id: 11, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
-                { id: 12, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识之果', extra: { num: 1 } }
+                // { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
+                // { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
+                // { id: 3, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { num: 1 } },
+                // { id: 4, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { num: 1 } },
+                // { id: 5, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
+                // { id: 6, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识之果', extra: { num: 1 } },
+                // { id: 7, name: '面包', image: require("@/assets/img/bread.png"), category: 'food', description: '具有松软的质地和微甜的口感', extra: { num: 1 } },
+                // { id: 8, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { num: 1 } },
+                // { id: 9, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { num: 1 } },
+                // { id: 10, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { num: 1 } },
+                // { id: 11, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { num: 1 } },
+                // { id: 12, name: '苹果', image: require("@/assets/img/apple.png"), category: 'food', description: '禁忌和知识之果', extra: { num: 1 } }
             ],
             equipment: {
                 '护甲': {},
@@ -98,6 +98,28 @@ export default {
                     this.userInfo.forEach((item) => {
                         item.value = data.data[item.label];
                     });
+                } else {
+                    this.fadeInfoShow(data.msg);
+                }
+            })
+            .catch(error => {
+                this.fadeInfoShow(`发生错误：${error}`);
+            });
+        // 从后端获取玩家物品信息
+        fetch('/rest/item/listMine', {
+            method: 'GET',
+        }).then(response => response.json())
+            .then(data => {
+                if (data.code === 0) {
+                    // 重命名物品的属性名
+                    data.data.forEach((item) => {
+                        item.id = item.itemId;
+                        item.extra = {num: item.itemCount};
+                        item.category = 'item';
+                        item.image = require(`@/assets/img/${item.id}.png`);
+                    });
+                    // 将用户物品信息添加到items最后
+                    this.items.push(...data.data);
                 } else {
                     this.fadeInfoShow(data.msg);
                 }

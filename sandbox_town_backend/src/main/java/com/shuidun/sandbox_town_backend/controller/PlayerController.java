@@ -15,11 +15,13 @@ public class PlayerController {
     @Autowired
     private PlayerService playerService;
 
+    /** 获取玩家属性信息 */
     @GetMapping("/list/{username}")
     public RestResponse<?> getPlayerByUsername(@PathVariable("username") String username) {
         return new RestResponse<>(StatusCodeEnum.SUCCESS, playerService.getPlayerInfoByUsername(username));
     }
 
+    /** 获取当前登陆玩家的属性信息 */
     @GetMapping("/listMine")
     public RestResponse<?> getMyPlayerInfo() {
         String username = StpUtil.getLoginIdAsString();
