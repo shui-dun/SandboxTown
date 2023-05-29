@@ -6,8 +6,15 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Item {
-    String id;
-    String name;
-    String description;
-    int basicPrice;
+    private String id;
+    private String name;
+    private String description;
+    private long basicPrice;
+    private boolean usable;
+    private long expInc;
+    private long hungerInc;
+    private long hpInc;
+    private long attackInc;
+    private long defenseInc;
+    private long speedInc;
 }

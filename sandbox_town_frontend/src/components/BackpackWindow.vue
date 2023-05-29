@@ -157,6 +157,11 @@ export default {
             this.showInquiryPanel = false;
         },
         onClickBackpackItem(item) {
+            // 如果物品不可使用，直接返回
+            if (!item.usable) {
+                this.fadeInfoShow(`不能使用${item.name}`);
+                return;
+            }
             this.willingOperation = 'useItem';
             this.selectedItem = item;
             if (item.extra.num <= 0) {

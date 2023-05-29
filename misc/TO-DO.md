@@ -101,7 +101,6 @@ jsfxr
 
 ## 物品模块
 
-- player_item表
 - item_status表，物品对使用者状态的影响，以及持续时间
 
 

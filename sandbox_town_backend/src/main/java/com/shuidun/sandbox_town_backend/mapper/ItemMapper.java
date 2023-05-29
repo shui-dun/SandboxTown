@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface ItemMapper {
 
-    @Select("SELECT player_item.owner, player_item.item_id, player_item.item_count, item.name, item.description, item.basicPrice\n" +
+    @Select("SELECT player_item.owner, player_item.item_id, player_item.item_count, item.name, item.description, item.basicPrice, item.usable, item.expInc, item.hungerInc, item.hpInc, item.attackInc, item.defenseInc, item.speedInc\n" +
             "FROM player_item\n" +
             "INNER JOIN item\n" +
             "ON player_item.item_id = item.id\n" +

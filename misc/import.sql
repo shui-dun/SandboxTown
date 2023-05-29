@@ -1,11 +1,11 @@
-# 删除数据库
+-- 删除数据库
 DROP DATABASE IF EXISTS sandbox_town;
 
-# 创建数据库
+-- 创建数据库
 CREATE DATABASE sandbox_town;
 USE sandbox_town;
 
-# 创建用户表
+-- 创建用户表
 CREATE TABLE user
 (
     username     VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -23,7 +23,7 @@ VALUES ('user_heihei', 'ed63891bacfd0861da88898ad002534f6d61058bce25c41e67b763a2
 INSERT INTO user (username, password, salt)
 VALUES ('user_xixi', '38232ca0c66eb3f33cc55696233fbf905fd02ceaad4242f5cd41b97b272c55d8', 'KaSg9wFMopkEaU/cDY+Xvg==');
 
-# 创建用户权限表
+-- 创建用户权限表
 CREATE TABLE user_role
 (
     username VARCHAR(255) NOT NULL,
@@ -41,7 +41,7 @@ INSERT INTO user_role (username, role)
 VALUES ('user_xixi', 'normal');
 
 
-# 创建玩家表
+-- 创建玩家表
 CREATE TABLE player
 (
     username VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -70,6 +70,8 @@ CREATE TABLE item
     description VARCHAR(255) NOT NULL,
     # 注意这个价格只是参考价格，各个商店会有上下波动
     basicPrice  INT          NOT NULL DEFAULT 0,
+    # 是否能直接被使用
+    usable      BOOLEAN      NOT NULL DEFAULT FALSE,
     # 增加经验值
     expInc      INT          NOT NULL DEFAULT 0,
     # 增加饱腹值
@@ -84,11 +86,11 @@ CREATE TABLE item
     speedInc    INT          NOT NULL DEFAULT 0
 );
 
-INSERT INTO item (id, name, description, basicPrice, expInc, hungerInc, hpInc, attackInc, defenseInc, speedInc)
-VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 2, 0, 0, 0, 0, 0, 0),
-       ('stone', '石头', '用于建造房屋和其他工具', 3, 0, 0, 0, 0, 0, 0),
-       ('bread', '面包', '具有松软的质地和微甜的口感', 3, 0, 15, 0, 0, 0, 0),
-       ('apple', '苹果', '禁忌和知识之果', 2, 10, 7, 0, 0, 0, 0);
+INSERT INTO item (id, name, description, basicPrice, usable, expInc, hungerInc, hpInc, attackInc, defenseInc, speedInc)
+VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 2, FALSE, 0, 0, 0, 0, 0, 0),
+       ('stone', '石头', '用于建造房屋和其他工具', 3, FALSE, 0, 0, 0, 0, 0, 0),
+       ('bread', '面包', '具有松软的质地和微甜的口感', 3, TRUE, 0, 15, 0, 0, 0, 0),
+       ('apple', '苹果', '禁忌和知识之果', 2, TRUE, 10, 7, 0, 0, 0, 0);
 
 # 创建玩家物品表
 
