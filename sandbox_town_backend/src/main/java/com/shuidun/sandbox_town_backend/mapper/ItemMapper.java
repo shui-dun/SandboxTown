@@ -12,14 +12,16 @@ import java.util.List;
 @Mapper
 public interface ItemMapper {
 
-    @Select("SELECT player_item.owner, player_item.item_id, player_item.item_count, item.name, item.description, item.basic_price, item.usable, item.money_inc, item.exp_inc, item.level_inc, item.hunger_inc, item.hp_inc, item.attack_inc, item.defense_inc, item.speed_inc\n" +
+    @Select("SELECT player_item.owner, player_item.item_id, player_item.item_count, " +
+            "item.name, item.description, item.basic_price, item.basic_rarity, item.usable, item.money_inc, item.exp_inc, item.level_inc, item.hunger_inc, item.hp_inc, item.attack_inc, item.defense_inc, item.speed_inc\n" +
             "FROM player_item\n" +
             "INNER JOIN item\n" +
             "ON player_item.item_id = item.id\n" +
             "WHERE player_item.owner = #{playerName}")
     public List<PlayerItem> listByUsername(String playerName);
 
-    @Select("SELECT player_item.owner, player_item.item_id, player_item.item_count, item.name, item.description, item.basic_price, item.usable, item.money_inc, item.exp_inc, item.level_inc, item.hunger_inc, item.hp_inc, item.attack_inc, item.defense_inc, item.speed_inc\n" +
+    @Select("SELECT player_item.owner, player_item.item_id, player_item.item_count, " +
+            "item.name, item.description, item.basic_price, item.basic_rarity, item.usable, item.money_inc, item.exp_inc, item.level_inc, item.hunger_inc, item.hp_inc, item.attack_inc, item.defense_inc, item.speed_inc\n" +
             "FROM player_item\n" +
             "INNER JOIN item\n" +
             "ON player_item.item_id = item.id\n" +

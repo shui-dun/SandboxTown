@@ -10,6 +10,7 @@ public class Item {
     private String name;
     private String description;
     private long basicPrice;
+    private long basicRarity;
     private boolean usable;
     private long moneyInc;
     private long expInc;
