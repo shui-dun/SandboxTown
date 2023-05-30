@@ -64,16 +64,16 @@ VALUES ('user_xixi', 10, 0, 1, 100, 100, 10, 10, 10),
 CREATE TABLE item
 (
     # id 用于标识物品，比如 wood, stone
-    id          VARCHAR(255) NOT NULL PRIMARY KEY,
+    id           VARCHAR(255) NOT NULL PRIMARY KEY,
     # name 用于显示物品名称，比如 木头，石头
-    name        VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
+    name         VARCHAR(255) NOT NULL,
+    description  VARCHAR(255) NOT NULL,
     # 注意这个价格只是参考价格，各个商店会有上下波动
     basic_price  INT          NOT NULL DEFAULT 0,
     # 基础稀有度
-    basic_rarity       INT          NOT NULL DEFAULT 0,
+    basic_rarity INT          NOT NULL DEFAULT 0,
     # 是否能直接被使用
-    usable      BOOLEAN      NOT NULL DEFAULT FALSE,
+    usable       BOOLEAN      NOT NULL DEFAULT FALSE,
     # 增加金钱
     money_inc    INT          NOT NULL DEFAULT 0,
     # 增加经验值
@@ -92,7 +92,8 @@ CREATE TABLE item
     speed_inc    INT          NOT NULL DEFAULT 0
 );
 
-INSERT INTO item (id, name, description, basic_price, basic_rarity, usable, money_inc, exp_inc, level_inc, hunger_inc, hp_inc, attack_inc, defense_inc, speed_inc)
+INSERT INTO item (id, name, description, basic_price, basic_rarity, usable, money_inc, exp_inc, level_inc, hunger_inc,
+                  hp_inc, attack_inc, defense_inc, speed_inc)
 VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 2, 100, FALSE, 0, 0, 0, 0, 0, 0, 0, 0),
        ('stone', '石头', '用于建造房屋和其他工具', 3, 70, FALSE, 0, 0, 0, 0, 0, 0, 0, 0),
        ('bread', '面包', '具有松软的质地和微甜的口感', 3, 70, TRUE, 0, 0, 0, 15, 0, 0, 0, 0),
@@ -133,28 +134,29 @@ CREATE TABLE building_type
     basic_price INT          NOT NULL DEFAULT 0,
 );
 
-INSERT INTO building_type (id, basic_price) VALUES ('store', 100);
+INSERT INTO building_type (id, basic_price)
+VALUES ('store', 200),
+       ('tree', 100);
 
 
 # 创建建筑表
 CREATE TABLE building
 (
     # 建筑的id
-    id          VARCHAR(255) NOT NULL PRIMARY KEY,
+    id      VARCHAR(255) NOT NULL PRIMARY KEY,
     # 建筑的类型
-    type        VARCHAR(255) NOT NULL,
-    # 建筑的等级（等级越高，收益越好，例如商店等级越高，商品数目越多，商品价格越低，商店价格
-    level       INT          NOT NULL DEFAULT 1,
+    type    VARCHAR(255) NOT NULL,
+    # 建筑的等级（等级越高，收益越好，例如商店等级越高，商品数目越多，商品价格越低，物品价格由其基本价格和商店等价和随机数共同决定）
+    level   INT          NOT NULL DEFAULT 1,
     # 建筑的拥有者
-    owner       VARCHAR(255) NOT NULL,
+    owner   VARCHAR(255) NOT NULL,
     # 建筑左上角的x坐标（对于建筑，我们使用图像左上角的坐标，以方便寻路算法，但是对于玩家等，我们使用质心的坐标）
-    originX    INT          NOT NULL,
+    originX INT          NOT NULL,
     # 建筑左上角的y坐标
-    originY    INT          NOT NULL
+    originY INT          NOT NULL
 );
-    
-SELECT player_item.owner, player_item.item_count, item.*
-FROM player_item
-INNER JOIN item
-ON player_item.item_id = item.id
-WHERE player_item.owner = 'user_xixi';
+
+INSERT INTO building (id, type, level, owner, originX, originY)
+VALUES ('store_1', 'store', 1, 'user_xixi', 0, 0),
+       ('store_2', 'store', 1, 'user_xixi', 0, 0),
+       ('store_3', 'store', 1, 'user_xixi', 0, 0);

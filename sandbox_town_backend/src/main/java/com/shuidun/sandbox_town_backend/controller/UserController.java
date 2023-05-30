@@ -7,7 +7,7 @@ import com.shuidun.sandbox_town_backend.bean.User;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.service.UserService;
-import com.shuidun.sandbox_town_backend.utils.MySaTokenUtils;
+import com.shuidun.sandbox_town_backend.utils.PasswordEncryptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,7 +42,7 @@ public class UserController {
             throw new BusinessException(StatusCodeEnum.USER_BEEN_BANNED);
         }
         // 判断密码是否正确
-        String encryptedPasswd = MySaTokenUtils.encryptedPasswd(password, user.getSalt());
+        String encryptedPasswd = PasswordEncryptor.encryptedPasswd(password, user.getSalt());
         if (encryptedPasswd.equals(user.getPassword())) {
             StpUtil.login(username, rememberMe);
             log.info("{} login success, rememberMe: {}", username, rememberMe);
@@ -67,7 +67,7 @@ public class UserController {
             throw new BusinessException(StatusCodeEnum.PASSWORD_TOO_SHORT);
         }
         // 生成盐和加密后的密码
-        String[] saltAndPasswd = MySaTokenUtils.generateSaltedHash(password);
+        String[] saltAndPasswd = PasswordEncryptor.generateSaltedHash(password);
         // 用户名为"user_" + usernameSuffix
         String username = "user_" + usernameSuffix;
         try {
@@ -107,10 +107,10 @@ public class UserController {
         String username = StpUtil.getLoginIdAsString();
         User user = userService.findUserByName(username);
         // 判断密码是否正确
-        String encryptedPasswd = MySaTokenUtils.encryptedPasswd(oldPassword, user.getSalt());
+        String encryptedPasswd = PasswordEncryptor.encryptedPasswd(oldPassword, user.getSalt());
         if (encryptedPasswd.equals(user.getPassword())) {
             // 生成盐和加密后的密码
-            String[] saltAndPasswd = MySaTokenUtils.generateSaltedHash(newPassword);
+            String[] saltAndPasswd = PasswordEncryptor.generateSaltedHash(newPassword);
             user.setSalt(saltAndPasswd[0]);
             user.setPassword(saltAndPasswd[1]);
             userService.updateUser(user);
