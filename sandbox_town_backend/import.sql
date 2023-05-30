@@ -130,15 +130,17 @@ CREATE TABLE building_type
 (
     # 建筑的类型，例如store
     id          VARCHAR(255) NOT NULL PRIMARY KEY,
+    # 描述信息
+    description VARCHAR(255) NOT NULL,
     # 建筑的基础价格
     basic_price INT          NOT NULL DEFAULT 0,
     # 黑白图的路径
     image_path  VARCHAR(255) NOT NULL
 );
 
-INSERT INTO building_type (id, basic_price, image_path)
-VALUES ('store', 200, 'static/bitmap/store.png'),
-       ('tree', 100, 'static/bitmap/tree.png');
+INSERT INTO building_type (id, description, basic_price, image_path)
+VALUES ('store', '买卖商品的场所', 200, 'static/bitmap/store.png'),
+       ('tree', '可以伐木或摘苹果', 100, 'static/bitmap/tree.png');
 
 
 # 创建建筑表

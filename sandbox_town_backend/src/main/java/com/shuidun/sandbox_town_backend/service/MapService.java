@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.service;
 
 import com.shuidun.sandbox_town_backend.bean.Building;
 import com.shuidun.sandbox_town_backend.bean.BuildingType;
+import com.shuidun.sandbox_town_backend.bean.MapInfo;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,8 @@ public class MapService {
     // 建筑物的黑白图的字典
     private Map<String, BufferedImage> buildingTypes = new ConcurrentHashMap<>();
 
+    private List<Building> buildings;
+
     private final BuildingMapper buildingMapper;
 
     private final int mapPixelWidth = 1900;
@@ -39,7 +42,7 @@ public class MapService {
     private String mapName;
 
     public MapService(BuildingMapper buildingMapper, @Value("${mapName}") String mapName) {
-        // 从配置文件中获取地图名称，使用构建造注入而非变量注入，否则为null
+        // 从配置文件中获取地图名称（使用构建造注入而非变量注入，否则为null）
         this.mapName = mapName;
         log.info("init map {}", mapName);
         this.buildingMapper = buildingMapper;
@@ -58,14 +61,15 @@ public class MapService {
             }
         }
 
-        // 构建地图
+        // 获取当前地图上的所有建筑物
+        buildings = buildingMapper.getAllBuildingsByMapName(mapName);
+
+        // 构建地图（用于寻路算法）
         generateMap();
     }
 
     /** 构建地图 */
     public void generateMap() {
-        // 获取当前地图上的所有建筑物
-        List<Building> buildings = buildingMapper.getAllBuildingsByMapName(mapName);
         // 遍历地图上每一格
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[0].length; x++) {
@@ -103,7 +107,6 @@ public class MapService {
         }
     }
 
-
     public int[][] getMap() {
         return map;
     }
@@ -112,4 +115,20 @@ public class MapService {
         return mapName;
     }
 
+
+    public List<Building> getBuildings() {
+        return buildings;
+    }
+
+    public int getMapPixelWidth() {
+        return mapPixelWidth;
+    }
+
+    public int getMapPixelHeight() {
+        return mapPixelHeight;
+    }
+
+    public MapInfo getMapInfo() {
+        return new MapInfo(mapPixelWidth, mapPixelHeight, getBuildings());
+    }
 }

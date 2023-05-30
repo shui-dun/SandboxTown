@@ -36,19 +36,19 @@ export default {
             this.$emit('showAttributeList', event.itemID);
         });
 
-        this.game.events.on('clickStore', (event) => {
-            this.$emit('showStore', event.storeID);
-        });
-
-        this.game.events.on('clickTree', (event) => {
-            let msg = {
-                duration: 5,
-                text: '正在摘苹果...',
-                progressCompleteEvent: () => {
-                    this.$emit('showFadeInfo', '恭喜获得一个苹果！');
-                },
+        this.game.events.on('clickTarget', (event) => {
+            if (event.type === 'tree') {
+                let msg = {
+                    duration: 5,
+                    text: '正在摘苹果...',
+                    progressCompleteEvent: () => {
+                        this.fadeInfoShow('恭喜获得一个苹果！');
+                    },
+                }
+                this.$emit('processBarShow', msg);
+            } else if (event.type == 'store') {
+                this.$emit('showStore', event.targetID);
             }
-            this.$emit('processBarShow', msg);
         });
 
 

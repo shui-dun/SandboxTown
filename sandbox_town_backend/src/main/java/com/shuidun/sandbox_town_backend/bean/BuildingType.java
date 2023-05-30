@@ -1,8 +1,10 @@
 package com.shuidun.sandbox_town_backend.bean;
 
+
 public class BuildingType {
 
   private String id;
+  private String description;
   private long basicPrice;
   private String imagePath;
 
@@ -13,6 +15,15 @@ public class BuildingType {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
 
