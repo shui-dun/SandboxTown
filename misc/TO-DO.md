@@ -131,45 +131,7 @@ class XXObserver {
 
 ## 寻路模块
 
-放到utils包里面吧
-
-地图信息的导出，用Python通过physicsEditor的输出将建筑转化为bitmap
-
 我们进行一次新寻路的条件判断, 主要抓住的是时间和位置. 如果时间间隔不够大(比如未到0.5sec), 就不寻路; 如果玩家没有移动, 那么怪物单位也没有必要再次进行寻路计算, 用之前的路线即可.
-
-
-只取下面一部分的凹多面体（用于寻路算法，需要配合下面要将的算法）bitmap.json
-
-> 引射线法是一种可行的方法来判断点是否在二维凹多边形内部。这种方法的基本思想是从目标点发出一条射线，然后统计射线与多边形边界的交点数目。如果交点数目是奇数，那么目标点在多边形内部；如果交点数目是偶数，那么目标点在多边形外部。
-
-> 这种方法的正确性基于射线穿过多边形边界的次数。当射线穿过多边形边界时，它必然从多边形的内部穿到外部，或者从外部穿到内部。因此，如果交点数目是奇数，那么射线从多边形内部穿出了奇数次，说明目标点在多边形内部。相反，如果交点数目是偶数，那么射线从多边形内部穿出了偶数次，说明目标点在多边形外部。
-
-> 下面是一个使用 Python 实现的示例：
-
-```python
-def is_point_inside_polygon(point, polygon):
-    x, y = point
-    n = len(polygon)
-    inside = False
-
-    p1x, p1y = polygon[0]
-    for i in range(1, n + 1):
-        p2x, p2y = polygon[i % n]
-        if y > min(p1y, p2y):
-            if y <= max(p1y, p2y):
-                if x <= max(p1x, p2x):
-                    if p1y != p2y:
-                        x_intersection = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                    if p1x == p2x or x <= x_intersection:
-                        inside = not inside
-        p1x, p1y = p2x, p2y
-
-    return inside
-
-# 测试
-point = (3, 4)
-polygon = [(0, 0), (5, 0), (
-```
 
 ## 状态模块
 

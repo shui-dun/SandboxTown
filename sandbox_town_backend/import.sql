@@ -132,11 +132,13 @@ CREATE TABLE building_type
     id          VARCHAR(255) NOT NULL PRIMARY KEY,
     # 建筑的基础价格
     basic_price INT          NOT NULL DEFAULT 0,
+    # 黑白图的路径
+    image_path  VARCHAR(255) NOT NULL
 );
 
-INSERT INTO building_type (id, basic_price)
-VALUES ('store', 200),
-       ('tree', 100);
+INSERT INTO building_type (id, basic_price, image_path)
+VALUES ('store', 200, 'static/bitmap/store.png'),
+       ('tree', 100, 'static/bitmap/tree.png');
 
 
 # 创建建筑表
@@ -146,6 +148,8 @@ CREATE TABLE building
     id      VARCHAR(255) NOT NULL PRIMARY KEY,
     # 建筑的类型
     type    VARCHAR(255) NOT NULL,
+    # 建筑所在的地图名称
+    map     VARCHAR(255) NOT NULL,
     # 建筑的等级（等级越高，收益越好，例如商店等级越高，商品数目越多，商品价格越低，物品价格由其基本价格和商店等价和随机数共同决定）
     level   INT          NOT NULL DEFAULT 1,
     # 建筑的拥有者
@@ -153,10 +157,15 @@ CREATE TABLE building
     # 建筑左上角的x坐标（对于建筑，我们使用图像左上角的坐标，以方便寻路算法，但是对于玩家等，我们使用质心的坐标）
     originX INT          NOT NULL,
     # 建筑左上角的y坐标
-    originY INT          NOT NULL
+    originY INT          NOT NULL,
+    # 建筑的宽度
+    display_width   INT          NOT NULL,
+    # 建筑的高度
+    display_height  INT          NOT NULL,
+    CONSTRAINT fk_building_type FOREIGN KEY (type) REFERENCES building_type (id),
+    CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES player (username)
 );
 
-INSERT INTO building (id, type, level, owner, originX, originY)
-VALUES ('store_1', 'store', 1, 'user_xixi', 0, 0),
-       ('store_2', 'store', 1, 'user_xixi', 0, 0),
-       ('store_3', 'store', 1, 'user_xixi', 0, 0);
+INSERT INTO building (id, type, map, level, owner, originX, originY, display_width, display_height)
+VALUES ('store_Pk86H7rTSm2XJdGoHFe-7A', 'store', '1', 1, 'user_xixi', 0, 0, 300, 300),
+       ('tree_hjQLffrhQayNLVuty_poLg', 'tree', '1', 1, 'user_xixi', 200, 500, 400, 400);
