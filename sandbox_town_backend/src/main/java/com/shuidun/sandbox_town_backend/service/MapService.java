@@ -12,9 +12,9 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 进行地图相关的操作，例如寻路算法
@@ -24,9 +24,7 @@ import java.util.Map;
 public class MapService {
 
     // 建筑物的黑白图的字典
-    private Map<String, BufferedImage> buildingTypes = new HashMap<>();
-
-    private List<Building> buildings;
+    private Map<String, BufferedImage> buildingTypes = new ConcurrentHashMap<>();
 
     private final BuildingMapper buildingMapper;
 
@@ -67,7 +65,7 @@ public class MapService {
     /** 构建地图 */
     public void generateMap() {
         // 获取当前地图上的所有建筑物
-        buildings = buildingMapper.getAllBuildingsByMapName(mapName);
+        List<Building> buildings = buildingMapper.getAllBuildingsByMapName(mapName);
         // 遍历地图上每一格
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[0].length; x++) {
@@ -105,6 +103,7 @@ public class MapService {
         }
     }
 
+
     public int[][] getMap() {
         return map;
     }
@@ -112,4 +111,5 @@ public class MapService {
     public String getMapName() {
         return mapName;
     }
+
 }

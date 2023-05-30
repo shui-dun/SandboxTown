@@ -1,9 +1,8 @@
 package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.shuidun.sandbox_town_backend.bean.WSEvent;
-import com.shuidun.sandbox_town_backend.bean.WSResponseEvent;
-import com.shuidun.sandbox_town_backend.enumeration.ResponseEventEnum;
+import com.shuidun.sandbox_town_backend.bean.Event;
+import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.AbstractWebSocketMessage;
@@ -27,7 +26,7 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String userName = (String) session.getAttributes().get("userName");
-        WebSocketUser.add(userName, session);
+        WebSocketMap.setSessionByUsername(userName, session);
         log.info("call afterConnectionEstablished");
     }
 
@@ -38,7 +37,7 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("call afterConnectionClosed");
         String userName = (String) session.getAttributes().get("userName");
-        WebSocketUser.removeWebSocketSession(userName, session);
+        WebSocketMap.removeWebSocketSession(userName, session);
         super.afterConnectionClosed(session, status);
     }
 
@@ -51,9 +50,9 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
         super.handleTextMessage(session, message);
         String messagePayload = message.getPayload();
         if (!"".equals(messagePayload)) {
-            WSEvent event = JSONObject.parseObject(messagePayload, WSEvent.class);
+            Event event = JSONObject.parseObject(messagePayload, Event.class);
             log.info(event.toString());
-            WSResponseEvent responseEvent = new WSResponseEvent(ResponseEventEnum.FOO, Map.of("x", 1, "y", 2));
+            Event responseEvent = new Event(EventEnum.FOO, Map.of("x", 1, "y", 2));
             sendMessageToAllUsers(new TextMessage(JSONObject.toJSONString(responseEvent)));
         }
 
@@ -63,19 +62,23 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
      * 发送消息给所有用户
      */
     public void sendMessageToAllUsers(AbstractWebSocketMessage<?> message) {
-        for (var sessions : WebSocketUser.getSessionList()) {
-            for (var session : sessions) {
-                try {
-                    if (!session.isOpen()) {
-                        WebSocketUser.removeWebSocketSession("player1", session);
-                    } else {
-                        session.sendMessage(message);
-                        log.info("发送session{}消息: {}", session, message.toString());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+        // 遍历所有用户session的键值对
+        for (Map.Entry<String, WebSocketSession> entry : WebSocketMap.getEntrySet()) {
+            // 用户名
+            String userName = entry.getKey();
+            // 会话
+            WebSocketSession session = entry.getValue();
+            try {
+                if (!session.isOpen()) {
+                    WebSocketMap.removeWebSocketSession(userName, session);
+                } else {
+                    session.sendMessage(message);
+                    log.info("发送session{}消息: {}", session, message.toString());
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
+
     }
 }

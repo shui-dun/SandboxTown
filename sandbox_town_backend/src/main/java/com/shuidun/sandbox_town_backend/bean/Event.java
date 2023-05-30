@@ -10,7 +10,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WSEvent {
+public class Event {
     private EventEnum type;
 
     private Map<String, Object> data;

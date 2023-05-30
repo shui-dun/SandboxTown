@@ -25,7 +25,7 @@ public class EventWebSocketInterceptor extends HttpSessionHandshakeInterceptor {
         log.info("call beforeHandshake");
         // 先要通过sa-token判断用户是否登录
         if (!StpUtil.isLogin()) {
-            log.info("user not login");
+            log.error("user not login");
             return false;
         }
         attributes.put("userName", "player1");

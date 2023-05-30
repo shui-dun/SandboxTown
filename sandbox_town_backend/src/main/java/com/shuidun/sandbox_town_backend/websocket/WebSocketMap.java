@@ -5,17 +5,17 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class WebSocketUser {
-    private static final Map<String, List<WebSocketSession>> userNameWebSession = new ConcurrentHashMap<>();
+public class WebSocketMap {
+    private static final Map<String, WebSocketSession> userNameWebSession = new ConcurrentHashMap<>();
 
-    public static void add(String userName, WebSocketSession webSocketSession) {
-        userNameWebSession.computeIfAbsent(userName, v -> new ArrayList<>()).add(webSocketSession);
+    public static void setSessionByUsername(String userName, WebSocketSession webSocketSession) {
+        userNameWebSession.put(userName, webSocketSession);
     }
 
     /**
      * 根据username获取其WebSocketSession
      */
-    public static List<WebSocketSession> getSessionByUserName(String userName) {
+    public static WebSocketSession getSessionByUserName(String userName) {
         return userNameWebSession.get(userName);
     }
 
@@ -26,11 +26,7 @@ public class WebSocketUser {
         if (webSocketSession == null) {
             return;
         }
-        List<WebSocketSession> webSocketSessions = userNameWebSession.get(userName);
-        if (webSocketSessions == null || webSocketSessions.isEmpty()) {
-            return;
-        }
-        webSocketSessions.remove(webSocketSession);
+        userNameWebSession.remove(userName, webSocketSession);
     }
 
     /**
@@ -43,7 +39,14 @@ public class WebSocketUser {
     /**
      * 得到session列表
      */
-    public static Collection<List<WebSocketSession>> getSessionList() {
+    public static Collection<WebSocketSession> getSessionList() {
         return userNameWebSession.values();
+    }
+
+    /**
+     * 得到键值对
+     */
+    public static Set<Map.Entry<String, WebSocketSession>> getEntrySet() {
+        return userNameWebSession.entrySet();
     }
 }

@@ -108,27 +108,6 @@ jsfxr
 
 ### 算法
 
-使用观察者模式：
-
-观察者模式使用map实现，避免isinstanceof
-
-```java
-class ObserverNotifier {
-    Map<EventEnum, List<Observer>> map;
-    notifyAll(EventEnum);
-}
-
-class Observer {
-    update();
-}
-
-class XXObserver {
-    Map<EventEnum, Function> mp;
-}
-```
-
-同时，还需要使用状态机维护观察者的状态
-
 ## 寻路模块
 
 我们进行一次新寻路的条件判断, 主要抓住的是时间和位置. 如果时间间隔不够大(比如未到0.5sec), 就不寻路; 如果玩家没有移动, 那么怪物单位也没有必要再次进行寻路计算, 用之前的路线即可.
