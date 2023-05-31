@@ -44,10 +44,10 @@ public class MapServiceTest {
         int count = 0;
         for (int[] ints : map) {
             for (int anInt : ints) {
-                if (anInt == 1) {
+                if (anInt != 0) {
                     count++;
                 }
-                System.out.print(anInt);
+                System.out.printf("%20d", anInt);
             }
             System.out.println();
         }

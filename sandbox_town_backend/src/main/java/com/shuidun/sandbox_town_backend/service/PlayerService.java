@@ -13,8 +13,11 @@ import static com.shuidun.sandbox_town_backend.enumeration.Constants.EXP_PER_LEV
 
 @Service
 public class PlayerService {
-    @Autowired
-    private PlayerMapper playerMapper;
+    private final PlayerMapper playerMapper;
+
+    public PlayerService(PlayerMapper playerMapper) {
+        this.playerMapper = playerMapper;
+    }
 
     public Player getPlayerInfoByUsername(String username) {
         Player player = playerMapper.getPlayerByUsername(username);

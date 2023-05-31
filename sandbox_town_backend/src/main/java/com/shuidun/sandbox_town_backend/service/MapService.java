@@ -1,9 +1,9 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.Building;
-import com.shuidun.sandbox_town_backend.bean.BuildingType;
-import com.shuidun.sandbox_town_backend.bean.MapInfo;
+import com.shuidun.sandbox_town_backend.bean.*;
+import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
+import com.shuidun.sandbox_town_backend.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -37,6 +37,7 @@ public class MapService {
 
     private final int pixelsPerGrid = 20;
 
+    /** 地图，用于寻路算法，0表示可以通过，非0表示障碍物ID的哈希值 */
     private int[][] map = new int[mapPixelHeight / pixelsPerGrid][mapPixelWidth / pixelsPerGrid];
 
     private String mapName;
@@ -95,7 +96,7 @@ public class MapService {
                         // 如果当前格子中心是黑色
                         if (color == Color.BLACK.getRGB()) {
                             // 将当前格子标记为不可通行
-                            map[y][x] = 1;
+                            map[y][x] = building.hashCode();
                         } else {
                             // 将当前格子标记为可通行
                             map[y][x] = 0;
@@ -105,6 +106,27 @@ public class MapService {
                 }
             }
         }
+    }
+
+    /** 寻路算法 */
+    public Path findPath(int x0, int y0, int x1, int y1) {
+        // 将物理坐标转换为地图坐标
+        int startX = x0 / pixelsPerGrid;
+        int startY = y0 / pixelsPerGrid;
+        int endX = x1 / pixelsPerGrid;
+        int endY = y1 / pixelsPerGrid;
+        // 调用寻路算法
+        List<Point> path = PathUtils.findPath(map, startX, startY, endX, endY);
+        // 判断是否为空
+        if (path == null) {
+            return null;
+        }
+        // 将地图坐标转换为物理坐标
+        for (Point point : path) {
+            point.setX(point.getX() * pixelsPerGrid + pixelsPerGrid / 2);
+            point.setY(point.getY() * pixelsPerGrid + pixelsPerGrid / 2);
+        }
+        return new Path(path, 1);
     }
 
     public int[][] getMap() {
@@ -130,5 +152,15 @@ public class MapService {
 
     public MapInfo getMapInfo() {
         return new MapInfo(mapPixelWidth, mapPixelHeight, getBuildings());
+    }
+
+    public boolean isNear(Point p1, Point p2) {
+        // 计算2范数
+        return Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2)) <= (double) pixelsPerGrid / 2;
+    }
+
+    public boolean isFar(Point p1, Point p2) {
+        // 计算2范数
+        return Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2)) > (double) pixelsPerGrid * 2;
     }
 }

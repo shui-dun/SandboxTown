@@ -28,7 +28,8 @@ public class EventWebSocketInterceptor extends HttpSessionHandshakeInterceptor {
             log.error("user not login");
             return false;
         }
-        attributes.put("userName", "player1");
+        // 将用户名放入ws session属性列表
+        attributes.put("userName", StpUtil.getLoginIdAsString());
         return super.beforeHandshake(request, response, wsHandler, attributes);
     }
 

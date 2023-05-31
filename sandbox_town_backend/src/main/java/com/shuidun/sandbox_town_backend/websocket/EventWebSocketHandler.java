@@ -1,11 +1,12 @@
 package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.shuidun.sandbox_town_backend.bean.Event;
+import com.shuidun.sandbox_town_backend.bean.EventMessage;
+import com.shuidun.sandbox_town_backend.bean.WSResponse;
 import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
+import com.shuidun.sandbox_town_backend.observer.ObserverNotifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.AbstractWebSocketMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -13,6 +14,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * websocket消息处理器
@@ -20,13 +22,22 @@ import java.util.Map;
 @Service
 @Slf4j
 public class EventWebSocketHandler extends TextWebSocketHandler {
+
     /**
      * 建立连接后
      */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String userName = (String) session.getAttributes().get("userName");
-        WebSocketMap.setSessionByUsername(userName, session);
+        // 如果用户已经存在，删除之前的session
+        if (WSManager.usernameSession.containsKey(userName)) {
+            WebSocketSession webSocketSession = WSManager.usernameSession.get(userName);
+            if (webSocketSession.isOpen()) {
+                webSocketSession.close();
+            }
+        }
+        // 保存用户session
+        WSManager.usernameSession.put(userName, session);
         log.info("call afterConnectionEstablished");
     }
 
@@ -37,7 +48,10 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("call afterConnectionClosed");
         String userName = (String) session.getAttributes().get("userName");
-        WebSocketMap.removeWebSocketSession(userName, session);
+        WSManager.usernameSession.remove(userName, session);
+        // 发出下线事件
+        EventMessage eventMessage = new EventMessage(EventEnum.OFFLINE, userName, null);
+        ObserverNotifier.notify(eventMessage);
         super.afterConnectionClosed(session, status);
     }
 
@@ -46,39 +60,16 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        log.info("收到websocket消息: {}", message.toString());
         super.handleTextMessage(session, message);
         String messagePayload = message.getPayload();
-        if (!"".equals(messagePayload)) {
-            Event event = JSONObject.parseObject(messagePayload, Event.class);
-            log.info(event.toString());
-            Event responseEvent = new Event(EventEnum.FOO, Map.of("x", 1, "y", 2));
-            sendMessageToAllUsers(new TextMessage(JSONObject.toJSONString(responseEvent)));
+        if ("".equals(messagePayload)) {
+            return;
         }
-
+        EventMessage eventMessage = JSONObject.parseObject(messagePayload, EventMessage.class);
+        eventMessage.setInitiator((String) session.getAttributes().get("userName"));
+        log.info("收到来自用户{}的消息：{}", session.getAttributes().get("userName"), eventMessage);
+        // 通知给观察者
+        ObserverNotifier.notify(eventMessage);
     }
 
-    /**
-     * 发送消息给所有用户
-     */
-    public void sendMessageToAllUsers(AbstractWebSocketMessage<?> message) {
-        // 遍历所有用户session的键值对
-        for (Map.Entry<String, WebSocketSession> entry : WebSocketMap.getEntrySet()) {
-            // 用户名
-            String userName = entry.getKey();
-            // 会话
-            WebSocketSession session = entry.getValue();
-            try {
-                if (!session.isOpen()) {
-                    WebSocketMap.removeWebSocketSession(userName, session);
-                } else {
-                    session.sendMessage(message);
-                    log.info("发送session{}消息: {}", session, message.toString());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
 }
