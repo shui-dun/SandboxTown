@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -108,13 +109,16 @@ public class PlayerObserver extends AbstractObserver {
                 // 如果玩家偏离了路径
                 if (isOff) {
                     log.info("玩家偏离了路径");
-                    // 更新玩家的路径（重新进行寻路）
-                    playerPath.put(initiator, mapService.findPath(
-                            x, y,
-                            path.getPoints().get(path.getPoints().size() - 1).getX(),
-                            path.getPoints().get(path.getPoints().size() - 1).getY(),
-                            playerWidth, playerHeight
-                    ));
+                    // 一定概率下更新玩家的路径（重新进行寻路）
+                    if (new Random().nextDouble() < 0.05) {
+                        log.info("重新寻路");
+                        playerPath.put(initiator, mapService.findPath(
+                                x, y,
+                                path.getPoints().get(path.getPoints().size() - 1).getX(),
+                                path.getPoints().get(path.getPoints().size() - 1).getY(),
+                                playerWidth, playerHeight
+                        ));
+                    }
                 } else { // 如果玩家没有偏离路径
                     log.info("玩家按照路径移动");
                     // 首先往前找，找到第一个接近的点的下标（这是因为玩家可能走得过快，会跳过一些点）
