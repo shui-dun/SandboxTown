@@ -38,7 +38,7 @@ public class MapService {
     private final int pixelsPerGrid = 25;
 
     /** 地图，用于寻路算法，0表示可以通过，非0表示障碍物ID的哈希值 */
-    private int[][] map = new int[mapPixelHeight / pixelsPerGrid][mapPixelWidth / pixelsPerGrid];
+    private int[][] map = new int[mapPixelWidth / pixelsPerGrid][mapPixelHeight / pixelsPerGrid];
 
     private String mapName;
 

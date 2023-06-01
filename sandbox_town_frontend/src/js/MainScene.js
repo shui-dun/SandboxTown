@@ -50,7 +50,7 @@ const mainScene = {
                 let direction = new Phaser.Math.Vector2(response.data.x - item.x, response.data.y - item.y);
                 direction.normalize();
                 item.setVelocity(direction.x * speed, direction.y * speed);
-            } 
+            }
         }
 
         ws.onerror = function (event) {
@@ -176,8 +176,9 @@ const mainScene = {
 
         // 添加点击事件
         this.input.on('pointerdown', function (pointer) {
-            const x = pointer.x;
-            const y = pointer.y;
+            const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            const x = worldPoint.x;
+            const y = worldPoint.y;
             // 发送移动请求
             ws.send(JSON.stringify({
                 "type": "MOVE",

@@ -66,6 +66,7 @@ public class PathUtils {
 
     // A*算法实现
     public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY) {
+        log.info("startX: {}, startY: {}, endX: {}, endY: {}", startX, startY, endX, endY);
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
 
