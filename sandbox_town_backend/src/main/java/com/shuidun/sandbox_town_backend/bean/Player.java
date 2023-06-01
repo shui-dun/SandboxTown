@@ -116,4 +116,20 @@ public class Player {
     this.Y = Y;
   }
 
+  @Override
+  public String toString() {
+    return "Player{" +
+            "username='" + username + '\'' +
+            ", money=" + money +
+            ", exp=" + exp +
+            ", level=" + level +
+            ", hunger=" + hunger +
+            ", hp=" + hp +
+            ", attack=" + attack +
+            ", defense=" + defense +
+            ", speed=" + speed +
+            ", X=" + X +
+            ", Y=" + Y +
+            '}';
+  }
 }

@@ -34,7 +34,7 @@ public class UserService {
     public void createUser(User user) {
         userMapper.insertUser(user);
         roleMapper.insertUserRole(user.getUsername(), "normal");
-        Player player = new Player(user.getUsername(), 10, 0, 1, 100, 100, 10, 10, 10, 0, 0);
+        Player player = new Player(user.getUsername(), 10, 0, 1, 100, 100, 10, 10, 5, 0, 0);
         playerMapper.insertPlayer(player);
     }
 

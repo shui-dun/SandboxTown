@@ -65,7 +65,7 @@ public class PathUtils {
     }
 
     // A*算法实现
-    public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY) {
+    public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY, int speed) {
         log.info("startX: {}, startY: {}, endX: {}, endY: {}", startX, startY, endX, endY);
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
@@ -82,10 +82,20 @@ public class PathUtils {
             }
 
             if (currentNode.x == endX && currentNode.y == endY) {
+                // 如果速度过大，需要缩短路径，否则会出现反复横跳的情况
+                // 每interval个点取一个
+                int interval = speed / 3;
+                int count = 0;
                 List<Point> path = new ArrayList<>();
+                // 终点肯定是要加入的
+                path.add(new Point(currentNode.x, currentNode.y));
+                currentNode = currentNode.parent;
                 while (currentNode != null) {
-                    path.add(new Point(currentNode.x, currentNode.y));
+                    if (count % interval == 0) {
+                        path.add(new Point(currentNode.x, currentNode.y));
+                    }
                     currentNode = currentNode.parent;
+                    count++;
                 }
                 Collections.reverse(path);
                 log.info("closedList length: {}", closedList.size());

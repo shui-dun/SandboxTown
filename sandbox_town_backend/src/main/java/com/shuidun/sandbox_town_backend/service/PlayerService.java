@@ -4,6 +4,7 @@ import com.shuidun.sandbox_town_backend.bean.Player;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.PlayerMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static com.shuidun.sandbox_town_backend.enumeration.Constants.EXP_PER_LEVEL;
 
+@Slf4j
 @Service
 public class PlayerService {
     private final PlayerMapper playerMapper;
@@ -21,6 +23,7 @@ public class PlayerService {
 
     public Player getPlayerInfoByUsername(String username) {
         Player player = playerMapper.getPlayerByUsername(username);
+        log.info("玩家 {} 的信息为 {}", username, player);
         if (player == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }

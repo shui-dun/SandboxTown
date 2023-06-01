@@ -9,7 +9,6 @@ import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.service.MapService;
 import com.shuidun.sandbox_town_backend.service.PlayerService;
 import com.shuidun.sandbox_town_backend.utils.NumUtils;
-import com.shuidun.sandbox_town_backend.websocket.EventWebSocketHandler;
 import com.shuidun.sandbox_town_backend.websocket.WSManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -49,6 +48,7 @@ public class PlayerObserver extends AbstractObserver {
         mp.put(EventEnum.ONLINE, (initiator, data) -> {
             // 从数据库中读取玩家的信息
             players.put(initiator, playerService.getPlayerInfoByUsername(initiator));
+            log.info("玩家 {} 上线, {}", initiator, players.get(initiator).toString());
             playerStatus.put(initiator, PlayerStatusEnum.NORMAL);
             return null;
         });
@@ -87,18 +87,25 @@ public class PlayerObserver extends AbstractObserver {
                             Map.of("x", x, "y", y, "speed", 0, "id", initiator)));
                     return null;
                 }
-                // 如果玩家的坐标已经到达了下一个点
-                if (mapService.isNear(path.getPoints().get(path.getNextPos()), position)) {
-                    log.info("玩家到达了下一个点");
+                // 找到用户到达了哪一个点
+                int ind = path.getPoints().size() - 1;
+                while (ind >= path.getNextPos() &&
+                        !mapService.isNear(path.getPoints().get(ind), position)) {
+                    log.info("ind: {}, x: {}, y: {}", ind, path.getPoints().get(ind).getX(), path.getPoints().get(ind).getY());
+                    ind--;
+                }
+                if (ind >= path.getNextPos()) {
                     // 更新玩家的路径
-                    path.setNextPos(path.getNextPos() + 1);
-                } else if (mapService.isFar(path.getPoints().get(path.getNextPos()), position)) { // 如果玩家偏离了路径
+                    log.info("玩家到达了下一个点");
+                    path.setNextPos(ind);
+                } else {
                     log.info("玩家偏离了路径");
                     // 更新玩家的路径（重新进行寻路）
                     playerPath.put(initiator, mapService.findPath(
                             x, y,
                             path.getPoints().get(path.getPoints().size() - 1).getX(),
-                            path.getPoints().get(path.getPoints().size() - 1).getY()
+                            path.getPoints().get(path.getPoints().size() - 1).getY(),
+                            (int) players.get(initiator).getSpeed()
                     ));
                 }
                 // 通知玩家移动
@@ -124,7 +131,7 @@ public class PlayerObserver extends AbstractObserver {
             Path path = mapService.findPath(
                     x0, y0,
                     NumUtils.toInt(data.get("x1")),
-                    NumUtils.toInt(data.get("y1")));
+                    NumUtils.toInt(data.get("y1")), (int) players.get(initiator).getSpeed());
             playerPath.put(initiator, path);
             // 更新玩家的状态
             playerStatus.put(initiator, PlayerStatusEnum.PATHFINDING);
