@@ -71,12 +71,14 @@ public class PlayerObserver extends AbstractObserver {
             // 更新玩家的坐标信息
             players.get(initiator).setX(x);
             players.get(initiator).setY(y);
+            // 玩家的速度
+            int speed = (int) players.get(initiator).getSpeed();
             // 如果玩家正在寻路
             if (playerStatus.get(initiator) == PlayerStatusEnum.PATHFINDING) {
                 // 获得玩家的路径
                 Path path = playerPath.get(initiator);
                 // 如果玩家已经到达终点
-                if (mapService.isNear(path.getPoints().get(path.getPoints().size() - 1), position)) {
+                if (mapService.isNear(path.getPoints().get(path.getPoints().size() - 1), position, speed)) {
                     log.info("玩家到达了终点");
                     // 更新玩家的状态
                     playerStatus.put(initiator, PlayerStatusEnum.NORMAL);
@@ -84,32 +86,33 @@ public class PlayerObserver extends AbstractObserver {
                     playerPath.remove(initiator);
                     // 通知玩家停止移动
                     WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE,
-                            Map.of("x", x, "y", y, "speed", 0, "id", initiator)));
+                            Map.of("x0", x, "y0", y,
+                                    "x", x, "y", y, "speed", 0, "id", initiator)));
                     return null;
                 }
-                // 找到用户到达了哪一个点
-                int ind = path.getPoints().size() - 1;
-                while (ind >= path.getNextPos() &&
-                        !mapService.isNear(path.getPoints().get(ind), position)) {
-                    log.info("ind: {}, x: {}, y: {}", ind, path.getPoints().get(ind).getX(), path.getPoints().get(ind).getY());
-                    ind--;
+                // 看看玩家到达了哪里
+                int ind = path.getNextPos();
+                while (ind < path.getPoints().size() && mapService.isNear(path.getPoints().get(ind), position, speed)) {
+                    ind++;
                 }
-                if (ind >= path.getNextPos()) {
-                    // 更新玩家的路径
-                    log.info("玩家到达了下一个点");
-                    path.setNextPos(ind);
-                } else {
+                // 如果玩家偏离了路径
+                if (ind == path.getPoints().size()) {
                     log.info("玩家偏离了路径");
                     // 更新玩家的路径（重新进行寻路）
                     playerPath.put(initiator, mapService.findPath(
                             x, y,
                             path.getPoints().get(path.getPoints().size() - 1).getX(),
-                            path.getPoints().get(path.getPoints().size() - 1).getY(),
-                            (int) players.get(initiator).getSpeed()
+                            path.getPoints().get(path.getPoints().size() - 1).getY()
                     ));
+                } else { // 如果玩家没有偏离路径
+                    log.info("玩家按照路径移动");
+                    // 更新玩家的路径
+                    path.setNextPos(ind);
+
                 }
                 // 通知玩家移动
                 WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE, Map.of(
+                        "x0", x, "y0", y,
                         "x", path.getPoints().get(path.getNextPos()).getX(),
                         "y", path.getPoints().get(path.getNextPos()).getY(),
                         "speed", players.get(initiator).getSpeed(),
@@ -131,13 +134,13 @@ public class PlayerObserver extends AbstractObserver {
             Path path = mapService.findPath(
                     x0, y0,
                     NumUtils.toInt(data.get("x1")),
-                    NumUtils.toInt(data.get("y1")), (int) players.get(initiator).getSpeed());
+                    NumUtils.toInt(data.get("y1")));
             playerPath.put(initiator, path);
             // 更新玩家的状态
             playerStatus.put(initiator, PlayerStatusEnum.PATHFINDING);
-            log.info("找到的路径： {}", playerPath.get(initiator));
             // 通知玩家移动
             WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE, Map.of(
+                    "x0", x0, "y0", y0,
                     "x", path.getPoints().get(path.getNextPos()).getX(),
                     "y", path.getPoints().get(path.getNextPos()).getY(),
                     "speed", players.get(initiator).getSpeed(),

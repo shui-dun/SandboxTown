@@ -9,6 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum WSResponseEnum {
     // 移动
-    // {"x": 1, "y": 2, "speed": 3, "id": "user_xixi"}
+    // {"x0" : 3, "y0": 5, x": 1, "y": 2, "speed": 3, "id": "user_xixi"}
     MOVE,
 }

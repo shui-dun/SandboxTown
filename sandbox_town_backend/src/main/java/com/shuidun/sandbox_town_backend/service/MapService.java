@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.bean.Point;
+import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class MapService {
 
     private final int mapPixelHeight = 1000;
 
-    private final int pixelsPerGrid = 25;
+    private final int pixelsPerGrid = 20;
 
     /** 地图，用于寻路算法，0表示可以通过，非0表示障碍物ID的哈希值 */
     private int[][] map = new int[mapPixelWidth / pixelsPerGrid][mapPixelHeight / pixelsPerGrid];
@@ -109,7 +109,7 @@ public class MapService {
     }
 
     /** 寻路算法 */
-    public Path findPath(int x0, int y0, int x1, int y1, int speed) {
+    public Path findPath(int x0, int y0, int x1, int y1) {
         log.info("find path from ({}, {}) to ({}, {})", x0, y0, x1, y1);
         // 将物理坐标转换为地图坐标
         int startX = x0 / pixelsPerGrid;
@@ -117,7 +117,7 @@ public class MapService {
         int endX = x1 / pixelsPerGrid;
         int endY = y1 / pixelsPerGrid;
         // 调用寻路算法
-        List<Point> path = PathUtils.findPath(map, startX, startY, endX, endY, speed);
+        List<Point> path = PathUtils.findPath(map, startX, startY, endX, endY);
         // 判断是否为空
         if (path == null) {
             return null;
@@ -155,13 +155,13 @@ public class MapService {
         return new MapInfo(mapPixelWidth, mapPixelHeight, getBuildings());
     }
 
-    public boolean isNear(Point p1, Point p2) {
+    // 判断两个点是否接近，注意这与速度有关
+    public boolean isNear(Point p1, Point p2, int speed) {
+        log.info("distance between ({}, {}) and ({}, {}) is {}", p1.getX(), p1.getY(), p2.getX(), p2.getY(), Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2)));
         // 计算2范数
-        return Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2)) <= (double) pixelsPerGrid / 2;
-    }
-
-    public boolean isFar(Point p1, Point p2) {
-        // 计算2范数
-        return Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2)) > (double) pixelsPerGrid * 2;
+        // 如果factor设置得过小，玩家会出现反复横跳的现象，因为当玩家当前位置超过目标位置，但是离目标位置的下一个位置被认为是远的时候，玩家会朝着“目标位置”移动，也就是离终点的反方向
+        // 如果factor设置的过大，玩家距离终点很远时就会被认为接近终点，停止运动，这样玩家就不会到达终点
+        double factor = 2;
+        return Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2)) <= (double) speed * factor;
     }
 }

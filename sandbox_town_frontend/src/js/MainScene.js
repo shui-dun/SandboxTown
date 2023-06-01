@@ -44,6 +44,8 @@ const mainScene = {
             if (response.type === 'MOVE') {
                 // 物品
                 let item = id2item[response.data.id];
+                // 如果不是玩家自己，就设置位置
+                // item.setPosition(response.data.x0, response.data.y0);
                 // 速度
                 let speed = response.data.speed;
                 // 判断新位置相比物品当前位置的方向，据此设置物品的速度

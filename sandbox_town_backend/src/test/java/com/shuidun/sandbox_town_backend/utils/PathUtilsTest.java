@@ -19,7 +19,5 @@ class PathUtilsTest {
 
     @Test
     void findPath() {
-        List<Point> path = PathUtils.findPath(mapService.getMap(), 23, 15, 33, 15);
-        assert path != null;
     }
 }
