@@ -35,7 +35,7 @@ public class MapService {
 
     private final int mapPixelHeight = 1000;
 
-    private final int pixelsPerGrid = 20;
+    private final int pixelsPerGrid = 25;
 
     /** 地图，用于寻路算法，0表示可以通过，非0表示障碍物ID的哈希值 */
     private int[][] map = new int[mapPixelHeight / pixelsPerGrid][mapPixelWidth / pixelsPerGrid];
@@ -110,6 +110,7 @@ public class MapService {
 
     /** 寻路算法 */
     public Path findPath(int x0, int y0, int x1, int y1) {
+        log.info("find path from ({}, {}) to ({}, {})", x0, y0, x1, y1);
         // 将物理坐标转换为地图坐标
         int startX = x0 / pixelsPerGrid;
         int startY = y0 / pixelsPerGrid;

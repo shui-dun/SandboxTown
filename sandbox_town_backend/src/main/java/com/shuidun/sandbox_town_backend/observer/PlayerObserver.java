@@ -77,10 +77,11 @@ public class PlayerObserver extends AbstractObserver {
                 Path path = playerPath.get(initiator);
                 // 如果玩家已经到达终点
                 if (mapService.isNear(path.getPoints().get(path.getPoints().size() - 1), position)) {
+                    log.info("玩家到达了终点");
                     // 更新玩家的状态
                     playerStatus.put(initiator, PlayerStatusEnum.NORMAL);
                     // 更新玩家的路径
-                    // playerPath.put(initiator, null);
+                    playerPath.remove(initiator);
                     // 通知玩家停止移动
                     WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE,
                             Map.of("x", x, "y", y, "speed", 0, "id", initiator)));
@@ -88,13 +89,17 @@ public class PlayerObserver extends AbstractObserver {
                 }
                 // 如果玩家的坐标已经到达了下一个点
                 if (mapService.isNear(path.getPoints().get(path.getNextPos()), position)) {
+                    log.info("玩家到达了下一个点");
                     // 更新玩家的路径
                     path.setNextPos(path.getNextPos() + 1);
                 } else if (mapService.isFar(path.getPoints().get(path.getNextPos()), position)) { // 如果玩家偏离了路径
+                    log.info("玩家偏离了路径");
                     // 更新玩家的路径（重新进行寻路）
                     playerPath.put(initiator, mapService.findPath(
-                            (int) data.get("x0"), (int) data.get("y0"),
-                            (int) data.get("x1"), (int) data.get("y1")));
+                            x, y,
+                            path.getPoints().get(path.getPoints().size() - 1).getX(),
+                            path.getPoints().get(path.getPoints().size() - 1).getY()
+                    ));
                 }
                 // 通知玩家移动
                 WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE, Map.of(
@@ -110,10 +115,14 @@ public class PlayerObserver extends AbstractObserver {
 
         // 想要移动
         mp.put(EventEnum.MOVE, (initiator, data) -> {
+            int x0 = NumUtils.toInt(data.get("x0"));
+            int y0 = NumUtils.toInt(data.get("y0"));
+            // 更新玩家的坐标信息
+            players.get(initiator).setX(x0);
+            players.get(initiator).setY(y0);
             // 更新玩家的找到的路径
             Path path = mapService.findPath(
-                    NumUtils.toInt(data.get("x0")),
-                    NumUtils.toInt(data.get("y0")),
+                    x0, y0,
                     NumUtils.toInt(data.get("x1")),
                     NumUtils.toInt(data.get("y1")));
             playerPath.put(initiator, path);

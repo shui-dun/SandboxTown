@@ -16,7 +16,13 @@ public class ObserverNotifier {
     public static void notify(EventMessage eventMessage) {
         // TO-DO：增加作弊校验
 
-        map.get(eventMessage.getType()).forEach(observer -> observer.update(eventMessage));
+        map.get(eventMessage.getType()).forEach(observer -> {
+            try {
+                observer.update(eventMessage);
+            } catch (Exception e) {
+                log.error("observer update error", e);
+            }
+        });
     }
 
     public static void register(EventEnum eventEnum, AbstractObserver observer) {

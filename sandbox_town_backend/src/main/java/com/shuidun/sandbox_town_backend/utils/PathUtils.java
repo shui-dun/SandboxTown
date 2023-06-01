@@ -110,21 +110,10 @@ public class PathUtils {
                     continue;
                 }
 
-                // boolean shouldAddToOpenList = true;
-                // for (Node openNode : openList) {
-                //     if (openNode.x == newX && openNode.y == newY && openNode.fCost() <= neighbor.fCost()) {
-                //         shouldAddToOpenList = false;
-                //         break;
-                //     }
-                // }
-                //
-                // if (shouldAddToOpenList) {
-                //     openList.add(neighbor);
-                // }
                 openList.add(neighbor);
             }
         }
-
+        log.info("can not find path");
         return null; // 如果没有找到路径，返回null
     }
 

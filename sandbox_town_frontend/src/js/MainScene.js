@@ -174,8 +174,6 @@ const mainScene = {
         // 设置键盘输入监听
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        console.log('玩家位置:', player);
-
         // 添加点击事件
         this.input.on('pointerdown', function (pointer) {
             const x = pointer.x;
@@ -190,6 +188,7 @@ const mainScene = {
                     "y1": y,
                 }
             }));
+            console.log('click at: ' + x + ', ' + y);
         });
     },
     update: function () {

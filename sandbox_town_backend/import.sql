@@ -59,9 +59,9 @@ CREATE TABLE player
 );
 
 INSERT INTO player (username, money, exp, level, hunger, hp, attack, defense, speed, x, y)
-VALUES ('user_xixi', 10, 0, 1, 100, 100, 10, 10, 10, 0, 0),
-       ('user_haha', 10, 0, 1, 100, 100, 10, 10, 10, 100, 100),
-       ('user_heihei', 10, 0, 1, 100, 100, 10, 10, 10, 200, 200);
+VALUES ('user_xixi', 10, 0, 1, 100, 100, 10, 10, 5, 0, 0),
+       ('user_haha', 10, 0, 1, 100, 100, 10, 10, 5, 100, 100),
+       ('user_heihei', 10, 0, 1, 100, 100, 10, 10, 5, 200, 200);
 
 # 创建物品表
 CREATE TABLE item
