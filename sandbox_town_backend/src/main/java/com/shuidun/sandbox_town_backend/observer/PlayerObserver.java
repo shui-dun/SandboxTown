@@ -22,7 +22,7 @@ public class PlayerObserver extends AbstractObserver {
     // 玩家状态枚举类
     private enum PlayerStatusEnum {
         // 正常状态
-        NORMAL,
+        STOP,
         // 寻路状态
         PATHFINDING,
     }
@@ -40,6 +40,10 @@ public class PlayerObserver extends AbstractObserver {
 
     private final MapService mapService;
 
+    private int playerWidth = (int) (120 * 0.8);
+
+    private int playerHeight = (int) (120 * 0.8);
+
     public PlayerObserver(PlayerService playerService, MapService mapService) {
         this.playerService = playerService;
         this.mapService = mapService;
@@ -49,7 +53,7 @@ public class PlayerObserver extends AbstractObserver {
             // 从数据库中读取玩家的信息
             players.put(initiator, playerService.getPlayerInfoByUsername(initiator));
             log.info("玩家 {} 上线, {}", initiator, players.get(initiator).toString());
-            playerStatus.put(initiator, PlayerStatusEnum.NORMAL);
+            playerStatus.put(initiator, PlayerStatusEnum.STOP);
             return null;
         });
         ObserverNotifier.register(EventEnum.ONLINE, this);
@@ -81,7 +85,7 @@ public class PlayerObserver extends AbstractObserver {
                 if (mapService.isNear(path.getPoints().get(path.getPoints().size() - 1), position, speed)) {
                     log.info("玩家到达了终点");
                     // 更新玩家的状态
-                    playerStatus.put(initiator, PlayerStatusEnum.NORMAL);
+                    playerStatus.put(initiator, PlayerStatusEnum.STOP);
                     // 更新玩家的路径
                     playerPath.remove(initiator);
                     // 通知玩家停止移动
@@ -90,13 +94,19 @@ public class PlayerObserver extends AbstractObserver {
                                     "x", x, "y", y, "speed", 0, "id", initiator)));
                     return null;
                 }
-                // 看看玩家到达了哪里
+                // 看看玩家是否偏离路线
                 int ind = path.getNextPos();
-                while (ind < path.getPoints().size() && mapService.isNear(path.getPoints().get(ind), position, speed)) {
+                boolean isOff = true;
+                // 最后一个接近的点的下标（如果没有接近的点，那么说明玩家偏离路线了）
+                while (ind < path.getPoints().size()) {
+                    if (mapService.isNear(path.getPoints().get(ind), position, speed)) {
+                        isOff = false;
+                        break;
+                    }
                     ind++;
                 }
                 // 如果玩家偏离了路径
-                if (ind == path.getPoints().size()) {
+                if (isOff) {
                     log.info("玩家偏离了路径");
                     // 更新玩家的路径（重新进行寻路）
                     playerPath.put(initiator, mapService.findPath(
@@ -106,6 +116,23 @@ public class PlayerObserver extends AbstractObserver {
                     ));
                 } else { // 如果玩家没有偏离路径
                     log.info("玩家按照路径移动");
+                    // 首先往前找，找到第一个接近的点的下标（这是因为玩家可能走得过快，会跳过一些点）
+                    ind = path.getNextPos();
+                    while (ind < path.getPoints().size()) {
+                        if (mapService.isNear(path.getPoints().get(ind), position, speed)) {
+                            break;
+                        } else {
+                            ind++;
+                        }
+                    }
+                    // 再往后找到第一个不接近的点的下标，作为前进目标
+                    while (ind < path.getPoints().size()) {
+                        if (!mapService.isNear(path.getPoints().get(ind), position, speed)) {
+                            break;
+                        } else {
+                            ind++;
+                        }
+                    }
                     // 更新玩家的路径
                     path.setNextPos(ind);
 

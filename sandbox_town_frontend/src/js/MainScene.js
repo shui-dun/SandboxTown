@@ -119,7 +119,7 @@ const mainScene = {
             }));
             lastX = player.x;
             lastY = player.y;
-        }, 50);
+        }, 100);
 
         // 创建角色2 (user_haha)
         player2 = this.matter.add.sprite(400, 100, "player", null, { shape: collapseShapes.player });

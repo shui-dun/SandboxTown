@@ -161,7 +161,7 @@ public class MapService {
         // 计算2范数
         // 如果factor设置得过小，玩家会出现反复横跳的现象，因为当玩家当前位置超过目标位置，但是离目标位置的下一个位置被认为是远的时候，玩家会朝着“目标位置”移动，也就是离终点的反方向
         // 如果factor设置的过大，玩家距离终点很远时就会被认为接近终点，停止运动，这样玩家就不会到达终点
-        double factor = 2;
+        double factor = 4;
         return Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2)) <= (double) speed * factor;
     }
 }
