@@ -40,9 +40,9 @@ public class PlayerObserver extends AbstractObserver {
 
     private final MapService mapService;
 
-    private int playerWidth = (int) (120 * 0.8);
+    private int playerWidth = (int) (120 * 0.6);
 
-    private int playerHeight = (int) (120 * 0.8);
+    private int playerHeight = (int) (120 * 0.7);
 
     public PlayerObserver(PlayerService playerService, MapService mapService) {
         this.playerService = playerService;
@@ -112,7 +112,8 @@ public class PlayerObserver extends AbstractObserver {
                     playerPath.put(initiator, mapService.findPath(
                             x, y,
                             path.getPoints().get(path.getPoints().size() - 1).getX(),
-                            path.getPoints().get(path.getPoints().size() - 1).getY()
+                            path.getPoints().get(path.getPoints().size() - 1).getY(),
+                            playerWidth, playerHeight
                     ));
                 } else { // 如果玩家没有偏离路径
                     log.info("玩家按照路径移动");
@@ -161,7 +162,8 @@ public class PlayerObserver extends AbstractObserver {
             Path path = mapService.findPath(
                     x0, y0,
                     NumUtils.toInt(data.get("x1")),
-                    NumUtils.toInt(data.get("y1")));
+                    NumUtils.toInt(data.get("y1")),
+                    playerWidth, playerHeight);
             playerPath.put(initiator, path);
             // 更新玩家的状态
             playerStatus.put(initiator, PlayerStatusEnum.PATHFINDING);

@@ -72,8 +72,8 @@ public class MapService {
     /** 构建地图 */
     public void generateMap() {
         // 遍历地图上每一格
-        for (int y = 0; y < map.length; y++) {
-            for (int x = 0; x < map[0].length; x++) {
+        for (int x = 0; x < map.length; x++) {
+            for (int y = 0; y < map[0].length; y++) {
                 // 遍历每一个建筑物
                 for (Building building : buildings) {
                     // 获取当前格的中心的像素坐标
@@ -96,10 +96,10 @@ public class MapService {
                         // 如果当前格子中心是黑色
                         if (color == Color.BLACK.getRGB()) {
                             // 将当前格子标记为不可通行
-                            map[y][x] = building.hashCode();
+                            map[x][y] = building.hashCode();
                         } else {
                             // 将当前格子标记为可通行
-                            map[y][x] = 0;
+                            map[x][y] = 0;
                         }
                         break;
                     }
@@ -109,15 +109,19 @@ public class MapService {
     }
 
     /** 寻路算法 */
-    public Path findPath(int x0, int y0, int x1, int y1) {
+    public Path findPath(int x0, int y0, int x1, int y1, int itemWidth, int itemHeight) {
         log.info("find path from ({}, {}) to ({}, {})", x0, y0, x1, y1);
         // 将物理坐标转换为地图坐标
         int startX = x0 / pixelsPerGrid;
         int startY = y0 / pixelsPerGrid;
         int endX = x1 / pixelsPerGrid;
         int endY = y1 / pixelsPerGrid;
+        // 将物品宽高的像素转换为地图坐标
+        int itemHalfWidth = (int) Math.ceil((double) itemWidth / pixelsPerGrid) / 2;
+        int itemHalfHeight = (int) Math.ceil((double) itemHeight / pixelsPerGrid) / 2;
+        log.info("item half width {}, item half height {}", itemHalfWidth, itemHalfHeight);
         // 调用寻路算法
-        List<Point> path = PathUtils.findPath(map, startX, startY, endX, endY);
+        List<Point> path = PathUtils.findPath(map, startX, startY, endX, endY, itemHalfWidth, itemHalfHeight);
         // 判断是否为空
         if (path == null) {
             return null;
@@ -157,7 +161,6 @@ public class MapService {
 
     // 判断两个点是否接近，注意这与速度有关
     public boolean isNear(Point p1, Point p2, int speed) {
-        log.info("distance between ({}, {}) and ({}, {}) is {}", p1.getX(), p1.getY(), p2.getX(), p2.getY(), Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2)));
         // 计算2范数
         // 如果factor设置得过小，玩家会出现反复横跳的现象，因为当玩家当前位置超过目标位置，但是离目标位置的下一个位置被认为是远的时候，玩家会朝着“目标位置”移动，也就是离终点的反方向
         // 如果factor设置的过大，玩家距离终点很远时就会被认为接近终点，停止运动，这样玩家就不会到达终点

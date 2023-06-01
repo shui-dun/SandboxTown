@@ -64,8 +64,32 @@ public class PathUtils {
         return x >= 0 && x < map.length && y >= 0 && y < map[0].length;
     }
 
+    // 判断给定的坐标是否是障碍物
+    private static boolean isObstacle(int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight) {
+        // 由于物体本身占据一定长宽，因此在这里需要判断物体所占据的空间内是否有障碍物，为方便起见，这里只判断了物体的边界的8个点
+        // 这8个点分别是左上角、左下角、右上角、右下角、上边中点、下边中点、左边中点、右边中点
+        int[][] points = {
+                {x, y},
+                {x - itemHalfWidth, y - itemHalfHeight},
+                {x - itemHalfWidth, y + itemHalfHeight},
+                {x + itemHalfWidth, y - itemHalfHeight},
+                {x + itemHalfWidth, y + itemHalfHeight},
+                {x, y - itemHalfHeight},
+                {x, y + itemHalfHeight},
+                {x - itemHalfWidth, y},
+                {x + itemHalfWidth, y}
+        };
+        for (int[] point : points) {
+            if (!isValid(map, point[0], point[1]) || map[point[0]][point[1]] != 0) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
     /** 寻找路径 */
-    public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY) {
+    public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY, int itemHalfWidth, int itemHalfHeight) {
         log.info("startX: {}, startY: {}, endX: {}, endY: {}", startX, startY, endX, endY);
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
@@ -98,7 +122,7 @@ public class PathUtils {
                 int newX = currentNode.x + direction[0];
                 int newY = currentNode.y + direction[1];
 
-                if (!isValid(map, newX, newY) || map[newX][newY] != 0) {
+                if (!isValid(map, newX, newY) || isObstacle(map, newX, newY, itemHalfWidth, itemHalfHeight)) {
                     continue;
                 }
 
