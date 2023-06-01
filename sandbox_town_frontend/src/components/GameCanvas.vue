@@ -51,53 +51,8 @@ export default {
             }
         });
 
-
-        // 测试websocket
-        var ws = new WebSocket("ws://localhost:9090/event");
-
-        ws.onopen = function () {
-            console.log("Connection open ...");
-            ws.send(JSON.stringify({
-                "type": "foo",
-                "data": {
-                    "xixi": "haha",
-                    "hehe": "nani"
-                }
-            }));
-        };
-
-        ws.onmessage = function (event) {
-            console.log("Received data");
-            console.log(JSON.parse(event.data));
-        }
-
-        ws.onerror = function (event) {
-            console.log(`Connection error:`, event);
-        };
-
-        ws.onclose = function () {
-            console.log("Connection closed.");
-        };
-
-
-
     },
     methods: {
-        // 得到指定用户属性信息
-        getAttributeList(playerName) {
-            fetch(`/rest/player/list/${playerName}`, {
-                method: 'GET',
-            }).then(response => response.json())
-                .then(data => {
-                    if (data.code === 0) {
-                        return data.data;
-                    } else {
-                        this.fadeInfoShow(data.msg);
-                    }
-                }).catch(error => {
-                    this.fadeInfoShow(`请求出错: ${error}`);
-                });
-        },
     },
 };
 

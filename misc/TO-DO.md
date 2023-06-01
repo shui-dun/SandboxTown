@@ -19,9 +19,11 @@
 
 ## 部署
 
-使用docker-compose吧，暂时不上k8s
+使用docker-compose吧
 
 如何用nginx反向代理websocket？参见 https://blog.csdn.net/qq_25919479/article/details/126035517
+
+更远的计划：spring cloud, k8s
 
 ## 通信格式
 

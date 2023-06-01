@@ -9,8 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum WSResponseEnum {
     // 移动
-    // {"x": 1, "y": 2}
+    // {"x": 1, "y": 2, "speed": 3, "id": "user_xixi"}
     MOVE,
-    // 停止运动
-    STOP,
 }
