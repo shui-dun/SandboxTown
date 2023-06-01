@@ -2,9 +2,11 @@ package com.shuidun.sandbox_town_backend.utils;
 
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.service.MapService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
+@Slf4j
 public class PathUtils {
 
     // 定义八个方向的移动，包括斜向
@@ -35,10 +37,22 @@ public class PathUtils {
         public int compareTo(Node other) {
             return Integer.compare(this.fCost(), other.fCost());
         }
-    }
 
-    // 地图
-    private static int[][] map;
+        @Override
+        public int hashCode() {
+            // 只使用坐标来计算哈希值
+            return Objects.hash(x, y);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            // 只比较坐标
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            Node other = (Node) obj;
+            return x == other.x && y == other.y;
+        }
+    }
 
     // 计算启发式距离（二范数）
     private static int heuristic(int x1, int y1, int x2, int y2) {
@@ -46,13 +60,12 @@ public class PathUtils {
     }
 
     // 判断给定的坐标是否在地图范围内
-    private static boolean isValid(int x, int y) {
+    private static boolean isValid(int[][] map, int x, int y) {
         return x >= 0 && x < map.length && y >= 0 && y < map[0].length;
     }
 
     // A*算法实现
     public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY) {
-        PathUtils.map = map;
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
 
@@ -74,6 +87,7 @@ public class PathUtils {
                     currentNode = currentNode.parent;
                 }
                 Collections.reverse(path);
+                log.info("closedList length: {}", closedList.size());
                 return path;
             }
 
@@ -83,7 +97,7 @@ public class PathUtils {
                 int newX = currentNode.x + direction[0];
                 int newY = currentNode.y + direction[1];
 
-                if (!isValid(newX, newY) || map[newX][newY] != 0) {
+                if (!isValid(map, newX, newY) || map[newX][newY] != 0) {
                     continue;
                 }
 
