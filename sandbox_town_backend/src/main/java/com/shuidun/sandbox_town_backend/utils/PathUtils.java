@@ -1,7 +1,6 @@
 package com.shuidun.sandbox_town_backend.utils;
 
 import com.shuidun.sandbox_town_backend.bean.Point;
-import com.shuidun.sandbox_town_backend.service.MapService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -64,8 +63,8 @@ public class PathUtils {
         return x >= 0 && x < map.length && y >= 0 && y < map[0].length;
     }
 
-    // 判断给定的坐标是否是障碍物
-    private static boolean isObstacle(int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight) {
+    // 判断给定的坐标是否不能容下物体
+    private static boolean cannotHold(int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight) {
         // 由于物体本身占据一定长宽，因此在这里需要判断物体所占据的空间内是否有障碍物，为方便起见，这里只判断了物体的边界的8个点
         // 这8个点分别是左上角、左下角、右上角、右下角、上边中点、下边中点、左边中点、右边中点
         int[][] points = {
@@ -91,6 +90,12 @@ public class PathUtils {
     /** 寻找路径 */
     public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY, int itemHalfWidth, int itemHalfHeight) {
         log.info("startX: {}, startY: {}, endX: {}, endY: {}", startX, startY, endX, endY);
+        // 如果起点和终点本身可达，但是周围不能容下物体，那么启动强力模式（无视物体宽高）
+        if ((map[startX][startY] == 0 && map[endX][endY] == 0) && (cannotHold(map, startX, startY, itemHalfWidth, itemHalfHeight) || cannotHold(map, endX, endY, itemHalfWidth, itemHalfHeight))) {
+            log.info("强力寻路模式启动");
+            itemHalfWidth = 0;
+            itemHalfHeight = 0;
+        }
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
 
@@ -122,7 +127,7 @@ public class PathUtils {
                 int newX = currentNode.x + direction[0];
                 int newY = currentNode.y + direction[1];
 
-                if (!isValid(map, newX, newY) || isObstacle(map, newX, newY, itemHalfWidth, itemHalfHeight)) {
+                if (!isValid(map, newX, newY) || cannotHold(map, newX, newY, itemHalfWidth, itemHalfHeight)) {
                     continue;
                 }
 
