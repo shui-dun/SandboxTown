@@ -132,6 +132,31 @@ const mainScene = {
         });
         id2item['user_haha'] = player2;
 
+        // 补间动画
+        const path = new Phaser.Curves.Path(600, 600);
+        path.lineTo(300, 600);
+        path.lineTo(300, 300);
+        path.lineTo(600, 300);
+        path.lineTo(600, 600);
+
+        const tweenProgress = {value : 0};
+
+        this.tweens.add({
+            targets: tweenProgress,
+            value: 1,
+            duration: 4000,
+            ease: 'Linear',
+            repeat: 0,
+            onRepeat: () => {
+                player2.angle += 90;
+            },
+            onUpdate: () => {
+                const point = path.getPoint(tweenProgress.value);
+                console.log(point);
+                this.matter.body.setPosition(player2.body, {x: point.x, y: point.y});
+            },
+        });
+
         // 创建狗
         dog = this.matter.add.sprite(100, 400, "dog", null, { shape: collapseShapes.dog });
         dog.setDisplaySize(120, 120);
@@ -171,6 +196,10 @@ const mainScene = {
                 this.game.events.emit('showFadeInfo', { "msg": '恭喜获得1个苹果🍎' });
             }
             lastCollisionTime = now;
+            // 如果是玩家之间的碰撞
+            if (item1 === player && item2 === player2) {
+                this.game.events.emit('showFadeInfo', { "msg": '你好，我是user_haha' });
+            }
         });
 
         // 设置键盘输入监听
