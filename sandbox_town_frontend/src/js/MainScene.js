@@ -1,5 +1,7 @@
-// import SimplexNoise from "perlin-simplex";
+import SimplexNoise from "perlin-simplex";
 import Phaser from "phaser";
+// 导入noisejs库
+// import { Noise } from 'noisejs';
 
 // 设置id->item的映射
 var id2item = {};
@@ -132,9 +134,41 @@ const mainScene = {
         this.cameras.main.setBounds(0, 0, mapInfo.mapWidth, mapInfo.mapHeight);
 
         // 创建纹理，在地图的随机位置创建一定数目随机纹理
-        for (let i = 0; i < 100; i++) {
-            let texture = this.add.image(Math.random() * mapInfo.mapWidth, Math.random() * mapInfo.mapHeight, "texture" + (Math.floor(Math.random() * 4) + 1));
-            texture.setDisplaySize(25, 25);
+        // for (let i = 0; i < 100; i++) {
+        //     let texture = this.add.image(Math.random() * mapInfo.mapWidth, Math.random() * mapInfo.mapHeight, "texture" + (Math.floor(Math.random() * 4) + 1));
+        //     texture.setDisplaySize(25, 25);
+        // }
+
+        let simplex = new SimplexNoise();
+        for (let x = 0; x < mapInfo.mapWidth; x += 32) {
+            for (let y = 0; y < mapInfo.mapHeight; y += 32) {
+                // 使用 Perlin 噪声生成随机值
+                const noiseValue = simplex.noise(x * 0.1, y * 0.1);
+                console.log(noiseValue);
+                // 根据噪声值选择地形纹理
+                let textureName;
+                if (noiseValue < -0.75) {
+                    textureName = "texture1";
+                } else if (noiseValue < -0.12) {
+                    continue;
+                } else if (noiseValue < -0.1) {
+                    textureName = "texture2";
+                } else if (noiseValue < 0.12) {
+                    continue;
+                } else if (noiseValue < 0.15) {
+                    textureName = "texture3";
+                } else if (noiseValue < 0.18) {
+                    continue;
+                } else if (noiseValue < 0.2) {
+                    textureName = "texture4";
+                } else {
+                    continue;
+                }
+
+                // 在当前位置创建地形
+                let texture = this.add.image(x, y, textureName);
+                texture.setDisplaySize(25, 25);
+            }
         }
 
         // 创建建筑
