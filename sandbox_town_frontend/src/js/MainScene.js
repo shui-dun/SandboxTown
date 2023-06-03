@@ -22,6 +22,12 @@ const mainScene = {
         this.load.image("store", require("@/assets/img/store.png"));
         this.load.image("tree", require("@/assets/img/tree.png"));
 
+        // 加载纹理图片
+        this.load.image("texture1", require("@/assets/img/texture1.png"));
+        this.load.image("texture2", require("@/assets/img/texture2.png"));
+        this.load.image("texture3", require("@/assets/img/texture3.png"));
+        this.load.image("texture4", require("@/assets/img/texture4.png"));
+
         this.load.json('collapseShapes', require("@/assets/json/collapseShapes.json"));
         this.load.json('clickShapes', require("@/assets/json/clickShapes.json"));
 
@@ -124,6 +130,12 @@ const mainScene = {
         let clickShapes = this.cache.json.get('clickShapes');
         this.cameras.main.setBackgroundColor('#d3c6a6');
         this.cameras.main.setBounds(0, 0, mapInfo.mapWidth, mapInfo.mapHeight);
+
+        // 创建纹理，在地图的随机位置创建一定数目随机纹理
+        for (let i = 0; i < 100; i++) {
+            let texture = this.add.image(Math.random() * mapInfo.mapWidth, Math.random() * mapInfo.mapHeight, "texture" + (Math.floor(Math.random() * 4) + 1));
+            texture.setDisplaySize(25, 25);
+        }
 
         // 创建建筑
         for (let i = 0; i < mapInfo.buildings.length; i++) {
