@@ -109,7 +109,7 @@ public class MapService {
     }
 
     /** 寻路算法 */
-    public Path findPath(int x0, int y0, int x1, int y1, int itemWidth, int itemHeight) {
+    public List<Point> findPath(int x0, int y0, int x1, int y1, int itemWidth, int itemHeight) {
         log.info("find path from ({}, {}) to ({}, {})", x0, y0, x1, y1);
         // 将物理坐标转换为地图坐标
         int startX = x0 / pixelsPerGrid;
@@ -131,7 +131,7 @@ public class MapService {
             point.setX(point.getX() * pixelsPerGrid + pixelsPerGrid / 2);
             point.setY(point.getY() * pixelsPerGrid + pixelsPerGrid / 2);
         }
-        return new Path(path, 1);
+        return path;
     }
 
     public int[][] getMap() {

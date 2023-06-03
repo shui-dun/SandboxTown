@@ -27,6 +27,8 @@ const mainScene = {
 
     },
     create: async function () {
+        let self = this;
+
         // 建立websocket连接
         ws = new WebSocket("ws://localhost:9090/event");
 
@@ -44,14 +46,34 @@ const mainScene = {
             if (response.type === 'MOVE') {
                 // 物品
                 let item = id2item[response.data.id];
-                // 如果不是玩家自己，就设置位置
-                // item.setPosition(response.data.x0, response.data.y0);
                 // 速度
                 let speed = response.data.speed;
-                // 判断新位置相比物品当前位置的方向，据此设置物品的速度
-                let direction = new Phaser.Math.Vector2(response.data.x - item.x, response.data.y - item.y);
-                direction.normalize();
-                item.setVelocity(direction.x * speed, direction.y * speed);
+                // 路径
+                let originPath = response.data.path;
+                // 创建补间动画
+                const path = new Phaser.Curves.Path(originPath[0], originPath[1]);
+                for (let i = 2; i < originPath.length; i += 2) {
+                    path.lineTo(originPath[i], originPath[i + 1]);
+                }
+
+                console.log(path, path.getLength());
+
+                let tweenProgress = { value: 0 };
+
+                self.tweens.add({
+                    targets: tweenProgress,
+                    value: 1,
+                    duration: speed * path.getLength() / 4,
+                    ease: 'Linear',
+                    repeat: 0,
+                    onRepeat: () => {
+                        item.angle += 90;
+                    },
+                    onUpdate: () => {
+                        const point = path.getPoint(tweenProgress.value);
+                        self.matter.body.setPosition(item.body, { x: point.x, y: point.y });
+                    },
+                });
             }
         }
 
@@ -113,6 +135,7 @@ const mainScene = {
             ws.send(JSON.stringify({
                 "type": "COORDINATE",
                 "data": {
+                    "id": "user_xixi",
                     "x": player.x,
                     "y": player.y,
                 }
@@ -131,31 +154,6 @@ const mainScene = {
             this.game.events.emit('showAttributeList', { "itemID": 'user_haha' });
         });
         id2item['user_haha'] = player2;
-
-        // 补间动画
-        const path = new Phaser.Curves.Path(600, 600);
-        path.lineTo(300, 600);
-        path.lineTo(300, 300);
-        path.lineTo(600, 300);
-        path.lineTo(600, 600);
-
-        const tweenProgress = {value : 0};
-
-        this.tweens.add({
-            targets: tweenProgress,
-            value: 1,
-            duration: 4000,
-            ease: 'Linear',
-            repeat: 0,
-            onRepeat: () => {
-                player2.angle += 90;
-            },
-            onUpdate: () => {
-                const point = path.getPoint(tweenProgress.value);
-                console.log(point);
-                this.matter.body.setPosition(player2.body, {x: point.x, y: point.y});
-            },
-        });
 
         // 创建狗
         dog = this.matter.add.sprite(100, 400, "dog", null, { shape: collapseShapes.dog });
@@ -232,7 +230,6 @@ const mainScene = {
         setDepth(player);
         setDepth(player2);
         setDepth(dog);
-        // 在这里编写游戏逻辑，例如角色移动、碰撞检测等
         // 角色移动速度
         const speed = 8;
 
