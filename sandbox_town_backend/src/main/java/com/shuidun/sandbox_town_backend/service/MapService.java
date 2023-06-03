@@ -96,7 +96,7 @@ public class MapService {
                         // 如果当前格子中心是黑色
                         if (color == Color.BLACK.getRGB()) {
                             // 将当前格子标记为不可通行
-                            map[x][y] = building.hashCode();
+                            map[x][y] = building.getId().hashCode();
                         } else {
                             // 将当前格子标记为可通行
                             map[x][y] = 0;
@@ -109,7 +109,7 @@ public class MapService {
     }
 
     /** 寻路算法 */
-    public List<Point> findPath(int x0, int y0, int x1, int y1, int itemWidth, int itemHeight) {
+    public List<Point> findPath(int x0, int y0, int x1, int y1, int itemWidth, int itemHeight, Integer destinationHashCode) {
         log.info("find path from ({}, {}) to ({}, {})", x0, y0, x1, y1);
         // 将物理坐标转换为地图坐标
         int startX = x0 / pixelsPerGrid;
@@ -121,7 +121,7 @@ public class MapService {
         int itemHalfHeight = (int) Math.ceil((double) itemHeight / pixelsPerGrid) / 2;
         log.info("item half width {}, item half height {}", itemHalfWidth, itemHalfHeight);
         // 调用寻路算法
-        List<Point> path = PathUtils.findPath(map, startX, startY, endX, endY, itemHalfWidth, itemHalfHeight);
+        List<Point> path = PathUtils.findPath(map, startX, startY, endX, endY, itemHalfWidth, itemHalfHeight, destinationHashCode);
         // 判断是否为空
         if (path == null) {
             return null;
@@ -159,12 +159,4 @@ public class MapService {
         return new MapInfo(mapPixelWidth, mapPixelHeight, getBuildings());
     }
 
-    // 判断两个点是否接近，注意这与速度有关
-    public boolean isNear(Point p1, Point p2, int speed) {
-        // 计算2范数
-        // 如果factor设置得过小，玩家会出现反复横跳的现象，因为当玩家当前位置超过目标位置，但是离目标位置的下一个位置被认为是远的时候，玩家会朝着“目标位置”移动，也就是离终点的反方向
-        // 如果factor设置的过大，玩家距离终点很远时就会被认为接近终点，停止运动，这样玩家就不会到达终点
-        double factor = 4;
-        return Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2)) <= (double) speed * factor;
-    }
 }

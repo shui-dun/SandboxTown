@@ -36,7 +36,7 @@ export default {
             this.$emit('showAttributeList', event.itemID);
         });
 
-        this.game.events.on('clickTarget', (event) => {
+        this.game.events.on('ArriveAtTarget', (event) => {
             if (event.type === 'tree') {
                 let msg = {
                     duration: 5,

@@ -39,6 +39,7 @@ const mainScene = {
             }));
         };
 
+        let lastTween = null;
         ws.onmessage = function (event) {
             console.log("Received data", JSON.parse(event.data));
             let response = JSON.parse(event.data);
@@ -50,30 +51,42 @@ const mainScene = {
                 let speed = response.data.speed;
                 // 路径
                 let originPath = response.data.path;
+                // 终点id
+                let dest_id = response.data.dest_id;
                 // 创建补间动画
                 const path = new Phaser.Curves.Path(originPath[0], originPath[1]);
-                for (let i = 2; i < originPath.length; i += 2) {
+                // 提前一步终止，防止到达终点后因为卡进建筑而抖动
+                let lastPos = originPath.length;
+                for (let i = 2; i < lastPos; i += 2) {
                     path.lineTo(originPath[i], originPath[i + 1]);
                 }
 
-                console.log(path, path.getLength());
-
                 let tweenProgress = { value: 0 };
-
-                self.tweens.add({
+                if (lastTween != null) {
+                    // 如果上一个补间动画还没结束，就停止上一个补间动画
+                    lastTween.stop();
+                }
+                let tween = self.tweens.add({
                     targets: tweenProgress,
                     value: 1,
                     duration: speed * path.getLength() / 4,
                     ease: 'Linear',
                     repeat: 0,
-                    onRepeat: () => {
-                        item.angle += 90;
-                    },
                     onUpdate: () => {
                         const point = path.getPoint(tweenProgress.value);
                         self.matter.body.setPosition(item.body, { x: point.x, y: point.y });
                     },
+                    onComplete: () => {
+                        if (this.isStopped) {
+                            return;
+                        }
+                        // 触发该目的地的到达事件
+                        if (dest_id != null) {
+                            self.game.events.emit('ArriveAtTarget', { "type": dest_id.split("_", 2)[0], "targetID": dest_id });
+                        }
+                    }
                 });
+                lastTween = tween;
             }
         }
 
@@ -110,8 +123,23 @@ const mainScene = {
             setDepth(buildingSprite);
             // 设置点击建筑物的事件
             buildingSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes[building.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
-            buildingSprite.on('pointerdown', () => {
-                this.game.events.emit('clickTarget', { "type": building.type, "targetID": building.id });
+            buildingSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
+                const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+                const x = worldPoint.x;
+                const y = worldPoint.y;
+                // 发送移动请求
+                ws.send(JSON.stringify({
+                    "type": "MOVE",
+                    "data": {
+                        "x0": player.x,
+                        "y0": player.y,
+                        "x1": x,
+                        "y1": y,
+                        "dest_id": building.id,
+                    }
+                }));
+                // 阻止事件冒泡
+                event.stopPropagation();
             });
         }
 
@@ -216,6 +244,7 @@ const mainScene = {
                     "y0": player.y,
                     "x1": x,
                     "y1": y,
+                    "dest_id": null,
                 }
             }));
             console.log('click at: ' + x + ', ' + y);

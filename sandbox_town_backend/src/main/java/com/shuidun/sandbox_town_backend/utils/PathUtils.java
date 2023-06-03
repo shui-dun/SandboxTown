@@ -64,7 +64,7 @@ public class PathUtils {
     }
 
     // 判断给定的坐标是否不能容下物体
-    private static boolean cannotHold(int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight, int startX, int startY, int endX, int endY) {
+    private static boolean cannotHold(int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight, int startX, int startY, int endX, int endY, Integer destinationHashCode) {
 
         // 如果坐标在出发点或者目标点附近（距离小于物体大小），那么直接认为可以容下物体
         if (Math.abs(x - startX) <= itemHalfWidth && Math.abs(y - startY) <= itemHalfHeight) {
@@ -88,7 +88,9 @@ public class PathUtils {
                 {x + itemHalfWidth, y}
         };
         for (int[] point : points) {
-            if (!isValid(map, point[0], point[1]) || map[point[0]][point[1]] != 0) {
+            if (!isValid(map, point[0], point[1]) ||
+                    (destinationHashCode == null ? map[point[0]][point[1]] != 0 : map[point[0]][point[1]] != 0 && map[point[0]][point[1]] != destinationHashCode)
+            ) {
                 return true;
             }
         }
@@ -97,7 +99,8 @@ public class PathUtils {
     }
 
     /** 寻找路径 */
-    public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY, int itemHalfWidth, int itemHalfHeight) {
+    public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY, int itemHalfWidth, int itemHalfHeight, Integer destinationHashCode) {
+        log.info("destinationHashCode: {}", destinationHashCode);
         log.info("startX: {}, startY: {}, endX: {}, endY: {}", startX, startY, endX, endY);
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
@@ -113,7 +116,9 @@ public class PathUtils {
                 continue;
             }
 
-            if (currentNode.x == endX && currentNode.y == endY) {
+            // 如果到达了目标点，或者当前点的hashcode与终点的hashcode相同，就返回路径
+            if (currentNode.x == endX && currentNode.y == endY ||
+                    (destinationHashCode != null && map[currentNode.x][currentNode.y] == destinationHashCode)) {
                 List<Point> path = new ArrayList<>();
                 while (currentNode != null) {
                     path.add(new Point(currentNode.x, currentNode.y));
@@ -130,7 +135,7 @@ public class PathUtils {
                 int newX = currentNode.x + direction[0];
                 int newY = currentNode.y + direction[1];
 
-                if (!isValid(map, newX, newY) || cannotHold(map, newX, newY, itemHalfWidth, itemHalfHeight, startX, startY, endX, endY)) {
+                if (!isValid(map, newX, newY) || cannotHold(map, newX, newY, itemHalfWidth, itemHalfHeight, startX, startY, endX, endY, destinationHashCode)) {
                     continue;
                 }
 

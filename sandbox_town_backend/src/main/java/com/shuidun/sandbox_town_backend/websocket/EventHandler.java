@@ -78,23 +78,32 @@ public class EventHandler {
 
         // 想要移动
         eventMap.put(EventEnum.MOVE, (initiator, data) -> {
+            log.info("MOVE: {}", data);
+            log.info("{}", data.get("dest_id"));
             int x0 = NumUtils.toInt(data.get("x0"));
             int y0 = NumUtils.toInt(data.get("y0"));
             int x1 = NumUtils.toInt(data.get("x1"));
             int y1 = NumUtils.toInt(data.get("y1"));
+            String destId = data.get("dest_id") != null ? data.get("dest_id").toString() : null;
             // 更新玩家的坐标信息
             characterAxis.put(initiator, new Point(x0, y0));
             // 更新玩家的找到的路径
             // TO-DO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
-            List<Point> path = mapService.findPath(x0, y0, x1, y1, (int) (120 * 0.6), (int) (120 * 0.7));
+            List<Point> path = mapService.findPath(x0, y0, x1, y1, (int) (120 * 0.6), (int) (120 * 0.7),
+                    destId != null ? destId.hashCode() : null);
+            // 如果找不到路径，直接返回
+            if (path == null) {
+                return null;
+            }
             // 更新玩家的状态
             characterStatus.put(initiator, CharacterStatus.FINDING_PATH);
             // 通知玩家移动
-            WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE, Map.of(
-                    "id", initiator,
-                    "speed", playerService.getPlayerInfoByUsername(initiator).getSpeed(),
-                    "path", DataCompressor.compressPath(path)
-            )));
+            Map<String, Object> result = new HashMap<>();
+            result.put("id", initiator);
+            result.put("speed", playerService.getPlayerInfoByUsername(initiator).getSpeed());
+            result.put("path", DataCompressor.compressPath(path));
+            result.put("dest_id", data.get("dest_id"));
+            WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE, result));
             return null;
         });
 
