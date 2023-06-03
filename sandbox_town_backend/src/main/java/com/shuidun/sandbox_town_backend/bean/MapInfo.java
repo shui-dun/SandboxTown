@@ -15,4 +15,6 @@ public class MapInfo {
     private int mapHeight;
 
     private List<Building> buildings;
+
+    private List<BuildingType> buildingTypes;
 }

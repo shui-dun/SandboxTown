@@ -53,12 +53,28 @@ const mainScene = {
                 let originPath = response.data.path;
                 // 终点id
                 let dest_id = response.data.dest_id;
+                // 目的地的到达事件
+                let arriveEvent = () => {
+                    if (dest_id != null) {
+                        self.game.events.emit('ArriveAtTarget', { "type": dest_id.split("_", 2)[0], "targetID": dest_id });
+                    }
+                };
+                // 如果不存在路径，就直接到达终点
+                if (originPath == null) {
+                    arriveEvent();
+                    return;
+                }
                 // 创建补间动画
                 const path = new Phaser.Curves.Path(originPath[0], originPath[1]);
                 let lastPos = originPath.length;
-                // 如果是建筑，提前几步终止，防止到达终点后因为卡进建筑而抖动
-                if (dest_id != null && ['store', 'tree'].indexOf(dest_id.split("_", 2)[0]) != -1) {
+                // 如果终点类型是建筑，提前几步终止，防止到达终点后因为卡进建筑而抖动
+                if (dest_id != null && mapInfo.buildingTypes.map(item => item.id).indexOf(dest_id.split("_", 2)[0]) != -1) {
                     lastPos -= 6;
+                }
+                // 如果路径长度为0，就直接到达终点
+                if (lastPos <= 2) {
+                    arriveEvent();
+                    return;
                 }
                 for (let i = 2; i < lastPos; i += 2) {
                     path.lineTo(originPath[i], originPath[i + 1]);
@@ -82,10 +98,7 @@ const mainScene = {
                         if (this.isStopped) {
                             return;
                         }
-                        // 触发该目的地的到达事件
-                        if (dest_id != null) {
-                            self.game.events.emit('ArriveAtTarget', { "type": dest_id.split("_", 2)[0], "targetID": dest_id });
-                        }
+                        arriveEvent();
                     }
                 });
                 lastTween = tween;
@@ -101,7 +114,7 @@ const mainScene = {
         };
 
         // 得到地图信息
-        let mapInfo = await getMapInfo();
+        await getMapInfo();
 
         // 设置地图大小
         this.matter.world.setBounds(0, 0, mapInfo.mapWidth, mapInfo.mapHeight);
@@ -305,6 +318,7 @@ async function getMapInfo() {
     }).then(response => response.json())
         .then(data => {
             if (data.code === 0) {
+                // 得到地图信息
                 mapInfo = data.data;
             } else {
                 this.fadeInfoShow(data.msg);
@@ -312,7 +326,6 @@ async function getMapInfo() {
         }).catch(error => {
             this.fadeInfoShow(`请求出错: ${error}`);
         });
-    return mapInfo;
 }
 
 export default mainScene;

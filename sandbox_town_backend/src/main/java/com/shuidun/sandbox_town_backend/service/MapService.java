@@ -25,9 +25,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MapService {
 
     // 建筑物的黑白图的字典
-    private Map<String, BufferedImage> buildingTypes = new ConcurrentHashMap<>();
+    private Map<String, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
     private List<Building> buildings;
+
+    private List<BuildingType> buildingTypes;
 
     private final BuildingMapper buildingMapper;
 
@@ -48,7 +50,7 @@ public class MapService {
         log.info("init map {}", mapName);
         this.buildingMapper = buildingMapper;
         // 从数据库中获取所有建筑类型
-        List<BuildingType> buildingTypes = this.buildingMapper.getAllBuildingTypes();
+        buildingTypes = this.buildingMapper.getAllBuildingTypes();
 
         // 初始化建筑物的黑白图
         for (BuildingType buildingType : buildingTypes) {
@@ -56,7 +58,7 @@ public class MapService {
             String imagePath = buildingType.getImagePath();
             try {
                 BufferedImage image = ImageIO.read(new ClassPathResource(imagePath).getInputStream());
-                this.buildingTypes.put(buildingTypeId, image);
+                this.buildingTypesImages.put(buildingTypeId, image);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -89,10 +91,10 @@ public class MapService {
                     if (pixelX >= buildingX && pixelX < buildingX + buildingWidth &&
                             pixelY >= buildingY && pixelY < buildingY + buildingHeight) {
                         // 获取当前格子中心在建筑物黑白图中的坐标
-                        int buildingPixelX = (int) ((double) (pixelX - buildingX) / buildingWidth * buildingTypes.get(building.getType()).getWidth());
-                        int buildingPixelY = (int) ((double) (pixelY - buildingY) / buildingHeight * buildingTypes.get(building.getType()).getHeight());
+                        int buildingPixelX = (int) ((double) (pixelX - buildingX) / buildingWidth * buildingTypesImages.get(building.getType()).getWidth());
+                        int buildingPixelY = (int) ((double) (pixelY - buildingY) / buildingHeight * buildingTypesImages.get(building.getType()).getHeight());
                         // 获取当前格子中心的颜色
-                        int color = buildingTypes.get(building.getType()).getRGB(buildingPixelX, buildingPixelY);
+                        int color = buildingTypesImages.get(building.getType()).getRGB(buildingPixelX, buildingPixelY);
                         // 如果当前格子中心是黑色
                         if (color == Color.BLACK.getRGB()) {
                             // 将当前格子标记为不可通行
@@ -156,7 +158,7 @@ public class MapService {
     }
 
     public MapInfo getMapInfo() {
-        return new MapInfo(mapPixelWidth, mapPixelHeight, getBuildings());
+        return new MapInfo(mapPixelWidth, mapPixelHeight, buildings, buildingTypes);
     }
 
 }
