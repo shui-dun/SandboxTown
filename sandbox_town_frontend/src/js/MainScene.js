@@ -55,12 +55,14 @@ const mainScene = {
                 let dest_id = response.data.dest_id;
                 // 创建补间动画
                 const path = new Phaser.Curves.Path(originPath[0], originPath[1]);
-                // 提前一步终止，防止到达终点后因为卡进建筑而抖动
                 let lastPos = originPath.length;
+                // 如果是建筑，提前几步终止，防止到达终点后因为卡进建筑而抖动
+                if (dest_id != null && ['store', 'tree'].indexOf(dest_id.split("_", 2)[0]) != -1) {
+                    lastPos -= 6;
+                }
                 for (let i = 2; i < lastPos; i += 2) {
                     path.lineTo(originPath[i], originPath[i + 1]);
                 }
-
                 let tweenProgress = { value: 0 };
                 if (lastTween != null) {
                     // 如果上一个补间动画还没结束，就停止上一个补间动画
