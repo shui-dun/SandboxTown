@@ -1,7 +1,4 @@
-import SimplexNoise from "perlin-simplex";
 import Phaser from "phaser";
-// 导入noisejs库
-// import { Noise } from 'noisejs';
 
 // 设置id->item的映射
 var id2item = {};
@@ -25,10 +22,7 @@ const mainScene = {
         this.load.image("tree", require("@/assets/img/tree.png"));
 
         // 加载纹理图片
-        this.load.image("texture1", require("@/assets/img/texture1.png"));
-        this.load.image("texture2", require("@/assets/img/texture2.png"));
-        this.load.image("texture3", require("@/assets/img/texture3.png"));
-        this.load.image("texture4", require("@/assets/img/texture4.png"));
+        this.load.spritesheet("tiles", require("@/assets/img/tiles.png"), { frameWidth: 128, frameHeight: 128, endFrame: 11 });
 
         this.load.json('collapseShapes', require("@/assets/json/collapseShapes.json"));
         this.load.json('clickShapes', require("@/assets/json/clickShapes.json"));
@@ -130,44 +124,21 @@ const mainScene = {
         // 相机设置
         let collapseShapes = this.cache.json.get('collapseShapes');
         let clickShapes = this.cache.json.get('clickShapes');
-        this.cameras.main.setBackgroundColor('#d3c6a6');
+        this.cameras.main.setBackgroundColor('#c1d275');
         this.cameras.main.setBounds(0, 0, mapInfo.mapWidth, mapInfo.mapHeight);
 
-        // 创建纹理，在地图的随机位置创建一定数目随机纹理
-        // for (let i = 0; i < 100; i++) {
-        //     let texture = this.add.image(Math.random() * mapInfo.mapWidth, Math.random() * mapInfo.mapHeight, "texture" + (Math.floor(Math.random() * 4) + 1));
-        //     texture.setDisplaySize(25, 25);
-        // }
-
-        let simplex = new SimplexNoise();
-        for (let x = 0; x < mapInfo.mapWidth; x += 32) {
-            for (let y = 0; y < mapInfo.mapHeight; y += 32) {
-                // 使用 Perlin 噪声生成随机值
-                const noiseValue = simplex.noise(x * 0.1, y * 0.1);
-                console.log(noiseValue);
-                // 根据噪声值选择地形纹理
-                let textureName;
-                if (noiseValue < -0.75) {
-                    textureName = "texture1";
-                } else if (noiseValue < -0.12) {
-                    continue;
-                } else if (noiseValue < -0.1) {
-                    textureName = "texture2";
-                } else if (noiseValue < 0.12) {
-                    continue;
-                } else if (noiseValue < 0.15) {
-                    textureName = "texture3";
-                } else if (noiseValue < 0.18) {
-                    continue;
-                } else if (noiseValue < 0.2) {
-                    textureName = "texture4";
-                } else {
+        // 遍历每个区域，创建背景纹理
+        let textureLen = 75;
+        for (let i = 0; i < mapInfo.mapWidth / textureLen; i++) {
+            for (let j = 0; j < mapInfo.mapHeight / textureLen; j++) {
+                // 一定概率创建纹理
+                if (Math.random() > 0.05) {
                     continue;
                 }
-
-                // 在当前位置创建地形
-                let texture = this.add.image(x, y, textureName);
-                texture.setDisplaySize(25, 25);
+                let randomNum1 = Math.floor(Math.random() * 21) - 10;
+                let randomNum2 = Math.floor(Math.random() * 21) - 10;
+                const texture = this.add.sprite(i * textureLen + randomNum1, j * textureLen + randomNum2, 'tiles', Math.floor(Math.random() * 12));
+                texture.setDisplaySize(textureLen, textureLen);
             }
         }
 

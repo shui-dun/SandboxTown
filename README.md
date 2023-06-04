@@ -30,3 +30,10 @@
 ### 地图模块
 
 - 从后端获取地图尺寸以及建筑列表，显示在页面中
+
+## 素材来源
+
+- https://www.bing.com/create 所有建筑以及角色等等素材
+- https://cupnooble.itch.io/sprout-lands-asset-pack 背景纹理
+- https://remixicon.com/ 箭头等图标
+
