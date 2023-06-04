@@ -1,7 +1,6 @@
 package com.shuidun.sandbox_town_backend.mapper;
 
-import com.shuidun.sandbox_town_backend.bean.PlayerItem;
-import lombok.Data;
+import com.shuidun.sandbox_town_backend.bean.CharacterItem;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -20,7 +19,7 @@ public interface ItemMapper {
             "INNER JOIN item\n" +
             "ON player_item.item_id = item.id\n" +
             "WHERE player_item.owner = #{playerName}")
-    public List<PlayerItem> listByUsername(String playerName);
+    public List<CharacterItem> listByUsername(String playerName);
 
     @Select("SELECT player_item.owner, player_item.item_id, player_item.item_count, " +
             "item.name, item.description, item.basic_price, item.basic_rarity, item.usable, " +
@@ -30,7 +29,7 @@ public interface ItemMapper {
             "INNER JOIN item\n" +
             "ON player_item.item_id = item.id\n" +
             "WHERE player_item.owner = #{username} AND player_item.item_id = #{itemId}")
-    PlayerItem getByUsernameAndItemId(String username, String itemId);
+    CharacterItem getByUsernameAndItemId(String username, String itemId);
 
     @Delete("DELETE FROM player_item WHERE owner = #{username} AND item_id = #{itemId}")
     void deleteByUsernameAndItemId(String username, String itemId);

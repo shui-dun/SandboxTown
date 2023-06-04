@@ -7,7 +7,7 @@ import com.shuidun.sandbox_town_backend.enumeration.CharacterStatus;
 import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.service.MapService;
-import com.shuidun.sandbox_town_backend.service.PlayerService;
+import com.shuidun.sandbox_town_backend.service.CharacterService;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.utils.NumUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class EventHandler {
     // 角色状态信息，保存在内存中，不写入数据库
     private Map<String, CharacterStatus> characterStatus = new ConcurrentHashMap<>();
 
-    private final PlayerService playerService;
+    private final CharacterService characterService;
 
     private final MapService mapService;
 
@@ -43,8 +43,8 @@ public class EventHandler {
         }
     }
 
-    public EventHandler(PlayerService playerService, MapService mapService) {
-        this.playerService = playerService;
+    public EventHandler(CharacterService characterService, MapService mapService) {
+        this.characterService = characterService;
         this.mapService = mapService;
 
         // 上线事件
@@ -55,8 +55,8 @@ public class EventHandler {
         // 下线事件
         eventMap.put(EventEnum.OFFLINE, (initiator, data) -> {
             // 将玩家坐标信息写入数据库
-            playerService.updatePlayerAttribute(initiator, "x", characterAxis.get(initiator).getX());
-            playerService.updatePlayerAttribute(initiator, "y", characterAxis.get(initiator).getY());
+            characterService.updateCharacterAttribute(initiator, "x", characterAxis.get(initiator).getX());
+            characterService.updateCharacterAttribute(initiator, "y", characterAxis.get(initiator).getY());
             // TO-DO: 将玩家宠物的坐标信息写入数据库
             return null;
         });
@@ -100,7 +100,7 @@ public class EventHandler {
             // 通知玩家移动
             Map<String, Object> result = new HashMap<>();
             result.put("id", initiator);
-            result.put("speed", playerService.getPlayerInfoByUsername(initiator).getSpeed());
+            result.put("speed", characterService.getCharacterInfoByID(initiator).getSpeed());
             result.put("path", DataCompressor.compressPath(path));
             result.put("dest_id", data.get("dest_id"));
             WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE, result));

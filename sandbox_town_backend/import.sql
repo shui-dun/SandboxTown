@@ -41,27 +41,28 @@ INSERT INTO user_role (username, role)
 VALUES ('user_xixi', 'normal');
 
 
-# 创建玩家表
-CREATE TABLE player
+# 创建角色表，包含玩家、宠物、怪物等角色
+CREATE TABLE `character`
 (
-    username VARCHAR(255) NOT NULL PRIMARY KEY,
-    money    INT          NOT NULL DEFAULT 0,
-    exp      INT          NOT NULL DEFAULT 0,
-    level    INT          NOT NULL DEFAULT 1,
-    hunger   INT          NOT NULL DEFAULT 100,
-    hp       INT          NOT NULL DEFAULT 100,
-    attack   INT          NOT NULL DEFAULT 10,
-    defense  INT          NOT NULL DEFAULT 10,
-    speed    INT          NOT NULL DEFAULT 10,
-    x        INT          NOT NULL DEFAULT 0,
-    y        INT          NOT NULL DEFAULT 0,
-    CONSTRAINT fk_player_username FOREIGN KEY (username) REFERENCES user (username)
+    id      VARCHAR(255) NOT NULL PRIMARY KEY,
+    # 主人
+    owner   VARCHAR(255),
+    money   INT          NOT NULL DEFAULT 0,
+    exp     INT          NOT NULL DEFAULT 0,
+    level   INT          NOT NULL DEFAULT 1,
+    hunger  INT          NOT NULL DEFAULT 100,
+    hp      INT          NOT NULL DEFAULT 100,
+    attack  INT          NOT NULL DEFAULT 10,
+    defense INT          NOT NULL DEFAULT 10,
+    speed   INT          NOT NULL DEFAULT 10,
+    x       INT          NOT NULL DEFAULT 0,
+    y       INT          NOT NULL DEFAULT 0
 );
 
-INSERT INTO player (username, money, exp, level, hunger, hp, attack, defense, speed, x, y)
-VALUES ('user_xixi', 10, 0, 1, 100, 100, 10, 10, 10, 0, 0),
-       ('user_haha', 10, 0, 1, 100, 100, 10, 10, 20, 100, 100),
-       ('user_heihei', 10, 0, 1, 100, 100, 10, 10, 20, 200, 200);
+INSERT INTO `character` (id, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y)
+VALUES ('user_xixi', null, 10, 0, 1, 100, 100, 10, 10, 10, 0, 0),
+       ('user_haha', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100),
+       ('user_heihei', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200);
 
 # 创建物品表
 CREATE TABLE item
@@ -102,19 +103,19 @@ VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 2, 100, FALSE,
        ('bread', '面包', '具有松软的质地和微甜的口感', 3, 70, TRUE, 0, 0, 0, 15, 0, 0, 0, 0),
        ('apple', '苹果', '禁忌和知识之果', 2, 80, TRUE, 0, 10, 0, 7, 0, 0, 0, 0);
 
-# 创建玩家物品表
+# 创建角色物品表
 
-CREATE TABLE player_item
+CREATE TABLE character_item
 (
     owner      VARCHAR(255) NOT NULL,
     item_id    VARCHAR(255) NOT NULL,
     item_count INT          NOT NULL DEFAULT 1,
     PRIMARY KEY (owner, item_id),
-    CONSTRAINT fk_player_item_username FOREIGN KEY (owner) REFERENCES player (username),
+    CONSTRAINT fk_player_item_username FOREIGN KEY (owner) REFERENCES `character` (id),
     CONSTRAINT fk_player_item_item_name FOREIGN KEY (item_id) REFERENCES item (id)
 );
 
-INSERT INTO player_item
+INSERT INTO character_item
 values ('user_xixi', 'wood', 3),
        ('user_xixi', 'stone', 1),
        ('user_xixi', 'bread', 2),
@@ -168,7 +169,7 @@ CREATE TABLE building
     # 建筑的高度
     display_height INT          NOT NULL,
     CONSTRAINT fk_building_type FOREIGN KEY (type) REFERENCES building_type (id),
-    CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES player (username)
+    CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES `character` (id)
 );
 
 INSERT INTO building (id, type, map, level, owner, originX, originY, display_width, display_height)

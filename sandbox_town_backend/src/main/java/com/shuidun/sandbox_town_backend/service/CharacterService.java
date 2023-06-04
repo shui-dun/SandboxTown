@@ -13,16 +13,15 @@ import static com.shuidun.sandbox_town_backend.enumeration.Constants.EXP_PER_LEV
 
 @Slf4j
 @Service
-public class PlayerService {
+public class CharacterService {
     private final CharacterMapper characterMapper;
 
-    public PlayerService(CharacterMapper characterMapper) {
+    public CharacterService(CharacterMapper characterMapper) {
         this.characterMapper = characterMapper;
     }
 
-    public Character getPlayerInfoByUsername(String username) {
-        Character character = characterMapper.getCharacterByUsername(username);
-        log.info("玩家 {} 的信息为 {}", username, character);
+    public Character getCharacterInfoByID(String id) {
+        Character character = characterMapper.getCharacterByID(id);
         if (character == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
@@ -30,24 +29,24 @@ public class PlayerService {
     }
 
     /**
-     * 更新玩家属性
+     * 更新角色属性
      *
-     * @param username  玩家用户名
+     * @param id        玩家用户名
      * @param attribute 属性名
      * @param value     属性值
      * @return 更新后的玩家信息
      */
     @Transactional
-    public Character updatePlayerAttribute(String username, String attribute, int value) {
+    public Character updateCharacterAttribute(String id, String attribute, int value) {
         try {
-            characterMapper.updateCharacterAttribute(username, attribute, value);
+            characterMapper.updateCharacterAttribute(id, attribute, value);
         } catch (BadSqlGrammarException e) {
             throw new BusinessException(StatusCodeEnum.ILLEGAL_ARGUMENT);
         }
-        return getPlayerInfoByUsername(username);
+        return getCharacterInfoByID(id);
     }
 
-    /** 判断用户属性值是否在合理范围内（包含升级操作） */
+    /** 判断角色属性值是否在合理范围内（包含升级操作） */
     @Transactional
     public Character normalizeAndUpdatePlayer(Character character) {
         // 如果经验值足够升级，则升级

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PlayerItem {
+public class CharacterItem {
     private String owner;
     private String itemId;
     private int itemCount;
