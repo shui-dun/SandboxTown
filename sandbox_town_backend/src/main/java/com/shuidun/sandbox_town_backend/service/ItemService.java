@@ -29,13 +29,13 @@ public class ItemService {
     }
 
     public List<CharacterItem> list(String playerName) {
-        return itemMapper.listByUsername(playerName);
+        return itemMapper.listByOwnerId(playerName);
     }
 
     @Transactional
     public Character use(String username, String itemId) {
         // 判断玩家是否拥有该物品
-        CharacterItem characterItem = itemMapper.getByUsernameAndItemId(username, itemId);
+        CharacterItem characterItem = itemMapper.getByOwnerIdAndItemId(username, itemId);
         if (characterItem == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
@@ -58,10 +58,10 @@ public class ItemService {
         // 判断是否是最后一个物品
         if (characterItem.getItemCount() <= 1) {
             // 删除物品
-            itemMapper.deleteByUsernameAndItemId(username, itemId);
+            itemMapper.deleteByOwnerIdAndItemId(username, itemId);
         } else {
             // 更新物品数量
-            itemMapper.updateCountByUsernameAndItemId(username, itemId, characterItem.getItemCount() - 1);
+            itemMapper.updateCountByOwnerIdAndItemId(username, itemId, characterItem.getItemCount() - 1);
         }
         return character;
     }

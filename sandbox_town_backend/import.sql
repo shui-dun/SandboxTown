@@ -40,11 +40,48 @@ VALUES ('user_heihei', 'admin');
 INSERT INTO user_role (username, role)
 VALUES ('user_xixi', 'normal');
 
+# 创建角色类型表
+CREATE TABLE character_type
+(
+    # 角色类型，比如 user, dog, cat, spider
+    type          VARCHAR(255) NOT NULL PRIMARY KEY,
+    # 角色名称，比如 玩家，狗狗，猫咪，蜘蛛
+    name          VARCHAR(255) NOT NULL,
+    description   VARCHAR(255) NOT NULL,
+    # 注意这个价格只是参考价格，各个商店会有上下波动
+    basic_price   INT          NOT NULL DEFAULT 0,
+    # 基础金钱
+    basic_money   INT          NOT NULL DEFAULT 0,
+    # 基础经验值
+    basic_exp     INT          NOT NULL DEFAULT 0,
+    # 基础等级
+    basic_level   INT          NOT NULL DEFAULT 1,
+    # 基础饱腹值
+    basic_hunger  INT          NOT NULL DEFAULT 100,
+    # 基础生命值
+    basic_hp      INT          NOT NULL DEFAULT 100,
+    # 基础攻击力
+    basic_attack  INT          NOT NULL DEFAULT 10,
+    # 基础防御力
+    basic_defense INT          NOT NULL DEFAULT 10,
+    # 基础速度
+    basic_speed   INT          NOT NULL DEFAULT 10
+);
+
+INSERT INTO character_type (type, name, description, basic_price, basic_money,
+                            basic_exp, basic_level, basic_hunger, basic_hp,
+                            basic_attack, basic_defense, basic_speed)
+VALUES ('user', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10),
+       ('dog', '狗狗', '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', 0, 0, 0, 1, 100, 100, 10, 10, 10),
+       ('cat', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 10, 10, 10),
+       ('spider', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 10, 10, 10);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
 CREATE TABLE `character`
 (
     id      VARCHAR(255) NOT NULL PRIMARY KEY,
+    # 类型
+    type    VARCHAR(255) NOT NULL,
     # 主人
     owner   VARCHAR(255),
     money   INT          NOT NULL DEFAULT 0,
@@ -56,13 +93,20 @@ CREATE TABLE `character`
     defense INT          NOT NULL DEFAULT 10,
     speed   INT          NOT NULL DEFAULT 10,
     x       INT          NOT NULL DEFAULT 0,
-    y       INT          NOT NULL DEFAULT 0
+    y       INT          NOT NULL DEFAULT 0,
+    # 所在地图名称
+    map     VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_character_type FOREIGN KEY (type) REFERENCES character_type (type)
 );
 
-INSERT INTO `character` (id, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y)
-VALUES ('user_xixi', null, 10, 0, 1, 100, 100, 10, 10, 10, 0, 0),
-       ('user_haha', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100),
-       ('user_heihei', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200);
+INSERT INTO `character` (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map)
+VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1'),
+       ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1'),
+       ('user_heihei', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1'),
+       ('dog_Vz5n_o-CQk-okcK5vQFRsA', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1'),
+       ('dog_q83jrKyCTtGm1QvywN48pw', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1'),
+       ('cat_iZUc8IiRTCOQXNjLNbQUFQ', 'cat', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1');
+
 
 # 创建物品表
 CREATE TABLE item
@@ -111,8 +155,8 @@ CREATE TABLE character_item
     item_id    VARCHAR(255) NOT NULL,
     item_count INT          NOT NULL DEFAULT 1,
     PRIMARY KEY (owner, item_id),
-    CONSTRAINT fk_player_item_username FOREIGN KEY (owner) REFERENCES `character` (id),
-    CONSTRAINT fk_player_item_item_name FOREIGN KEY (item_id) REFERENCES item (id)
+    FOREIGN KEY (owner) REFERENCES `character` (id),
+    FOREIGN KEY (item_id) REFERENCES item (id)
 );
 
 INSERT INTO character_item

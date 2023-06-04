@@ -1,7 +1,5 @@
 package com.shuidun.sandbox_town_backend.utils;
 
-import com.shuidun.sandbox_town_backend.bean.Path;
-import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.service.MapService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

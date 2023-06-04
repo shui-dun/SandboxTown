@@ -28,7 +28,7 @@ export default {
             info: {
             },
             itemInfo: [
-                { 'label': 'username', 'show': '👨‍💼 用户名' },
+                { 'label': 'id', 'show': '👨‍💼 名称' },
                 { 'label': 'money', 'show': '💰 金钱' },
                 { 'label': 'level', 'show': '⬆️ 等级' },
                 { 'label': 'exp', 'show': '🍾 经验值' },
@@ -44,13 +44,13 @@ export default {
     async mounted() {
         // 从后端获取物品信息
         if (this.itemName.startsWith("user_")) {
-            await fetch(`/rest/player/list/${this.itemName}`, {
+            await fetch(`/rest/character/list/${this.itemName}`, {
                 method: 'GET',
             }).then(response => response.json())
                 .then(data => {
                     if (data.code === 0) {
                         this.info = data.data;
-                        this.info.username = this.info.username.split("_", 2)[1];
+                        this.info.id = this.info.id.split("_", 2)[1];
                     } else {
                         this.fadeInfoShow(data.msg);
                     }

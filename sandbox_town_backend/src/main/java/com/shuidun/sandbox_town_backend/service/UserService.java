@@ -7,6 +7,7 @@ import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.CharacterMapper;
 import com.shuidun.sandbox_town_backend.mapper.RoleMapper;
 import com.shuidun.sandbox_town_backend.mapper.UserMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +21,13 @@ public class UserService {
 
     private final CharacterMapper characterMapper;
 
-    public UserService(UserMapper userMapper, RoleMapper roleMapper, CharacterMapper characterMapper) {
+    private final String mapName;
+
+    public UserService(UserMapper userMapper, RoleMapper roleMapper, CharacterMapper characterMapper, @Value("${mapName}") String mapName) {
         this.userMapper = userMapper;
         this.roleMapper = roleMapper;
         this.characterMapper = characterMapper;
+        this.mapName = mapName;
     }
 
     public User findUserByName(String username) {
@@ -34,8 +38,8 @@ public class UserService {
     public void createUser(User user) {
         userMapper.insertUser(user);
         roleMapper.insertUserRole(user.getUsername(), "normal");
-        Character character = new Character(user.getUsername(), null, 10, 0, 1, 100, 100, 10, 10, 5, 0, 0);
-        characterMapper.insertCharacter(character);
+        Character character = new Character(user.getUsername(), null, 10, 0, 1, 100, 100, 10, 10, 5, 0, 0, mapName);
+        characterMapper.createCharacter(character);
     }
 
     public void updateUser(User user) {

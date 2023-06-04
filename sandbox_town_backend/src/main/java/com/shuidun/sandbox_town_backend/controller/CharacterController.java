@@ -5,20 +5,26 @@ import com.shuidun.sandbox_town_backend.bean.RestResponse;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.CharacterService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/player")
-public class PlayerController {
-    @Autowired
-    private CharacterService characterService;
+@RequestMapping("/character")
+public class CharacterController {
+    private final CharacterService characterService;
 
-    /** 获取玩家属性信息 */
-    @GetMapping("/list/{username}")
-    public RestResponse<?> getPlayerByUsername(@PathVariable("username") String username) {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, characterService.getCharacterInfoByID(username));
+    private final String mapName;
+
+    public CharacterController(CharacterService characterService, @Value("${mapName}") String mapName) {
+        this.characterService = characterService;
+        this.mapName = mapName;
+    }
+
+    /** 获取角色属性信息 */
+    @GetMapping("/list/{id}")
+    public RestResponse<?> getCharacterById(@PathVariable("id") String id) {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, characterService.getCharacterInfoByID(id));
     }
 
     /** 获取当前登陆玩家的属性信息 */
@@ -27,4 +33,11 @@ public class PlayerController {
         String username = StpUtil.getLoginIdAsString();
         return new RestResponse<>(StatusCodeEnum.SUCCESS, characterService.getCharacterInfoByID(username));
     }
+
+    /** 获取整个地图上的所有角色信息 */
+    @GetMapping("/listAll")
+    public RestResponse<?> getAllCharacter() {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, characterService.getCharactersByMap(mapName));
+    }
+
 }

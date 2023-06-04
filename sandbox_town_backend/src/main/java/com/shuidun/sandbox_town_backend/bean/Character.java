@@ -17,6 +17,7 @@ public class Character {
   private long speed;
   private long X;
   private long Y;
+  private String map;
 
 
   public String getId() {
@@ -140,5 +141,13 @@ public class Character {
 
   public void setOwner(String owner) {
     this.owner = owner;
+  }
+
+  public String getMap() {
+    return map;
+  }
+
+  public void setMap(String map) {
+    this.map = map;
   }
 }

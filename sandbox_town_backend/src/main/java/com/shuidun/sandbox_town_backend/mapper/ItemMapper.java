@@ -11,29 +11,29 @@ import java.util.List;
 @Mapper
 public interface ItemMapper {
 
-    @Select("SELECT player_item.owner, player_item.item_id, player_item.item_count, " +
+    @Select("SELECT character_item.owner, character_item.item_id, character_item.item_count, " +
             "item.name, item.description, item.basic_price, item.basic_rarity, item.usable, " +
             "item.money_inc, item.exp_inc, item.level_inc, item.hunger_inc, item.hp_inc, " +
             "item.attack_inc, item.defense_inc, item.speed_inc\n" +
-            "FROM player_item\n" +
+            "FROM character_item\n" +
             "INNER JOIN item\n" +
-            "ON player_item.item_id = item.id\n" +
-            "WHERE player_item.owner = #{playerName}")
-    public List<CharacterItem> listByUsername(String playerName);
+            "ON character_item.item_id = item.id\n" +
+            "WHERE character_item.owner = #{id}")
+    public List<CharacterItem> listByOwnerId(String id);
 
-    @Select("SELECT player_item.owner, player_item.item_id, player_item.item_count, " +
+    @Select("SELECT character_item.owner, character_item.item_id, character_item.item_count, " +
             "item.name, item.description, item.basic_price, item.basic_rarity, item.usable, " +
             "item.money_inc, item.exp_inc, item.level_inc, item.hunger_inc, item.hp_inc, " +
             "item.attack_inc, item.defense_inc, item.speed_inc\n" +
-            "FROM player_item\n" +
+            "FROM character_item\n" +
             "INNER JOIN item\n" +
-            "ON player_item.item_id = item.id\n" +
-            "WHERE player_item.owner = #{username} AND player_item.item_id = #{itemId}")
-    CharacterItem getByUsernameAndItemId(String username, String itemId);
+            "ON character_item.item_id = item.id\n" +
+            "WHERE character_item.owner = #{ownerId} AND character_item.item_id = #{itemId}")
+    CharacterItem getByOwnerIdAndItemId(String ownerId, String itemId);
 
-    @Delete("DELETE FROM player_item WHERE owner = #{username} AND item_id = #{itemId}")
-    void deleteByUsernameAndItemId(String username, String itemId);
+    @Delete("DELETE FROM character_item WHERE owner = #{ownerId} AND item_id = #{itemId}")
+    void deleteByOwnerIdAndItemId(String ownerId, String itemId);
 
-    @Update("UPDATE player_item SET item_count = #{i} WHERE owner = #{username} AND item_id = #{itemId}")
-    void updateCountByUsernameAndItemId(String username, String itemId, int i);
+    @Update("UPDATE character_item SET item_count = #{i} WHERE owner = #{ownerId} AND item_id = #{itemId}")
+    void updateCountByOwnerIdAndItemId(String ownerId, String itemId, int i);
 }

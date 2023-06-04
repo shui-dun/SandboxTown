@@ -61,7 +61,7 @@ export default {
                 '右手': { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具' },
             },
             userInfo: [
-                { 'label': 'username', 'show': '👨‍💼 用户名' },
+                { 'label': 'id', 'show': '👨‍💼 名称' },
                 { 'label': 'money', 'show': '💰 金钱' },
                 { 'label': 'level', 'show': '⬆️ 等级' },
                 { 'label': 'exp', 'show': '🍾 经验值' },
@@ -88,12 +88,12 @@ export default {
     },
     mounted() {
         // 从后端获取玩家信息
-        fetch('/rest/player/listMine', {
+        fetch('/rest/character/listMine', {
             method: 'GET',
         }).then(response => response.json())
             .then(data => {
                 if (data.code === 0) {
-                    data.data.username = data.data.username.split("_", 2)[1];
+                    data.data.id = data.data.id.split("_", 2)[1];
                     this.player = data.data;
                     // 将用户信息添加到userInfo中
                     this.userInfo.forEach((item) => {
@@ -162,7 +162,7 @@ export default {
             }
             // 更新用户信息
             this.player = newPlayer;
-            this.player.username = this.player.username.split("_", 2)[1];
+            this.player.id = this.player.id.split("_", 2)[1];
             // 将用户信息添加到userInfo中
             this.userInfo.forEach((item) => {
                 item.value = this.player[item.label];

@@ -9,6 +9,8 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.shuidun.sandbox_town_backend.enumeration.Constants.EXP_PER_LEVEL;
 
 @Slf4j
@@ -86,5 +88,10 @@ public class CharacterService {
         }
         characterMapper.updateCharacter(character);
         return character;
+    }
+
+    // 得到某个地图上的所有角色
+    public List<Character> getCharactersByMap(String map) {
+        return characterMapper.getCharactersByMap(map);
     }
 }
