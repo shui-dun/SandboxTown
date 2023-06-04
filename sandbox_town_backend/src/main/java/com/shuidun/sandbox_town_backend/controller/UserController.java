@@ -71,7 +71,7 @@ public class UserController {
         // 用户名为"user_" + usernameSuffix
         String username = "user_" + usernameSuffix;
         try {
-            User user = new User(username, saltAndPasswd[1], saltAndPasswd[0]);
+            User user = new User(username, saltAndPasswd[1], saltAndPasswd[0], null, 0);
             userService.createUser(user);
             StpUtil.login(username);
         } catch (DataIntegrityViolationException e) {
