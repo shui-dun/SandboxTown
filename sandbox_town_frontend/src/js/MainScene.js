@@ -1,22 +1,23 @@
 import Phaser from "phaser";
 
-// 设置id->item的映射
-var id2item = {};
+// 设置id->gameObject的映射
+var id2gameObject = {};
 
+// websocket连接
 var ws = null;
 
-var player = null;
-
-var player2 = null;
-
-var dog = null;
-
+// 地图信息
 var mapInfo = null;
+
+var myUsername = null;
+
+// 角色列表
+var characterList = [];
 
 const mainScene = {
     key: 'main',
     preload: function () {
-        this.load.image("player", require("@/assets/img/player.png"));
+        this.load.image("user", require("@/assets/img/user.png"));
         this.load.image("dog", require("@/assets/img/dog.png"));
         this.load.image("store", require("@/assets/img/store.png"));
         this.load.image("tree", require("@/assets/img/tree.png"));
@@ -30,6 +31,15 @@ const mainScene = {
     },
     create: async function () {
         let self = this;
+
+        // 得到地图信息
+        mapInfo = await getMapInfo();
+
+        // 得到当前用户的用户名
+        myUsername = await getMyUsername();
+
+        // 得到角色列表
+        characterList = await getCharacterList();
 
         // 建立websocket连接
         ws = new WebSocket("ws://localhost:9090/event");
@@ -48,7 +58,7 @@ const mainScene = {
             // 如果是移动
             if (response.type === 'MOVE') {
                 // 物品
-                let item = id2item[response.data.id];
+                let item = id2gameObject[response.data.id];
                 // 速度
                 let speed = response.data.speed;
                 // 路径
@@ -115,9 +125,6 @@ const mainScene = {
             console.log("Connection closed.");
         };
 
-        // 得到地图信息
-        await getMapInfo();
-
         // 设置地图大小
         this.matter.world.setBounds(0, 0, mapInfo.mapWidth, mapInfo.mapHeight);
 
@@ -148,7 +155,7 @@ const mainScene = {
             // 创建建筑物
             let buildingSprite = this.matter.add.sprite(0, 0, building.type, null, { isStatic: true, shape: collapseShapes[building.type] });
             // 设置建筑物大小和位置
-            buildingSprite.setDisplaySize(building.displayWidth, building.displayHeight);
+            buildingSprite.setDisplaySize(building.width, building.height);
             let axis = convertToCenter(buildingSprite, building.originX, building.originY);
             buildingSprite.setPosition(axis.x, axis.y);
             // 设置建筑物层级
@@ -163,8 +170,8 @@ const mainScene = {
                 ws.send(JSON.stringify({
                     "type": "MOVE",
                     "data": {
-                        "x0": player.x,
-                        "y0": player.y,
+                        "x0": id2gameObject[myUsername].x,
+                        "y0": id2gameObject[myUsername].y,
                         "x1": x,
                         "y1": y,
                         "dest_id": building.id,
@@ -175,55 +182,54 @@ const mainScene = {
             });
         }
 
-        // 创建角色 (user_xixi)
-        player = this.matter.add.sprite(100, 100, "player", null, { shape: collapseShapes.player });
-        player.setDisplaySize(120, 120);
-        player.setFixedRotation();
-        setDepth(player);
-        id2item['user_xixi'] = player;
-        this.cameras.main.startFollow(player);
+        // 创建所有角色
+        for (let i = 0; i < characterList.length; i++) {
+            let character = characterList[i];
+            // 创建角色
+            let characterSprite = this.matter.add.sprite(0, 0, character.type, null, { shape: collapseShapes[character.type] });
+            // 设置角色大小和位置
+            characterSprite.setDisplaySize(character.width, character.height);
+            characterSprite.setPosition(character.x, character.y);
+            // 设置角色层级
+            setDepth(characterSprite);
+            // 禁止旋转
+            characterSprite.setFixedRotation();
+            // 设置点击角色的事件
+            characterSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes[character.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
+            characterSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
+                this.game.events.emit('showAttributeList', { "itemID": character.id });
+                // 阻止事件冒泡
+                event.stopPropagation();
+            });
+            // 放置到字典中
+            id2gameObject[character.id] = characterSprite;
+        }
 
-        // 每一段时间向服务器发送一次位置信息
-        // 只有位置变化时才发送
+        // 相机跟随自己
+        this.cameras.main.startFollow(id2gameObject[myUsername]);
+
+        // 每一段时间向服务器发送一次角色位置信息
+        // 只发送所有人为自己或者空的角色的坐标信息
         // 记录上一次发送的位置
-        let lastX = player.x;
-        let lastY = player.y;
-        setInterval(() => {
-            if (lastX === player.x && lastY === player.y) {
-                return;
-            }
-            ws.send(JSON.stringify({
-                "type": "COORDINATE",
-                "data": {
-                    "id": "user_xixi",
-                    "x": player.x,
-                    "y": player.y,
-                }
-            }));
-            lastX = player.x;
-            lastY = player.y;
-        }, 100);
+        // let lastAxisMap = {}
+        // setInterval(() => {
+        //     // 遍历所有角色
+        //     for (let id in id2gameObject) {
+        //         // 如果角色的所有者是自己或者空
+        //         if (id2gameObject[id].owner === myUsername || id2gameObject[id].owner === '') {
+        //     // 只有位置变化时才发送
 
-        // 创建角色2 (user_haha)
-        player2 = this.matter.add.sprite(400, 100, "player", null, { shape: collapseShapes.player });
-        player2.setDisplaySize(120, 120);
-        player2.setFixedRotation();
-        setDepth(player2);
-        player2.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.player), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
-        player2.on('pointerdown', () => {
-            this.game.events.emit('showAttributeList', { "itemID": 'user_haha' });
-        });
-        id2item['user_haha'] = player2;
-
-        // 创建狗
-        dog = this.matter.add.sprite(100, 400, "dog", null, { shape: collapseShapes.dog });
-        dog.setDisplaySize(120, 120);
-        dog.setFixedRotation();
-        setDepth(dog);
-        dog.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes.dog), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
-        dog.on('pointerdown', () => {
-            // 
-        });
+        //     ws.send(JSON.stringify({
+        //         "type": "COORDINATE",
+        //         "data": {
+        //             "id": myUsername,
+        //             "x": player.x,
+        //             "y": player.y,
+        //         }
+        //     }));
+        //     lastX = player.x;
+        //     lastY = player.y;
+        // }, 100);
 
 
         // 碰撞检测
@@ -238,16 +244,16 @@ const mainScene = {
                 return;
             }
             // 如果是玩家与商店碰撞
-            if (item1 === player && item2.body.label === 'store'
-                || item1.body.label === 'store' && item2 === player) {
+            if (item1 === id2gameObject[myUsername] && item2.body.label === 'store'
+                || item1.body.label === 'store' && item2 === id2gameObject[myUsername]) {
                 if (now - lastCollisionTime < 1000) {
                     return;
                 }
                 this.game.events.emit('showFadeInfo', { "msg": '按空格键进入商店' });
             }
             // 如果是玩家与树木碰撞
-            if (item1 === player && item2.body.label === 'tree'
-                || item1.body.label === 'tree' && item2 === player) {
+            if (item1 === id2gameObject[myUsername] && item2.body.label === 'tree'
+                || item1.body.label === 'tree' && item2 === id2gameObject[myUsername]) {
                 if (now - lastCollisionTime < 1000) {
                     return;
                 }
@@ -255,7 +261,7 @@ const mainScene = {
             }
             lastCollisionTime = now;
             // 如果是玩家之间的碰撞
-            if (item1 === player && item2 === player2) {
+            if (item1 === id2gameObject[myUsername] && item1.body.label === 'user') {
                 this.game.events.emit('showFadeInfo', { "msg": '你好，我是user_haha' });
             }
         });
@@ -272,8 +278,8 @@ const mainScene = {
             ws.send(JSON.stringify({
                 "type": "MOVE",
                 "data": {
-                    "x0": player.x,
-                    "y0": player.y,
+                    "x0": id2gameObject[myUsername].x,
+                    "y0": id2gameObject[myUsername].y,
                     "x1": x,
                     "y1": y,
                     "dest_id": null,
@@ -288,27 +294,8 @@ const mainScene = {
             return;
         }
         // 更新层数
-        setDepth(player);
-        setDepth(player2);
-        setDepth(dog);
-        // 角色移动速度
-        const speed = 8;
-
-        // 根据方向键输入更新角色速度
-        if (this.cursors.left.isDown) {
-            player2.setVelocityX(-speed);
-        } else if (this.cursors.right.isDown) {
-            player2.setVelocityX(speed);
-        } else {
-            player2.setVelocityX(0);
-        }
-
-        if (this.cursors.up.isDown) {
-            player2.setVelocityY(-speed);
-        } else if (this.cursors.down.isDown) {
-            player2.setVelocityY(speed);
-        } else {
-            player2.setVelocityY(0);
+        for (let id in id2gameObject) {
+            setDepth(id2gameObject[id]);
         }
     },
 }
@@ -328,7 +315,28 @@ function convertToCenter(gameObject, x, y) {
     return { x: massX, y: massY };
 }
 
+// 得到自己的用户名
+async function getMyUsername() {
+    let myUsername = null;
+    // 从后端获得自己的用户名
+    await fetch('/rest/user/getUsername', {
+        method: 'GET',
+    }).then(response => response.json())
+        .then(data => {
+            if (data.code === 0) {
+                // 得到自己的用户名
+                myUsername = data.data;
+            } else {
+                this.fadeInfoShow(data.msg);
+            }
+        }).catch(error => {
+            this.fadeInfoShow(`请求出错: ${error}`);
+        });
+    return myUsername;
+}
+
 async function getMapInfo() {
+    let mapInfo = null;
     // 从后端获得建筑列表
     await fetch('/rest/map/getMapInfo', {
         method: 'GET',
@@ -343,6 +351,27 @@ async function getMapInfo() {
         }).catch(error => {
             this.fadeInfoShow(`请求出错: ${error}`);
         });
+    return mapInfo;
+}
+
+// 从后端获得角色列表
+async function getCharacterList() {
+    let characterList = null;
+    // 从后端获得角色列表
+    await fetch('/rest/character/listAll', {
+        method: 'GET',
+    }).then(response => response.json())
+        .then(data => {
+            if (data.code === 0) {
+                // 得到角色列表
+                characterList = data.data;
+            } else {
+                this.fadeInfoShow(data.msg);
+            }
+        }).catch(error => {
+            this.fadeInfoShow(`请求出错: ${error}`);
+        });
+    return characterList;
 }
 
 export default mainScene;

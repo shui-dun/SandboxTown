@@ -23,7 +23,7 @@ public class Building {
 
     private Integer originY;
 
-    private Integer displayWidth;
+    private Integer width;
 
-    private Integer displayHeight;
+    private Integer height;
 }

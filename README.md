@@ -2,6 +2,16 @@
 
 沙盒小镇，基于 Vue & Phaser.js & SpringBoot & WebSocket & MySQL & Redis & Sa-Token 的沙盒游戏
 
+## 技术选型
+
+- 前端框架：Vue
+- 游戏引擎：Phaser.js
+- 通信协议：WebSocket & HTTP
+- 后端框架：SpringBoot
+- 数据库：Mysql
+- 缓存：Redis
+- 安全框架：Sa-Token
+
 ## 构建方法
 
 

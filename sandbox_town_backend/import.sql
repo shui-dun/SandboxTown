@@ -65,16 +65,21 @@ CREATE TABLE character_type
     # 基础防御力
     basic_defense INT          NOT NULL DEFAULT 10,
     # 基础速度
-    basic_speed   INT          NOT NULL DEFAULT 10
+    basic_speed   INT          NOT NULL DEFAULT 10,
+    # 基础宽度
+    basic_width   INT          NOT NULL DEFAULT 120,
+    # 基础高度
+    basic_height  INT          NOT NULL DEFAULT 120
 );
 
 INSERT INTO character_type (type, name, description, basic_price, basic_money,
                             basic_exp, basic_level, basic_hunger, basic_hp,
-                            basic_attack, basic_defense, basic_speed)
-VALUES ('user', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10),
-       ('dog', '狗狗', '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', 0, 0, 0, 1, 100, 100, 10, 10, 10),
-       ('cat', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 10, 10, 10),
-       ('spider', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 10, 10, 10);
+                            basic_attack, basic_defense, basic_speed, basic_width, basic_height)
+VALUES ('user', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
+       ('dog', '狗狗', '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
+       ('cat', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120,
+        120),
+       ('spider', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
 CREATE TABLE `character`
@@ -94,18 +99,21 @@ CREATE TABLE `character`
     speed   INT          NOT NULL DEFAULT 10,
     x       INT          NOT NULL DEFAULT 0,
     y       INT          NOT NULL DEFAULT 0,
+    width   INT          NOT NULL DEFAULT 120,
+    height  INT          NOT NULL DEFAULT 120,
     # 所在地图名称
     map     VARCHAR(255) NOT NULL,
     CONSTRAINT fk_character_type FOREIGN KEY (type) REFERENCES character_type (type)
 );
 
-INSERT INTO `character` (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map)
-VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1'),
-       ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1'),
-       ('user_heihei', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1'),
-       ('dog_Vz5n_o-CQk-okcK5vQFRsA', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1'),
-       ('dog_q83jrKyCTtGm1QvywN48pw', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1'),
-       ('cat_iZUc8IiRTCOQXNjLNbQUFQ', 'cat', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1');
+INSERT INTO `character` (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
+                         height)
+VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 120, 120),
+       ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 120, 120),
+       ('user_heihei', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1', 120, 120),
+       ('dog_Vz5n_o-CQk-okcK5vQFRsA', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 120, 120),
+       ('dog_q83jrKyCTtGm1QvywN48pw', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 120, 120),
+       ('cat_iZUc8IiRTCOQXNjLNbQUFQ', 'cat', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 120, 120);
 
 
 # 创建物品表
@@ -195,27 +203,27 @@ VALUES ('store', '买卖商品的场所', 200, 'static/bitmap/store.png'),
 CREATE TABLE building
 (
     # 建筑的id
-    id             VARCHAR(255) NOT NULL PRIMARY KEY,
+    id      VARCHAR(255) NOT NULL PRIMARY KEY,
     # 建筑的类型
-    type           VARCHAR(255) NOT NULL,
+    type    VARCHAR(255) NOT NULL,
     # 建筑所在的地图名称
-    map            VARCHAR(255) NOT NULL,
+    map     VARCHAR(255) NOT NULL,
     # 建筑的等级（等级越高，收益越好，例如商店等级越高，商品数目越多，商品价格越低，物品价格由其基本价格和商店等价和随机数共同决定）
-    level          INT          NOT NULL DEFAULT 1,
+    level   INT          NOT NULL DEFAULT 1,
     # 建筑的拥有者
-    owner          VARCHAR(255) NOT NULL,
+    owner   VARCHAR(255) NOT NULL,
     # 建筑左上角的x坐标（对于建筑，我们使用图像左上角的坐标，以方便寻路算法，但是对于玩家等，我们使用质心的坐标）
-    originX        INT          NOT NULL,
+    originX INT          NOT NULL,
     # 建筑左上角的y坐标
-    originY        INT          NOT NULL,
+    originY INT          NOT NULL,
     # 建筑的宽度
-    display_width  INT          NOT NULL,
+    width   INT          NOT NULL,
     # 建筑的高度
-    display_height INT          NOT NULL,
+    height  INT          NOT NULL,
     CONSTRAINT fk_building_type FOREIGN KEY (type) REFERENCES building_type (id),
     CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES `character` (id)
 );
 
-INSERT INTO building (id, type, map, level, owner, originX, originY, display_width, display_height)
+INSERT INTO building (id, type, map, level, owner, originX, originY, width, height)
 VALUES ('store_Pk86H7rTSm2XJdGoHFe-7A', 'store', '1', 1, 'user_xixi', 0, 0, 300, 300),
        ('tree_hjQLffrhQayNLVuty_poLg', 'tree', '1', 1, 'user_xixi', 200, 500, 400, 400);

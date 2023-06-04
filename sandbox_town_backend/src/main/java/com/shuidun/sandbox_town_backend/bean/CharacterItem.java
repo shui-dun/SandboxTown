@@ -12,31 +12,31 @@ public class CharacterItem {
 
     private String itemId;
 
-    private int itemCount;
+    private Integer itemCount;
 
     private String name;
 
     private String description;
 
-    private long basicPrice;
+    private Integer basicPrice;
 
-    private long basicRarity;
+    private Integer basicRarity;
 
     private boolean usable;
 
-    private long moneyInc;
+    private Integer moneyInc;
 
-    private long expInc;
+    private Integer expInc;
 
-    private long levelInc;
+    private Integer levelInc;
 
-    private long hungerInc;
+    private Integer hungerInc;
 
-    private long hpInc;
+    private Integer hpInc;
 
-    private long attackInc;
+    private Integer attackInc;
 
-    private long defenseInc;
+    private Integer defenseInc;
 
-    private long speedInc;
+    private Integer speedInc;
 }

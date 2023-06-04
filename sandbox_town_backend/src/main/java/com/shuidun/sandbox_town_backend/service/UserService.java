@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Set;
 
 @Service
@@ -40,7 +41,7 @@ public class UserService {
         roleMapper.insertUserRole(user.getUsername(), "normal");
         Character character = new Character(user.getUsername(), "user", null,
                 10, 0, 1, 100, 100,
-                10, 10, 5, 0, 0, mapName);
+                10, 10, 5, 0, 0, 120, 120, mapName);
         characterMapper.createCharacter(character);
     }
 
@@ -92,10 +93,10 @@ public class UserService {
         if (user == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
-        Timestamp banEndDate = user.getBanEndDate();
+        Date banEndDate = user.getBanEndDate();
         if (banEndDate == null) {
             return false;
         }
-        return banEndDate.after(new Timestamp(System.currentTimeMillis()));
+        return banEndDate.after(new Date(System.currentTimeMillis()));
     }
 }

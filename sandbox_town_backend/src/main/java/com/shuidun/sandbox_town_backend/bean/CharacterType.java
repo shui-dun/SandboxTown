@@ -32,4 +32,8 @@ public class CharacterType {
     private Integer basicDefense;
 
     private Integer basicSpeed;
+
+    private Integer basicWidth;
+
+    private Integer basicHeight;
 }

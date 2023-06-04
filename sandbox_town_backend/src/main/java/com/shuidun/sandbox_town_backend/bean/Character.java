@@ -35,5 +35,9 @@ public class Character {
 
     private Integer Y;
 
+    private Integer width;
+
+    private Integer height;
+
     private String map;
 }

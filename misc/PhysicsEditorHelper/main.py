@@ -112,4 +112,6 @@ def genBitmap():
 
 
 if __name__ == "__main__":
+    genCollapseShapes()
+    genClickShape()
     genBitmap()

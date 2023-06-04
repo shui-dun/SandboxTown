@@ -23,16 +23,6 @@ npc的控制，直接放在schedule包下
 
 但是每种建筑还是要弄一个单独的模块，因为相差太大了
 
-## 技术选型
-
-- 前端框架：Vue
-- 游戏引擎：Phaser.js
-- 通信协议：WebSocket & HTTP
-- 后端框架：SpringBoot
-- 数据库：Mysql
-- 缓存：Redis
-- 安全框架：Sa-Token
-
 ## 架构设计
 
 - Nginx做反向代理和负载均衡

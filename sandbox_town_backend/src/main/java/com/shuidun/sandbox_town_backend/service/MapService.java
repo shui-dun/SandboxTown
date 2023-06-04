@@ -85,8 +85,8 @@ public class MapService {
                     int buildingX = (int) building.getOriginX();
                     int buildingY = (int) building.getOriginY();
                     // 获取建筑物的宽高（暂时不知道宽和高写反了没有，因为现在的图片都是正方形的）
-                    int buildingWidth = (int) building.getDisplayWidth();
-                    int buildingHeight = (int) building.getDisplayHeight();
+                    int buildingWidth = (int) building.getWidth();
+                    int buildingHeight = (int) building.getHeight();
                     // 如果当前格子在建筑物的范围内
                     if (pixelX >= buildingX && pixelX < buildingX + buildingWidth &&
                             pixelY >= buildingY && pixelY < buildingY + buildingHeight) {
