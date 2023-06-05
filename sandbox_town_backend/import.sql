@@ -112,8 +112,8 @@ VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1'
        ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 120, 120),
        ('user_heihei', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1', 120, 120),
        ('dog_Vz5n_o-CQk-okcK5vQFRsA', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 120, 120),
-       ('dog_q83jrKyCTtGm1QvywN48pw', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 120, 120),
-       ('cat_iZUc8IiRTCOQXNjLNbQUFQ', 'cat', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 120, 120);
+       ('dog_q83jrKyCTtGm1QvywN48pw', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 400, '1', 120, 120),
+       ('cat_iZUc8IiRTCOQXNjLNbQUFQ', 'cat', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 500, '1', 120, 120);
 
 
 # 创建物品表

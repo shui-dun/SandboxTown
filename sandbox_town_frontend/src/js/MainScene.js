@@ -19,6 +19,7 @@ const mainScene = {
     preload: function () {
         this.load.image("user", require("@/assets/img/user.png"));
         this.load.image("dog", require("@/assets/img/dog.png"));
+        this.load.image("cat", require("@/assets/img/cat.png"));
         this.load.image("store", require("@/assets/img/store.png"));
         this.load.image("tree", require("@/assets/img/tree.png"));
 
@@ -30,6 +31,8 @@ const mainScene = {
 
     },
     create: async function () {
+        // this.scale.on('resize', 1000, this);
+
         let self = this;
 
         // 得到地图信息
