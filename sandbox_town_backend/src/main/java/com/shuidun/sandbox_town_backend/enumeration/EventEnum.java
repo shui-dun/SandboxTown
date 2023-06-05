@@ -16,6 +16,5 @@ public enum EventEnum {
     COORDINATE,
     // 想要移动到某个位置
     // data: {"x0": 1, "y0": 2, "x1": 3, "y1": 4, "dest_id" "store_1"}
-    MOVE, ONLINE,
-
+    MOVE,
 }

@@ -40,6 +40,25 @@ VALUES ('user_heihei', 'admin');
 INSERT INTO user_role (username, role)
 VALUES ('user_xixi', 'normal');
 
+# 创建地图表
+CREATE TABLE game_map
+(
+    # 地图的名称
+    id     VARCHAR(255) NOT NULL PRIMARY KEY,
+    # 名称
+    name   VARCHAR(255) NOT NULL,
+    # 地图的宽度
+    width  INT          NOT NULL,
+    # 地图的高度
+    height INT          NOT NULL,
+    # 种子（用于生成随机迷宫等）
+    seed   INT          NOT NULL
+);
+
+INSERT INTO game_map (id, name, width, height, seed)
+VALUES ('1', 'Ⅰ', 2500, 1500, 32784924),
+       ('2', 'Ⅱ', 2500, 1500, 234757802);
+
 # 创建角色类型表
 CREATE TABLE character_type
 (
@@ -103,7 +122,8 @@ CREATE TABLE `character`
     height  INT          NOT NULL DEFAULT 120,
     # 所在地图名称
     map     VARCHAR(255) NOT NULL,
-    CONSTRAINT fk_character_type FOREIGN KEY (type) REFERENCES character_type (type)
+    CONSTRAINT fk_character_type FOREIGN KEY (type) REFERENCES character_type (type),
+    CONSTRAINT fk_character_map FOREIGN KEY (map) REFERENCES game_map (id)
 );
 
 INSERT INTO `character` (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
@@ -221,9 +241,11 @@ CREATE TABLE building
     # 建筑的高度
     height  INT          NOT NULL,
     CONSTRAINT fk_building_type FOREIGN KEY (type) REFERENCES building_type (id),
-    CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES `character` (id)
+    CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES `character` (id),
+    CONSTRAINT fk_building_map FOREIGN KEY (map) REFERENCES game_map (id)
 );
 
 INSERT INTO building (id, type, map, level, owner, originX, originY, width, height)
 VALUES ('store_Pk86H7rTSm2XJdGoHFe-7A', 'store', '1', 1, 'user_xixi', 0, 0, 400, 400),
        ('tree_hjQLffrhQayNLVuty_poLg', 'tree', '1', 1, 'user_xixi', 200, 500, 600, 600);
+

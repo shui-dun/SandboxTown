@@ -6,7 +6,7 @@ import com.shuidun.sandbox_town_backend.bean.WSResponse;
 import com.shuidun.sandbox_town_backend.enumeration.CharacterStatus;
 import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
-import com.shuidun.sandbox_town_backend.service.MapService;
+import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.CharacterService;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.utils.NumUtils;
@@ -28,12 +28,12 @@ public class EventHandler {
     // 角色坐标信息，保存在内存中，定期写入数据库
     private Map<String, Point> characterAxis = new ConcurrentHashMap<>();
 
-    // 角色状态信息，保存在内存中，不写入数据库
+    // 角色状态信息，保存在内存中，不写入数据库（暂时还没用到）
     private Map<String, CharacterStatus> characterStatus = new ConcurrentHashMap<>();
 
     private final CharacterService characterService;
 
-    private final MapService mapService;
+    private final GameMapService gameMapService;
 
     public void handle(EventMessage eventMessage) {
         try {
@@ -43,21 +43,14 @@ public class EventHandler {
         }
     }
 
-    public EventHandler(CharacterService characterService, MapService mapService) {
+    public EventHandler(CharacterService characterService, GameMapService gameMapService) {
         this.characterService = characterService;
-        this.mapService = mapService;
+        this.gameMapService = gameMapService;
 
-        // 上线事件
-        eventMap.put(EventEnum.ONLINE, (initiator, data) -> {
-            return null;
-        });
 
         // 下线事件
         eventMap.put(EventEnum.OFFLINE, (initiator, data) -> {
-            // 将玩家坐标信息写入数据库
-            characterService.updateCharacterAttribute(initiator, "x", characterAxis.get(initiator).getX());
-            characterService.updateCharacterAttribute(initiator, "y", characterAxis.get(initiator).getY());
-            // TO-DO: 将玩家宠物的坐标信息写入数据库
+            // TO-DO: 删除角色以及其宠物坐标等信息
             return null;
         });
 
@@ -94,7 +87,7 @@ public class EventHandler {
             characterAxis.put(initiator, new Point(x0, y0));
             // 更新玩家的找到的路径
             // TO-DO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
-            List<Point> path = mapService.findPath(x0, y0, x1, y1, (int) (150 * 0.6), (int) (150 * 0.7),
+            List<Point> path = gameMapService.findPath(x0, y0, x1, y1, (int) (150 * 0.6), (int) (150 * 0.7),
                     destId != null ? destId.hashCode() : null);
             // 如果找不到路径，直接返回
             if (path == null) {

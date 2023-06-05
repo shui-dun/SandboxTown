@@ -22,13 +22,13 @@ public class UserService {
 
     private final CharacterMapper characterMapper;
 
-    private final String mapName;
+    private final String mapId;
 
-    public UserService(UserMapper userMapper, RoleMapper roleMapper, CharacterMapper characterMapper, @Value("${mapName}") String mapName) {
+    public UserService(UserMapper userMapper, RoleMapper roleMapper, CharacterMapper characterMapper, @Value("${mapId}") String mapId) {
         this.userMapper = userMapper;
         this.roleMapper = roleMapper;
         this.characterMapper = characterMapper;
-        this.mapName = mapName;
+        this.mapId = mapId;
     }
 
     public User findUserByName(String username) {
@@ -41,7 +41,7 @@ public class UserService {
         roleMapper.insertUserRole(user.getUsername(), "normal");
         Character character = new Character(user.getUsername(), "user", null,
                 10, 0, 1, 100, 100,
-                10, 10, 5, 0, 0, 120, 120, mapName, null);
+                10, 10, 5, 0, 0, 120, 120, mapId, null);
         characterMapper.createCharacter(character);
     }
 

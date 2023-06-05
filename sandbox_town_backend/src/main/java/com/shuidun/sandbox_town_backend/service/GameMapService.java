@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
+import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
 import com.shuidun.sandbox_town_backend.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,57 +23,51 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Service
-public class MapService {
-
-    // 建筑物的黑白图的字典
-    private Map<String, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
-
-    private List<Building> buildings;
-
-    private List<BuildingType> buildingTypes;
+public class GameMapService {
 
     private final BuildingMapper buildingMapper;
 
-    private final int mapPixelWidth = 2500;
-
-    private final int mapPixelHeight = 1500;
+    private final GameMapMapper gameMapMapper;
 
     private final int pixelsPerGrid = 20;
 
+    // 地图ID
+    private String mapId;
+
     /** 地图，用于寻路算法，0表示可以通过，非0表示障碍物ID的哈希值 */
-    private int[][] map = new int[mapPixelWidth / pixelsPerGrid][mapPixelHeight / pixelsPerGrid];
+    private int[][] map;
 
-    private String mapName;
-
-    public MapService(BuildingMapper buildingMapper, @Value("${mapName}") String mapName) {
-        // 从配置文件中获取地图名称（使用构建造注入而非变量注入，否则为null）
-        this.mapName = mapName;
-        log.info("init map {}", mapName);
+    public GameMapService(BuildingMapper buildingMapper, GameMapMapper gameMapMapper, @Value("${mapId}") String mapId) {
+        this.gameMapMapper = gameMapMapper;
         this.buildingMapper = buildingMapper;
+        this.mapId = mapId;
+        // 获得地图信息
+        GameMap gameMap = gameMapMapper.getGameMapById(mapId);
+
+        // 初始化地图
+        map = new int[gameMap.getWidth() / pixelsPerGrid][gameMap.getHeight() / pixelsPerGrid];
+
         // 从数据库中获取所有建筑类型
-        buildingTypes = this.buildingMapper.getAllBuildingTypes();
+        var buildingTypes = this.buildingMapper.getAllBuildingTypes();
 
         // 初始化建筑物的黑白图
+        // 建筑物的黑白图的字典
+        Map<String, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
         for (BuildingType buildingType : buildingTypes) {
             String buildingTypeId = buildingType.getId();
             String imagePath = buildingType.getImagePath();
             try {
                 BufferedImage image = ImageIO.read(new ClassPathResource(imagePath).getInputStream());
-                this.buildingTypesImages.put(buildingTypeId, image);
+                buildingTypesImages.put(buildingTypeId, image);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         // 获取当前地图上的所有建筑物
-        buildings = buildingMapper.getAllBuildingsByMapName(mapName);
+        var buildings = buildingMapper.getAllBuildingsByMapId(mapId);
 
         // 构建地图（用于寻路算法）
-        generateMap();
-    }
-
-    /** 构建地图 */
-    public void generateMap() {
         // 遍历地图上每一格
         for (int x = 0; x < map.length; x++) {
             for (int y = 0; y < map[0].length; y++) {
@@ -110,6 +105,7 @@ public class MapService {
         }
     }
 
+
     /** 寻路算法 */
     public List<Point> findPath(int x0, int y0, int x1, int y1, int itemWidth, int itemHeight, Integer destinationHashCode) {
         log.info("find path from ({}, {}) to ({}, {})", x0, y0, x1, y1);
@@ -136,29 +132,8 @@ public class MapService {
         return path;
     }
 
-    public int[][] getMap() {
-        return map;
+    // 得到地图信息
+    public GameMap getGameMap() {
+        return gameMapMapper.getGameMapById(mapId);
     }
-
-    public String getMapName() {
-        return mapName;
-    }
-
-
-    public List<Building> getBuildings() {
-        return buildings;
-    }
-
-    public int getMapPixelWidth() {
-        return mapPixelWidth;
-    }
-
-    public int getMapPixelHeight() {
-        return mapPixelHeight;
-    }
-
-    public MapInfo getMapInfo() {
-        return new MapInfo(mapPixelWidth, mapPixelHeight, buildings, buildingTypes);
-    }
-
 }

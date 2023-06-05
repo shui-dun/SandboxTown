@@ -10,12 +10,19 @@ var id2character = {};
 var ws = null;
 
 // 地图信息
-var mapInfo = null;
+var gameMap = null;
 
+// 当前用户的用户名
 var myUsername = null;
 
 // 角色列表
 var characterList = [];
+
+// 建筑类型列表
+var buildingTypes = [];
+
+// 建筑列表
+var buildingList = [];
 
 // 是否加载完成
 var isLoaded = false;
@@ -37,15 +44,14 @@ const mainScene = {
 
     },
     create: async function () {
-        // this.scale.on('resize', 1000, this);
-
+        // 由于js的函数内部this指向会变化，所以先将this保存到self中
         let self = this;
 
         // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
         self.input.mouse.disableContextMenu();
 
         // 得到地图信息
-        mapInfo = await getMapInfo();
+        gameMap = await getGameMap();
 
         // 得到当前用户的用户名
         myUsername = await getMyUsername();
@@ -53,9 +59,16 @@ const mainScene = {
         // 得到角色列表
         characterList = await getCharacterList();
 
+        // 得到建筑类型列表
+        buildingTypes = await getBuildingTypeList();
+
+        // 得到建筑列表
+        buildingList = await getBuildingList();
+
         // 建立websocket连接
         ws = new WebSocket("ws://localhost:9090/event");
 
+        // 加载完成
         isLoaded = true;
 
         ws.onopen = function () {
@@ -67,7 +80,6 @@ const mainScene = {
 
         let lastTween = null;
         ws.onmessage = function (event) {
-            console.log("Received data", JSON.parse(event.data));
             let response = JSON.parse(event.data);
             // 如果是移动
             if (response.type === 'MOVE') {
@@ -101,7 +113,7 @@ const mainScene = {
                 const path = new Phaser.Curves.Path(originPath[0], originPath[1]);
                 let lastPos = originPath.length;
                 // 如果终点类型是建筑，提前几步终止，防止到达终点后因为卡进建筑而抖动
-                if (dest_id != null && mapInfo.buildingTypes.map(item => item.id).indexOf(dest_id.split("_", 2)[0]) != -1) {
+                if (dest_id != null && buildingTypes.map(item => item.id).indexOf(dest_id.split("_", 2)[0]) != -1) {
                     lastPos -= 6;
                 }
                 // 如果路径长度为0，就直接到达终点
@@ -152,18 +164,18 @@ const mainScene = {
         };
 
         // 设置地图大小
-        this.matter.world.setBounds(0, 0, mapInfo.mapWidth, mapInfo.mapHeight);
+        this.matter.world.setBounds(0, 0, gameMap.width, gameMap.height);
 
         // 相机设置
         let collapseShapes = this.cache.json.get('collapseShapes');
         let clickShapes = this.cache.json.get('clickShapes');
         this.cameras.main.setBackgroundColor('#c1d275');
-        this.cameras.main.setBounds(0, 0, mapInfo.mapWidth, mapInfo.mapHeight);
+        this.cameras.main.setBounds(0, 0, gameMap.width, gameMap.height);
 
         // 遍历每个区域，创建背景纹理
         let textureLen = 75;
-        for (let i = 0; i < mapInfo.mapWidth / textureLen; i++) {
-            for (let j = 0; j < mapInfo.mapHeight / textureLen; j++) {
+        for (let i = 0; i < gameMap.width / textureLen; i++) {
+            for (let j = 0; j < gameMap.height / textureLen; j++) {
                 // 一定概率创建纹理
                 if (Math.random() > 0.05) {
                     continue;
@@ -176,8 +188,8 @@ const mainScene = {
         }
 
         // 创建建筑
-        for (let i = 0; i < mapInfo.buildings.length; i++) {
-            let building = mapInfo.buildings[i];
+        for (let i = 0; i < buildingList.length; i++) {
+            let building = buildingList[i];
             // 创建建筑物
             let buildingSprite = this.matter.add.sprite(0, 0, building.type, null, { isStatic: true, shape: collapseShapes[building.type] });
             // 设置建筑物大小和位置
@@ -261,7 +273,6 @@ const mainScene = {
                         lastAxisMap[id].x !== id2gameObject[id].x ||
                         lastAxisMap[id].y !== id2gameObject[id].y) {
                         // 发送坐标信息
-                        console.log(id2gameObject[id].body.velocity)
                         ws.send(JSON.stringify({
                             "type": "COORDINATE",
                             "data": {
@@ -390,23 +401,23 @@ async function getMyUsername() {
     return myUsername;
 }
 
-async function getMapInfo() {
-    let mapInfo = null;
+async function getGameMap() {
+    let result = null;
     // 从后端获得建筑列表
-    await fetch('/rest/map/getMapInfo', {
+    await fetch('/rest/gamemap/getGameMap', {
         method: 'GET',
     }).then(response => response.json())
         .then(data => {
             if (data.code === 0) {
                 // 得到地图信息
-                mapInfo = data.data;
+                result = data.data;
             } else {
                 this.fadeInfoShow(data.msg);
             }
         }).catch(error => {
             this.fadeInfoShow(`请求出错: ${error}`);
         });
-    return mapInfo;
+    return result;
 }
 
 // 从后端获得角色列表
@@ -427,6 +438,46 @@ async function getCharacterList() {
             this.fadeInfoShow(`请求出错: ${error}`);
         });
     return characterList;
+}
+
+// 从后端获得建筑类型列表
+async function getBuildingTypeList() {
+    let buildingTypeList = null;
+    // 从后端获得建筑类型列表
+    await fetch('/rest/building/getAllBuildingTypes', {
+        method: 'GET',
+    }).then(response => response.json())
+        .then(data => {
+            if (data.code === 0) {
+                // 得到建筑类型列表
+                buildingTypeList = data.data;
+            } else {
+                this.fadeInfoShow(data.msg);
+            }
+        }).catch(error => {
+            this.fadeInfoShow(`请求出错: ${error}`);
+        });
+    return buildingTypeList;
+}
+
+// 从后端获得建筑列表
+async function getBuildingList() {
+    let buildingList = null;
+    // 从后端获得建筑列表
+    await fetch('/rest/building/getAllBuildings', {
+        method: 'GET',
+    }).then(response => response.json())
+        .then(data => {
+            if (data.code === 0) {
+                // 得到建筑列表
+                buildingList = data.data;
+            } else {
+                this.fadeInfoShow(data.msg);    
+            }
+        }).catch(error => {
+            this.fadeInfoShow(`请求出错: ${error}`);
+        });
+    return buildingList;
 }
 
 export default mainScene;

@@ -15,6 +15,6 @@ public interface BuildingMapper {
     List<BuildingType> getAllBuildingTypes();
 
     /** 根据地图名称获取上面所有的建筑物 */
-    @Select("SELECT * FROM building WHERE map = #{mapName}")
-    List<Building> getAllBuildingsByMapName(String mapName);
+    @Select("SELECT * FROM building WHERE map = #{mapId}")
+    List<Building> getAllBuildingsByMapId(String mapId);
 }

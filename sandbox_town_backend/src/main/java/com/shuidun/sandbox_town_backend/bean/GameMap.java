@@ -4,17 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MapInfo {
-    private int mapWidth;
+public class GameMap {
 
-    private int mapHeight;
+    private String id;
 
-    private List<Building> buildings;
+    private String name;
 
-    private List<BuildingType> buildingTypes;
+    private Integer width;
+
+    private Integer height;
+
+    private Integer seed;
 }

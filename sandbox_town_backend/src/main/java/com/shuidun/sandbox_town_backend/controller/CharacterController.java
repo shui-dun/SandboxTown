@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 public class CharacterController {
     private final CharacterService characterService;
 
-    private final String mapName;
+    private final String mapId;
 
-    public CharacterController(CharacterService characterService, @Value("${mapName}") String mapName) {
+    public CharacterController(CharacterService characterService, @Value("${mapId}") String mapId) {
         this.characterService = characterService;
-        this.mapName = mapName;
+        this.mapId = mapId;
     }
 
     /** 获取角色属性信息 */
@@ -37,7 +37,7 @@ public class CharacterController {
     /** 获取整个地图上的所有角色信息 */
     @GetMapping("/listAll")
     public RestResponse<?> getAllCharacter() {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, characterService.getCharactersByMap(mapName));
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, characterService.getCharactersByMap(mapId));
     }
 
 }

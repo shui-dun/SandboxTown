@@ -1,12 +1,9 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -14,10 +11,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 @SpringBootTest
-public class MapServiceTest {
+public class GameMapServiceTest {
 
     @Autowired
-    MapService mapService;
+    GameMapService gameMapService;
 
     // 测试图像中只有黑色或白色
     @Test
@@ -38,8 +35,8 @@ public class MapServiceTest {
 
     @Test
     void testGenerateMap() {
-        mapService.generateMap();
-        var map = mapService.getMap();
+        gameMapService.generateMap();
+        var map = gameMapService.getMap();
         // 打印地图并记录为1的点的数目
         int count = 0;
         for (int[] ints : map) {
