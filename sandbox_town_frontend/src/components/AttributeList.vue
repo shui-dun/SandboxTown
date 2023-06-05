@@ -28,7 +28,8 @@ export default {
             info: {
             },
             itemInfo: [
-                { 'label': 'id', 'show': '👨‍💼 名称' },
+                { 'label': 'id', 'show': '🆔 ID' },
+                { 'label': 'owner', 'show': '👤 拥有者' },
                 { 'label': 'money', 'show': '💰 金钱' },
                 { 'label': 'level', 'show': '⬆️ 等级' },
                 { 'label': 'exp', 'show': '🍾 经验值' },
@@ -43,22 +44,25 @@ export default {
     },
     async mounted() {
         // 从后端获取物品信息
-        if (this.itemName.startsWith("user_")) {
-            await fetch(`/rest/character/list/${this.itemName}`, {
-                method: 'GET',
-            }).then(response => response.json())
-                .then(data => {
-                    if (data.code === 0) {
-                        this.info = data.data;
+        await fetch(`/rest/character/list/${this.itemName}`, {
+            method: 'GET',
+        }).then(response => response.json())
+            .then(data => {
+                if (data.code === 0) {
+                    this.info = data.data;
+                    // 如果是用户，删掉前缀
+                    if (this.itemName.startsWith("user_")) {
                         this.info.id = this.info.id.split("_", 2)[1];
-                    } else {
-                        this.fadeInfoShow(data.msg);
                     }
-                });
-        }
+                } else {
+                    this.fadeInfoShow(data.msg);
+                }
+            });
         // 将信息添加到userInfo中
         this.itemInfo.forEach((item) => {
-            item.value = this.info[item.label];
+            if (this.info[item.label] !== null) {
+                item.value = this.info[item.label];
+            }
         });
     },
     computed: {

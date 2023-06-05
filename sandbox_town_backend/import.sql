@@ -89,7 +89,7 @@ CREATE TABLE `character`
     type    VARCHAR(255) NOT NULL,
     # 主人
     owner   VARCHAR(255),
-    money   INT          NOT NULL DEFAULT 0,
+    money   INT                   DEFAULT 0,
     exp     INT          NOT NULL DEFAULT 0,
     level   INT          NOT NULL DEFAULT 1,
     hunger  INT          NOT NULL DEFAULT 100,
@@ -111,9 +111,9 @@ INSERT INTO `character` (id, type, owner, money, exp, level, hunger, hp, attack,
 VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 150, 150),
        ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 150, 150),
        ('user_heihei', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1', 150, 150),
-       ('dog_Vz5n_o-CQk-okcK5vQFRsA', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 150, 150),
-       ('dog_q83jrKyCTtGm1QvywN48pw', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 13, 6, 8, 400, 400, '1', 250, 250),
-       ('cat_iZUc8IiRTCOQXNjLNbQUFQ', 'cat', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 500, '1', 150, 150);
+       ('dog_Vz5n_o-CQk-okcK5vQFRsA', 'dog', 'user_xixi', null, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 150, 150),
+       ('dog_q83jrKyCTtGm1QvywN48pw', 'dog', 'user_xixi', null, 10, 2, 70, 40, 13, 6, 8, 400, 400, '1', 250, 250),
+       ('cat_iZUc8IiRTCOQXNjLNbQUFQ', 'cat', 'user_xixi', null, 10, 2, 70, 40, 8, 6, 8, 400, 500, '1', 150, 150);
 
 
 # 创建物品表
