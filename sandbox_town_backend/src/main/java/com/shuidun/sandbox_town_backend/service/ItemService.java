@@ -44,7 +44,7 @@ public class ItemService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_USABLE);
         }
         // 得到用户原先属性
-        Character character = characterMapper.getCharacterByID(username);
+        Character character = characterMapper.getCharacterById(username);
         // 更新用户属性
         character.setMoney(character.getMoney() + characterItem.getMoneyInc());
         character.setExp(character.getExp() + characterItem.getExpInc());

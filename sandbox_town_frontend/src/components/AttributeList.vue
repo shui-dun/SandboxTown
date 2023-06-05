@@ -29,6 +29,7 @@ export default {
             },
             itemInfo: [
                 { 'label': 'id', 'show': '🆔 ID' },
+                { 'label': 'description', 'show': '📝 介绍' },
                 { 'label': 'owner', 'show': '👤 拥有者' },
                 { 'label': 'money', 'show': '💰 金钱' },
                 { 'label': 'level', 'show': '⬆️ 等级' },
@@ -73,4 +74,5 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>

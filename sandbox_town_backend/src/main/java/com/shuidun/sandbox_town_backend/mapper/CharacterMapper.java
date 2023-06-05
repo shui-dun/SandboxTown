@@ -7,8 +7,12 @@ import java.util.List;
 
 @Mapper
 public interface CharacterMapper {
-    @Select("SELECT * FROM `character` WHERE id = #{id}")
-    Character getCharacterByID(@Param("id") String id);
+    // 根据角色id获取角色信息（包含character_type表中的角色描述信息）
+    @Select("SELECT * FROM `character` INNER JOIN character_type " +
+            "ON `character`.type = character_type.type " +
+            "WHERE id = #{id}")
+    Character getCharacterById(@Param("id") String id);
+
 
     @Update("UPDATE `character` SET ${attribute} = #{value} WHERE id = #{id}")
     void updateCharacterAttribute(@Param("id") String id, @Param("attribute") String attribute, @Param("value") int value);

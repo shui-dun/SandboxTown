@@ -23,7 +23,7 @@ public class CharacterService {
     }
 
     public Character getCharacterInfoByID(String id) {
-        Character character = characterMapper.getCharacterByID(id);
+        Character character = characterMapper.getCharacterById(id);
         if (character == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }

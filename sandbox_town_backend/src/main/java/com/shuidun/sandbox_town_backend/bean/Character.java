@@ -40,4 +40,7 @@ public class Character {
     private Integer height;
 
     private String map;
+
+    // 描述信息
+    private String description;
 }

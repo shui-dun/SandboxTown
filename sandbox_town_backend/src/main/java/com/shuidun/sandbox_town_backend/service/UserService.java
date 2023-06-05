@@ -41,7 +41,7 @@ public class UserService {
         roleMapper.insertUserRole(user.getUsername(), "normal");
         Character character = new Character(user.getUsername(), "user", null,
                 10, 0, 1, 100, 100,
-                10, 10, 5, 0, 0, 120, 120, mapName);
+                10, 10, 5, 0, 0, 120, 120, mapName, null);
         characterMapper.createCharacter(character);
     }
 
