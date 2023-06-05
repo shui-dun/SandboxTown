@@ -66,13 +66,18 @@ public class EventHandler {
             int x = NumUtils.toInt(data.get("x"));
             int y = NumUtils.toInt(data.get("y"));
             String id = data.get("id").toString();
-            // 只能控制自己或者是自己的宠物(TO-DO)
-            if (!initiator.equals(id)) {
-                return null;
-            }
-            Point position = new Point(x, y);
+            // TO-DO: 只能控制自己或者是自己的宠物或者公共npc
+            // 如果是其他玩家或者是其他玩家的宠物，直接返回
+            var position = new Point(x, y);
             // 更新坐标信息
             characterAxis.put(id, position);
+            // 广播给其他玩家
+            var response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
+                    "id", id,
+                    "x", x,
+                    "y", y
+            ));
+            WSManager.sendMessageToAllUsers(response);
             return null;
         });
 

@@ -3,6 +3,9 @@ import Phaser from "phaser";
 // 设置id->gameObject的映射
 var id2gameObject = {};
 
+// 设置id->character的映射
+var id2character = {};
+
 // websocket连接
 var ws = null;
 
@@ -13,6 +16,9 @@ var myUsername = null;
 
 // 角色列表
 var characterList = [];
+
+// 是否加载完成
+var isLoaded = false;
 
 const mainScene = {
     key: 'main',
@@ -50,6 +56,8 @@ const mainScene = {
         // 建立websocket连接
         ws = new WebSocket("ws://localhost:9090/event");
 
+        isLoaded = true;
+
         ws.onopen = function () {
             console.log("Connection open ...");
             ws.send(JSON.stringify({
@@ -63,8 +71,10 @@ const mainScene = {
             let response = JSON.parse(event.data);
             // 如果是移动
             if (response.type === 'MOVE') {
+                // 移动事件的发起者
+                let initatorCharacter = id2character[response.data.id];
                 // 物品
-                let item = id2gameObject[response.data.id];
+                let initatorGameObject = id2gameObject[response.data.id];
                 // 速度
                 let speed = response.data.speed;
                 // 路径
@@ -73,6 +83,11 @@ const mainScene = {
                 let dest_id = response.data.dest_id;
                 // 目的地的到达事件
                 let arriveEvent = () => {
+                    // 如果是其他玩家或者其他玩家的宠物，就不触发到达事件
+                    if ((initatorCharacter.id.startsWith("user") && initatorCharacter.id != myUsername) ||
+                        (initatorCharacter.owner != null && initatorCharacter.owner != myUsername)) {
+                        return;
+                    }
                     if (dest_id != null) {
                         self.game.events.emit('ArriveAtTarget', { "type": dest_id.split("_", 2)[0], "targetID": dest_id });
                     }
@@ -110,7 +125,7 @@ const mainScene = {
                     repeat: 0,
                     onUpdate: () => {
                         const point = path.getPoint(tweenProgress.value);
-                        self.matter.body.setPosition(item.body, { x: point.x, y: point.y });
+                        self.matter.body.setPosition(initatorGameObject.body, { x: point.x, y: point.y });
                     },
                     onComplete: () => {
                         if (this.isStopped) {
@@ -120,6 +135,11 @@ const mainScene = {
                     }
                 });
                 lastTween = tween;
+            } else if (response.type === 'COORDINATE') { // 如果是坐标通知
+                // 游戏对象
+                let gameObject = id2gameObject[response.data.id];
+                // 更新其坐标
+                self.matter.body.setPosition(gameObject.body, { x: response.data.x, y: response.data.y });
             }
         }
 
@@ -192,6 +212,8 @@ const mainScene = {
         // 创建所有角色
         for (let i = 0; i < characterList.length; i++) {
             let character = characterList[i];
+            // 将其加入id2character
+            id2character[character.id] = character;
             // 创建角色
             let characterSprite = this.matter.add.sprite(0, 0, character.type, null, { shape: collapseShapes[character.type] });
             // 设置角色大小和位置
@@ -222,28 +244,41 @@ const mainScene = {
         // 相机跟随自己
         this.cameras.main.startFollow(id2gameObject[myUsername]);
 
+        // 由于精灵被推动时，或是播放补间动画tween时，它的物理引擎不会更新其速度，速度都是0，因此在找到方法前，只同步位置，不同步速度
         // 每一段时间向服务器发送一次角色位置信息
-        // 只发送所有人为自己或者空的角色的坐标信息
+        // 只发送自己、主人是自己、公共NPC（例如蜘蛛）的角色的坐标信息
         // 记录上一次发送的位置
-        // let lastAxisMap = {}
-        // setInterval(() => {
-        //     // 遍历所有角色
-        //     for (let id in id2gameObject) {
-        //         // 如果角色的所有者是自己或者空
-        //         if (id2gameObject[id].owner === myUsername || id2gameObject[id].owner === '') {
-        //     // 只有位置变化时才发送
-
-        //     ws.send(JSON.stringify({
-        //         "type": "COORDINATE",
-        //         "data": {
-        //             "id": myUsername,
-        //             "x": player.x,
-        //             "y": player.y,
-        //         }
-        //     }));
-        //     lastX = player.x;
-        //     lastY = player.y;
-        // }, 100);
+        let lastAxisMap = {}
+        setInterval(() => {
+            // 遍历所有角色
+            for (let id in id2character) {
+                // 如果角色是自己、主人是自己、公共NPC（例如蜘蛛）
+                if (id === myUsername ||
+                    id2character[id].owner === myUsername ||
+                    (id2character[id].owner == null && id2character[id].type !== "user")) {
+                    // 如果上一次发送的位置和当前位置不同
+                    if (lastAxisMap[id] == null ||
+                        lastAxisMap[id].x !== id2gameObject[id].x ||
+                        lastAxisMap[id].y !== id2gameObject[id].y) {
+                        // 发送坐标信息
+                        console.log(id2gameObject[id].body.velocity)
+                        ws.send(JSON.stringify({
+                            "type": "COORDINATE",
+                            "data": {
+                                "id": id,
+                                "x": id2gameObject[id].x,
+                                "y": id2gameObject[id].y,
+                            }
+                        }));
+                        // 更新上一次发送的位置
+                        lastAxisMap[id] = {
+                            "x": id2gameObject[id].x,
+                            "y": id2gameObject[id].y,
+                        }
+                    }
+                }
+            }
+        }, 100);
 
 
         // 碰撞检测
@@ -265,19 +300,7 @@ const mainScene = {
                 }
                 this.game.events.emit('showFadeInfo', { "msg": '按空格键进入商店' });
             }
-            // 如果是玩家与树木碰撞
-            if (item1 === id2gameObject[myUsername] && item2.body.label === 'tree'
-                || item1.body.label === 'tree' && item2 === id2gameObject[myUsername]) {
-                if (now - lastCollisionTime < 1000) {
-                    return;
-                }
-                this.game.events.emit('showFadeInfo', { "msg": '恭喜获得1个苹果🍎' });
-            }
             lastCollisionTime = now;
-            // 如果是玩家之间的碰撞
-            if (item1 === id2gameObject[myUsername] && item1.body.label === 'user') {
-                this.game.events.emit('showFadeInfo', { "msg": '你好，我是user_haha' });
-            }
         });
 
         // 设置键盘输入监听
@@ -304,14 +327,31 @@ const mainScene = {
         });
     },
     update: function () {
-        // 如果地图信息还没有加载完成，则不执行更新（由于js不能阻塞，只好忙等待了）
-        if (mapInfo === null) {
+        // 如果还没有加载完成，则不执行更新（由于js不能阻塞，只好忙等待了）
+        if (!isLoaded) {
             return;
         }
         // 更新层数
         for (let id in id2gameObject) {
             setDepth(id2gameObject[id]);
         }
+        // // 根据方向键输入更新角色速度
+        // let me = id2gameObject[myUsername];
+        // let speed = id2character[myUsername].speed * 0.8;
+        // if (this.cursors.left.isDown) {
+        //     me.setVelocityX(-speed);
+        // } else if (this.cursors.right.isDown) {
+        //     me.setVelocityX(speed);
+        // } else {
+        //     me.setVelocityX(0);
+        // }
+        // if (this.cursors.up.isDown) {
+        //     me.setVelocityY(-speed);
+        // } else if (this.cursors.down.isDown) {
+        //     me.setVelocityY(speed);
+        // } else {
+        //     me.setVelocityY(0);
+        // }
     },
 }
 
