@@ -12,13 +12,11 @@ export default {
     mounted() {
         const config = {
             type: Phaser.AUTO,
-            width: window.innerWidth * 1.1,
-            height: window.innerHeight * 1.1,
+            width: window.innerWidth * devicePixelRatio,
+            height: window.innerHeight * devicePixelRatio,
             parent: "game-canvas",
-            antialias: true, // 禁用抗锯齿
             scale: {
-                mode: Phaser.Scale.FIT,
-                autoCenter: Phaser.Scale.CENTER_BOTH
+                mode: Phaser.Scale.AUTO,
             },
             physics: {
                 default: 'matter',
@@ -67,9 +65,10 @@ export default {
 <style scoped>
 #game-canvas {
     width: 100%;
-    height: 100%;
+    height: 99%;
     position: absolute;
     top: 0;
     left: 0;
 }
+
 </style>

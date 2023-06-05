@@ -89,7 +89,7 @@ public class EventHandler {
             characterAxis.put(initiator, new Point(x0, y0));
             // 更新玩家的找到的路径
             // TO-DO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
-            List<Point> path = mapService.findPath(x0, y0, x1, y1, (int) (120 * 0.6), (int) (120 * 0.7),
+            List<Point> path = mapService.findPath(x0, y0, x1, y1, (int) (150 * 0.6), (int) (150 * 0.7),
                     destId != null ? destId.hashCode() : null);
             // 如果找不到路径，直接返回
             if (path == null) {

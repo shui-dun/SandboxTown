@@ -108,12 +108,12 @@ CREATE TABLE `character`
 
 INSERT INTO `character` (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
                          height)
-VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 120, 120),
-       ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 120, 120),
-       ('user_heihei', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1', 120, 120),
-       ('dog_Vz5n_o-CQk-okcK5vQFRsA', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 120, 120),
-       ('dog_q83jrKyCTtGm1QvywN48pw', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 400, '1', 120, 120),
-       ('cat_iZUc8IiRTCOQXNjLNbQUFQ', 'cat', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 500, '1', 120, 120);
+VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 150, 150),
+       ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 150, 150),
+       ('user_heihei', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1', 150, 150),
+       ('dog_Vz5n_o-CQk-okcK5vQFRsA', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 150, 150),
+       ('dog_q83jrKyCTtGm1QvywN48pw', 'dog', 'user_xixi', 0, 10, 2, 70, 40, 13, 6, 8, 400, 400, '1', 250, 250),
+       ('cat_iZUc8IiRTCOQXNjLNbQUFQ', 'cat', 'user_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 400, 500, '1', 150, 150);
 
 
 # 创建物品表
@@ -225,5 +225,5 @@ CREATE TABLE building
 );
 
 INSERT INTO building (id, type, map, level, owner, originX, originY, width, height)
-VALUES ('store_Pk86H7rTSm2XJdGoHFe-7A', 'store', '1', 1, 'user_xixi', 0, 0, 300, 300),
-       ('tree_hjQLffrhQayNLVuty_poLg', 'tree', '1', 1, 'user_xixi', 200, 500, 400, 400);
+VALUES ('store_Pk86H7rTSm2XJdGoHFe-7A', 'store', '1', 1, 'user_xixi', 0, 0, 400, 400),
+       ('tree_hjQLffrhQayNLVuty_poLg', 'tree', '1', 1, 'user_xixi', 200, 500, 600, 600);

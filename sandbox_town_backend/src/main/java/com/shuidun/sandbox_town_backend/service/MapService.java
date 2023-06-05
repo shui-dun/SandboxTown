@@ -33,9 +33,9 @@ public class MapService {
 
     private final BuildingMapper buildingMapper;
 
-    private final int mapPixelWidth = 1900;
+    private final int mapPixelWidth = 2500;
 
-    private final int mapPixelHeight = 1000;
+    private final int mapPixelHeight = 1500;
 
     private final int pixelsPerGrid = 20;
 
