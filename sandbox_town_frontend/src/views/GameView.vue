@@ -1,10 +1,10 @@
 <template>
     <gameCanvas @showAttributeList="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
     <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation" />
-    <AttributeList v-if="attributeListOpened" :itemName="itemNameOfAttributeList" @close="closeAttributeList" @mousedown="preventMousedownPropagation">
+    <AttributeList v-if="attributeListOpened" :itemName="itemNameOfAttributeList" @close="closeAttributeList"
+        @mousedown="preventMousedownPropagation">
     </AttributeList>
-    <StorePannel v-if="storeOpened" @close="closeStore"
-        @mousedown="preventMousedownPropagation"></StorePannel>
+    <StorePannel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation"></StorePannel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <FadeInfo ref="fadeInfo" />
     <ProcessBar v-if="showProcessBar" :duration="processBarDuration" :text="processBarText"
@@ -24,9 +24,7 @@ import ProcessBar from '@/components/ProcessBar.vue';
 export default {
     provide() {
         return {
-            fadeInfoShow: (msg) => {
-                this.$refs.fadeInfo.showInfo(msg);
-            },
+            fadeInfoShow: this.fadeInfoShow,
         };
     },
     components: {
@@ -55,6 +53,9 @@ export default {
         };
     },
     methods: {
+        fadeInfoShow(msg) {
+            this.$refs.fadeInfo.showInfo(msg);
+        },
         clickBackpack() {
             this.backpackOpened = true;
         },
@@ -93,6 +94,21 @@ export default {
     computed: {
     },
     mounted() {
+        // 向后端发送请求，检查是否登录
+        fetch('/rest/user/getUsername', {
+            method: 'GET',
+        }).then((response) => response.json())
+            .then((data) => {
+                if (data.code == 6) {
+                    // 未登录，跳转到登录页面
+                    this.$router.push('/');
+                } else if (data.code !== 0) {
+                    this.fadeInfoShow(data.msg);
+                }
+            })
+            .catch(error => {
+                this.fadeInfoShow(`请求出错: ${error}`);
+            });
     }
 };
 </script>
