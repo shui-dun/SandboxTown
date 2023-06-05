@@ -35,6 +35,9 @@ const mainScene = {
 
         let self = this;
 
+        // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
+        self.input.mouse.disableContextMenu();
+
         // 得到地图信息
         mapInfo = await getMapInfo();
 
@@ -182,6 +185,7 @@ const mainScene = {
                 }));
                 // 阻止事件冒泡
                 event.stopPropagation();
+
             });
         }
 
@@ -200,7 +204,14 @@ const mainScene = {
             // 设置点击角色的事件
             characterSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes[character.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
             characterSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
-                this.game.events.emit('showAttributeList', { "itemID": character.id });
+                // 鼠标左键点击
+                if (pointer.button === 0) {
+                    this.game.events.emit('showAttributeList', { "itemID": character.id });
+                } else if (pointer.button === 2) { // 鼠标右键点击
+                    // TO-DO: 发送攻击请求
+                }
+                // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
+                self.input.mouse.disableContextMenu();
                 // 阻止事件冒泡
                 event.stopPropagation();
             });
@@ -288,7 +299,8 @@ const mainScene = {
                     "dest_id": null,
                 }
             }));
-            console.log('click at: ' + x + ', ' + y);
+            // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
+            self.input.mouse.disableContextMenu();
         });
     },
     update: function () {
