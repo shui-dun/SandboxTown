@@ -1,10 +1,10 @@
 package com.shuidun.sandbox_town_backend.service;
 
+import com.shuidun.sandbox_town_backend.bean.Character;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
-import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.utils.NameGenerator;
 import com.shuidun.sandbox_town_backend.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +33,8 @@ public class GameMapService {
 
     private final GameMapMapper gameMapMapper;
 
+    private final CharacterService characterService;
+
     private final int pixelsPerGrid = 30;
 
     // 地图ID
@@ -46,9 +48,10 @@ public class GameMapService {
     // 建筑类型图片
     Map<String, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
-    public GameMapService(BuildingMapper buildingMapper, GameMapMapper gameMapMapper, @Value("${mapId}") String mapId) {
+    public GameMapService(BuildingMapper buildingMapper, GameMapMapper gameMapMapper, CharacterService characterService, @Value("${mapId}") String mapId) {
         this.gameMapMapper = gameMapMapper;
         this.buildingMapper = buildingMapper;
+        this.characterService = characterService;
         this.mapId = mapId;
         // 获得地图信息
         GameMap gameMap = gameMapMapper.getGameMapById(mapId);
@@ -330,6 +333,22 @@ public class GameMapService {
                 buildingMapper.createBuilding(building);
                 // 放置建筑
                 placeBuildingOnMap(building);
+                // 如何是树
+                if (buildingType.getId().equals("tree")) {
+                    // 在树下以一定概率生成几只狗
+                    if (Math.random() < 0.3) {
+                        // 随机生成狗的数量
+                        int nDogs = (int) (Math.random() * 3) + 1;
+                        // 随机生成狗的位置
+                        for (int j = 0; j < nDogs; ++j) {
+                            // 随机生成狗的左上角
+                            int dogX = building.getOriginX() + (int) (Math.random() * building.getWidth());
+                            int dogY = building.getOriginY() + (int) (Math.random() * building.getHeight());
+                            // 创建狗
+                            characterService.generateRandomCharacter("dog", null, dogX, dogY);
+                        }
+                    }
+                }
             } else {
                 log.info("建筑重叠，重新生成建筑");
                 // 如果重叠，重新生成建筑

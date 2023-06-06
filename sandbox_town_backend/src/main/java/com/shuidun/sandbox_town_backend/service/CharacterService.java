@@ -1,10 +1,13 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import com.shuidun.sandbox_town_backend.bean.Character;
+import com.shuidun.sandbox_town_backend.bean.CharacterType;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.CharacterMapper;
+import com.shuidun.sandbox_town_backend.utils.NameGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +21,11 @@ import static com.shuidun.sandbox_town_backend.enumeration.Constants.EXP_PER_LEV
 public class CharacterService {
     private final CharacterMapper characterMapper;
 
-    public CharacterService(CharacterMapper characterMapper) {
+    private final String mapId;
+
+    public CharacterService(CharacterMapper characterMapper, @Value("${mapId}") String mapId) {
         this.characterMapper = characterMapper;
+        this.mapId = mapId;
     }
 
     public Character getCharacterInfoByID(String id) {
@@ -93,5 +99,46 @@ public class CharacterService {
     // 得到某个地图上的所有角色
     public List<Character> getCharactersByMap(String map) {
         return characterMapper.getCharactersByMap(map);
+    }
+
+    // 生成随机的指定类型的角色，并写入数据库
+    public Character generateRandomCharacter(String type, String owner, int x, int y) {
+        Character character = new Character();
+        CharacterType characterType = characterMapper.getCharacterType(type);
+        character.setId(NameGenerator.generateItemName(type));
+        character.setType(type);
+        character.setOwner(owner);
+        // 根据基础属性值和随机数随机生成角色的属性
+        double scale = 0.8 + Math.random() * 0.4;
+        character.setMoney((int) (characterType.getBasicMoney() * scale));
+        scale = 0.8 + Math.random() * 0.4;
+        character.setExp((int) (characterType.getBasicExp() * scale));
+        scale = 0.8 + Math.random() * 0.4;
+        character.setLevel((int) (characterType.getBasicLevel() * scale));
+        if (character.getLevel() < 1) {
+            character.setLevel(1);
+        }
+        scale = 0.8 + Math.random() * 0.4;
+        character.setHunger((int) (characterType.getBasicHunger() * scale));
+        if (character.getHunger() > 100) {
+            character.setHunger(100);
+        }
+        scale = 0.8 + Math.random() * 0.4;
+        character.setHp((int) (characterType.getBasicHp() * scale));
+        scale = 0.8 + Math.random() * 0.4;
+        character.setAttack((int) (characterType.getBasicAttack() * scale));
+        scale = 0.8 + Math.random() * 0.4;
+        character.setDefense((int) (characterType.getBasicDefense() * scale));
+        scale = 0.8 + Math.random() * 0.4;
+        character.setSpeed((int) (characterType.getBasicSpeed() * scale));
+        character.setX(x);
+        character.setY(y);
+        // 宽度和高度使用相同的scale
+        scale = 0.8 + Math.random() * 0.4;
+        character.setWidth((int) (characterType.getBasicWidth() * scale));
+        character.setHeight((int) (characterType.getBasicHeight() * scale));
+        character.setMap(mapId);
+        characterMapper.createCharacter(character);
+        return character;
     }
 }
