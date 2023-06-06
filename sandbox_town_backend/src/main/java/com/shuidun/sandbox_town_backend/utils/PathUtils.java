@@ -74,22 +74,27 @@ public class PathUtils {
             return false;
         }
 
-        // 由于物体本身占据一定长宽，因此在这里需要判断物体所占据的空间内是否有障碍物，为方便起见，这里只判断了物体的边界的8个点
-        // 这8个点分别是左上角、左下角、右上角、右下角、上边中点、下边中点、左边中点、右边中点
-        int[][] points = {
-                {x, y},
-                {x - itemHalfWidth, y - itemHalfHeight},
-                {x - itemHalfWidth, y + itemHalfHeight},
-                {x + itemHalfWidth, y - itemHalfHeight},
-                {x + itemHalfWidth, y + itemHalfHeight},
-                {x, y - itemHalfHeight},
-                {x, y + itemHalfHeight},
-                {x - itemHalfWidth, y},
-                {x + itemHalfWidth, y}
-        };
-        for (int[] point : points) {
-            if (!isValid(map, point[0], point[1]) ||
-                    (destinationHashCode == null ? map[point[0]][point[1]] != 0 : map[point[0]][point[1]] != 0 && map[point[0]][point[1]] != destinationHashCode)
+        // 由于物体本身占据一定长宽，因此在这里需要判断物体所占据的空间内是否有障碍物
+        // 为方便起见，这里只判断了物体中央的十字架和左上角、左下角、右上角、右下角四个点
+        List<Point> points = new ArrayList<>();
+        points.add(new Point(x, y));
+        points.add(new Point(x - itemHalfWidth, y - itemHalfHeight));
+        points.add(new Point(x - itemHalfWidth, y + itemHalfHeight));
+        points.add(new Point(x + itemHalfWidth, y - itemHalfHeight));
+        points.add(new Point(x + itemHalfWidth, y + itemHalfHeight));
+        // 添加物体中央的十字架上的点
+        for (int i = x - itemHalfWidth; i <= x + itemHalfWidth; i++) {
+            points.add(new Point(i, y));
+        }
+        for (int i = y - itemHalfHeight; i <= y + itemHalfHeight; i++) {
+            points.add(new Point(x, i));
+        }
+
+
+        for (Point point : points) {
+            if (!isValid(map, point.getX(), point.getY()) ||
+                    (destinationHashCode == null ? map[point.getX()][point.getY()] != 0 : map[point.getX()][point.getY()] != 0
+                            && map[point.getX()][point.getY()] != destinationHashCode)
             ) {
                 return true;
             }

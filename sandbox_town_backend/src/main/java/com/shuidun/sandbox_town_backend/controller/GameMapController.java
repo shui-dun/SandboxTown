@@ -23,6 +23,7 @@ public class GameMapController {
     /** 得到地图的信息 */
     @GetMapping("/getGameMap")
     public RestResponse<?> getGameMap() {
+        log.info("getGameMap: {}", new RestResponse<>(StatusCodeEnum.SUCCESS, gameMapService.getGameMap()));
         return new RestResponse<>(StatusCodeEnum.SUCCESS, gameMapService.getGameMap());
     }
 }

@@ -36,6 +36,9 @@ const mainScene = {
         this.load.image("store", require("@/assets/img/store.png"));
         this.load.image("tree", require("@/assets/img/tree.png"));
 
+        // 围墙
+        this.load.image("wall", require("@/assets/img/wall.png"));
+
         // 加载纹理图片
         this.load.spritesheet("tiles", require("@/assets/img/tiles.png"), { frameWidth: 128, frameHeight: 128, endFrame: 11 });
 
@@ -186,6 +189,18 @@ const mainScene = {
                 texture.setDisplaySize(textureLen, textureLen);
             }
         }
+
+        // 创建围墙
+        let pixelsPerGrid = 30;
+        for (let x = 0; x < gameMap.data.length; ++x) {
+            for (let y = 0; y < gameMap.data[0].length; ++y) {
+                if (gameMap.data[x][y] == 1) {
+                    const texture = this.matter.add.sprite(x * pixelsPerGrid, y * pixelsPerGrid, 'wall', null, { isStatic: true, shape: collapseShapes["wall"] })
+                    texture.setDisplaySize(pixelsPerGrid, pixelsPerGrid);
+                }
+            }
+        }
+
 
         // 创建建筑
         for (let i = 0; i < buildingList.length; i++) {
@@ -472,7 +487,7 @@ async function getBuildingList() {
                 // 得到建筑列表
                 buildingList = data.data;
             } else {
-                this.fadeInfoShow(data.msg);    
+                this.fadeInfoShow(data.msg);
             }
         }).catch(error => {
             this.fadeInfoShow(`请求出错: ${error}`);

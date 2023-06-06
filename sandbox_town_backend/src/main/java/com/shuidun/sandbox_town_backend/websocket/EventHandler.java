@@ -37,9 +37,13 @@ public class EventHandler {
 
     public void handle(EventMessage eventMessage) {
         try {
+            // 如果类型是空，就不处理
+            if (eventMessage.getType() == null) {
+                return;
+            }
             eventMap.get(eventMessage.getType()).apply(eventMessage.getInitiator(), eventMessage.getData());
         } catch (Exception e) {
-            log.error("handle event error", e);
+            log.error("handle {} event error", eventMessage, e);
         }
     }
 

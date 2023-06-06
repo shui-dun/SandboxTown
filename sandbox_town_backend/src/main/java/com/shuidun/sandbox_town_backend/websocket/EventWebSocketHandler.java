@@ -67,8 +67,7 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
         }
         EventMessage eventMessage = JSONObject.parseObject(messagePayload, EventMessage.class);
         eventMessage.setInitiator((String) session.getAttributes().get("userName"));
-        log.info("收到来自用户{}的消息：{}", session.getAttributes().get("userName"), eventMessage);
-        // 通知给观察者
+        // 交给事件处理器处理
         eventHandler.handle(eventMessage);
     }
 

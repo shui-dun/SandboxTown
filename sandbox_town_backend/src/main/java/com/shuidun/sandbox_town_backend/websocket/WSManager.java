@@ -26,7 +26,6 @@ public class WSManager {
                 WSManager.usernameSession.remove(username, session);
             } else {
                 session.sendMessage(message);
-                log.info("发送消息给用户: {} 消息内容: {}", username, response);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,7 +49,6 @@ public class WSManager {
                     WSManager.usernameSession.remove(userName, session);
                 } else {
                     session.sendMessage(message);
-                    log.info("发送消息给用户: {} 消息内容: {}", userName, response);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -56,8 +56,8 @@ CREATE TABLE game_map
 );
 
 INSERT INTO game_map (id, name, width, height, seed)
-VALUES ('1', 'Ⅰ', 2500, 1500, 32784924),
-       ('2', 'Ⅱ', 2500, 1500, 234757802);
+VALUES ('1', 'Ⅰ', 4500, 3000, 32784924),
+       ('2', 'Ⅱ', 4500, 3000, 234757802);
 
 # 创建角色类型表
 CREATE TABLE character_type

@@ -18,4 +18,6 @@ public class GameMap {
     private Integer height;
 
     private Integer seed;
+
+    private int[][] data;
 }

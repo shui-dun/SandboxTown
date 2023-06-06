@@ -4,6 +4,7 @@ import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
+import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -29,13 +31,15 @@ public class GameMapService {
 
     private final GameMapMapper gameMapMapper;
 
-    private final int pixelsPerGrid = 20;
+    private final int pixelsPerGrid = 30;
 
     // 地图ID
     private String mapId;
 
     /** 地图，用于寻路算法，0表示可以通过，非0表示障碍物ID的哈希值 */
     private int[][] map;
+
+    private Random random = new Random();
 
     public GameMapService(BuildingMapper buildingMapper, GameMapMapper gameMapMapper, @Value("${mapId}") String mapId) {
         this.gameMapMapper = gameMapMapper;
@@ -44,14 +48,84 @@ public class GameMapService {
         // 获得地图信息
         GameMap gameMap = gameMapMapper.getGameMapById(mapId);
 
+        // 设置随机数种子
+        random.setSeed(gameMap.getSeed());
+
         // 初始化地图
         map = new int[gameMap.getWidth() / pixelsPerGrid][gameMap.getHeight() / pixelsPerGrid];
 
-        // 从数据库中获取所有建筑类型
-        var buildingTypes = this.buildingMapper.getAllBuildingTypes();
+        // 生成围墙
+        generateMaze(0, 0, map.length, map[0].length);
 
-        // 初始化建筑物的黑白图
+        // 生成建筑
+        placeAllBuildingsOnMap();
+    }
+
+    // 生成迷宫
+    private void generateMaze(int x, int y, int w, int h) {
+        if (w < 35 || h < 35) {
+            return;
+        }
+
+        if (w < 70 || h < 70) {
+            if (random.nextDouble() < 0.5) {
+                return;
+            }
+        }
+
+        int midX = x + w / 2;
+        int midY = y + h / 2;
+
+        // 画水平墙
+        for (int i = x; i < x + w; i++) {
+            map[i][midY] = 1;
+        }
+
+        // 拆除一部分，以保证可以通行
+        int holeLen = 6 + random.nextInt(5);
+        int beginX = x + random.nextInt(w / 2 - holeLen - 1);
+        int endX = beginX + holeLen;
+        for (int i = beginX; i < endX; i++) {
+            map[i][midY] = 0;
+        }
+
+        holeLen = 6 + random.nextInt(5);
+        beginX = x + w / 2 + random.nextInt(w / 2 - holeLen - 1);
+        endX = beginX + holeLen;
+        for (int i = beginX; i < endX; i++) {
+            map[i][midY] = 0;
+        }
+
+        // 画竖直墙
+        for (int i = y; i < y + h; i++) {
+            map[midX][i] = 1;
+        }
+
+        holeLen = 6 + random.nextInt(5);
+        int beginY = y + random.nextInt(h / 2 - holeLen - 1);
+        int endY = beginY + holeLen;
+        for (int i = beginY; i < endY; i++) {
+            map[midX][i] = 0;
+        }
+
+        holeLen = 6 + random.nextInt(5);
+        beginY = y + h / 2 + random.nextInt(h / 2 - holeLen - 1);
+        endY = beginY + holeLen;
+        for (int i = beginY; i < endY; i++) {
+            map[midX][i] = 0;
+        }
+
+        // Recursively generate maze in each quadrant
+        generateMaze(x, y, w / 2, h / 2);
+        generateMaze(x + w / 2, y, w / 2, h / 2);
+        generateMaze(x, y + h / 2, w / 2, h / 2);
+        generateMaze(x + w / 2, y + h / 2, w / 2, h / 2);
+    }
+
+    // 将所有建筑物放置在地图上
+    private void placeAllBuildingsOnMap() {
         // 建筑物的黑白图的字典
+        var buildingTypes = this.buildingMapper.getAllBuildingTypes();
         Map<String, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
         for (BuildingType buildingType : buildingTypes) {
             String buildingTypeId = buildingType.getId();
@@ -67,8 +141,7 @@ public class GameMapService {
         // 获取当前地图上的所有建筑物
         var buildings = buildingMapper.getAllBuildingsByMapId(mapId);
 
-        // 构建地图（用于寻路算法）
-        // 遍历地图上每一格
+        // 将建筑放置在地图上
         for (int x = 0; x < map.length; x++) {
             for (int y = 0; y < map[0].length; y++) {
                 // 遍历每一个建筑物
@@ -94,9 +167,6 @@ public class GameMapService {
                         if (color == Color.BLACK.getRGB()) {
                             // 将当前格子标记为不可通行
                             map[x][y] = building.getId().hashCode();
-                        } else {
-                            // 将当前格子标记为可通行
-                            map[x][y] = 0;
                         }
                         break;
                     }
@@ -134,6 +204,8 @@ public class GameMapService {
 
     // 得到地图信息
     public GameMap getGameMap() {
-        return gameMapMapper.getGameMapById(mapId);
+        GameMap gameMap = gameMapMapper.getGameMapById(mapId);
+        gameMap.setData(map);
+        return gameMap;
     }
 }
