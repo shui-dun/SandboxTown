@@ -231,11 +231,11 @@ CREATE TABLE building
     # 建筑的等级（等级越高，收益越好，例如商店等级越高，商品数目越多，商品价格越低，物品价格由其基本价格和商店等价和随机数共同决定）
     level   INT          NOT NULL DEFAULT 1,
     # 建筑的拥有者
-    owner   VARCHAR(255) NOT NULL,
+    owner   VARCHAR(255),
     # 建筑左上角的x坐标（对于建筑，我们使用图像左上角的坐标，以方便寻路算法，但是对于玩家等，我们使用质心的坐标）
-    originX INT          NOT NULL,
+    origin_x INT          NOT NULL,
     # 建筑左上角的y坐标
-    originY INT          NOT NULL,
+    origin_y INT          NOT NULL,
     # 建筑的宽度
     width   INT          NOT NULL,
     # 建筑的高度
@@ -245,7 +245,7 @@ CREATE TABLE building
     CONSTRAINT fk_building_map FOREIGN KEY (map) REFERENCES game_map (id)
 );
 
-INSERT INTO building (id, type, map, level, owner, originX, originY, width, height)
+INSERT INTO building (id, type, map, level, owner, origin_x, origin_y, width, height)
 VALUES ('store_Pk86H7rTSm2XJdGoHFe-7A', 'store', '1', 1, 'user_xixi', 0, 0, 400, 400),
-       ('tree_hjQLffrhQayNLVuty_poLg', 'tree', '1', 1, 'user_xixi', 200, 500, 600, 600);
+       ('tree_hjQLffrhQayNLVuty_poLg', 'tree', '1', 1, 'user_xixi', 200, 400, 600, 600);
 
