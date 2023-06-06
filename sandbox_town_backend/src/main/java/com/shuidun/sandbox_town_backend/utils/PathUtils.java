@@ -66,11 +66,9 @@ public class PathUtils {
     // 判断给定的坐标是否不能容下物体
     private static boolean cannotHold(int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight, int startX, int startY, int endX, int endY, Integer destinationHashCode) {
 
-        // 如果坐标在出发点或者目标点附近（距离小于物体大小），那么直接认为可以容下物体
-        if (Math.abs(x - startX) <= itemHalfWidth && Math.abs(y - startY) <= itemHalfHeight) {
-            return false;
-        }
-        if (Math.abs(x - endX) <= itemHalfWidth && Math.abs(y - endY) <= itemHalfHeight) {
+        // 如果坐标在目标点附近（距离小于物体大小），并且该点本身并非障碍物，那么直接认为可以容下物体
+        if (Math.abs(x - endX) <= itemHalfWidth && Math.abs(y - endY) <= itemHalfHeight
+                && map[x][y] == 0) {
             return false;
         }
 
@@ -105,8 +103,6 @@ public class PathUtils {
 
     /** 寻找路径 */
     public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY, int itemHalfWidth, int itemHalfHeight, Integer destinationHashCode) {
-        log.info("destinationHashCode: {}", destinationHashCode);
-        log.info("startX: {}, startY: {}, endX: {}, endY: {}", startX, startY, endX, endY);
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
 
