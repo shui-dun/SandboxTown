@@ -31,8 +31,8 @@ public class GameMapController {
     /** 初始化地图（建造随机的生态系统等） */
     @SaCheckRole("admin")
     @GetMapping("/initGameMap")
-    public RestResponse<?> initGameMap() {
-        gameMapService.initGameMap();
+    public RestResponse<?> initGameMap(int nBuildings) {
+        gameMapService.initGameMap(nBuildings);
         return new RestResponse<>(StatusCodeEnum.SUCCESS);
     }
 }

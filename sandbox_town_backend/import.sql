@@ -56,7 +56,7 @@ CREATE TABLE game_map
 );
 
 INSERT INTO game_map (id, name, width, height, seed)
-VALUES ('1', 'Ⅰ', 4500, 3000, 32784924),
+VALUES ('1', 'Ⅰ', 2000, 1500, 32784924),
        ('2', 'Ⅱ', 4500, 3000, 234757802);
 
 # 创建角色类型表
@@ -205,41 +205,47 @@ values ('user_xixi', 'wood', 3),
 CREATE TABLE building_type
 (
     # 建筑的类型，例如store
-    id          VARCHAR(255) NOT NULL PRIMARY KEY,
+    id           VARCHAR(255) NOT NULL PRIMARY KEY,
     # 描述信息
-    description VARCHAR(255) NOT NULL,
+    description  VARCHAR(255) NOT NULL,
     # 建筑的基础价格
-    basic_price INT          NOT NULL DEFAULT 0,
+    basic_price  INT          NOT NULL DEFAULT 0,
     # 黑白图的路径
-    image_path  VARCHAR(255) NOT NULL
+    image_path   VARCHAR(255) NOT NULL,
+    # 基础宽度（真实宽度会在此基础上波动）
+    basic_width  INT          NOT NULL DEFAULT 0,
+    # 基础高度（真实高度会在此基础上波动）
+    basic_height INT          NOT NULL DEFAULT 0,
+    # 稀有度 (0-100)，越低越稀有
+    rarity       INT          NOT NULL DEFAULT 0
 );
 
-INSERT INTO building_type (id, description, basic_price, image_path)
-VALUES ('store', '买卖商品的场所', 200, 'static/bitmap/store.png'),
-       ('tree', '可以伐木或摘苹果', 100, 'static/bitmap/tree.png');
+INSERT INTO building_type (id, description, basic_price, image_path, basic_width, basic_height, rarity)
+VALUES ('store', '买卖商品的场所', 200, 'static/bitmap/store.png', 400, 400, 15),
+       ('tree', '可以伐木或摘苹果', 100, 'static/bitmap/tree.png', 500, 500, 40);
 
 
 # 创建建筑表
 CREATE TABLE building
 (
     # 建筑的id
-    id      VARCHAR(255) NOT NULL PRIMARY KEY,
+    id       VARCHAR(255) NOT NULL PRIMARY KEY,
     # 建筑的类型
-    type    VARCHAR(255) NOT NULL,
+    type     VARCHAR(255) NOT NULL,
     # 建筑所在的地图名称
-    map     VARCHAR(255) NOT NULL,
+    map      VARCHAR(255) NOT NULL,
     # 建筑的等级（等级越高，收益越好，例如商店等级越高，商品数目越多，商品价格越低，物品价格由其基本价格和商店等价和随机数共同决定）
-    level   INT          NOT NULL DEFAULT 1,
+    level    INT          NOT NULL DEFAULT 1,
     # 建筑的拥有者
-    owner   VARCHAR(255),
+    owner    VARCHAR(255),
     # 建筑左上角的x坐标（对于建筑，我们使用图像左上角的坐标，以方便寻路算法，但是对于玩家等，我们使用质心的坐标）
     origin_x INT          NOT NULL,
     # 建筑左上角的y坐标
     origin_y INT          NOT NULL,
     # 建筑的宽度
-    width   INT          NOT NULL,
+    width    INT          NOT NULL,
     # 建筑的高度
-    height  INT          NOT NULL,
+    height   INT          NOT NULL,
     CONSTRAINT fk_building_type FOREIGN KEY (type) REFERENCES building_type (id),
     CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES `character` (id),
     CONSTRAINT fk_building_map FOREIGN KEY (map) REFERENCES game_map (id)

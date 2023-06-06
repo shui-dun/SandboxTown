@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -145,37 +146,6 @@ public class GameMapService {
         var buildings = buildingMapper.getAllBuildingsByMapId(mapId);
 
         // 将建筑放置在地图上
-        // for (int x = 0; x < map.length; x++) {
-        //     for (int y = 0; y < map[0].length; y++) {
-        //         // 遍历每一个建筑物
-        //         for (Building building : buildings) {
-        //             // 获取当前格的中心的像素坐标
-        //             int pixelX = x * pixelsPerGrid + pixelsPerGrid / 2;
-        //             int pixelY = y * pixelsPerGrid + pixelsPerGrid / 2;
-        //             // 获取建筑物的左上角的坐标
-        //             int buildingX = (int) building.getOriginX();
-        //             int buildingY = (int) building.getOriginY();
-        //             // 获取建筑物的宽高（暂时不知道宽和高写反了没有，因为现在的图片都是正方形的）
-        //             int buildingWidth = (int) building.getWidth();
-        //             int buildingHeight = (int) building.getHeight();
-        //             // 如果当前格子在建筑物的范围内
-        //             if (pixelX >= buildingX && pixelX < buildingX + buildingWidth &&
-        //                     pixelY >= buildingY && pixelY < buildingY + buildingHeight) {
-        //                 // 获取当前格子中心在建筑物黑白图中的坐标
-        //                 int buildingPixelX = (int) ((double) (pixelX - buildingX) / buildingWidth * buildingTypesImages.get(building.getType()).getWidth());
-        //                 int buildingPixelY = (int) ((double) (pixelY - buildingY) / buildingHeight * buildingTypesImages.get(building.getType()).getHeight());
-        //                 // 获取当前格子中心的颜色
-        //                 int color = buildingTypesImages.get(building.getType()).getRGB(buildingPixelX, buildingPixelY);
-        //                 // 如果当前格子中心是黑色
-        //                 if (color == Color.BLACK.getRGB()) {
-        //                     // 将当前格子标记为不可通行
-        //                     map[x][y] = building.getId().hashCode();
-        //                 }
-        //                 break;
-        //             }
-        //         }
-        //     }
-        // }
         for (Building building : buildings) {
             placeBuildingOnMap(building);
         }
@@ -306,19 +276,44 @@ public class GameMapService {
         return gameMap;
     }
 
-    // TO-DO: 初始化地图（建造生态系统等）
-    public void initGameMap() {
+    // 初始化地图（建造建筑等）
+    public void initGameMap(int nBuildings) {
         // 得到所有建筑类型
         var buildingTypes = buildingMapper.getAllBuildingTypes();
-        // 随机生成建筑
-        for (int i = 0; i < buildingTypes.size(); ++i) {
+        // 首先，所有类型的建筑都有一个
+        List<BuildingType> buildingTypesToBePlaced = new ArrayList<>(buildingTypes);
+        // 计算总稀有度
+        double totalRarity = 0;
+        for (BuildingType buildingType : buildingTypes) {
+            totalRarity += buildingType.getRarity();
+        }
+        // 随后，根据建筑类型的稀有度，根据轮盘赌算法，随机生成nBuildings-buildingTypes.size()个建筑
+        for (int i = 0; i < nBuildings - buildingTypes.size(); ++i) {
+            // 计算轮盘赌的随机值
+            double randomValue = Math.random() * totalRarity;
+            // 计算轮盘赌的结果
+            double sum = 0;
+            int index = 0;
+            for (BuildingType buildingType : buildingTypes) {
+                sum += buildingType.getRarity();
+                if (sum >= randomValue) {
+                    index = buildingTypes.indexOf(buildingType);
+                    break;
+                }
+            }
+            // 将轮盘赌的结果加入建筑列表
+            buildingTypesToBePlaced.add(buildingTypes.get(index));
+        }
+        log.info("buildingTypesToBePlaced final: {}", buildingTypesToBePlaced.size());
+        // 生成建筑
+        for (int i = 0; i < buildingTypesToBePlaced.size(); ++i) {
             // 建筑类型
-            BuildingType buildingType = buildingTypes.get(i);
+            BuildingType buildingType = buildingTypesToBePlaced.get(i);
             // 随机生成建筑的左上角
             int x = (int) (Math.random() * (map.length - 8)) * pixelsPerGrid;
             int y = (int) (Math.random() * (map[0].length - 8)) * pixelsPerGrid;
-            // 随机生成建筑的宽高
-            int size = (int) (Math.random() * 400) + 300;
+            // 随机生成建筑的宽高，在基础宽高的基础上波动（0.8倍到1.2倍）
+            double scale = Math.random() * 0.4 + 0.8;
             // 创建建筑对象
             Building building = new Building();
             building.setId(NameGenerator.generateItemName(buildingType.getId()));
@@ -327,8 +322,8 @@ public class GameMapService {
             building.setLevel(1);
             building.setOriginX(x);
             building.setOriginY(y);
-            building.setWidth(size);
-            building.setHeight(size);
+            building.setWidth((int) (buildingType.getBasicWidth() * scale));
+            building.setHeight((int) (buildingType.getBasicHeight() * scale));
             // 判断是否与其他建筑重叠
             if (!isBuildingOverlap(building)) {
                 // 如果不重叠，添加建筑到数据库
@@ -336,13 +331,11 @@ public class GameMapService {
                 // 放置建筑
                 placeBuildingOnMap(building);
             } else {
-                log.warn("建筑重叠，重新生成建筑");
+                log.info("建筑重叠，重新生成建筑");
                 // 如果重叠，重新生成建筑
                 --i;
             }
 
         }
-        // 最后重新将所有建筑物放置在地图上
-        placeAllBuildingsOnMap();
     }
 }

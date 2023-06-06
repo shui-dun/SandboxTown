@@ -16,4 +16,10 @@ public class BuildingType {
     private Integer basicPrice;
 
     private String imagePath;
+
+    private Integer basicWidth;
+
+    private Integer basicHeight;
+
+    private Integer rarity;
 }
