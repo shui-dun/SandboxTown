@@ -351,6 +351,12 @@ const mainScene = {
             // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
             self.input.mouse.disableContextMenu();
         });
+
+        // 创建小地图
+        // this.minimap = this.cameras.add(0, 0, 300, 150).setZoom(0.05).setName('mini');
+        // this.minimap.setBackgroundColor('c1d275');
+        // this.minimap.startFollow(id2gameObject[myUsername]);
+        
     },
     update: function () {
         // 如果还没有加载完成，则不执行更新（由于js不能阻塞，只好忙等待了）
