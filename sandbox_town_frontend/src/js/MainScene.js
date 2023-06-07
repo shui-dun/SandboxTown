@@ -368,22 +368,22 @@ const mainScene = {
             setDepth(id2gameObject[id]);
         }
         // // 根据方向键输入更新角色速度
-        // let me = id2gameObject[myUsername];
-        // let speed = id2character[myUsername].speed * 0.8;
-        // if (this.cursors.left.isDown) {
-        //     me.setVelocityX(-speed);
-        // } else if (this.cursors.right.isDown) {
-        //     me.setVelocityX(speed);
-        // } else {
-        //     me.setVelocityX(0);
-        // }
-        // if (this.cursors.up.isDown) {
-        //     me.setVelocityY(-speed);
-        // } else if (this.cursors.down.isDown) {
-        //     me.setVelocityY(speed);
-        // } else {
-        //     me.setVelocityY(0);
-        // }
+        let me = id2gameObject[myUsername];
+        let speed = id2character[myUsername].speed * 0.8;
+        if (this.cursors.left.isDown) {
+            me.setVelocityX(-speed);
+        } else if (this.cursors.right.isDown) {
+            me.setVelocityX(speed);
+        } else {
+            me.setVelocityX(0);
+        }
+        if (this.cursors.up.isDown) {
+            me.setVelocityY(-speed);
+        } else if (this.cursors.down.isDown) {
+            me.setVelocityY(speed);
+        } else {
+            me.setVelocityY(0);
+        }
     },
 }
 
