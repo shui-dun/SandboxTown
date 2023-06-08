@@ -3,11 +3,11 @@ package com.shuidun.sandbox_town_backend.websocket;
 import com.shuidun.sandbox_town_backend.bean.EventMessage;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.WSResponse;
-import com.shuidun.sandbox_town_backend.enumeration.CharacterStatus;
+import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
 import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
-import com.shuidun.sandbox_town_backend.service.CharacterService;
+import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.utils.NumUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +26,12 @@ public class EventHandler {
     private Map<EventEnum, BiFunction<String, Map<String, Object>, Void>> eventMap = new HashMap<>();
 
     // 角色坐标信息，保存在内存中，定期写入数据库
-    private Map<String, Point> characterAxis = new ConcurrentHashMap<>();
+    private Map<String, Point> spriteAxis = new ConcurrentHashMap<>();
 
     // 角色状态信息，保存在内存中，不写入数据库（暂时还没用到）
-    private Map<String, CharacterStatus> characterStatus = new ConcurrentHashMap<>();
+    private Map<String, SpriteStatus> spriteStatus = new ConcurrentHashMap<>();
 
-    private final CharacterService characterService;
+    private final SpriteService spriteService;
 
     private final GameMapService gameMapService;
 
@@ -47,8 +47,8 @@ public class EventHandler {
         }
     }
 
-    public EventHandler(CharacterService characterService, GameMapService gameMapService) {
-        this.characterService = characterService;
+    public EventHandler(SpriteService spriteService, GameMapService gameMapService) {
+        this.spriteService = spriteService;
         this.gameMapService = gameMapService;
 
 
@@ -67,7 +67,7 @@ public class EventHandler {
             // 如果是其他玩家或者是其他玩家的宠物，直接返回
             var position = new Point(x, y);
             // 更新坐标信息
-            characterAxis.put(id, position);
+            spriteAxis.put(id, position);
             // 广播给其他玩家
             var response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
                     "id", id,
@@ -88,7 +88,7 @@ public class EventHandler {
             int y1 = NumUtils.toInt(data.get("y1"));
             String destId = data.get("dest_id") != null ? data.get("dest_id").toString() : null;
             // 更新玩家的坐标信息
-            characterAxis.put(initiator, new Point(x0, y0));
+            spriteAxis.put(initiator, new Point(x0, y0));
             // 更新玩家的找到的路径
             // TO-DO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
             List<Point> path = gameMapService.findPath(x0, y0, x1, y1, (int) (150 * 0.6), (int) (150 * 0.7),
@@ -98,11 +98,11 @@ public class EventHandler {
                 return null;
             }
             // 更新玩家的状态
-            characterStatus.put(initiator, CharacterStatus.FINDING_PATH);
+            spriteStatus.put(initiator, SpriteStatus.FINDING_PATH);
             // 通知玩家移动
             Map<String, Object> result = new HashMap<>();
             result.put("id", initiator);
-            result.put("speed", characterService.getCharacterInfoByID(initiator).getSpeed());
+            result.put("speed", spriteService.getSpriteInfoByID(initiator).getSpeed());
             result.put("path", DataCompressor.compressPath(path));
             result.put("dest_id", data.get("dest_id"));
             WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE, result));

@@ -88,7 +88,7 @@ export default {
     },
     mounted() {
         // 从后端获取玩家信息
-        fetch('/rest/character/listMine', {
+        fetch('/rest/sprite/listMine', {
             method: 'GET',
         }).then(response => response.json())
             .then(data => {

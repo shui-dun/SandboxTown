@@ -3,8 +3,8 @@ import Phaser from "phaser";
 // 设置id->gameObject的映射
 var id2gameObject = {};
 
-// 设置id->character的映射
-var id2character = {};
+// 设置id->sprite的映射
+var id2sprite = {};
 
 // websocket连接
 var ws = null;
@@ -16,7 +16,7 @@ var gameMap = null;
 var myUsername = null;
 
 // 角色列表
-var characterList = [];
+var spriteList = [];
 
 // 建筑类型列表
 var buildingTypes = [];
@@ -60,7 +60,7 @@ const mainScene = {
         myUsername = await getMyUsername();
 
         // 得到角色列表
-        characterList = await getCharacterList();
+        spriteList = await getSpriteList();
 
         // 得到建筑类型列表
         buildingTypes = await getBuildingTypeList();
@@ -87,7 +87,7 @@ const mainScene = {
             // 如果是移动
             if (response.type === 'MOVE') {
                 // 移动事件的发起者
-                let initatorCharacter = id2character[response.data.id];
+                let initatorSprite = id2sprite[response.data.id];
                 // 物品
                 let initatorGameObject = id2gameObject[response.data.id];
                 // 速度
@@ -99,8 +99,8 @@ const mainScene = {
                 // 目的地的到达事件
                 let arriveEvent = () => {
                     // 如果是其他玩家或者其他玩家的宠物，就不触发到达事件
-                    if ((initatorCharacter.id.startsWith("user") && initatorCharacter.id != myUsername) ||
-                        (initatorCharacter.owner != null && initatorCharacter.owner != myUsername)) {
+                    if ((initatorSprite.id.startsWith("user") && initatorSprite.id != myUsername) ||
+                        (initatorSprite.owner != null && initatorSprite.owner != myUsername)) {
                         return;
                     }
                     if (dest_id != null) {
@@ -237,25 +237,25 @@ const mainScene = {
         }
 
         // 创建所有角色
-        for (let i = 0; i < characterList.length; i++) {
-            let character = characterList[i];
-            // 将其加入id2character
-            id2character[character.id] = character;
+        for (let i = 0; i < spriteList.length; i++) {
+            let sprite = spriteList[i];
+            // 将其加入id2sprite
+            id2sprite[sprite.id] = sprite;
             // 创建角色
-            let characterSprite = this.matter.add.sprite(0, 0, character.type, null, { shape: collapseShapes[character.type] });
+            let spriteSprite = this.matter.add.sprite(0, 0, sprite.type, null, { shape: collapseShapes[sprite.type] });
             // 设置角色大小和位置
-            characterSprite.setDisplaySize(character.width, character.height);
-            characterSprite.setPosition(character.x, character.y);
+            spriteSprite.setDisplaySize(sprite.width, sprite.height);
+            spriteSprite.setPosition(sprite.x, sprite.y);
             // 设置角色层级
-            setDepth(characterSprite);
+            setDepth(spriteSprite);
             // 禁止旋转
-            characterSprite.setFixedRotation();
+            spriteSprite.setFixedRotation();
             // 设置点击角色的事件
-            characterSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes[character.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
-            characterSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
+            spriteSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes[sprite.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
+            spriteSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
                 // 鼠标左键点击
                 if (pointer.button === 0) {
-                    this.game.events.emit('showAttributeList', { "itemID": character.id });
+                    this.game.events.emit('showAttributeList', { "itemID": sprite.id });
                 } else if (pointer.button === 2) { // 鼠标右键点击
                     // TO-DO: 发送攻击请求
                 }
@@ -265,7 +265,7 @@ const mainScene = {
                 event.stopPropagation();
             });
             // 放置到字典中
-            id2gameObject[character.id] = characterSprite;
+            id2gameObject[sprite.id] = spriteSprite;
         }
 
         // 相机跟随自己
@@ -278,11 +278,11 @@ const mainScene = {
         let lastAxisMap = {}
         setInterval(() => {
             // 遍历所有角色
-            for (let id in id2character) {
+            for (let id in id2sprite) {
                 // 如果角色是自己、主人是自己、公共NPC（例如蜘蛛）
                 if (id === myUsername ||
-                    id2character[id].owner === myUsername ||
-                    (id2character[id].owner == null && id2character[id].type !== "user")) {
+                    id2sprite[id].owner === myUsername ||
+                    (id2sprite[id].owner == null && id2sprite[id].type !== "user")) {
                     // 如果上一次发送的位置和当前位置不同
                     if (lastAxisMap[id] == null ||
                         lastAxisMap[id].x !== id2gameObject[id].x ||
@@ -369,7 +369,7 @@ const mainScene = {
         }
         // // 根据方向键输入更新角色速度
         let me = id2gameObject[myUsername];
-        let speed = id2character[myUsername].speed * 0.8;
+        let speed = id2sprite[myUsername].speed * 0.8;
         if (this.cursors.left.isDown) {
             me.setVelocityX(-speed);
         } else if (this.cursors.right.isDown) {
@@ -442,23 +442,23 @@ async function getGameMap() {
 }
 
 // 从后端获得角色列表
-async function getCharacterList() {
-    let characterList = null;
+async function getSpriteList() {
+    let spriteList = null;
     // 从后端获得角色列表
-    await fetch('/rest/character/listAll', {
+    await fetch('/rest/sprite/listAll', {
         method: 'GET',
     }).then(response => response.json())
         .then(data => {
             if (data.code === 0) {
                 // 得到角色列表
-                characterList = data.data;
+                spriteList = data.data;
             } else {
                 this.fadeInfoShow(data.msg);
             }
         }).catch(error => {
             this.fadeInfoShow(`请求出错: ${error}`);
         });
-    return characterList;
+    return spriteList;
 }
 
 // 从后端获得建筑类型列表

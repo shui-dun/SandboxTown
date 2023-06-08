@@ -60,7 +60,7 @@ VALUES ('1', 'Ⅰ', 4000, 3000, 32784924),
        ('2', 'Ⅱ', 4000, 3000, 234757802);
 
 # 创建角色类型表
-CREATE TABLE character_type
+CREATE TABLE sprite_type
 (
     # 角色类型，比如 user, dog, cat, spider
     type          VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -91,7 +91,7 @@ CREATE TABLE character_type
     basic_height  INT          NOT NULL DEFAULT 120
 );
 
-INSERT INTO character_type (type, name, description, basic_price, basic_money,
+INSERT INTO sprite_type (type, name, description, basic_price, basic_money,
                             basic_exp, basic_level, basic_hunger, basic_hp,
                             basic_attack, basic_defense, basic_speed, basic_width, basic_height)
 VALUES ('user', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
@@ -101,7 +101,7 @@ VALUES ('user', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120,
        ('spider', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
-CREATE TABLE `character`
+CREATE TABLE `sprite`
 (
     id      VARCHAR(255) NOT NULL PRIMARY KEY,
     # 类型
@@ -122,11 +122,11 @@ CREATE TABLE `character`
     height  INT          NOT NULL DEFAULT 120,
     # 所在地图名称
     map     VARCHAR(255) NOT NULL,
-    CONSTRAINT fk_character_type FOREIGN KEY (type) REFERENCES character_type (type),
-    CONSTRAINT fk_character_map FOREIGN KEY (map) REFERENCES game_map (id)
+    CONSTRAINT fk_sprite_type FOREIGN KEY (type) REFERENCES sprite_type (type),
+    CONSTRAINT fk_sprite_map FOREIGN KEY (map) REFERENCES game_map (id)
 );
 
-INSERT INTO `character` (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
+INSERT INTO `sprite` (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
                          height)
 VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 150, 150),
        ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 150, 150),
@@ -177,17 +177,17 @@ VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 2, 100, FALSE,
 
 # 创建角色物品表
 
-CREATE TABLE character_item
+CREATE TABLE sprite_item
 (
     owner      VARCHAR(255) NOT NULL,
     item_id    VARCHAR(255) NOT NULL,
     item_count INT          NOT NULL DEFAULT 1,
     PRIMARY KEY (owner, item_id),
-    FOREIGN KEY (owner) REFERENCES `character` (id),
+    FOREIGN KEY (owner) REFERENCES `sprite` (id),
     FOREIGN KEY (item_id) REFERENCES item (id)
 );
 
-INSERT INTO character_item
+INSERT INTO sprite_item
 values ('user_xixi', 'wood', 3),
        ('user_xixi', 'stone', 1),
        ('user_xixi', 'bread', 2),
@@ -247,11 +247,39 @@ CREATE TABLE building
     # 建筑的高度
     height   INT          NOT NULL,
     CONSTRAINT fk_building_type FOREIGN KEY (type) REFERENCES building_type (id),
-    CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES `character` (id),
+    CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES `sprite` (id),
     CONSTRAINT fk_building_map FOREIGN KEY (map) REFERENCES game_map (id)
 );
 
 INSERT INTO building (id, type, map, level, owner, origin_x, origin_y, width, height)
-VALUES ('store_Pk86H7rTSm2XJdGoHFe-7A', 'store', '1', 1, 'user_xixi', 0, 0, 400, 400),
-       ('tree_hjQLffrhQayNLVuty_poLg', 'tree', '1', 1, 'user_xixi', 200, 400, 600, 600);
+VALUES ('store_Pk86H7rTSm2XJdGoHFe-7A', 'store', '1', 1, 'user_xixi', 0, 0, 400, 400);
 
+# 创建树表
+CREATE TABLE tree
+(
+    # 树的id
+    id                  VARCHAR(255) NOT NULL PRIMARY KEY,
+    # 苹果的数量
+    apples_count        INT          NOT NULL DEFAULT 0,
+    # 苹果的最大数量
+    max_apples_count    INT          NOT NULL DEFAULT 10,
+    # 每个用户每天可以摘取的苹果数目
+    limit_per_sprite INT          NOT NULL DEFAULT 1,
+    constraint fk_tree_building FOREIGN KEY (id) REFERENCES building (id)
+);
+
+# 限制每个玩家每天只能摘取从每颗树上摘下一定数目苹果
+CREATE TABLE apple_picking
+(
+    # 玩家id
+    `sprite` VARCHAR(255) NOT NULL,
+    # 树的id
+    tree        VARCHAR(255) NOT NULL,
+    # 摘取的苹果数目
+    count       INT          NOT NULL DEFAULT 0,
+    # 下次可以摘取的时间
+    pick_time   DATETIME     NOT NULL,
+    PRIMARY KEY (`sprite`, tree),
+    CONSTRAINT fk_apple_picking_owner FOREIGN KEY (`sprite`) REFERENCES `sprite` (id),
+    CONSTRAINT fk_apple_picking_tree FOREIGN KEY (tree) REFERENCES tree (id)
+);

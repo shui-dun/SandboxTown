@@ -1,6 +1,5 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.Character;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
@@ -33,7 +32,9 @@ public class GameMapService {
 
     private final GameMapMapper gameMapMapper;
 
-    private final CharacterService characterService;
+    private final SpriteService spriteService;
+
+    private final TreeService treeService;
 
     private final int pixelsPerGrid = 30;
 
@@ -48,10 +49,11 @@ public class GameMapService {
     // 建筑类型图片
     Map<String, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
-    public GameMapService(BuildingMapper buildingMapper, GameMapMapper gameMapMapper, CharacterService characterService, @Value("${mapId}") String mapId) {
+    public GameMapService(BuildingMapper buildingMapper, GameMapMapper gameMapMapper, SpriteService spriteService, TreeService treeService, @Value("${mapId}") String mapId) {
         this.gameMapMapper = gameMapMapper;
         this.buildingMapper = buildingMapper;
-        this.characterService = characterService;
+        this.spriteService = spriteService;
+        this.treeService = treeService;
         this.mapId = mapId;
         // 获得地图信息
         GameMap gameMap = gameMapMapper.getGameMapById(mapId);
@@ -333,7 +335,7 @@ public class GameMapService {
                 buildingMapper.createBuilding(building);
                 // 放置建筑
                 placeBuildingOnMap(building);
-                // 如何是树
+                // 如果是树
                 if (buildingType.getId().equals("tree")) {
                     // 在树下以一定概率生成几只狗
                     if (Math.random() < 0.3) {
@@ -345,9 +347,10 @@ public class GameMapService {
                             int dogX = building.getOriginX() + (int) (Math.random() * building.getWidth());
                             int dogY = building.getOriginY() + (int) (Math.random() * building.getHeight());
                             // 创建狗
-                            characterService.generateRandomCharacter("dog", null, dogX, dogY);
+                            spriteService.generateRandomSprite("dog", null, dogX, dogY);
                         }
                     }
+                    treeService.createRandomTree(building.getId());
                 }
             } else {
                 log.info("建筑重叠，重新生成建筑");

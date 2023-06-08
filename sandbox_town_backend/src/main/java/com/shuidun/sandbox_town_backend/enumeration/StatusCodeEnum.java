@@ -20,7 +20,9 @@ public enum StatusCodeEnum {
     USERNAME_TOO_SHORT(11, "用户名太短"),
     ILLEGAL_ARGUMENT(12, "参数不合法"),
     ITEM_NOT_FOUND(13, "物品不存在"),
-    ITEM_NOT_USABLE(14, "物品不可用");
+    ITEM_NOT_USABLE(14, "物品不可用"),
+    PICK_APPLE_LIMIT_EXCEEDED(15, "采摘苹果次数超过限制"),
+    TREE_APPLE_PICKED(16, "苹果已被采摘完了");
 
     private final int code;
     private final String msg;

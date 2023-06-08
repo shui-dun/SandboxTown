@@ -45,7 +45,7 @@ export default {
     },
     async mounted() {
         // 从后端获取物品信息
-        await fetch(`/rest/character/list/${this.itemName}`, {
+        await fetch(`/rest/sprite/list/${this.itemName}`, {
             method: 'GET',
         }).then(response => response.json())
             .then(data => {

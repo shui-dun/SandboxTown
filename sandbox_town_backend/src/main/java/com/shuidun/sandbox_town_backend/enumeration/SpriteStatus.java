@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum CharacterStatus {
+public enum SpriteStatus {
     STOP,
 
     FINDING_PATH,

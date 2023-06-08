@@ -45,7 +45,26 @@ export default {
                     duration: 5,
                     text: '正在摘苹果...',
                     progressCompleteEvent: () => {
-                        this.fadeInfoShow('恭喜获得一个苹果！');
+                        // 向后端发送摘苹果请求
+                        fetch('/rest/tree/pickApple', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                treeId: event.targetID,
+                            }),
+                        }).then((response) => response.json())
+                            .then((data) => {
+                                if (data.code == 0) {
+                                    this.fadeInfoShow('摘苹果成功');
+                                } else {
+                                    this.fadeInfoShow(data.msg);
+                                }
+                            })
+                            .catch(error => {
+                                this.fadeInfoShow(`请求出错: ${error}`);
+                            });
                     },
                 }
                 this.$emit('processBarShow', msg);
@@ -70,5 +89,4 @@ export default {
     top: 0;
     left: 0;
 }
-
 </style>

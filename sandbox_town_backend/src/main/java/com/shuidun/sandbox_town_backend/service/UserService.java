@@ -1,10 +1,10 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.Character;
+import com.shuidun.sandbox_town_backend.bean.Sprite;
 import com.shuidun.sandbox_town_backend.bean.User;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
-import com.shuidun.sandbox_town_backend.mapper.CharacterMapper;
+import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
 import com.shuidun.sandbox_town_backend.mapper.RoleMapper;
 import com.shuidun.sandbox_town_backend.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,14 +20,14 @@ public class UserService {
     private final UserMapper userMapper;
     private final RoleMapper roleMapper;
 
-    private final CharacterMapper characterMapper;
+    private final SpriteMapper spriteMapper;
 
     private final String mapId;
 
-    public UserService(UserMapper userMapper, RoleMapper roleMapper, CharacterMapper characterMapper, @Value("${mapId}") String mapId) {
+    public UserService(UserMapper userMapper, RoleMapper roleMapper, SpriteMapper spriteMapper, @Value("${mapId}") String mapId) {
         this.userMapper = userMapper;
         this.roleMapper = roleMapper;
-        this.characterMapper = characterMapper;
+        this.spriteMapper = spriteMapper;
         this.mapId = mapId;
     }
 
@@ -39,10 +39,10 @@ public class UserService {
     public void createUser(User user) {
         userMapper.insertUser(user);
         roleMapper.insertUserRole(user.getUsername(), "normal");
-        Character character = new Character(user.getUsername(), "user", null,
+        Sprite sprite = new Sprite(user.getUsername(), "user", null,
                 10, 0, 1, 100, 100,
                 10, 10, 5, 0, 0, 120, 120, mapId, null);
-        characterMapper.createCharacter(character);
+        spriteMapper.createSprite(sprite);
     }
 
     public void updateUser(User user) {

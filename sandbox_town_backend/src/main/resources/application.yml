@@ -23,7 +23,7 @@ spring:
         max-active: 32 # Maximum number of connections
         min-idle: 8 # minimum number of idle connections
   datasource:
-    url: jdbc:mysql://localhost:3306/sandbox_town?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://localhost:3306/sandbox_town?useUnicode=true&spriteEncoding=utf8&serverTimezone=GMT%2B8
     username: root
     password: root
     # 数据库连接池配置
