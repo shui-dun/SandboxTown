@@ -92,8 +92,8 @@ CREATE TABLE sprite_type
 );
 
 INSERT INTO sprite_type (type, name, description, basic_price, basic_money,
-                            basic_exp, basic_level, basic_hunger, basic_hp,
-                            basic_attack, basic_defense, basic_speed, basic_width, basic_height)
+                         basic_exp, basic_level, basic_hunger, basic_hp,
+                         basic_attack, basic_defense, basic_speed, basic_width, basic_height)
 VALUES ('user', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
        ('dog', '狗狗', '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
        ('cat', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120,
@@ -127,7 +127,7 @@ CREATE TABLE `sprite`
 );
 
 INSERT INTO `sprite` (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
-                         height)
+                      height)
 VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 150, 150),
        ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 150, 150),
        ('user_heihei', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1', 150, 150),
@@ -258,11 +258,11 @@ VALUES ('store_Pk86H7rTSm2XJdGoHFe-7A', 'store', '1', 1, 'user_xixi', 0, 0, 400,
 CREATE TABLE tree
 (
     # 树的id
-    id                  VARCHAR(255) NOT NULL PRIMARY KEY,
+    id               VARCHAR(255) NOT NULL PRIMARY KEY,
     # 苹果的数量
-    apples_count        INT          NOT NULL DEFAULT 0,
+    apples_count     INT          NOT NULL DEFAULT 0,
     # 苹果的最大数量
-    max_apples_count    INT          NOT NULL DEFAULT 10,
+    max_apples_count INT          NOT NULL DEFAULT 10,
     # 每个用户每天可以摘取的苹果数目
     limit_per_sprite INT          NOT NULL DEFAULT 1,
     constraint fk_tree_building FOREIGN KEY (id) REFERENCES building (id)
@@ -272,14 +272,38 @@ CREATE TABLE tree
 CREATE TABLE apple_picking
 (
     # 玩家id
-    `sprite` VARCHAR(255) NOT NULL,
+    `sprite`  VARCHAR(255) NOT NULL,
     # 树的id
-    tree        VARCHAR(255) NOT NULL,
+    tree      VARCHAR(255) NOT NULL,
     # 摘取的苹果数目
-    count       INT          NOT NULL DEFAULT 0,
+    count     INT          NOT NULL DEFAULT 0,
     # 下次可以摘取的时间
-    pick_time   DATETIME     NOT NULL,
+    pick_time DATETIME     NOT NULL,
     PRIMARY KEY (`sprite`, tree),
     CONSTRAINT fk_apple_picking_owner FOREIGN KEY (`sprite`) REFERENCES `sprite` (id),
     CONSTRAINT fk_apple_picking_tree FOREIGN KEY (tree) REFERENCES tree (id)
 );
+
+# 创建商店商品表
+CREATE TABLE store_item
+(
+    # 商品id
+    item      VARCHAR(255) NOT NULL,
+    # 商店
+    store     VARCHAR(255) NOT NULL,
+    # 商品数量
+    count     INT          NOT NULL DEFAULT 0,
+    # 商品最大数目
+    max_count INT          NOT NULL DEFAULT 10,
+    # 商品价格
+    price     INT          NOT NULL DEFAULT 0,
+    PRIMARY KEY (item, store),
+    CONSTRAINT fk_store_item_store FOREIGN KEY (store) REFERENCES building (id),
+    CONSTRAINT fk_store_item_item FOREIGN KEY (item) REFERENCES item (id)
+);
+
+insert into store_item (item, store, count, max_count, price)
+values ('wood', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10),
+       ('stone', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10),
+       ('bread', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10),
+       ('apple', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10);

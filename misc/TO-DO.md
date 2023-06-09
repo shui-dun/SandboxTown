@@ -1,5 +1,6 @@
 # TO-DO
 
+- 换成mybatis-plus+视图（jpa&queryDSL试了感觉不好用啊，java没有任何一个比得上C#的ORM框架）
 - 竞技场：类似赛尔号
 - 多scene
 - 希腊神庙，怪物无法靠近
