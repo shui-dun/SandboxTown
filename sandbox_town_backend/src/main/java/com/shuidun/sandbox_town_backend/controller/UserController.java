@@ -41,7 +41,7 @@ public class UserController {
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
         }
-        String username = userService.createUser(usernameSuffix, password);
+        String username = userService.signup(usernameSuffix, password);
         // 打印注册信息
         log.info("{} signup success", username);
         StpUtil.login(username);

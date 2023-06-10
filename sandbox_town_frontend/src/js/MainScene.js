@@ -331,7 +331,6 @@ const mainScene = {
                 if (now - lastCollisionTime < 1000) {
                     return;
                 }
-                this.game.events.emit('showFadeInfo', { "msg": '按空格键进入商店' });
             }
             lastCollisionTime = now;
         });

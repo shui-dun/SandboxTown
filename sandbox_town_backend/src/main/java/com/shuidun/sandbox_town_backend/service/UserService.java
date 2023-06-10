@@ -44,8 +44,9 @@ public class UserService {
         return userMapper.selectById(username);
     }
 
+
     @Transactional
-    public String createUser(String usernameSuffix, String password) {
+    public String signup(String usernameSuffix, String password) {
         // 判断用户名是否合法
         if (usernameSuffix == null || usernameSuffix.length() < 3) {
             throw new BusinessException(StatusCodeEnum.USERNAME_TOO_SHORT);
@@ -61,7 +62,7 @@ public class UserService {
         try {
             Date currentDate = new Date(System.currentTimeMillis());
             User user = new User(username, saltAndPasswd[1], saltAndPasswd[0], null, 0,
-                    currentDate, currentDate);
+                    currentDate, null);
             userMapper.insert(user);
             userRoleMapper.insertUserRole(user.getUsername(), "normal");
             Sprite sprite = new Sprite(user.getUsername(), "user", null,
@@ -169,7 +170,8 @@ public class UserService {
         return reward;
     }
 
-    /** 用户登录
+    /**
+     * 用户登录
      */
     @Transactional
     public void login(String username, String password) {
@@ -190,7 +192,8 @@ public class UserService {
         }
     }
 
-    /** 用户修改密码
+    /**
+     * 用户修改密码
      */
     @Transactional
     public void changePassword(String oldPassword, String newPassword) {
