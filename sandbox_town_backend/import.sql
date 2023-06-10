@@ -11,8 +11,14 @@ CREATE TABLE user
     username     VARCHAR(255) NOT NULL PRIMARY KEY,
     password     VARCHAR(255) NOT NULL,
     salt         VARCHAR(255) NOT NULL,
+    # 封禁结束时间
     ban_end_date DATETIME,
-    cheat_count  INT DEFAULT 0
+    # 作弊次数
+    cheat_count  INT DEFAULT 0,
+    # 用户创建时间
+    create_date  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    # 上次在线（进入游戏）时间
+    last_online  DATETIME
 );
 
 # 密码都是123456
@@ -101,7 +107,7 @@ VALUES ('user', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120,
        ('spider', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
-CREATE TABLE `sprite`
+CREATE TABLE sprite
 (
     id      VARCHAR(255) NOT NULL PRIMARY KEY,
     # 类型
@@ -126,7 +132,7 @@ CREATE TABLE `sprite`
     CONSTRAINT fk_sprite_map FOREIGN KEY (map) REFERENCES game_map (id)
 );
 
-INSERT INTO `sprite` (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
+INSERT INTO sprite (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
                       height)
 VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 150, 150),
        ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 150, 150),
@@ -183,7 +189,7 @@ CREATE TABLE sprite_item
     item_id    VARCHAR(255) NOT NULL,
     item_count INT          NOT NULL DEFAULT 1,
     PRIMARY KEY (owner, item_id),
-    FOREIGN KEY (owner) REFERENCES `sprite` (id),
+    FOREIGN KEY (owner) REFERENCES sprite (id),
     FOREIGN KEY (item_id) REFERENCES item (id)
 );
 
@@ -269,7 +275,7 @@ CREATE TABLE building
     # 建筑的高度
     height   INT          NOT NULL,
     CONSTRAINT fk_building_type FOREIGN KEY (type) REFERENCES building_type (id),
-    CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES `sprite` (id),
+    CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES sprite (id),
     CONSTRAINT fk_building_map FOREIGN KEY (map) REFERENCES game_map (id)
 );
 
@@ -294,15 +300,15 @@ CREATE TABLE tree
 CREATE TABLE apple_picking
 (
     # 玩家id
-    `sprite`  VARCHAR(255) NOT NULL,
+    sprite  VARCHAR(255) NOT NULL,
     # 树的id
     tree      VARCHAR(255) NOT NULL,
     # 摘取的苹果数目
     count     INT          NOT NULL DEFAULT 0,
     # 下次可以摘取的时间
     pick_time DATETIME     NOT NULL,
-    PRIMARY KEY (`sprite`, tree),
-    CONSTRAINT fk_apple_picking_owner FOREIGN KEY (`sprite`) REFERENCES `sprite` (id),
+    PRIMARY KEY (sprite, tree),
+    CONSTRAINT fk_apple_picking_owner FOREIGN KEY (sprite) REFERENCES sprite (id),
     CONSTRAINT fk_apple_picking_tree FOREIGN KEY (tree) REFERENCES tree (id)
 );
 

@@ -22,4 +22,8 @@ public class User {
     private java.util.Date banEndDate;
 
     private Integer cheatCount;
+
+    private java.util.Date createDate;
+
+    private java.util.Date lastOnline;
 }

@@ -69,6 +69,12 @@ const mainScene = {
         // 得到建筑列表
         buildingList = await myUtils.myFetch('/rest/building/getAllBuildings', 'GET', null);
 
+        // 获得登录奖励
+        let loginReward = await myUtils.myFetch('/rest/user/enterGameToReceiveReward', 'POST', null);
+        if (loginReward != 0) {
+            self.game.events.emit('showFadeInfo', {'msg': '登录奖励: ' + loginReward + '金币💰'});
+        }
+
         // 建立websocket连接
         ws = new WebSocket("ws://localhost:9090/event");
 
