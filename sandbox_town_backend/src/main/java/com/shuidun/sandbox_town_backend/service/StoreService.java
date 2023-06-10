@@ -20,6 +20,6 @@ public class StoreService {
         storeItem.setCount(1);
         storeItem.setMaxCount(2);
         storeItem.setPrice(3);
-        storeMapper.insert(storeItem);
+        storeMapper.myInsert(storeItem);
     }
 }
