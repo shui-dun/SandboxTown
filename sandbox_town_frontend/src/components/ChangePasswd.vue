@@ -21,6 +21,7 @@
 </template>
   
 <script>
+import myUtils from "@/js/myUtils.js";
 
 export default {
     inject: ['fadeInfoShow'],
@@ -34,23 +35,12 @@ export default {
             usernameSuffix: '',
         };
     },
-    mounted() {
+    async mounted() {
         // 获取用户名后缀
-        fetch('/rest/user/getUsername', {
-            method: 'GET',
-        }).then(response => response.json())
-            .then(data => {
-                if (data.code === 0) {
-                    this.usernameSuffix = data.data.slice(5);
-                } else {
-                    this.fadeInfoShow(data.msg);
-                }
-            }).catch(error => {
-                this.fadeInfoShow(`请求出错: ${error}`);
-            });
+        this.usernameSuffix = (await myUtils.myFetch('/rest/user/getUsername', 'GET', null)).slice(5);
     },
     methods: {
-        onChangePasswd() {
+        async onChangePasswd() {
             // 检查旧密码是否为空
             if (this.oldpassword === '') {
                 this.fadeInfoShow('旧密码不能为空');
@@ -67,25 +57,17 @@ export default {
                 return;
             }
             // 向后端发送修改密码请求
-            fetch('/rest/user/changePassword', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
+            await myUtils.myFetch(
+                '/rest/user/changePassword',
+                'POST',
+                new URLSearchParams({
                     oldPassword: this.oldpassword,
                     newPassword: this.newpassword,
                 }),
-            }).then(response => response.json())
-                .then(data => {
-                    if (data.code === 0) {
-                        this.fadeInfoShow('修改密码成功');
-                    } else {
-                        this.fadeInfoShow(data.msg);
-                    }
-                }).catch(error => {
-                    this.fadeInfoShow(`请求出错: ${error}`);
-                });
+                () => {
+                    this.fadeInfoShow('修改密码成功');
+                },
+            );
         },
     },
 };

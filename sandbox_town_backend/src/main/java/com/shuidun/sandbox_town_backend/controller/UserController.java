@@ -90,7 +90,12 @@ public class UserController {
 
     @GetMapping("/getUsername")
     public RestResponse<?> getUsername() {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, StpUtil.getLoginIdAsString());
+        if (StpUtil.isLogin()) {
+            return new RestResponse<>(StatusCodeEnum.SUCCESS, StpUtil.getLoginIdAsString());
+        } else {
+            // 返回空
+            return new RestResponse<>(StatusCodeEnum.SUCCESS, null);
+        }
     }
 
     @PostMapping("/changePassword")

@@ -6,6 +6,7 @@
 import Phaser from "phaser";
 import mainScene from "../js/MainScene.js";
 import storeScene from "../js/StoreScene.js";
+import myUtils from "@/js/myUtils.js";
 
 export default {
     inject: ['fadeInfoShow'],
@@ -46,25 +47,15 @@ export default {
                     text: '正在摘苹果...',
                     progressCompleteEvent: () => {
                         // 向后端发送摘苹果请求
-                        fetch('/rest/tree/pickApple', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: new URLSearchParams({
+                        myUtils.myFetch('/rest/tree/pickApple',
+                            'POST',
+                            new URLSearchParams({
                                 treeId: event.targetID,
                             }),
-                        }).then((response) => response.json())
-                            .then((data) => {
-                                if (data.code == 0) {
-                                    this.fadeInfoShow('摘苹果成功');
-                                } else {
-                                    this.fadeInfoShow(data.msg);
-                                }
-                            })
-                            .catch(error => {
-                                this.fadeInfoShow(`请求出错: ${error}`);
-                            });
+                            () => {
+                                this.fadeInfoShow('摘苹果成功');
+                            },
+                        );
                     },
                 }
                 this.$emit('processBarShow', msg);

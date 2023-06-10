@@ -68,6 +68,7 @@ import CircleBackground from '@/components/CircleBackground.vue';
 import MapChoose from '@/components/MapChoose.vue';
 import ChangePasswd from '@/components/ChangePasswd.vue';
 import FadeInfo from '@/components/FadeInfo.vue';
+import myUtils from "@/js/myUtils.js";
 
 export default {
     provide() {
@@ -84,6 +85,9 @@ export default {
         FadeInfo,
     },
     mounted() {
+        // 设置全局的工具类里面的fadeInfoShow方法
+        myUtils.setFadeInfoShow(this.fadeInfoShow);
+
         // 判断是否是横屏
         let myInterval = setInterval(() => {
             if (!this.checkIsVertical()) {
@@ -110,43 +114,24 @@ export default {
         checkIsMobile() {
             return window.innerWidth < 500 || window.innerHeight < 500;
         },
-        checkIsLogin() {
+        async checkIsLogin() {
             // 向后端发送请求，检查是否登录
-            fetch('/rest/user/getUsername', {
-                method: 'GET',
-            }).then((response) => response.json())
-                .then((data) => {
-                    if (data.code == 0) {
-                        this.isLogin = true;
-                        this.curTab = 'mapChoose';
-                    } else if (data.code == 6) {
-                        // 未登录
-                        this.isLogin = false;
-                        this.curTab = 'login';
-                    } else {
-                        this.fadeInfoShow(data.msg);
-                    }
-                })
-                .catch(error => {
-                    this.fadeInfoShow(`请求出错: ${error}`);
-                });
+            let username = await myUtils.myFetch('/rest/user/getUsername', 'GET');
+            if (username == null) {
+                // 未登录
+                this.isLogin = false;
+                this.curTab = 'login';
+            } else {
+                this.isLogin = true;
+                this.curTab = 'mapChoose';
+            }
         },
         doLogout() {
             // 向后端发送请求，退出登录
-            fetch('/rest/user/logout', {
-                method: 'POST',
-            }).then((response) => response.json())
-                .then((data) => {
-                    if (data.code == 0) {
-                        this.isLogin = false;
-                        this.curTab = 'login';
-                    } else {
-                        this.fadeInfoShow(data.msg);
-                    }
-                })
-                .catch(error => {
-                    this.fadeInfoShow(`请求出错: ${error}`);
-                });
+            myUtils.myFetch('/rest/user/logout', 'POST', null, () => {
+                this.isLogin = false;
+                this.curTab = 'login';
+            });
         },
         fadeInfoShow(msg) {
             this.$refs.fadeInfo.showInfo(msg);

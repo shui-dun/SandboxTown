@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import myUtils from "@/js/myUtils.js";
 
 // 设置id->gameObject的映射
 var id2gameObject = {};
@@ -54,19 +55,19 @@ const mainScene = {
         self.input.mouse.disableContextMenu();
 
         // 得到地图信息
-        gameMap = await getGameMap();
+        gameMap = await myUtils.myFetch('/rest/gamemap/getGameMap', 'GET', null);
 
         // 得到当前用户的用户名
-        myUsername = await getMyUsername();
+        myUsername = await myUtils.myFetch('/rest/user/getUsername', 'GET', null);
 
         // 得到角色列表
-        spriteList = await getSpriteList();
+        spriteList = await myUtils.myFetch('/rest/sprite/listAll', 'GET', null);
 
         // 得到建筑类型列表
-        buildingTypes = await getBuildingTypeList();
+        buildingTypes = await myUtils.myFetch('/rest/building/getAllBuildingTypes', 'GET', null);
 
         // 得到建筑列表
-        buildingList = await getBuildingList();
+        buildingList = await myUtils.myFetch('/rest/building/getAllBuildings', 'GET', null);
 
         // 建立websocket连接
         ws = new WebSocket("ws://localhost:9090/event");
@@ -135,7 +136,7 @@ const mainScene = {
                 let tween = self.tweens.add({
                     targets: tweenProgress,
                     value: 1,
-                    duration: speed * path.getLength() / 4,
+                    duration: 18 * path.getLength() / speed,
                     ease: 'Linear',
                     repeat: 0,
                     onUpdate: () => {
@@ -356,7 +357,7 @@ const mainScene = {
         // this.minimap = this.cameras.add(0, 0, 300, 150).setZoom(0.05).setName('mini');
         // this.minimap.setBackgroundColor('c1d275');
         // this.minimap.startFollow(id2gameObject[myUsername]);
-        
+
     },
     update: function () {
         // 如果还没有加载完成，则不执行更新（由于js不能阻塞，只好忙等待了）
@@ -369,7 +370,7 @@ const mainScene = {
         }
         // // 根据方向键输入更新角色速度
         let me = id2gameObject[myUsername];
-        let speed = id2sprite[myUsername].speed * 0.8;
+        let speed = id2sprite[myUsername].speed;
         if (this.cursors.left.isDown) {
             me.setVelocityX(-speed);
         } else if (this.cursors.right.isDown) {
@@ -400,105 +401,6 @@ function convertToCenter(gameObject, x, y) {
     let massX = x + massOffsetX * gameObject.body.scale.x;
     let massY = y + massOffsetY * gameObject.body.scale.y;
     return { x: massX, y: massY };
-}
-
-// 得到自己的用户名
-async function getMyUsername() {
-    let myUsername = null;
-    // 从后端获得自己的用户名
-    await fetch('/rest/user/getUsername', {
-        method: 'GET',
-    }).then(response => response.json())
-        .then(data => {
-            if (data.code === 0) {
-                // 得到自己的用户名
-                myUsername = data.data;
-            } else {
-                this.fadeInfoShow(data.msg);
-            }
-        }).catch(error => {
-            this.fadeInfoShow(`请求出错: ${error}`);
-        });
-    return myUsername;
-}
-
-async function getGameMap() {
-    let result = null;
-    // 从后端获得建筑列表
-    await fetch('/rest/gamemap/getGameMap', {
-        method: 'GET',
-    }).then(response => response.json())
-        .then(data => {
-            if (data.code === 0) {
-                // 得到地图信息
-                result = data.data;
-            } else {
-                this.fadeInfoShow(data.msg);
-            }
-        }).catch(error => {
-            this.fadeInfoShow(`请求出错: ${error}`);
-        });
-    return result;
-}
-
-// 从后端获得角色列表
-async function getSpriteList() {
-    let spriteList = null;
-    // 从后端获得角色列表
-    await fetch('/rest/sprite/listAll', {
-        method: 'GET',
-    }).then(response => response.json())
-        .then(data => {
-            if (data.code === 0) {
-                // 得到角色列表
-                spriteList = data.data;
-            } else {
-                this.fadeInfoShow(data.msg);
-            }
-        }).catch(error => {
-            this.fadeInfoShow(`请求出错: ${error}`);
-        });
-    return spriteList;
-}
-
-// 从后端获得建筑类型列表
-async function getBuildingTypeList() {
-    let buildingTypeList = null;
-    // 从后端获得建筑类型列表
-    await fetch('/rest/building/getAllBuildingTypes', {
-        method: 'GET',
-    }).then(response => response.json())
-        .then(data => {
-            if (data.code === 0) {
-                // 得到建筑类型列表
-                buildingTypeList = data.data;
-            } else {
-                this.fadeInfoShow(data.msg);
-            }
-        }).catch(error => {
-            this.fadeInfoShow(`请求出错: ${error}`);
-        });
-    return buildingTypeList;
-}
-
-// 从后端获得建筑列表
-async function getBuildingList() {
-    let buildingList = null;
-    // 从后端获得建筑列表
-    await fetch('/rest/building/getAllBuildings', {
-        method: 'GET',
-    }).then(response => response.json())
-        .then(data => {
-            if (data.code === 0) {
-                // 得到建筑列表
-                buildingList = data.data;
-            } else {
-                this.fadeInfoShow(data.msg);
-            }
-        }).catch(error => {
-            this.fadeInfoShow(`请求出错: ${error}`);
-        });
-    return buildingList;
 }
 
 export default mainScene;

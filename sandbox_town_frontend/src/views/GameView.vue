@@ -19,6 +19,7 @@ import FadeInfo from '@/components/FadeInfo.vue';
 import AttributeList from '@/components/AttributeList.vue';
 import StorePannel from '@/components/StorePannel.vue';
 import ProcessBar from '@/components/ProcessBar.vue';
+import myUtils from "@/js/myUtils.js";
 
 
 export default {
@@ -93,22 +94,16 @@ export default {
     },
     computed: {
     },
-    mounted() {
+    async mounted() {
+        // 设置全局的工具类里面的fadeInfoShow方法
+        myUtils.setFadeInfoShow(this.fadeInfoShow);
+
         // 向后端发送请求，检查是否登录
-        fetch('/rest/user/getUsername', {
-            method: 'GET',
-        }).then((response) => response.json())
-            .then((data) => {
-                if (data.code == 6) {
-                    // 未登录，跳转到登录页面
-                    this.$router.push('/');
-                } else if (data.code !== 0) {
-                    this.fadeInfoShow(data.msg);
-                }
-            })
-            .catch(error => {
-                this.fadeInfoShow(`请求出错: ${error}`);
-            });
+        let username = await myUtils.myFetch('/rest/user/getUsername', 'GET');
+        if (username == null) {
+            // 未登录，跳转到登录页面
+            this.$router.push('/');
+        }
     }
 };
 </script>
