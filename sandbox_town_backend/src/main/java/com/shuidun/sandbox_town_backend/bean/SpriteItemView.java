@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SpriteItem {
+public class SpriteItemView {
     private String owner;
 
     private String itemId;

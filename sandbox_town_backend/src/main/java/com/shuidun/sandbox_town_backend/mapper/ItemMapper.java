@@ -1,6 +1,6 @@
 package com.shuidun.sandbox_town_backend.mapper;
 
-import com.shuidun.sandbox_town_backend.bean.SpriteItem;
+import com.shuidun.sandbox_town_backend.bean.SpriteItemView;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -8,26 +8,11 @@ import java.util.List;
 @Mapper
 public interface ItemMapper {
 
-    @Select("""
-            SELECT sprite_item.owner, sprite_item.item_id, sprite_item.item_count,
-            item.name, item.description, item.basic_price, item.basic_rarity, item.usable,
-            item.money_inc, item.exp_inc, item.level_inc, item.hunger_inc, item.hp_inc,
-            item.attack_inc, item.defense_inc, item.speed_inc
-            FROM sprite_item
-            INNER JOIN item
-            ON sprite_item.item_id = item.id
-            WHERE sprite_item.owner = #{id}
-            """)
-    public List<SpriteItem> listByOwnerId(String id);
+    @Select("SELECT * FROM sprite_item_view WHERE owner = #{id}")
+    public List<SpriteItemView> listByOwnerId(String id);
 
-    @Select("""
-            SELECT sprite_item.owner, sprite_item.item_id, sprite_item.item_count, item.name, item.description, item.basic_price, item.basic_rarity, item.usable, item.money_inc, item.exp_inc, item.level_inc, item.hunger_inc, item.hp_inc, item.attack_inc, item.defense_inc, item.speed_inc
-            FROM sprite_item
-            INNER JOIN item
-            ON sprite_item.item_id = item.id
-            WHERE sprite_item.owner = #{ownerId} AND sprite_item.item_id = #{itemId}
-            """)
-    SpriteItem getByOwnerIdAndItemId(String ownerId, String itemId);
+    @Select("SELECT * FROM sprite_item_view WHERE owner = #{ownerId} AND item_id = #{itemId}")
+    SpriteItemView getByOwnerIdAndItemId(String ownerId, String itemId);
 
     @Delete("DELETE FROM sprite_item WHERE owner = #{ownerId} AND item_id = #{itemId}")
     void deleteByOwnerIdAndItemId(String ownerId, String itemId);

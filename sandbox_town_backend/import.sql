@@ -201,6 +201,28 @@ values ('user_xixi', 'wood', 3),
        ('user_heihei', 'bread', 2),
        ('user_heihei', 'apple', 3);
 
+
+# 创建角色与其物品的视图
+CREATE VIEW sprite_item_view AS
+SELECT sprite_item.owner,
+       sprite_item.item_id,
+       sprite_item.item_count,
+       item.name,
+       item.description,
+       item.basic_price,
+       item.basic_rarity,
+       item.usable,
+       item.money_inc,
+       item.exp_inc,
+       item.level_inc,
+       item.hunger_inc,
+       item.hp_inc,
+       item.attack_inc,
+       item.defense_inc,
+       item.speed_inc
+FROM sprite_item
+         INNER JOIN item ON sprite_item.item_id = item.id;
+
 # 创建建筑类型表
 CREATE TABLE building_type
 (
