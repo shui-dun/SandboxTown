@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface ItemMapper {
+public interface SpriteItemMapper {
 
     @Select("SELECT * FROM sprite_item_view WHERE owner = #{id}")
     public List<SpriteItemView> listByOwnerId(String id);

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SpriteItemView {
+
     private String owner;
 
     private String itemId;
@@ -22,7 +23,7 @@ public class SpriteItemView {
 
     private Integer basicRarity;
 
-    private boolean usable;
+    private Boolean usable;
 
     private Integer moneyInc;
 

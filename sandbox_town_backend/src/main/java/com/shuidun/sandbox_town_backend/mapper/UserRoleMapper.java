@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.Set;
 
 @Mapper
-public interface RoleMapper {
+public interface UserRoleMapper {
 
     @Select("select role from user_role where username=#{username}")
     Set<String> getRolesByUserName(String username);

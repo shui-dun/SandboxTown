@@ -126,7 +126,6 @@ public class PathUtils {
                     currentNode = currentNode.parent;
                 }
                 Collections.reverse(path);
-                log.info("closedList length: {}", closedList.size());
                 return path;
             }
 

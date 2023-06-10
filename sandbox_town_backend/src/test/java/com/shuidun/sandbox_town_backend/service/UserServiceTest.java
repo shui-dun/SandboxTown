@@ -2,7 +2,7 @@ package com.shuidun.sandbox_town_backend.service;
 
 import com.shuidun.sandbox_town_backend.bean.User;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
-import com.shuidun.sandbox_town_backend.mapper.RoleMapper;
+import com.shuidun.sandbox_town_backend.mapper.UserRoleMapper;
 import com.shuidun.sandbox_town_backend.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ public class UserServiceTest {
     private UserMapper userMapper;
 
     @Mock
-    private RoleMapper roleMapper;
+    private UserRoleMapper userRoleMapper;
 
     private User user;
     private String username;
@@ -50,42 +50,42 @@ public class UserServiceTest {
     @Test
     public void testBanUser() {
         roleSet.add("normal");
-        when(roleMapper.getRolesByUserName(username)).thenReturn(roleSet);
-        when(userMapper.findUserByName(username)).thenReturn(user);
+        when(userRoleMapper.getRolesByUserName(username)).thenReturn(roleSet);
+        when(userMapper.selectById(username)).thenReturn(user);
 
         userService.banUser(username, 3);
 
-        verify(userMapper, times(1)).updateUser(user);
+        verify(userMapper, times(1)).updateById(user);
     }
 
     @Test
     public void testUnbanUser() {
-        when(userMapper.findUserByName(username)).thenReturn(user);
+        when(userMapper.selectById(username)).thenReturn(user);
 
         userService.unbanUser(username);
 
-        verify(userMapper, times(1)).updateUser(user);
+        verify(userMapper, times(1)).updateById(user);
     }
 
     @Test
     public void testBanUserAdmin() {
         roleSet.add("admin");
-        when(roleMapper.getRolesByUserName(username)).thenReturn(roleSet);
+        when(userRoleMapper.getRolesByUserName(username)).thenReturn(roleSet);
 
         assertThrows(BusinessException.class, () -> userService.banUser(username, 3));
     }
 
     @Test
     public void testBanUserNotFound() {
-        when(roleMapper.getRolesByUserName(username)).thenReturn(roleSet);
-        when(userMapper.findUserByName(username)).thenReturn(null);
+        when(userRoleMapper.getRolesByUserName(username)).thenReturn(roleSet);
+        when(userMapper.selectById(username)).thenReturn(null);
 
         assertThrows(BusinessException.class, () -> userService.banUser(username, 3));
     }
 
     @Test
     public void testUnbanUserNotFound() {
-        when(userMapper.findUserByName(username)).thenReturn(null);
+        when(userMapper.selectById(username)).thenReturn(null);
 
         assertThrows(BusinessException.class, () -> userService.unbanUser(username));
     }

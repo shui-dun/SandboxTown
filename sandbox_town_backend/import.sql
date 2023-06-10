@@ -149,7 +149,7 @@ CREATE TABLE item
     # 基础稀有度
     basic_rarity INT          NOT NULL DEFAULT 0,
     # 是否能直接被使用
-    usable       BOOLEAN      NOT NULL DEFAULT FALSE,
+    usable       BIT         NOT NULL DEFAULT 0,
     # 增加金钱
     money_inc    INT          NOT NULL DEFAULT 0,
     # 增加经验值

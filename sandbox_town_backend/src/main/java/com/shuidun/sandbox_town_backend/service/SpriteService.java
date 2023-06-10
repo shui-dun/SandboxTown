@@ -5,6 +5,7 @@ import com.shuidun.sandbox_town_backend.bean.SpriteType;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
+import com.shuidun.sandbox_town_backend.mapper.SpriteTypeMapper;
 import com.shuidun.sandbox_town_backend.utils.NameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,10 +22,13 @@ import static com.shuidun.sandbox_town_backend.enumeration.Constants.EXP_PER_LEV
 public class SpriteService {
     private final SpriteMapper spriteMapper;
 
+    private final SpriteTypeMapper spriteTypeMapper;
+
     private final String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, @Value("${mapId}") String mapId) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, @Value("${mapId}") String mapId) {
         this.spriteMapper = spriteMapper;
+        this.spriteTypeMapper = spriteTypeMapper;
         this.mapId = mapId;
     }
 
@@ -92,7 +96,7 @@ public class SpriteService {
         if (sprite.getSpeed() < 0) {
             sprite.setSpeed(0);
         }
-        spriteMapper.updateSprite(sprite);
+        spriteMapper.updateById(sprite);
         return sprite;
     }
 
@@ -104,7 +108,7 @@ public class SpriteService {
     // 生成随机的指定类型的角色，并写入数据库
     public Sprite generateRandomSprite(String type, String owner, int x, int y) {
         Sprite sprite = new Sprite();
-        SpriteType spriteType = spriteMapper.getSpriteType(type);
+        SpriteType spriteType = spriteTypeMapper.selectById(type);
         sprite.setId(NameGenerator.generateItemName(type));
         sprite.setType(type);
         sprite.setOwner(owner);
@@ -138,7 +142,7 @@ public class SpriteService {
         sprite.setWidth((int) (spriteType.getBasicWidth() * scale));
         sprite.setHeight((int) (spriteType.getBasicHeight() * scale));
         sprite.setMap(mapId);
-        spriteMapper.createSprite(sprite);
+        spriteMapper.insert(sprite);
         return sprite;
     }
 }

@@ -1,14 +1,19 @@
-package com.shuidun.sandbox_town_backend.bean;
+package com.shuidun.sandbox_town_backend.bean ;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@TableName("sprite")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Sprite {
 
+    @TableId
     private String id;
 
     private String type;
@@ -42,5 +47,6 @@ public class Sprite {
     private String map;
 
     // 描述信息
+    @TableField(exist = false)
     private String description;
 }

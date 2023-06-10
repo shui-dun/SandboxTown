@@ -4,7 +4,7 @@ import com.shuidun.sandbox_town_backend.bean.Sprite;
 import com.shuidun.sandbox_town_backend.bean.SpriteItemView;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
-import com.shuidun.sandbox_town_backend.mapper.ItemMapper;
+import com.shuidun.sandbox_town_backend.mapper.SpriteItemMapper;
 import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,31 +16,31 @@ import java.util.List;
 @Service
 public class ItemService {
 
-    private final ItemMapper itemMapper;
+    private final SpriteItemMapper spriteItemMapper;
 
     private final SpriteMapper spriteMapper;
 
     private final SpriteService spriteService;
 
-    public ItemService(ItemMapper itemMapper, SpriteMapper spriteMapper, SpriteService spriteService) {
-        this.itemMapper = itemMapper;
+    public ItemService(SpriteItemMapper spriteItemMapper, SpriteMapper spriteMapper, SpriteService spriteService) {
+        this.spriteItemMapper = spriteItemMapper;
         this.spriteMapper = spriteMapper;
         this.spriteService = spriteService;
     }
 
     public List<SpriteItemView> list(String playerName) {
-        return itemMapper.listByOwnerId(playerName);
+        return spriteItemMapper.listByOwnerId(playerName);
     }
 
     @Transactional
     public Sprite use(String username, String itemId) {
         // 判断玩家是否拥有该物品
-        SpriteItemView spriteItemView = itemMapper.getByOwnerIdAndItemId(username, itemId);
+        SpriteItemView spriteItemView = spriteItemMapper.getByOwnerIdAndItemId(username, itemId);
         if (spriteItemView == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
         // 判断物品是否可用
-        if (!spriteItemView.isUsable()) {
+        if (!spriteItemView.getUsable()) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_USABLE);
         }
         // 得到用户原先属性
@@ -58,10 +58,10 @@ public class ItemService {
         // 判断是否是最后一个物品
         if (spriteItemView.getItemCount() <= 1) {
             // 删除物品
-            itemMapper.deleteByOwnerIdAndItemId(username, itemId);
+            spriteItemMapper.deleteByOwnerIdAndItemId(username, itemId);
         } else {
             // 更新物品数量
-            itemMapper.updateByOwnerIdAndItemId(username, itemId, spriteItemView.getItemCount() - 1);
+            spriteItemMapper.updateByOwnerIdAndItemId(username, itemId, spriteItemView.getItemCount() - 1);
         }
         return sprite;
     }
@@ -70,13 +70,13 @@ public class ItemService {
     @Transactional
     public void add(String username, String itemId, int count) {
         // 判断玩家是否拥有该物品
-        SpriteItemView spriteItemView = itemMapper.getByOwnerIdAndItemId(username, itemId);
+        SpriteItemView spriteItemView = spriteItemMapper.getByOwnerIdAndItemId(username, itemId);
         if (spriteItemView == null) {
             // 玩家没有该物品，直接插入
-            itemMapper.insert(username, itemId, count);
+            spriteItemMapper.insert(username, itemId, count);
         } else {
             // 玩家有该物品，更新数量
-            itemMapper.updateByOwnerIdAndItemId(username, itemId, spriteItemView.getItemCount() + count);
+            spriteItemMapper.updateByOwnerIdAndItemId(username, itemId, spriteItemView.getItemCount() + count);
         }
 
     }

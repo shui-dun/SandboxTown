@@ -1,8 +1,11 @@
 package com.shuidun.sandbox_town_backend.service;
 
+import com.shuidun.sandbox_town_backend.bean.Building;
+import com.shuidun.sandbox_town_backend.bean.BuildingType;
+import com.shuidun.sandbox_town_backend.bean.GameMap;
 import com.shuidun.sandbox_town_backend.bean.Point;
-import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
+import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
 import com.shuidun.sandbox_town_backend.utils.NameGenerator;
 import com.shuidun.sandbox_town_backend.utils.PathUtils;
@@ -30,6 +33,8 @@ public class GameMapService {
 
     private final BuildingMapper buildingMapper;
 
+    private final BuildingTypeMapper buildingTypeMapper;
+
     private final GameMapMapper gameMapMapper;
 
     private final SpriteService spriteService;
@@ -49,14 +54,15 @@ public class GameMapService {
     // 建筑类型图片
     Map<String, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
-    public GameMapService(BuildingMapper buildingMapper, GameMapMapper gameMapMapper, SpriteService spriteService, TreeService treeService, @Value("${mapId}") String mapId) {
+    public GameMapService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, GameMapMapper gameMapMapper, SpriteService spriteService, TreeService treeService, @Value("${mapId}") String mapId) {
+        this.buildingTypeMapper = buildingTypeMapper;
         this.gameMapMapper = gameMapMapper;
         this.buildingMapper = buildingMapper;
         this.spriteService = spriteService;
         this.treeService = treeService;
         this.mapId = mapId;
         // 获得地图信息
-        GameMap gameMap = gameMapMapper.getGameMapById(mapId);
+        GameMap gameMap = gameMapMapper.selectById(mapId);
 
         // 设置随机数种子
         random.setSeed(gameMap.getSeed());
@@ -135,7 +141,7 @@ public class GameMapService {
     // 将所有建筑物放置在地图上
     private void placeAllBuildingsOnMap() {
         // 建筑物的黑白图的字典
-        var buildingTypes = this.buildingMapper.getAllBuildingTypes();
+        var buildingTypes = buildingTypeMapper.selectList(null);
         for (BuildingType buildingType : buildingTypes) {
             String buildingTypeId = buildingType.getId();
             String imagePath = buildingType.getImagePath();
@@ -159,7 +165,6 @@ public class GameMapService {
 
     /** 寻路算法 */
     public List<Point> findPath(int x0, int y0, int x1, int y1, int itemWidth, int itemHeight, Integer destinationHashCode) {
-        log.info("find path from ({}, {}) to ({}, {})", x0, y0, x1, y1);
         // 将物理坐标转换为地图坐标
         int startX = x0 / pixelsPerGrid;
         int startY = y0 / pixelsPerGrid;
@@ -168,7 +173,6 @@ public class GameMapService {
         // 将物品宽高的像素转换为地图坐标
         int itemHalfWidth = (int) Math.ceil((double) itemWidth / pixelsPerGrid) / 2;
         int itemHalfHeight = (int) Math.ceil((double) itemHeight / pixelsPerGrid) / 2;
-        log.info("item half width {}, item half height {}", itemHalfWidth, itemHalfHeight);
         // 调用寻路算法
         List<Point> path = PathUtils.findPath(map, startX, startY, endX, endY, itemHalfWidth, itemHalfHeight, destinationHashCode);
         // 判断是否为空
@@ -276,7 +280,7 @@ public class GameMapService {
 
     // 得到地图信息
     public GameMap getGameMap() {
-        GameMap gameMap = gameMapMapper.getGameMapById(mapId);
+        GameMap gameMap = gameMapMapper.selectById(mapId);
         gameMap.setData(map);
         return gameMap;
     }
@@ -284,7 +288,7 @@ public class GameMapService {
     // 初始化地图（建造建筑等）
     public void initGameMap(int nBuildings) {
         // 得到所有建筑类型
-        var buildingTypes = buildingMapper.getAllBuildingTypes();
+        var buildingTypes = buildingTypeMapper.selectList(null);
         // 首先，所有类型的建筑都有一个
         List<BuildingType> buildingTypesToBePlaced = new ArrayList<>(buildingTypes);
         // 计算总稀有度
@@ -309,7 +313,6 @@ public class GameMapService {
             // 将轮盘赌的结果加入建筑列表
             buildingTypesToBePlaced.add(buildingTypes.get(index));
         }
-        log.info("buildingTypesToBePlaced final: {}", buildingTypesToBePlaced.size());
         // 生成建筑
         for (int i = 0; i < buildingTypesToBePlaced.size(); ++i) {
             // 建筑类型
@@ -332,7 +335,7 @@ public class GameMapService {
             // 判断是否与其他建筑重叠
             if (!isBuildingOverlap(building)) {
                 // 如果不重叠，添加建筑到数据库
-                buildingMapper.createBuilding(building);
+                buildingMapper.insert(building);
                 // 放置建筑
                 placeBuildingOnMap(building);
                 // 如果是树

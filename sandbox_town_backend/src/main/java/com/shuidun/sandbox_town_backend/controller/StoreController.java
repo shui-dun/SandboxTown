@@ -14,10 +14,5 @@ public class StoreController {
     public StoreController(StoreService storeService) {
         this.storeService = storeService;
     }
-
-    @RequestMapping("/foo")
-    public void foo() {
-        storeService.foo();
-    }
 }
 
