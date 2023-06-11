@@ -28,6 +28,7 @@ import NavGroup from './NavGroup.vue';
 import EquipmentArea from './EquipmentArea.vue';
 import GridItems from './GridItems.vue';
 import InquiryPanel from './InquiryPanel.vue';
+import myUtils from '@/js/myUtils.js';
 
 export default {
     inject: ['fadeInfoShow'],
@@ -88,46 +89,26 @@ export default {
     },
     mounted() {
         // 从后端获取玩家信息
-        fetch('/rest/sprite/listMine', {
-            method: 'GET',
-        }).then(response => response.json())
-            .then(data => {
-                if (data.code === 0) {
-                    data.data.id = data.data.id.split("_", 2)[1];
-                    this.player = data.data;
-                    // 将用户信息添加到userInfo中
-                    this.userInfo.forEach((item) => {
-                        item.value = this.player[item.label];
-                    });
-                } else {
-                    this.fadeInfoShow(data.msg);
-                }
-            })
-            .catch(error => {
-                this.fadeInfoShow(`发生错误：${error}`);
+        myUtils.myFetch('/rest/sprite/listMine', 'GET', null, (data) => {
+            data.id = data.id.split("_", 2)[1];
+            this.player = data;
+            // 将用户信息添加到userInfo中
+            this.userInfo.forEach((item) => {
+                item.value = this.player[item.label];
             });
+        });
         // 从后端获取玩家物品信息
-        fetch('/rest/item/listMine', {
-            method: 'GET',
-        }).then(response => response.json())
-            .then(data => {
-                if (data.code === 0) {
-                    // 重命名物品的属性名
-                    data.data.forEach((item) => {
-                        item.id = item.itemId;
-                        item.extra = { num: item.itemCount };
-                        item.category = 'item';
-                        item.image = require(`@/assets/img/${item.id}.png`);
-                    });
-                    // 将用户物品信息添加到items最后
-                    this.items.push(...data.data);
-                } else {
-                    this.fadeInfoShow(data.msg);
-                }
-            })
-            .catch(error => {
-                this.fadeInfoShow(`发生错误：${error}`);
+        myUtils.myFetch('/rest/item/listMine', 'GET', null, (data) => {
+            // 重命名物品的属性名
+            data.forEach((item) => {
+                item.id = item.itemId;
+                item.extra = { num: item.itemCount };
+                item.category = 'item';
+                item.image = require(`@/assets/img/${item.id}.png`);
             });
+            // 将用户物品信息添加到items最后
+            this.items.push(...data);
+        });
     },
     computed: {
     },
@@ -173,26 +154,17 @@ export default {
                 if (this.selectedItem.category === 'item') {
                     this.selectedItem.extra.num -= 1;
                     // 使用物品
-                    fetch('/rest/item/use', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({
+                    myUtils.myFetch(
+                        '/rest/item/use',
+                        'POST',
+                        new URLSearchParams({
                             itemId: this.selectedItem.id,
                         }),
-                    }).then(response => response.json())
-                        .then(data => {
-                            if (data.code === 0) {
-                                // 更新用户信息
-                                this.updataPlayerAttribute(data.data);
-                            } else {
-                                this.fadeInfoShow(data.msg);
-                            }
-                        })
-                        .catch(error => {
-                            this.fadeInfoShow(`发生错误：${error}`);
-                        });
+                        (data) => {
+                            // 更新用户信息
+                            this.updataPlayerAttribute(data);
+                        },
+                    )
                 } else if (this.selectedItem.category === 'equipment') {
                     this.selectedItem.extra.num -= 1;
                     this.fadeInfoShow(`装备${this.selectedItem.name}`)

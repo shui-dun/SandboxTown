@@ -17,6 +17,7 @@
 </template>
   
 <script>
+import myUtils from "@/js/myUtils.js";
 
 export default {
     components: {
@@ -46,27 +47,18 @@ export default {
                 return;
             }
             // 向后端发送注册请求
-            fetch('/rest/user/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
+            myUtils.myFetch(
+                '/rest/user/signup',
+                'POST',
+                new URLSearchParams({
                     usernameSuffix: this.username,
                     password: this.password,
                 }),
-            }).then(response => response.json())
-                .then(data => {
-                    if (data.code === 0) {
-                        this.fadeInfoShow('注册成功');
-                        this.$emit('signup');
-                    } else {
-                        this.fadeInfoShow(data.msg);
-                    }
-                })
-                .catch(error => {
-                    this.fadeInfoShow(`发生错误：${error}`);
-                }); 
+                () => {
+                    this.fadeInfoShow('注册成功');
+                    this.$emit('signup');
+                },
+            );
         },
     },
     inject: ['fadeInfoShow'],

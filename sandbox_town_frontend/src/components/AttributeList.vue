@@ -11,6 +11,7 @@
 <script>
 import NavGroup from './NavGroup.vue';
 import InfoList from './InfoList.vue';
+import myUtils from "@/js/myUtils.js";
 
 export default {
     props: {
@@ -45,20 +46,11 @@ export default {
     },
     async mounted() {
         // 从后端获取物品信息
-        await fetch(`/rest/sprite/list/${this.itemName}`, {
-            method: 'GET',
-        }).then(response => response.json())
-            .then(data => {
-                if (data.code === 0) {
-                    this.info = data.data;
-                    // 如果是用户，删掉前缀
-                    if (this.itemName.startsWith("user_")) {
-                        this.info.id = this.info.id.split("_", 2)[1];
-                    }
-                } else {
-                    this.fadeInfoShow(data.msg);
-                }
-            });
+        this.info = await myUtils.myFetch(`/rest/sprite/list/${this.itemName}`, 'GET');
+        // 如果是用户，删掉前缀
+        if (this.itemName.startsWith("user_")) {
+            this.info.id = this.info.id.split("_", 2)[1];
+        }
         // 将信息添加到userInfo中
         this.itemInfo.forEach((item) => {
             if (this.info[item.label] !== null) {
@@ -74,5 +66,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
