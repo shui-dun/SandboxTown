@@ -2,7 +2,7 @@
     <div>
         <NavGroup :items="componentItems" @close="$emit('close')">
             <template v-slot:0>
-                <GridItems title="🏪 购买商品" :items="this.buyItems" :categories="this.categories"
+                <GridItems ref="bugGridItems" title="🏪 购买商品" :items="this.buyItems" :categories="this.categories"
                     @clickGridItem="bugItemEvent($event)" />
             </template>
             <template v-slot:1>
@@ -18,8 +18,15 @@
 import NavGroup from './NavGroup.vue';
 import GridItems from './GridItems.vue';
 import NumberChoose from './NumberChoose.vue';
+import myUtils from "@/js/myUtils.js";
 
 export default {
+    props: {
+        storeId: {
+            type: String,
+            default: '',
+        },
+    },
     components: {
         NavGroup,
         GridItems,
@@ -31,22 +38,22 @@ export default {
             // 用户可以买的物品
             // 对于食物和物品，ID就是类别，例如bread，对于宠物和装备，ID就是ID
             buyItems: [
-                { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'item', description: '具有松软的质地和微甜的口感', extra: { price: '￥10' } },
-                { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { price: '￥12' } },
-                { id: 3, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { price: '￥8' } },
-                { id: 4, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { price: '￥20' } },
-                { id: 5, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { price: '￥20' } },
-                { id: 6, name: '苹果', image: require("@/assets/img/apple.png"), category: 'item', description: '禁忌和知识之果', extra: { price: '￥13' } },
-                { id: 7, name: '面包', image: require("@/assets/img/bread.png"), category: 'item', description: '具有松软的质地和微甜的口感', extra: { price: '￥10' } },
-                { id: 8, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { price: '￥12' } },
-                { id: 9, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { price: '￥8' } },
-                { id: 10, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { price: '￥20' } },
-                { id: 11, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { price: '￥20' } },
-                { id: 12, name: '苹果', image: require("@/assets/img/apple.png"), category: 'item', description: '禁忌和知识之果', extra: { price: '￥13' } },
-                { id: 13, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { price: '￥8' } },
-                { id: 14, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { price: '￥20' } },
-                { id: 15, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { price: '￥20' } },
-                { id: 16, name: '苹果', image: require("@/assets/img/apple.png"), category: 'item', description: '禁忌和知识之果', extra: { price: '￥13' } },
+                // { id: 1, name: '面包', image: require("@/assets/img/bread.png"), category: 'item', description: '具有松软的质地和微甜的口感', extra: { price: '￥10' } },
+                // { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { price: '￥12' } },
+                // { id: 3, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { price: '￥8' } },
+                // { id: 4, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { price: '￥20' } },
+                // { id: 5, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { price: '￥20' } },
+                // { id: 6, name: '苹果', image: require("@/assets/img/apple.png"), category: 'item', description: '禁忌和知识之果', extra: { price: '￥13' } },
+                // { id: 7, name: '面包', image: require("@/assets/img/bread.png"), category: 'item', description: '具有松软的质地和微甜的口感', extra: { price: '￥10' } },
+                // { id: 8, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具', extra: { price: '￥12' } },
+                // { id: 9, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { price: '￥8' } },
+                // { id: 10, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { price: '￥20' } },
+                // { id: 11, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { price: '￥20' } },
+                // { id: 12, name: '苹果', image: require("@/assets/img/apple.png"), category: 'item', description: '禁忌和知识之果', extra: { price: '￥13' } },
+                // { id: 13, name: '木材', image: require("@/assets/img/wood.png"), category: 'item', description: '建筑的材料，也可处于烤火', extra: { price: '￥8' } },
+                // { id: 14, name: '猫咪', image: require("@/assets/img/cat.png"), category: 'pet', description: '常见的家养宠物，具有柔软的毛发和灵活的身体', extra: { price: '￥20' } },
+                // { id: 15, name: '柴犬', image: require("@/assets/img/dog.png"), category: 'pet', description: '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', extra: { price: '￥20' } },
+                // { id: 16, name: '苹果', image: require("@/assets/img/apple.png"), category: 'item', description: '禁忌和知识之果', extra: { price: '￥13' } },
             ],
             // 用户可以卖的物品
             soldItems: [
@@ -80,7 +87,22 @@ export default {
             maxNumber: 0,
         };
     },
-    mounted() {
+    async mounted() {
+        // 获得商品列表
+        await myUtils.myGET('/rest/store/listByStore',
+            new URLSearchParams({
+                store: this.storeId,
+            }),
+        ).then((goods) => {
+            goods.forEach((item) => {
+                item.id = item.item;
+                item.image = require(`@/assets/img/${item.id}.png`);
+                item.category = 'item';
+                item.extra = { price: '￥' + item.price, num: item.count };
+                this.buyItems.push(item);
+            });
+        });
+        this.$refs.bugGridItems.filterItems('all');
     },
     computed: {
     },

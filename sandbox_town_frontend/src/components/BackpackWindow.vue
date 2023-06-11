@@ -89,7 +89,7 @@ export default {
     },
     mounted() {
         // 从后端获取玩家信息
-        myUtils.myFetch('/rest/sprite/listMine', 'GET', null, (data) => {
+        myUtils.myGET('/rest/sprite/listMine', null, (data) => {
             data.id = data.id.split("_", 2)[1];
             this.player = data;
             // 将用户信息添加到userInfo中
@@ -98,7 +98,7 @@ export default {
             });
         });
         // 从后端获取玩家物品信息
-        myUtils.myFetch('/rest/item/listMine', 'GET', null, (data) => {
+        myUtils.myGET('/rest/item/listMine', null, (data) => {
             // 重命名物品的属性名
             data.forEach((item) => {
                 item.id = item.itemId;
@@ -154,9 +154,8 @@ export default {
                 if (this.selectedItem.category === 'item') {
                     this.selectedItem.extra.num -= 1;
                     // 使用物品
-                    myUtils.myFetch(
+                    myUtils.myPOST(
                         '/rest/item/use',
-                        'POST',
                         new URLSearchParams({
                             itemId: this.selectedItem.id,
                         }),

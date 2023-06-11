@@ -40,9 +40,8 @@ export default {
                 this.fadeInfoShow('密码不能为空');
                 return;
             }
-            myUtils.myFetch(
+            myUtils.myPOST(
                 '/rest/user/login',
-                'POST',
                 new URLSearchParams({
                     username: 'user_' + this.username,
                     password: this.password,

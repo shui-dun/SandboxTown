@@ -47,9 +47,8 @@ export default {
                 return;
             }
             // 向后端发送注册请求
-            myUtils.myFetch(
+            myUtils.myPOST(
                 '/rest/user/signup',
-                'POST',
                 new URLSearchParams({
                     usernameSuffix: this.username,
                     password: this.password,

@@ -116,7 +116,7 @@ export default {
         },
         async checkIsLogin() {
             // 向后端发送请求，检查是否登录
-            let username = await myUtils.myFetch('/rest/user/getUsername', 'GET');
+            let username = await myUtils.myGET('/rest/user/getUsername');
             if (username == null) {
                 // 未登录
                 this.isLogin = false;
@@ -128,7 +128,7 @@ export default {
         },
         doLogout() {
             // 向后端发送请求，退出登录
-            myUtils.myFetch('/rest/user/logout', 'POST', null, () => {
+            myUtils.myPOST('/rest/user/logout', null, () => {
                 this.isLogin = false;
                 this.curTab = 'login';
             });

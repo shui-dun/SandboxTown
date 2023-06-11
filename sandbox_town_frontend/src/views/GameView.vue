@@ -4,7 +4,7 @@
     <AttributeList v-if="attributeListOpened" :itemName="itemNameOfAttributeList" @close="closeAttributeList"
         @mousedown="preventMousedownPropagation">
     </AttributeList>
-    <StorePannel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation"></StorePannel>
+    <StorePannel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation" :storeId="currentStoreID"></StorePannel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <FadeInfo ref="fadeInfo" />
     <ProcessBar v-if="showProcessBar" :duration="processBarDuration" :text="processBarText"
@@ -51,6 +51,7 @@ export default {
             processBarText: '加载中...',
             EventOfProgressComplete: () => { },
             itemNameOfAttributeList: '',
+            currentStoreID: '',
         };
     },
     methods: {
@@ -74,6 +75,7 @@ export default {
 
         storeShow(storeID) {
             this.storeOpened = true;
+            this.currentStoreID = storeID;
         },
         closeStore() {
             this.storeOpened = false;
@@ -99,7 +101,7 @@ export default {
         myUtils.setFadeInfoShow(this.fadeInfoShow);
 
         // 向后端发送请求，检查是否登录
-        let username = await myUtils.myFetch('/rest/user/getUsername', 'GET');
+        let username = await myUtils.myGET('/rest/user/getUsername');
         if (username == null) {
             // 未登录，跳转到登录页面
             this.$router.push('/');

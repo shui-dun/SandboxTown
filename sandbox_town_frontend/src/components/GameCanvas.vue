@@ -47,8 +47,7 @@ export default {
                     text: '正在摘苹果...',
                     progressCompleteEvent: () => {
                         // 向后端发送摘苹果请求
-                        myUtils.myFetch('/rest/tree/pickApple',
-                            'POST',
+                        myUtils.myPOST('/rest/tree/pickApple',
                             new URLSearchParams({
                                 treeId: event.targetID,
                             }),

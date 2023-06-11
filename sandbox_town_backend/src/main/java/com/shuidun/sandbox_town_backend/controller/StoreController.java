@@ -6,6 +6,7 @@ import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.StoreService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,7 +33,7 @@ public class StoreController {
      * @param item   商品id
      * @param amount 数量
      */
-    @GetMapping("/buy")
+    @PostMapping("/buy")
     public RestResponse<?> buy(String store, String item, Integer amount) {
         storeService.buy(StpUtil.getLoginIdAsString(), store, item, amount);
         return new RestResponse<>(StatusCodeEnum.SUCCESS);

@@ -46,7 +46,7 @@ export default {
     },
     async mounted() {
         // 从后端获取物品信息
-        this.info = await myUtils.myFetch(`/rest/sprite/list/${this.itemName}`, 'GET');
+        this.info = await myUtils.myGET(`/rest/sprite/list/${this.itemName}`);
         // 如果是用户，删掉前缀
         if (this.itemName.startsWith("user_")) {
             this.info.id = this.info.id.split("_", 2)[1];

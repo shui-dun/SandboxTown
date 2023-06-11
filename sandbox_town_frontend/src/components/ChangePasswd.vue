@@ -37,7 +37,7 @@ export default {
     },
     async mounted() {
         // 获取用户名后缀
-        this.usernameSuffix = (await myUtils.myFetch('/rest/user/getUsername', 'GET', null)).slice(5);
+        this.usernameSuffix = (await myUtils.myGET('/rest/user/getUsername', null)).slice(5);
     },
     methods: {
         async onChangePasswd() {
@@ -57,9 +57,8 @@ export default {
                 return;
             }
             // 向后端发送修改密码请求
-            await myUtils.myFetch(
+            await myUtils.myPOST(
                 '/rest/user/changePassword',
-                'POST',
                 new URLSearchParams({
                     oldPassword: this.oldpassword,
                     newPassword: this.newpassword,

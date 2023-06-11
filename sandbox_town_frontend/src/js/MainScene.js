@@ -55,22 +55,22 @@ const mainScene = {
         self.input.mouse.disableContextMenu();
 
         // 得到地图信息
-        gameMap = await myUtils.myFetch('/rest/gamemap/getGameMap', 'GET', null);
+        gameMap = await myUtils.myGET('/rest/gamemap/getGameMap');
 
         // 得到当前用户的用户名
-        myUsername = await myUtils.myFetch('/rest/user/getUsername', 'GET', null);
+        myUsername = await myUtils.myGET('/rest/user/getUsername');
 
         // 得到角色列表
-        spriteList = await myUtils.myFetch('/rest/sprite/listAll', 'GET', null);
+        spriteList = await myUtils.myGET('/rest/sprite/listAll');
 
         // 得到建筑类型列表
-        buildingTypes = await myUtils.myFetch('/rest/building/getAllBuildingTypes', 'GET', null);
+        buildingTypes = await myUtils.myGET('/rest/building/getAllBuildingTypes');
 
         // 得到建筑列表
-        buildingList = await myUtils.myFetch('/rest/building/getAllBuildings', 'GET', null);
+        buildingList = await myUtils.myGET('/rest/building/getAllBuildings');
 
         // 获得登录奖励
-        let loginReward = await myUtils.myFetch('/rest/user/enterGameToReceiveReward', 'POST', null);
+        let loginReward = await myUtils.myPOST('/rest/user/enterGameToReceiveReward');
         if (loginReward != 0) {
             self.game.events.emit('showFadeInfo', {'msg': '登录奖励: ' + loginReward + '金币💰'});
         }
