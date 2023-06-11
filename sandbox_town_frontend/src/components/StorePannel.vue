@@ -110,7 +110,7 @@ export default {
         bugItemEvent(item) {
             this.willingOperation = 'buy';
             this.selectedItem = item;
-            this.maxNumber = 20;
+            this.maxNumber = item.extra.num;
             this.showNumberChoose = true;
         },
         soldItemEvent(item) {
@@ -123,12 +123,23 @@ export default {
             this.maxNumber = item.extra.num;
             this.showNumberChoose = true;
         },
-        confirm(value) {
+        async confirm(value) {
             this.willingNumber = value;
             if (this.willingOperation === 'buy') {
                 // 处理购买请求
-                // 由父节点显示提示信息
-                this.fadeInfoShow(`购买${this.willingNumber}个${this.selectedItem.name}`)
+                await myUtils.myPOST('/rest/store/buy',
+                    new URLSearchParams({
+                        store: this.storeId,
+                        item: this.selectedItem.id,
+                        amount: this.willingNumber,
+                    }),
+                    () => {
+                        // 由父节点显示提示信息
+                        this.fadeInfoShow(`购买${this.willingNumber}个${this.selectedItem.name}`)
+                        // 更新商品列表中该商品的数目
+                        this.selectedItem.extra.num -= this.willingNumber;
+                    },
+                )
             } else if (this.willingOperation === 'sold') {
                 // 处理出售请求
                 let item = this.selectedItem;
