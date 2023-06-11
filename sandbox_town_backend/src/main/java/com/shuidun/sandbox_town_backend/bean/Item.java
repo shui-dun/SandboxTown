@@ -21,7 +21,7 @@ public class Item {
 
     private Integer basicPrice;
 
-    private Integer basicRarity;
+    private Integer rarity;
 
     private Boolean usable;
 

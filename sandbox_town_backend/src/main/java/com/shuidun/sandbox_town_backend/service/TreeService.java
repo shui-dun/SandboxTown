@@ -95,7 +95,7 @@ public class TreeService {
     }
 
     /** 刷新所有树的苹果数目等信息 */
-    public void refreshTree() {
+    public void refreshTrees() {
         // 查找所有树
         List<Tree> trees = treeMapper.selectList(null);
         // 遍历所有树

@@ -21,7 +21,7 @@ public class SpriteItemView {
 
     private Integer basicPrice;
 
-    private Integer basicRarity;
+    private Integer rarity;
 
     private Boolean usable;
 

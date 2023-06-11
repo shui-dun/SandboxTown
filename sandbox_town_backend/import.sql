@@ -152,8 +152,8 @@ CREATE TABLE item
     description  VARCHAR(255) NOT NULL,
     # 注意这个价格只是参考价格，各个商店会有上下波动
     basic_price  INT          NOT NULL DEFAULT 0,
-    # 基础稀有度
-    basic_rarity INT          NOT NULL DEFAULT 0,
+    # 稀有度（稀有度越高，商店刷出的概率越高）
+    rarity INT          NOT NULL DEFAULT 0,
     # 是否能直接被使用
     usable       BIT          NOT NULL DEFAULT 0,
     # 增加金钱
@@ -174,12 +174,12 @@ CREATE TABLE item
     speed_inc    INT          NOT NULL DEFAULT 0
 );
 
-INSERT INTO item (id, name, description, basic_price, basic_rarity, usable, money_inc, exp_inc, level_inc, hunger_inc,
+INSERT INTO item (id, name, description, basic_price, rarity, usable, money_inc, exp_inc, level_inc, hunger_inc,
                   hp_inc, attack_inc, defense_inc, speed_inc)
-VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 2, 100, FALSE, 0, 0, 0, 0, 0, 0, 0, 0),
-       ('stone', '石头', '用于建造房屋和其他工具', 3, 70, FALSE, 0, 0, 0, 0, 0, 0, 0, 0),
-       ('bread', '面包', '具有松软的质地和微甜的口感', 3, 70, TRUE, 0, 0, 0, 15, 0, 0, 0, 0),
-       ('apple', '苹果', '禁忌和知识之果', 2, 80, TRUE, 0, 10, 0, 7, 0, 0, 0, 0);
+VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 5, 10, FALSE, 0, 0, 0, 0, 0, 0, 0, 0),
+       ('stone', '石头', '用于建造房屋和其他工具', 8, 7, FALSE, 0, 0, 0, 0, 0, 0, 0, 0),
+       ('bread', '面包', '具有松软的质地和微甜的口感', 5, 7, TRUE, 0, 0, 0, 15, 0, 0, 0, 0),
+       ('apple', '苹果', '禁忌和知识之果', 5, 8, TRUE, 0, 10, 0, 7, 0, 0, 0, 0);
 
 # 创建角色物品表
 
@@ -216,7 +216,7 @@ SELECT sprite_item.owner,
        item.name,
        item.description,
        item.basic_price,
-       item.basic_rarity,
+       item.rarity,
        item.usable,
        item.money_inc,
        item.exp_inc,
@@ -321,8 +321,6 @@ CREATE TABLE store_item
     store     VARCHAR(255) NOT NULL,
     # 商品数量
     count     INT          NOT NULL DEFAULT 0,
-    # 商品最大数目
-    max_count INT          NOT NULL DEFAULT 10,
     # 商品价格
     price     INT          NOT NULL DEFAULT 0,
     PRIMARY KEY (item, store),
@@ -330,23 +328,22 @@ CREATE TABLE store_item
     CONSTRAINT fk_store_item_item FOREIGN KEY (item) REFERENCES item (id)
 );
 
-insert into store_item (item, store, count, max_count, price)
-values ('wood', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10),
-       ('stone', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10),
-       ('bread', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10),
-       ('apple', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10);
+insert into store_item (item, store, count, price)
+values ('wood', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10),
+       ('stone', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10),
+       ('bread', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10),
+       ('apple', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10);
 
 # 创建商店商品视图
 CREATE VIEW store_item_view AS
 SELECT store_item.item,
        store_item.store,
        store_item.count,
-       store_item.max_count,
        store_item.price,
        item.name,
        description,
        basic_price,
-       basic_rarity,
+       rarity,
        usable,
        money_inc,
        exp_inc,

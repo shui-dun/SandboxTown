@@ -15,8 +15,6 @@ public class StoreItemView {
 
     private Integer count;
 
-    private Integer maxCount;
-
     private Integer price;
 
     private String name;
@@ -25,7 +23,7 @@ public class StoreItemView {
 
     private Integer basicPrice;
 
-    private Integer basicRarity;
+    private Integer rarity;
 
     private Boolean usable;
 

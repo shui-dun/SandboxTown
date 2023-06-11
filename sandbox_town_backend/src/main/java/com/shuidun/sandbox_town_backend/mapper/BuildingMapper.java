@@ -14,7 +14,11 @@ public interface BuildingMapper extends BaseMapper<Building> {
     @Select("SELECT * FROM building WHERE map = #{mapId}")
     List<Building> getAllBuildingsByMapId(String mapId);
 
-    // 当前建筑数目
+    // 地图上的建筑数目
     @Select("SELECT COUNT(*) FROM building WHERE map = #{mapId}")
     int getBuildingCountByMapId(String mapId);
+
+    /** 根据地图名称和建筑物类型获取建筑物列表 */
+    @Select("SELECT * FROM building WHERE map = #{mapId} AND type = #{type}")
+    List<Building> getBuildingsByMapIdAndType(String mapId, String type);
 }

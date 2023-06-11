@@ -1,8 +1,8 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
+import com.shuidun.sandbox_town_backend.service.StoreService;
 import com.shuidun.sandbox_town_backend.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,15 +15,20 @@ public class TimeScheduler {
 
     private TreeService treeService;
 
-    public TimeScheduler(TreeService treeService) {
+    private StoreService storeService;
+
+    public TimeScheduler(TreeService treeService, StoreService storeService) {
         this.treeService = treeService;
+        this.storeService = storeService;
     }
 
     @Scheduled(initialDelay = 0, fixedDelay = 600000)
     public void enterMorning() {
         log.info("morning");
         // 刷新苹果数目
-        treeService.refreshTree();
+        treeService.refreshTrees();
+        // 刷新商店
+        storeService.refreshAll();
     }
 
     @Scheduled(initialDelay = 300000, fixedDelay = 600000)

@@ -15,7 +15,5 @@ public class StoreItem {
 
     private Integer count;
 
-    private Integer maxCount;
-
     private Integer price;
 }

@@ -41,6 +41,8 @@ public class GameMapService {
 
     private final TreeService treeService;
 
+    private final StoreService storeService;
+
     private final int pixelsPerGrid = 30;
 
     // 地图ID
@@ -54,12 +56,13 @@ public class GameMapService {
     // 建筑类型图片
     Map<String, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
-    public GameMapService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, GameMapMapper gameMapMapper, SpriteService spriteService, TreeService treeService, @Value("${mapId}") String mapId) {
+    public GameMapService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, GameMapMapper gameMapMapper, SpriteService spriteService, TreeService treeService, StoreService storeService, @Value("${mapId}") String mapId) {
         this.buildingTypeMapper = buildingTypeMapper;
         this.gameMapMapper = gameMapMapper;
         this.buildingMapper = buildingMapper;
         this.spriteService = spriteService;
         this.treeService = treeService;
+        this.storeService = storeService;
         this.mapId = mapId;
         // 获得地图信息
         GameMap gameMap = gameMapMapper.selectById(mapId);
@@ -354,6 +357,9 @@ public class GameMapService {
                         }
                     }
                     treeService.createRandomTree(building.getId());
+                } else if (buildingType.getId().equals("store")) { // 如果是商店
+                    // 刷新商店商品
+                    storeService.refresh(building.getId());
                 }
             } else {
                 log.info("建筑重叠，重新生成建筑");
