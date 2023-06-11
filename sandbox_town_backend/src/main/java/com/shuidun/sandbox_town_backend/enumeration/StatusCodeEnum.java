@@ -22,7 +22,9 @@ public enum StatusCodeEnum {
     ITEM_NOT_FOUND(13, "物品不存在"),
     ITEM_NOT_USABLE(14, "物品不可用"),
     PICK_APPLE_LIMIT_EXCEEDED(15, "采摘苹果次数超过限制"),
-    TREE_APPLE_PICKED(16, "苹果已被采摘完了");
+    TREE_APPLE_PICKED(16, "苹果已被采摘完了"),
+    ITEM_NOT_ENOUGH(17, "物品数量不足"),
+    MONEY_NOT_ENOUGH(18, "金钱不足");
 
     private final int code;
     private final String msg;

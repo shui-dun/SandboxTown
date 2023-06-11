@@ -29,13 +29,13 @@ public class ItemService {
     }
 
     public List<SpriteItemView> list(String playerName) {
-        return spriteItemMapper.listByOwnerId(playerName);
+        return spriteItemMapper.listSpriteItemViewByOwnerId(playerName);
     }
 
     @Transactional
     public Sprite use(String username, String itemId) {
         // 判断玩家是否拥有该物品
-        SpriteItemView spriteItemView = spriteItemMapper.getByOwnerIdAndItemId(username, itemId);
+        SpriteItemView spriteItemView = spriteItemMapper.getSpriteItemViewByOwnerIdAndItemId(username, itemId);
         if (spriteItemView == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
@@ -70,7 +70,7 @@ public class ItemService {
     @Transactional
     public void add(String username, String itemId, int count) {
         // 判断玩家是否拥有该物品
-        SpriteItemView spriteItemView = spriteItemMapper.getByOwnerIdAndItemId(username, itemId);
+        SpriteItemView spriteItemView = spriteItemMapper.getSpriteItemViewByOwnerIdAndItemId(username, itemId);
         if (spriteItemView == null) {
             // 玩家没有该物品，直接插入
             spriteItemMapper.insert(username, itemId, count);

@@ -14,7 +14,7 @@ CREATE TABLE user
     # 封禁结束时间
     ban_end_date DATETIME,
     # 作弊次数
-    cheat_count  INT DEFAULT 0,
+    cheat_count  INT      DEFAULT 0,
     # 用户创建时间
     create_date  DATETIME DEFAULT CURRENT_TIMESTAMP,
     # 上次在线（进入游戏）时间
@@ -133,7 +133,7 @@ CREATE TABLE sprite
 );
 
 INSERT INTO sprite (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
-                      height)
+                    height)
 VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 150, 150),
        ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 150, 150),
        ('user_heihei', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1', 150, 150),
@@ -155,7 +155,7 @@ CREATE TABLE item
     # 基础稀有度
     basic_rarity INT          NOT NULL DEFAULT 0,
     # 是否能直接被使用
-    usable       BIT         NOT NULL DEFAULT 0,
+    usable       BIT          NOT NULL DEFAULT 0,
     # 增加金钱
     money_inc    INT          NOT NULL DEFAULT 0,
     # 增加经验值
@@ -300,7 +300,7 @@ CREATE TABLE tree
 CREATE TABLE apple_picking
 (
     # 玩家id
-    sprite  VARCHAR(255) NOT NULL,
+    sprite    VARCHAR(255) NOT NULL,
     # 树的id
     tree      VARCHAR(255) NOT NULL,
     # 摘取的苹果数目
@@ -335,3 +335,27 @@ values ('wood', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10),
        ('stone', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10),
        ('bread', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10),
        ('apple', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10, 10);
+
+# 创建商店商品视图
+CREATE VIEW store_item_view AS
+SELECT store_item.item,
+       store_item.store,
+       store_item.count,
+       store_item.max_count,
+       store_item.price,
+       item.name,
+       description,
+       basic_price,
+       basic_rarity,
+       usable,
+       money_inc,
+       exp_inc,
+       level_inc,
+       hunger_inc,
+       hp_inc,
+       attack_inc,
+       defense_inc,
+       speed_inc
+FROM store_item
+         LEFT JOIN item ON store_item.item = item.id;
+

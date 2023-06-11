@@ -24,6 +24,7 @@ public class SpriteController {
     /** 获取角色属性信息 */
     @GetMapping("/list/{id}")
     public RestResponse<?> getSpriteById(@PathVariable("id") String id) {
+        log.info("getSpriteById: {}", id);
         return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.getSpriteInfoByID(id));
     }
 

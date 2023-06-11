@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.mapper;
 
+import com.shuidun.sandbox_town_backend.bean.SpriteItem;
 import com.shuidun.sandbox_town_backend.bean.SpriteItemView;
 import org.apache.ibatis.annotations.*;
 
@@ -9,10 +10,13 @@ import java.util.List;
 public interface SpriteItemMapper {
 
     @Select("SELECT * FROM sprite_item_view WHERE owner = #{id}")
-    public List<SpriteItemView> listByOwnerId(String id);
+    public List<SpriteItemView> listSpriteItemViewByOwnerId(String id);
 
     @Select("SELECT * FROM sprite_item_view WHERE owner = #{ownerId} AND item_id = #{itemId}")
-    SpriteItemView getByOwnerIdAndItemId(String ownerId, String itemId);
+    SpriteItemView getSpriteItemViewByOwnerIdAndItemId(String ownerId, String itemId);
+
+    @Select("SELECT * FROM sprite_item WHERE owner = #{ownerId} AND item_id = #{itemId}")
+    SpriteItem getSpriteItemByOwnerIdAndItemId(String ownerId, String itemId);
 
     @Delete("DELETE FROM sprite_item WHERE owner = #{ownerId} AND item_id = #{itemId}")
     void deleteByOwnerIdAndItemId(String ownerId, String itemId);
