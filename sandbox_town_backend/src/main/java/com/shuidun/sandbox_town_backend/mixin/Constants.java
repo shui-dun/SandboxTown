@@ -1,4 +1,4 @@
-package com.shuidun.sandbox_town_backend.enumeration;
+package com.shuidun.sandbox_town_backend.mixin;
 
 import org.springframework.beans.factory.annotation.Value;
 

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.shuidun.sandbox_town_backend.enumeration.Constants.EXP_PER_LEVEL;
+import static com.shuidun.sandbox_town_backend.mixin.Constants.EXP_PER_LEVEL;
 
 @Slf4j
 @Service

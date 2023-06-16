@@ -9,8 +9,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SpriteScheduler {
 
+
+
     @Scheduled(initialDelay = 0, fixedDelay = 1000)
     public void dog() {
-        // log.info("dog");
+
     }
 }
