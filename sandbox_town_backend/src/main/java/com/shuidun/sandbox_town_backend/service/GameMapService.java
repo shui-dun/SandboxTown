@@ -74,19 +74,34 @@ public class GameMapService {
         map = new int[gameMap.getWidth() / pixelsPerGrid][gameMap.getHeight() / pixelsPerGrid];
 
         // 生成围墙
-        generateMaze(0, 0, map.length, map[0].length);
+        generateMaze(0, 0, map.length / 2, map[0].length / 2);
 
         // 放置建筑
         placeAllBuildingsOnMap();
     }
 
+    // 画一个2x2的墙
+    private void drawWall(int x, int y) {
+        map[2 * x][2 * y] = 1;
+        map[2 * x + 1][2 * y] = 1;
+        map[2 * x][2 * y + 1] = 1;
+        map[2 * x + 1][2 * y + 1] = 1;
+    }
+
+    private void unDrawWall(int x, int y) {
+        map[2 * x][2 * y] = 0;
+        map[2 * x + 1][2 * y] = 0;
+        map[2 * x][2 * y + 1] = 0;
+        map[2 * x + 1][2 * y + 1] = 0;
+    }
+
     // 生成迷宫
     private void generateMaze(int x, int y, int w, int h) {
-        if (w < 35 || h < 35) {
+        if (w < 20 || h < 20) {
             return;
         }
 
-        if (w < 70 || h < 70) {
+        if (w < 40 || h < 40) {
             if (random.nextDouble() < 0.5) {
                 return;
             }
@@ -97,7 +112,7 @@ public class GameMapService {
 
         // 画水平墙
         for (int i = x; i < x + w; i++) {
-            map[i][midY] = 1;
+            drawWall(i, midY);
         }
 
         // 拆除一部分，以保证可以通行
@@ -105,33 +120,33 @@ public class GameMapService {
         int beginX = x + random.nextInt(w / 2 - holeLen - 1);
         int endX = beginX + holeLen;
         for (int i = beginX; i < endX; i++) {
-            map[i][midY] = 0;
+            unDrawWall(i, midY);
         }
 
         holeLen = 6 + random.nextInt(5);
         beginX = x + w / 2 + random.nextInt(w / 2 - holeLen - 1);
         endX = beginX + holeLen;
         for (int i = beginX; i < endX; i++) {
-            map[i][midY] = 0;
+            unDrawWall(i, midY);
         }
 
         // 画竖直墙
         for (int i = y; i < y + h; i++) {
-            map[midX][i] = 1;
+            drawWall(midX, i);
         }
 
         holeLen = 6 + random.nextInt(5);
         int beginY = y + random.nextInt(h / 2 - holeLen - 1);
         int endY = beginY + holeLen;
         for (int i = beginY; i < endY; i++) {
-            map[midX][i] = 0;
+            unDrawWall(midX, i);
         }
 
         holeLen = 6 + random.nextInt(5);
         beginY = y + h / 2 + random.nextInt(h / 2 - holeLen - 1);
         endY = beginY + holeLen;
         for (int i = beginY; i < endY; i++) {
-            map[midX][i] = 0;
+            unDrawWall(midX, i);
         }
 
         // Recursively generate maze in each quadrant

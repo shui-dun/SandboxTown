@@ -103,7 +103,6 @@ public class StoreService {
                     // 如果该物品已经在商店中了，那么更新
                     // 这里要关闭缓存，否则会出现脏读
                     StoreItem storeItem = storeItemMapper.selectByStoreAndItem(store, item.getId());
-                    log.info("storeItem: {} store: {}, item: {}, count: {}", storeItem, store, item.getId(), itemCount);
                     if (storeItem != null) {
                         storeItem.setCount(storeItem.getCount() + itemCount);
                         storeItemMapper.updateByStoreAndItem(storeItem);
