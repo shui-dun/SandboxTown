@@ -5,7 +5,7 @@ import myUtils from "@/js/myUtils.js";
 var id2gameObject = {};
 
 // 设置id->sprite的映射
-var id2sprite = {};
+var id2spriteInfo = {};
 
 // websocket连接
 var ws = null;
@@ -104,7 +104,7 @@ const mainScene = {
             // 如果是移动
             if (response.type === 'MOVE') {
                 // 移动事件的发起者
-                let initatorSprite = id2sprite[response.data.id];
+                let initatorSprite = id2spriteInfo[response.data.id];
                 // 物品
                 let initatorGameObject = id2gameObject[response.data.id];
                 // 速度
@@ -174,6 +174,16 @@ const mainScene = {
                 self.matter.body.setPosition(gameObject.body, { x: response.data.x, y: response.data.y });
             } else if (response.type === 'ONLINE') { // 如果是上线通知
                 createSprite(response.data, self);
+            } else if (response.type === 'OFFLINE') { // 如果是下线通知
+                // 删除角色以及角色的宠物
+                for (let spriteId in id2gameObject) {
+                    // 如果是该角色的宠物或者是该角色，就删除
+                    if (id2spriteInfo[spriteId].owner === response.data.id || spriteId === response.data.id) {
+                        id2gameObject[spriteId].destroy();
+                        delete id2gameObject[spriteId];
+                        delete id2spriteInfo[spriteId];
+                    }
+                }
             }
         }
 
@@ -273,11 +283,11 @@ const mainScene = {
         let lastAxisMap = {}
         setInterval(() => {
             // 遍历所有角色
-            for (let id in id2sprite) {
+            for (let id in id2spriteInfo) {
                 // 如果角色是自己、主人是自己、公共NPC（例如蜘蛛）
                 if (id === myUsername ||
-                    id2sprite[id].owner === myUsername ||
-                    (id2sprite[id].owner == null && id2sprite[id].type !== "user")) {
+                    id2spriteInfo[id].owner === myUsername ||
+                    (id2spriteInfo[id].owner == null && id2spriteInfo[id].type !== "user")) {
                     // 如果上一次发送的位置和当前位置不同
                     if (lastAxisMap[id] == null ||
                         lastAxisMap[id].x !== id2gameObject[id].x ||
@@ -363,7 +373,7 @@ const mainScene = {
         }
         // // 根据方向键输入更新角色速度
         let me = id2gameObject[myUsername];
-        let speed = id2sprite[myUsername].speed;
+        let speed = id2spriteInfo[myUsername].speed;
         if (this.cursors.left.isDown) {
             me.setVelocityX(-speed);
         } else if (this.cursors.right.isDown) {
@@ -397,15 +407,15 @@ function convertToCenter(gameObject, x, y) {
 }
 
 // 创建角色
-function createSprite(sprite, self) {
+function createSprite(sprite, scene) {
     // 如果角色已经存在，则不再创建
-    if (id2sprite[sprite.id] != null) {
+    if (id2spriteInfo[sprite.id] != null) {
         return;
     }
     // 将其加入id2sprite
-    id2sprite[sprite.id] = sprite;
+    id2spriteInfo[sprite.id] = sprite;
     // 创建角色
-    let spriteSprite = self.matter.add.sprite(0, 0, sprite.type, null, { shape: collapseShapes[sprite.type] });
+    let spriteSprite = scene.matter.add.sprite(0, 0, sprite.type, null, { shape: collapseShapes[sprite.type] });
     // 设置角色大小和位置
     spriteSprite.setDisplaySize(sprite.width, sprite.height);
     spriteSprite.setPosition(sprite.x, sprite.y);
@@ -418,12 +428,12 @@ function createSprite(sprite, self) {
     spriteSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
         // 鼠标左键点击
         if (pointer.button === 0) {
-            self.game.events.emit('showAttributeList', { "itemID": sprite.id });
+            scene.game.events.emit('showAttributeList', { "itemID": sprite.id });
         } else if (pointer.button === 2) { // 鼠标右键点击
             // TO-DO: 发送攻击请求
         }
         // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
-        self.input.mouse.disableContextMenu();
+        scene.input.mouse.disableContextMenu();
         // 阻止事件冒泡
         event.stopPropagation();
     });

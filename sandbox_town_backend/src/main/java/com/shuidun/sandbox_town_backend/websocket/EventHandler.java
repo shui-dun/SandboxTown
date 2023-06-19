@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.EventMessage;
 import com.shuidun.sandbox_town_backend.bean.Point;
+import com.shuidun.sandbox_town_backend.bean.Sprite;
 import com.shuidun.sandbox_town_backend.bean.WSResponse;
 import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
@@ -27,10 +28,6 @@ public class EventHandler {
     // 事件类型 -> 处理函数
     private Map<EventEnum, BiFunction<String, Map<String, Object>, Void>> eventMap = new HashMap<>();
 
-    private final SpriteService spriteService;
-
-    private final GameMapService gameMapService;
-
     public void handle(EventMessage eventMessage) {
         try {
             // 如果类型是空，就不处理
@@ -44,13 +41,18 @@ public class EventHandler {
     }
 
     public EventHandler(SpriteService spriteService, GameMapService gameMapService) {
-        this.spriteService = spriteService;
-        this.gameMapService = gameMapService;
 
 
         // 下线事件
         eventMap.put(EventEnum.OFFLINE, (initiator, data) -> {
-            // TO-DO: 删除角色以及其宠物坐标等信息
+            // 读取角色的所有宠物
+            List<Sprite> pets = spriteService.selectByOwner(initiator);
+            // 删除角色以及其宠物坐标等信息
+            GameCache.spriteAxis.remove(initiator);
+            pets.forEach(pet -> GameCache.spriteAxis.remove(pet.getId()));
+            // 通知其他玩家
+            WSResponse wsResponse = new WSResponse(WSResponseEnum.OFFLINE, Map.of("id", initiator));
+            WSManager.sendMessageToAllUsers(wsResponse);
             return null;
         });
 
@@ -69,18 +71,18 @@ public class EventHandler {
             GameCache.spriteAxis.put(id, position);
             // 广播给其他玩家
             // 如果是第一次通报坐标信息，说明刚上线，需要广播上线信息
+            WSResponse response;
             if (isFirstTime) {
                 // 广播上线信息
-                var response = new WSResponse(WSResponseEnum.ONLINE, JSONObject.parseObject(JSON.toJSONString(spriteService.getSpriteInfoByID(id)), Map.class));
-                WSManager.sendMessageToAllUsers(response);
+                response = new WSResponse(WSResponseEnum.ONLINE, JSONObject.parseObject(JSON.toJSONString(spriteService.getSpriteInfoByID(id)), Map.class));
             } else { // 如果不是第一次通报坐标信息，只需广播坐标信息
-                var response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
+                response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
                         "id", id,
                         "x", x,
                         "y", y
                 ));
-                WSManager.sendMessageToAllUsers(response);
             }
+            WSManager.sendMessageToAllUsers(response);
             return null;
         });
 

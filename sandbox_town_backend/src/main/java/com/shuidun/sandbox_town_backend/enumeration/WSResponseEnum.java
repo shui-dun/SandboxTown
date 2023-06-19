@@ -17,4 +17,7 @@ public enum WSResponseEnum {
     // 上线
     // {"id": "user_xixi", "x": 1, "y": 2, "type": "user", "level": 1, "owner": null, ...}
     ONLINE,
+    // 下线
+    // {"id": "user_xixi"}
+    OFFLINE,
 }

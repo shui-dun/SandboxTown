@@ -158,11 +158,16 @@ public class SpriteService {
         return sprites;
     }
 
-    public MyAndMyPetInfo getMyAndMyPetInfo(String username) {
+    public MyAndMyPetInfo getMyAndMyPetInfo(String ownerId) {
         MyAndMyPetInfo myAndMyPetInfo = new MyAndMyPetInfo();
-        myAndMyPetInfo.setMe(spriteMapper.getSpriteById(username));
-        myAndMyPetInfo.setMyPets(spriteMapper.selectByOwner(username));
+        myAndMyPetInfo.setMe(spriteMapper.getSpriteById(ownerId));
+        myAndMyPetInfo.setMyPets(spriteMapper.selectByOwner(ownerId));
         return myAndMyPetInfo;
+    }
+
+    // 得到玩家的所有宠物
+    public List<Sprite> selectByOwner(String ownerId) {
+        return spriteMapper.selectByOwner(ownerId);
     }
 
     // 得到所有未被玩家拥有的角色
