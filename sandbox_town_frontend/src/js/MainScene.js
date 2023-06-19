@@ -382,14 +382,14 @@ function closeGame() {
     scene = null;
 }
 
-function websocketOnMessage(event) {
+async function websocketOnMessage(event) {
     let response = JSON.parse(event.data);
     // 如果是移动
     if (response.type === 'MOVE') {
         // 移动事件的发起者
-        let initatorSprite = id2spriteInfo[response.data.id];
+        let initatorSprite = await getSpriteInfoById(response.data.id);
         // 物品
-        let initatorGameObject = id2gameObject[response.data.id];
+        let initatorGameObject = await getGameObjectById(response.data.id);
         // 速度
         let speed = response.data.speed;
         // 路径
@@ -452,7 +452,7 @@ function websocketOnMessage(event) {
         lastTween = tween;
     } else if (response.type === 'COORDINATE') { // 如果是坐标通知                
         // 游戏对象
-        let gameObject = id2gameObject[response.data.id];
+        let gameObject = await getGameObjectById(response.data.id);
         // 更新其坐标
         scene.matter.body.setPosition(gameObject.body, { x: response.data.x, y: response.data.y });
     } else if (response.type === 'ONLINE') { // 如果是上线通知
@@ -472,8 +472,9 @@ function websocketOnMessage(event) {
 
 function createWebSocket() {
     console.log("call createWebSocket");
-    // 如果上次调用该函数的时间距离现在小于5秒，就不执行操作
-    if (lastCreateWsTime != null && new Date().getTime() - lastCreateWsTime < 5000) {
+    // 如果上次调用该函数的时间距离现在小于3秒，就等待3秒再调用
+    if (lastCreateWsTime != null && new Date().getTime() - lastCreateWsTime < 3000) {
+        setTimeout(createWebSocket, 3000);
         return;
     }
     console.log("createWebSocket");
@@ -482,6 +483,26 @@ function createWebSocket() {
     ws.onclose = createWebSocket;
     ws.onerror = createWebSocket;
     lastCreateWsTime = new Date().getTime();
+}
+
+// 根据id获得游戏对象（不存在时会自动创建）
+async function getGameObjectById(id) {
+    // 如果id2gameObject中不存在该id，说明是网络问题，例如ONLINE消息丢失，需要手动从后端获得
+    if (id2gameObject[id] == null) {
+        let response = await myUtils.myGET(`/rest/sprite/list/${id}`);
+        createSprite(response);
+    }
+    return id2gameObject[id];
+}
+
+// 根据id获得精灵信息（不存在时会自动创建）
+async function getSpriteInfoById(id) {
+    // 如果id2gameObject中不存在该id，说明是网络问题，例如ONLINE消息丢失，需要手动从后端获得
+    if (id2spriteInfo[id] == null) {
+        let response = await myUtils.myGET(`/rest/sprite/list/${id}`);
+        createSprite(response);
+    }
+    return id2spriteInfo[id];
 }
 
 export { mainScene, closeGame };
