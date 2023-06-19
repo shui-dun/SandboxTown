@@ -33,10 +33,13 @@ var collapseShapes = null;
 // 点击形状
 var clickShapes = null;
 
+// 保存所有计时器
+var timerList = [];
+
 const mainScene = {
     key: 'main',
     preload: function () {
-        reinit();
+        closeGame();
         this.load.image("user", require("@/assets/img/user.png"));
         this.load.image("dog", require("@/assets/img/dog.png"));
         this.load.image("cat", require("@/assets/img/cat.png"));
@@ -87,9 +90,6 @@ const mainScene = {
         }
 
         // 建立websocket连接
-        if (ws != null) {
-            ws.close();
-        }
         ws = new WebSocket("ws://localhost:9090/event");
 
         // 加载完成
@@ -97,9 +97,6 @@ const mainScene = {
 
         ws.onopen = function () {
             console.log("Connection open ...");
-            ws.send(JSON.stringify({
-                "type": "online",
-            }));
         };
 
         let lastTween = null;
@@ -285,7 +282,11 @@ const mainScene = {
         // 只发送自己、主人是自己、公共NPC（例如蜘蛛）的角色的坐标信息
         // 记录上一次发送的位置
         let lastAxisMap = {}
-        setInterval(() => {
+        timerList.push(setInterval(() => {
+            // 如果连接未建立，就不发送
+            if (ws.readyState !== 1) {
+                return;
+            }
             // 遍历所有角色
             for (let id in id2spriteInfo) {
                 // 如果角色是自己、主人是自己、公共NPC（例如蜘蛛）
@@ -313,7 +314,7 @@ const mainScene = {
                     }
                 }
             }
-        }, 100);
+        }, 100));
 
 
         // 碰撞检测
@@ -445,9 +446,12 @@ function createSprite(sprite, scene) {
     id2gameObject[sprite.id] = spriteSprite;
 }
 
-function reinit() {
+function closeGame() {
     id2gameObject = {};
     id2spriteInfo = {};
+    if (ws != null) {
+        ws.close();
+    }
     ws = null;
     gameMap = null;
     myUsername = null;
@@ -457,6 +461,10 @@ function reinit() {
     isLoaded = false;
     collapseShapes = null;
     clickShapes = null;
+    // 清除所有定时器
+    for (let i = 0; i < timerList.length; i++) {
+        clearTimeout(timerList[i]);
+    }
 }
 
-export default mainScene;
+export { mainScene, closeGame };

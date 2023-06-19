@@ -4,7 +4,7 @@
   
 <script>
 import Phaser from "phaser";
-import mainScene from "../js/MainScene.js";
+import {mainScene, closeGame} from "../js/MainScene.js";
 import storeScene from "../js/StoreScene.js";
 import myUtils from "@/js/myUtils.js";
 
@@ -65,6 +65,10 @@ export default {
 
     },
     methods: {
+    },
+    unmounted() {
+        this.game.destroy(true);
+        closeGame();
     },
 };
 
