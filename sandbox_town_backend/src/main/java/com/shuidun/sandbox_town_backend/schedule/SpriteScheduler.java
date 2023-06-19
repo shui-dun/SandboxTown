@@ -28,25 +28,25 @@ public class SpriteScheduler {
         // 狗的处理函数
         typeToFunction.put("dog", sprite -> {
             // 获得狗的主人
-            // String owner = sprite.getOwner();
-            // // 如果狗没有主人
-            // if (owner == null) {
-            //     // 随机移动
-            //     if (GameCache.random.nextDouble() < 0.5) {
-            //         return null;
-            //     }
-            //     double randomVx = sprite.getSpeed() * (Math.random() - 0.5);
-            //     double randomVy = sprite.getSpeed() * (Math.random() - 0.5);
-            //     WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.COORDINATE, Map.of(
-            //             "id", sprite.getId(),
-            //             "x", sprite.getX(),
-            //             "y", sprite.getY(),
-            //             "vx", randomVx,
-            //             "vy", randomVy
-            //     )));
-            // } else {
-            //     // TO-DO: 如果狗有主人，那么狗就跟着主人走
-            // }
+            String owner = sprite.getOwner();
+            // 如果狗没有主人
+            if (owner == null) {
+                // 随机移动
+                if (GameCache.random.nextDouble() < 0.5) {
+                    return null;
+                }
+                double randomVx = sprite.getSpeed() * (Math.random() - 0.5);
+                double randomVy = sprite.getSpeed() * (Math.random() - 0.5);
+                WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.COORDINATE, Map.of(
+                        "id", sprite.getId(),
+                        "x", sprite.getX(),
+                        "y", sprite.getY(),
+                        "vx", randomVx,
+                        "vy", randomVy
+                )));
+            } else {
+                // TO-DO: 如果狗有主人，那么狗就跟着主人走
+            }
             return null;
         });
 

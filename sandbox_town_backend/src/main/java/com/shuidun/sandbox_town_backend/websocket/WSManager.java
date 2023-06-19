@@ -21,14 +21,16 @@ public class WSManager {
         var message = new TextMessage(JSONObject.toJSONString(response));
         // 得到会话
         WebSocketSession session = WSManager.usernameSession.get(username);
-        try {
-            if (!session.isOpen()) {
-                WSManager.usernameSession.remove(username, session);
-            } else {
-                session.sendMessage(message);
+        synchronized (session) {
+            try {
+                if (!session.isOpen()) {
+                    WSManager.usernameSession.remove(username, session);
+                } else {
+                    session.sendMessage(message);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -44,14 +46,21 @@ public class WSManager {
             String userName = entry.getKey();
             // 会话
             WebSocketSession session = entry.getValue();
-            try {
-                if (!session.isOpen()) {
-                    WSManager.usernameSession.remove(userName, session);
-                } else {
-                    session.sendMessage(message);
+            // 之所以在这里上锁，是为了防止如下报错：
+            // java.lang.IllegalStateException: The remote endpoint was in state [TEXT_PARTIAL_WRITING] which is an invalid state for called method
+            // 该报错指的是在没有完成当前消息发送的情况下就试图发送新的消息。
+            // 在WebSocket中，你不能同时发送多个消息，必须等待当前的消息发送完成后才能发送下一个消息
+            // 因此使用同步（synchronized）来确保在发送新的消息之前已经完成了当前消息的发送
+            synchronized (session) {
+                try {
+                    if (!session.isOpen()) {
+                        WSManager.usernameSession.remove(userName, session);
+                    } else {
+                        session.sendMessage(message);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
 
