@@ -10,6 +10,9 @@ var id2spriteInfo = {};
 // websocket连接
 var ws = null;
 
+// 上一次创建ws的时间
+var lastCreateWsTime = null;
+
 // 地图信息
 var gameMap = null;
 
@@ -36,10 +39,15 @@ var clickShapes = null;
 // 保存所有计时器
 var timerList = [];
 
+// 上一个动画
+var lastTween = null;
+
+// scene的指针
+var scene = null;
+
 const mainScene = {
     key: 'main',
     preload: function () {
-        closeGame();
         this.load.image("user", require("@/assets/img/user.png"));
         this.load.image("dog", require("@/assets/img/dog.png"));
         this.load.image("cat", require("@/assets/img/cat.png"));
@@ -57,11 +65,10 @@ const mainScene = {
 
     },
     create: async function () {
-        // 由于js的函数内部this指向会变化，所以先将this保存到self中
-        let self = this;
+        scene = this;
 
         // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
-        self.input.mouse.disableContextMenu();
+        this.input.mouse.disableContextMenu();
 
         // 得到地图信息
         gameMap = await myUtils.myGET('/rest/gamemap/getGameMap');
@@ -86,115 +93,14 @@ const mainScene = {
         // 获得登录奖励
         let loginReward = await myUtils.myPOST('/rest/user/enterGameToReceiveReward');
         if (loginReward != 0) {
-            self.game.events.emit('showFadeInfo', { 'msg': '登录奖励: ' + loginReward + '金币💰' });
+            scene.game.events.emit('showFadeInfo', { 'msg': '登录奖励: ' + loginReward + '金币💰' });
         }
 
         // 建立websocket连接
-        ws = new WebSocket("ws://localhost:9090/event");
+        createWebSocket();
 
         // 加载完成
         isLoaded = true;
-
-        ws.onopen = function () {
-            console.log("Connection open ...");
-        };
-
-        let lastTween = null;
-        ws.onmessage = function (event) {
-            let response = JSON.parse(event.data);
-            // 如果是移动
-            if (response.type === 'MOVE') {
-                // 移动事件的发起者
-                let initatorSprite = id2spriteInfo[response.data.id];
-                // 物品
-                let initatorGameObject = id2gameObject[response.data.id];
-                // 速度
-                let speed = response.data.speed;
-                // 路径
-                let originPath = response.data.path;
-                // 终点id
-                let dest_id = response.data.dest_id;
-                // 目的地的到达事件
-                let arriveEvent = () => {
-                    // 如果是其他玩家或者其他玩家的宠物，就不触发到达事件
-                    if ((initatorSprite.id.startsWith("user") && initatorSprite.id != myUsername) ||
-                        (initatorSprite.owner != null && initatorSprite.owner != myUsername)) {
-                        return;
-                    }
-                    if (dest_id != null) {
-                        self.game.events.emit('ArriveAtTarget', { "type": dest_id.split("_", 2)[0], "targetID": dest_id });
-                    }
-                };
-                // 如果不存在路径，就直接到达终点
-                if (originPath == null) {
-                    arriveEvent();
-                    return;
-                }
-                // 创建补间动画
-                const path = new Phaser.Curves.Path(originPath[0], originPath[1]);
-                let lastPos = originPath.length;
-                // 如果终点类型是建筑，提前几步终止，防止到达终点后因为卡进建筑而抖动
-                if (dest_id != null && buildingTypes.map(item => item.id).indexOf(dest_id.split("_", 2)[0]) != -1) {
-                    lastPos -= 6;
-                }
-                // 如果路径长度为0，就直接到达终点
-                if (lastPos <= 2) {
-                    arriveEvent();
-                    return;
-                }
-                for (let i = 2; i < lastPos; i += 2) {
-                    path.lineTo(originPath[i], originPath[i + 1]);
-                }
-                let tweenProgress = { value: 0 };
-                if (lastTween != null) {
-                    // 如果上一个补间动画还没结束，就停止上一个补间动画
-                    lastTween.stop();
-                }
-                let tween = self.tweens.add({
-                    targets: tweenProgress,
-                    value: 1,
-                    duration: 18 * path.getLength() / speed,
-                    ease: 'Linear',
-                    repeat: 0,
-                    onUpdate: () => {
-                        const point = path.getPoint(tweenProgress.value);
-                        self.matter.body.setPosition(initatorGameObject.body, { x: point.x, y: point.y });
-                    },
-                    onComplete: () => {
-                        if (this.isStopped) {
-                            return;
-                        }
-                        arriveEvent();
-                    }
-                });
-                lastTween = tween;
-            } else if (response.type === 'COORDINATE') { // 如果是坐标通知                
-                // 游戏对象
-                let gameObject = id2gameObject[response.data.id];
-                // 更新其坐标
-                self.matter.body.setPosition(gameObject.body, { x: response.data.x, y: response.data.y });
-            } else if (response.type === 'ONLINE') { // 如果是上线通知
-                createSprite(response.data, self);
-            } else if (response.type === 'OFFLINE') { // 如果是下线通知
-                // 删除角色以及角色的宠物
-                for (let spriteId in id2gameObject) {
-                    // 如果是该角色的宠物或者是该角色，就删除
-                    if (id2spriteInfo[spriteId].owner === response.data.id || spriteId === response.data.id) {
-                        id2gameObject[spriteId].destroy();
-                        delete id2gameObject[spriteId];
-                        delete id2spriteInfo[spriteId];
-                    }
-                }
-            }
-        }
-
-        ws.onerror = function (event) {
-            console.log(`Connection error:`, event);
-        };
-
-        ws.onclose = function () {
-            console.log("Connection closed.");
-        };
 
         // 设置地图大小
         this.matter.world.setBounds(0, 0, gameMap.width, gameMap.height);
@@ -287,6 +193,12 @@ const mainScene = {
             if (ws.readyState !== 1) {
                 return;
             }
+            // 以一定概率切断链接（用于测试）
+            // if (Math.random() > 0.995) {
+            //     console.log("active Connection closed.");
+            //     ws.close();
+            //     return;
+            // }
             // 遍历所有角色
             for (let id in id2spriteInfo) {
                 // 如果角色是自己、主人是自己、公共NPC（例如蜘蛛）
@@ -358,7 +270,7 @@ const mainScene = {
                 }
             }));
             // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
-            self.input.mouse.disableContextMenu();
+            scene.input.mouse.disableContextMenu();
         });
 
         // 创建小地图
@@ -412,7 +324,7 @@ function convertToCenter(gameObject, x, y) {
 }
 
 // 创建角色
-function createSprite(sprite, scene) {
+function createSprite(sprite) {
     // 如果角色已经存在，则不再创建
     if (id2spriteInfo[sprite.id] != null) {
         return;
@@ -465,6 +377,111 @@ function closeGame() {
     for (let i = 0; i < timerList.length; i++) {
         clearTimeout(timerList[i]);
     }
+    lastCreateWsTime = null;
+    lastTween = null;
+    scene = null;
+}
+
+function websocketOnMessage(event) {
+    let response = JSON.parse(event.data);
+    // 如果是移动
+    if (response.type === 'MOVE') {
+        // 移动事件的发起者
+        let initatorSprite = id2spriteInfo[response.data.id];
+        // 物品
+        let initatorGameObject = id2gameObject[response.data.id];
+        // 速度
+        let speed = response.data.speed;
+        // 路径
+        let originPath = response.data.path;
+        // 终点id
+        let dest_id = response.data.dest_id;
+        // 目的地的到达事件
+        let arriveEvent = () => {
+            // 如果是其他玩家或者其他玩家的宠物，就不触发到达事件
+            if ((initatorSprite.id.startsWith("user") && initatorSprite.id != myUsername) ||
+                (initatorSprite.owner != null && initatorSprite.owner != myUsername)) {
+                return;
+            }
+            if (dest_id != null) {
+                scene.game.events.emit('ArriveAtTarget', { "type": dest_id.split("_", 2)[0], "targetID": dest_id });
+            }
+        };
+        // 如果不存在路径，就直接到达终点
+        if (originPath == null) {
+            arriveEvent();
+            return;
+        }
+        // 创建补间动画
+        const path = new Phaser.Curves.Path(originPath[0], originPath[1]);
+        let lastPos = originPath.length;
+        // 如果终点类型是建筑，提前几步终止，防止到达终点后因为卡进建筑而抖动
+        if (dest_id != null && buildingTypes.map(item => item.id).indexOf(dest_id.split("_", 2)[0]) != -1) {
+            lastPos -= 6;
+        }
+        // 如果路径长度为0，就直接到达终点
+        if (lastPos <= 2) {
+            arriveEvent();
+            return;
+        }
+        for (let i = 2; i < lastPos; i += 2) {
+            path.lineTo(originPath[i], originPath[i + 1]);
+        }
+        let tweenProgress = { value: 0 };
+        if (lastTween != null) {
+            // 如果上一个补间动画还没结束，就停止上一个补间动画
+            lastTween.stop();
+        }
+        let tween = scene.tweens.add({
+            targets: tweenProgress,
+            value: 1,
+            duration: 18 * path.getLength() / speed,
+            ease: 'Linear',
+            repeat: 0,
+            onUpdate: () => {
+                const point = path.getPoint(tweenProgress.value);
+                scene.matter.body.setPosition(initatorGameObject.body, { x: point.x, y: point.y });
+            },
+            onComplete: () => {
+                if (this.isStopped) {
+                    return;
+                }
+                arriveEvent();
+            }
+        });
+        lastTween = tween;
+    } else if (response.type === 'COORDINATE') { // 如果是坐标通知                
+        // 游戏对象
+        let gameObject = id2gameObject[response.data.id];
+        // 更新其坐标
+        scene.matter.body.setPosition(gameObject.body, { x: response.data.x, y: response.data.y });
+    } else if (response.type === 'ONLINE') { // 如果是上线通知
+        createSprite(response.data, scene);
+    } else if (response.type === 'OFFLINE') { // 如果是下线通知
+        // 删除角色以及角色的宠物
+        for (let spriteId in id2gameObject) {
+            // 如果是该角色的宠物或者是该角色，就删除
+            if (id2spriteInfo[spriteId].owner === response.data.id || spriteId === response.data.id) {
+                id2gameObject[spriteId].destroy();
+                delete id2gameObject[spriteId];
+                delete id2spriteInfo[spriteId];
+            }
+        }
+    }
+}
+
+function createWebSocket() {
+    console.log("call createWebSocket");
+    // 如果上次调用该函数的时间距离现在小于5秒，就不执行操作
+    if (lastCreateWsTime != null && new Date().getTime() - lastCreateWsTime < 5000) {
+        return;
+    }
+    console.log("createWebSocket");
+    ws = new WebSocket("ws://localhost:9090/event");
+    ws.onmessage = websocketOnMessage;
+    ws.onclose = createWebSocket;
+    ws.onerror = createWebSocket;
+    lastCreateWsTime = new Date().getTime();
 }
 
 export { mainScene, closeGame };
