@@ -57,11 +57,16 @@ const mainScene = {
         // 得到地图信息
         gameMap = await myUtils.myGET('/rest/gamemap/getGameMap');
 
+        // 得到自己以及自己宠物的信息
+        let myAndMyPetInfo = await myUtils.myGET('/rest/sprite/myAndMyPetInfo');
         // 得到当前用户的用户名
-        myUsername = await myUtils.myGET('/rest/user/getUsername');
+        myUsername = myAndMyPetInfo.me.id;
 
-        // 得到角色列表
-        spriteList = await myUtils.myGET('/rest/sprite/listAll');
+        // 得到当前在线的角色列表
+        spriteList = await myUtils.myGET('/rest/sprite/listAllOnline');
+        // 将自己和自己的宠物加入角色列表
+        spriteList.push(myAndMyPetInfo.me);
+        spriteList.push(...myAndMyPetInfo.myPets);
 
         // 得到建筑类型列表
         buildingTypes = await myUtils.myGET('/rest/building/getAllBuildingTypes');
@@ -158,6 +163,8 @@ const mainScene = {
                 });
                 lastTween = tween;
             } else if (response.type === 'COORDINATE') { // 如果是坐标通知
+                // TO-DO: 查看是否存在该游戏对象
+                
                 // 游戏对象
                 let gameObject = id2gameObject[response.data.id];
                 // 更新其坐标

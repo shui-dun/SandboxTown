@@ -21,7 +21,7 @@ public class GameCache {
     // 建筑类型图片
     public static Map<String, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
-    /** 地图，用于寻路算法，0表示可以通过，非0表示障碍物ID的哈希值 */
+    /** 地图，用于寻路算法，0表示可以通过，1代表围墙，非0表示障碍物ID的哈希值 */
     public static int[][] map;
 
     // 角色坐标信息，保存在内存中，定期写入数据库

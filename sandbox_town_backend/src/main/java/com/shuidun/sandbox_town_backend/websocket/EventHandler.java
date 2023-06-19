@@ -56,7 +56,7 @@ public class EventHandler {
         eventMap.put(EventEnum.COORDINATE, (initiator, data) -> {
             // TO-DO: 如果是第一次通报坐标信息，说明刚上线
             // 将角色信息加入缓存
-            // 并将其他玩家的信息发送给它
+            // 并将该信息发给其他所有在线的玩家
             int x = NumUtils.toInt(data.get("x"));
             int y = NumUtils.toInt(data.get("y"));
             String id = data.get("id").toString();
@@ -78,7 +78,6 @@ public class EventHandler {
         // 想要移动
         eventMap.put(EventEnum.MOVE, (initiator, data) -> {
             log.info("MOVE: {}", data);
-            log.info("{}", data.get("dest_id"));
             int x0 = NumUtils.toInt(data.get("x0"));
             int y0 = NumUtils.toInt(data.get("y0"));
             int x1 = NumUtils.toInt(data.get("x1"));

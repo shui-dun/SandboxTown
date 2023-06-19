@@ -1,9 +1,12 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
 import com.shuidun.sandbox_town_backend.bean.GameMap;
+import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
+import com.shuidun.sandbox_town_backend.service.SpriteService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 
@@ -11,9 +14,10 @@ import org.springframework.stereotype.Component;
  * 游戏初始化器
  */
 @Component
+@Slf4j
 public class GameInitializer {
 
-    public GameInitializer(GameMapService gameMapService) {
+    public GameInitializer(GameMapService gameMapService, SpriteService spriteService) {
 
         // 获得地图信息
         GameMap gameMap = gameMapService.getGameMap();
@@ -24,10 +28,15 @@ public class GameInitializer {
         // 初始化地图
         GameCache.map = new int[gameMap.getWidth() / Constants.PIXELS_PER_GRID][gameMap.getHeight() / Constants.PIXELS_PER_GRID];
 
-        // 生成围墙
+        // 在地图上生成围墙
         gameMapService.generateMaze(GameCache.map, 0, 0, GameCache.map.length / 2, GameCache.map[0].length / 2);
 
-        // 放置建筑
+        // 在地图上放置建筑
         gameMapService.placeAllBuildingsOnMap();
+
+        // 放置没有主人的角色
+        spriteService.getUnownedSprites().forEach(sprite ->
+                GameCache.spriteAxis.put(sprite.getId(), new Point(sprite.getX(), sprite.getY()))
+        );
     }
 }

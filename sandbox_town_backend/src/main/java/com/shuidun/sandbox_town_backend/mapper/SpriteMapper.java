@@ -28,4 +28,10 @@ public interface SpriteMapper extends BaseMapper<Sprite> {
     @Select("SELECT * FROM sprite WHERE map = #{map}")
     List<Sprite> getSpritesByMap(@Param("map") String map);
 
+    @Select("SELECT * FROM sprite WHERE owner = #{owner}")
+    List<Sprite> selectByOwner(String owner);
+
+    // 得到没有主人的角色
+    @Select("SELECT * FROM sprite where owner IS NULL and type != 'user'")
+    List<Sprite> getUnownedSprites();
 }

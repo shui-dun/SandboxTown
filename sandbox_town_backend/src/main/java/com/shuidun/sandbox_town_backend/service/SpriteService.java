@@ -1,11 +1,13 @@
 package com.shuidun.sandbox_town_backend.service;
 
+import com.shuidun.sandbox_town_backend.bean.MyAndMyPetInfo;
 import com.shuidun.sandbox_town_backend.bean.Sprite;
 import com.shuidun.sandbox_town_backend.bean.SpriteType;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
 import com.shuidun.sandbox_town_backend.mapper.SpriteTypeMapper;
+import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.NameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -144,5 +146,27 @@ public class SpriteService {
         sprite.setMap(mapId);
         spriteMapper.insert(sprite);
         return sprite;
+    }
+
+    public List<Sprite> getOnlineSprites() {
+        List<Sprite> sprites = spriteMapper.selectBatchIds(GameCache.spriteAxis.keySet());
+        // 更新坐标为缓存中的最新坐标
+        for (Sprite sprite : sprites) {
+            sprite.setX(GameCache.spriteAxis.get(sprite.getId()).getX());
+            sprite.setY(GameCache.spriteAxis.get(sprite.getId()).getY());
+        }
+        return sprites;
+    }
+
+    public MyAndMyPetInfo getMyAndMyPetInfo(String username) {
+        MyAndMyPetInfo myAndMyPetInfo = new MyAndMyPetInfo();
+        myAndMyPetInfo.setMe(spriteMapper.getSpriteById(username));
+        myAndMyPetInfo.setMyPets(spriteMapper.selectByOwner(username));
+        return myAndMyPetInfo;
+    }
+
+    // 得到所有未被玩家拥有的角色
+    public List<Sprite> getUnownedSprites() {
+        return spriteMapper.getUnownedSprites();
     }
 }

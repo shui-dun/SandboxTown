@@ -41,4 +41,14 @@ public class SpriteController {
         return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.getSpritesByMap(mapId));
     }
 
+    @GetMapping("/listAllOnline")
+    public RestResponse<?> getAllOnlineSprite() {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.getOnlineSprites());
+    }
+
+    @GetMapping("myAndMyPetInfo")
+    public RestResponse<?> getMyAndMyPetInfo() {
+        String username = StpUtil.getLoginIdAsString();
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.getMyAndMyPetInfo(username));
+    }
 }
