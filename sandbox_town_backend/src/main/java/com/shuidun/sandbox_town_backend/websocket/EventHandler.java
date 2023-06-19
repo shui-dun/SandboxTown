@@ -1,5 +1,7 @@
 package com.shuidun.sandbox_town_backend.websocket;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.EventMessage;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.WSResponse;
@@ -54,24 +56,31 @@ public class EventHandler {
 
         // 告知坐标信息
         eventMap.put(EventEnum.COORDINATE, (initiator, data) -> {
-            // TO-DO: 如果是第一次通报坐标信息，说明刚上线
-            // 将角色信息加入缓存
-            // 并将该信息发给其他所有在线的玩家
             int x = NumUtils.toInt(data.get("x"));
             int y = NumUtils.toInt(data.get("y"));
+            var position = new Point(x, y);
             String id = data.get("id").toString();
+            // 如果是第一次通报坐标信息，说明刚上线
+            boolean isFirstTime = !GameCache.spriteAxis.containsKey(id);
+
             // TO-DO: 只能控制自己或者是自己的宠物或者公共npc
             // 如果是其他玩家或者是其他玩家的宠物，直接返回
-            var position = new Point(x, y);
             // 更新坐标信息
             GameCache.spriteAxis.put(id, position);
             // 广播给其他玩家
-            var response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
-                    "id", id,
-                    "x", x,
-                    "y", y
-            ));
-            WSManager.sendMessageToAllUsers(response);
+            // 如果是第一次通报坐标信息，说明刚上线，需要广播上线信息
+            if (isFirstTime) {
+                // 广播上线信息
+                var response = new WSResponse(WSResponseEnum.ONLINE, JSONObject.parseObject(JSON.toJSONString(spriteService.getSpriteInfoByID(id)), Map.class));
+                WSManager.sendMessageToAllUsers(response);
+            } else { // 如果不是第一次通报坐标信息，只需广播坐标信息
+                var response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
+                        "id", id,
+                        "x", x,
+                        "y", y
+                ));
+                WSManager.sendMessageToAllUsers(response);
+            }
             return null;
         });
 

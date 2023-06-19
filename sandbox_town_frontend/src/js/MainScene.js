@@ -28,6 +28,11 @@ var buildingList = [];
 // 是否加载完成
 var isLoaded = false;
 
+// 碰撞形状
+var collapseShapes = null;
+// 点击形状
+var clickShapes = null;
+
 const mainScene = {
     key: 'main',
     preload: function () {
@@ -77,7 +82,7 @@ const mainScene = {
         // 获得登录奖励
         let loginReward = await myUtils.myPOST('/rest/user/enterGameToReceiveReward');
         if (loginReward != 0) {
-            self.game.events.emit('showFadeInfo', {'msg': '登录奖励: ' + loginReward + '金币💰'});
+            self.game.events.emit('showFadeInfo', { 'msg': '登录奖励: ' + loginReward + '金币💰' });
         }
 
         // 建立websocket连接
@@ -162,13 +167,13 @@ const mainScene = {
                     }
                 });
                 lastTween = tween;
-            } else if (response.type === 'COORDINATE') { // 如果是坐标通知
-                // TO-DO: 查看是否存在该游戏对象
-                
+            } else if (response.type === 'COORDINATE') { // 如果是坐标通知                
                 // 游戏对象
                 let gameObject = id2gameObject[response.data.id];
                 // 更新其坐标
                 self.matter.body.setPosition(gameObject.body, { x: response.data.x, y: response.data.y });
+            } else if (response.type === 'ONLINE') { // 如果是上线通知
+                createSprite(response.data, self);
             }
         }
 
@@ -184,8 +189,8 @@ const mainScene = {
         this.matter.world.setBounds(0, 0, gameMap.width, gameMap.height);
 
         // 相机设置
-        let collapseShapes = this.cache.json.get('collapseShapes');
-        let clickShapes = this.cache.json.get('clickShapes');
+        collapseShapes = this.cache.json.get('collapseShapes');
+        clickShapes = this.cache.json.get('clickShapes');
         this.cameras.main.setBackgroundColor('#c1d275');
         this.cameras.main.setBounds(0, 0, gameMap.width, gameMap.height);
 
@@ -253,33 +258,9 @@ const mainScene = {
         // 创建所有角色
         for (let i = 0; i < spriteList.length; i++) {
             let sprite = spriteList[i];
-            // 将其加入id2sprite
-            id2sprite[sprite.id] = sprite;
             // 创建角色
-            let spriteSprite = this.matter.add.sprite(0, 0, sprite.type, null, { shape: collapseShapes[sprite.type] });
-            // 设置角色大小和位置
-            spriteSprite.setDisplaySize(sprite.width, sprite.height);
-            spriteSprite.setPosition(sprite.x, sprite.y);
-            // 设置角色层级
-            setDepth(spriteSprite);
-            // 禁止旋转
-            spriteSprite.setFixedRotation();
-            // 设置点击角色的事件
-            spriteSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes[sprite.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
-            spriteSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
-                // 鼠标左键点击
-                if (pointer.button === 0) {
-                    this.game.events.emit('showAttributeList', { "itemID": sprite.id });
-                } else if (pointer.button === 2) { // 鼠标右键点击
-                    // TO-DO: 发送攻击请求
-                }
-                // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
-                self.input.mouse.disableContextMenu();
-                // 阻止事件冒泡
-                event.stopPropagation();
-            });
-            // 放置到字典中
-            id2gameObject[sprite.id] = spriteSprite;
+            createSprite(sprite, this);
+
         }
 
         // 相机跟随自己
@@ -413,6 +394,41 @@ function convertToCenter(gameObject, x, y) {
     let massX = x + massOffsetX * gameObject.body.scale.x;
     let massY = y + massOffsetY * gameObject.body.scale.y;
     return { x: massX, y: massY };
+}
+
+// 创建角色
+function createSprite(sprite, self) {
+    // 如果角色已经存在，则不再创建
+    if (id2sprite[sprite.id] != null) {
+        return;
+    }
+    // 将其加入id2sprite
+    id2sprite[sprite.id] = sprite;
+    // 创建角色
+    let spriteSprite = self.matter.add.sprite(0, 0, sprite.type, null, { shape: collapseShapes[sprite.type] });
+    // 设置角色大小和位置
+    spriteSprite.setDisplaySize(sprite.width, sprite.height);
+    spriteSprite.setPosition(sprite.x, sprite.y);
+    // 设置角色层级
+    setDepth(spriteSprite);
+    // 禁止旋转
+    spriteSprite.setFixedRotation();
+    // 设置点击角色的事件
+    spriteSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(clickShapes[sprite.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
+    spriteSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
+        // 鼠标左键点击
+        if (pointer.button === 0) {
+            self.game.events.emit('showAttributeList', { "itemID": sprite.id });
+        } else if (pointer.button === 2) { // 鼠标右键点击
+            // TO-DO: 发送攻击请求
+        }
+        // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
+        self.input.mouse.disableContextMenu();
+        // 阻止事件冒泡
+        event.stopPropagation();
+    });
+    // 放置到字典中
+    id2gameObject[sprite.id] = spriteSprite;
 }
 
 export default mainScene;

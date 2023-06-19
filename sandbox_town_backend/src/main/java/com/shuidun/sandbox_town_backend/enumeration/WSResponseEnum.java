@@ -14,4 +14,7 @@ public enum WSResponseEnum {
     // 移动
     // {"id": "user_xixi", "speed": 1, "path": [1,3,4,9,7,10], "dest_id": "store_1"}
     MOVE,
+    // 上线
+    // {"id": "user_xixi", "x": 1, "y": 2, "type": "user", "level": 1, "owner": null, ...}
+    ONLINE,
 }
