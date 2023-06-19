@@ -36,6 +36,7 @@ var clickShapes = null;
 const mainScene = {
     key: 'main',
     preload: function () {
+        reinit();
         this.load.image("user", require("@/assets/img/user.png"));
         this.load.image("dog", require("@/assets/img/dog.png"));
         this.load.image("cat", require("@/assets/img/cat.png"));
@@ -86,6 +87,9 @@ const mainScene = {
         }
 
         // 建立websocket连接
+        if (ws != null) {
+            ws.close();
+        }
         ws = new WebSocket("ws://localhost:9090/event");
 
         // 加载完成
@@ -439,6 +443,20 @@ function createSprite(sprite, scene) {
     });
     // 放置到字典中
     id2gameObject[sprite.id] = spriteSprite;
+}
+
+function reinit() {
+    id2gameObject = {};
+    id2spriteInfo = {};
+    ws = null;
+    gameMap = null;
+    myUsername = null;
+    spriteList = [];
+    buildingTypes = [];
+    buildingList = [];
+    isLoaded = false;
+    collapseShapes = null;
+    clickShapes = null;
 }
 
 export default mainScene;
