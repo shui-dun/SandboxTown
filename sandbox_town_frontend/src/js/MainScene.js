@@ -216,6 +216,8 @@ const mainScene = {
                                 "id": id,
                                 "x": id2gameObject[id].x,
                                 "y": id2gameObject[id].y,
+                                "vx": id2gameObject[id].body.velocity.x,
+                                "vy": id2gameObject[id].body.velocity.y,
                             }
                         }));
                         // 更新上一次发送的位置
@@ -226,7 +228,7 @@ const mainScene = {
                     }
                 }
             }
-        }, 100));
+        }, 50));
 
 
         // 碰撞检测
@@ -461,6 +463,8 @@ async function websocketOnMessage(event) {
             let gameObject = await getGameObjectById(response.data.id);
             // 更新其坐标
             scene.matter.body.setPosition(gameObject.body, { x: response.data.x, y: response.data.y });
+            // 更新速度
+            scene.matter.body.setVelocity(gameObject.body, { x: response.data.vx, y: response.data.vy });
         } else if (response.type === 'ONLINE') { // 如果是上线通知
             createSprite(response.data, scene);
         } else if (response.type === 'OFFLINE') { // 如果是下线通知
@@ -479,11 +483,12 @@ async function websocketOnMessage(event) {
     }
 }
 
+// 创建websocket，如果断开就重连
 function createWebSocket() {
     console.log("call createWebSocket");
-    // 如果上次调用该函数的时间距离现在小于3秒，就等待3秒再调用
-    if (lastCreateWsTime != null && new Date().getTime() - lastCreateWsTime < 3000) {
-        setTimeout(createWebSocket, 3000);
+    // 如果上次调用该函数的时间距离现在小于1秒，就等待1秒再调用
+    if (lastCreateWsTime != null && new Date().getTime() - lastCreateWsTime < 1000) {
+        setTimeout(createWebSocket, 1000);
         return;
     }
     console.log("createWebSocket");

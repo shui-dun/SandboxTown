@@ -60,6 +60,8 @@ public class EventHandler {
         eventMap.put(EventEnum.COORDINATE, (initiator, data) -> {
             int x = NumUtils.toInt(data.get("x"));
             int y = NumUtils.toInt(data.get("y"));
+            double vx = NumUtils.toDouble(data.get("vx"));
+            double vy = NumUtils.toDouble(data.get("vy"));
             var position = new Point(x, y);
             String id = data.get("id").toString();
             // 如果是第一次通报坐标信息，说明刚上线
@@ -79,7 +81,9 @@ public class EventHandler {
                 response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
                         "id", id,
                         "x", x,
-                        "y", y
+                        "y", y,
+                        "vx", vx,
+                        "vy", vy
                 ));
             }
             WSManager.sendMessageToAllUsers(response);

@@ -1,6 +1,7 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import com.shuidun.sandbox_town_backend.bean.MyAndMyPetInfo;
+import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.Sprite;
 import com.shuidun.sandbox_town_backend.bean.SpriteType;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
@@ -38,6 +39,12 @@ public class SpriteService {
         Sprite sprite = spriteMapper.getSpriteById(id);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
+        }
+        // 看看有没有cached的坐标信息
+        Point point = GameCache.spriteAxis.get(id);
+        if (point != null) {
+            sprite.setX(point.getX());
+            sprite.setY(point.getY());
         }
         return sprite;
     }
