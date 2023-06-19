@@ -6,7 +6,7 @@ import com.shuidun.sandbox_town_backend.bean.WSResponse;
 import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
-import com.shuidun.sandbox_town_backend.mixin.GameInfo;
+import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
@@ -54,6 +54,9 @@ public class EventHandler {
 
         // 告知坐标信息
         eventMap.put(EventEnum.COORDINATE, (initiator, data) -> {
+            // TO-DO: 如果是第一次通报坐标信息，说明刚上线
+            // 将角色信息加入缓存
+            // 并将其他玩家的信息发送给它
             int x = NumUtils.toInt(data.get("x"));
             int y = NumUtils.toInt(data.get("y"));
             String id = data.get("id").toString();
@@ -61,7 +64,7 @@ public class EventHandler {
             // 如果是其他玩家或者是其他玩家的宠物，直接返回
             var position = new Point(x, y);
             // 更新坐标信息
-            GameInfo.spriteAxis.put(id, position);
+            GameCache.spriteAxis.put(id, position);
             // 广播给其他玩家
             var response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
                     "id", id,
@@ -82,7 +85,7 @@ public class EventHandler {
             int y1 = NumUtils.toInt(data.get("y1"));
             String destId = data.get("dest_id") != null ? data.get("dest_id").toString() : null;
             // 更新玩家的坐标信息
-            GameInfo.spriteAxis.put(initiator, new Point(x0, y0));
+            GameCache.spriteAxis.put(initiator, new Point(x0, y0));
             // 更新玩家的找到的路径
             // TO-DO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
             List<Point> path = gameMapService.findPath(x0, y0, x1, y1, (int) (150 * 0.65), (int) (150 * 0.75),
@@ -92,7 +95,7 @@ public class EventHandler {
                 return null;
             }
             // 更新玩家的状态
-            GameInfo.spriteStatus.put(initiator, SpriteStatus.FINDING_PATH);
+            GameCache.spriteStatus.put(initiator, SpriteStatus.FINDING_PATH);
             // 通知玩家移动
             Map<String, Object> result = new HashMap<>();
             result.put("id", initiator);

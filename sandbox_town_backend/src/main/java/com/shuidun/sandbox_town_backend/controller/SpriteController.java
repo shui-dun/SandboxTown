@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 public class SpriteController {
     private final SpriteService spriteService;
 
-    private final String mapId;
+    @Value("${mapId}")
+    private String mapId;
 
-    public SpriteController(SpriteService spriteService, @Value("${mapId}") String mapId) {
+    public SpriteController(SpriteService spriteService) {
         this.spriteService = spriteService;
-        this.mapId = mapId;
     }
 
     /** 获取角色属性信息 */

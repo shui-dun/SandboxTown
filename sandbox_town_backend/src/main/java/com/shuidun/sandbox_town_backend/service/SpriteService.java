@@ -24,12 +24,12 @@ public class SpriteService {
 
     private final SpriteTypeMapper spriteTypeMapper;
 
-    private final String mapId;
+    @Value("${mapId}")
+    private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, @Value("${mapId}") String mapId) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
-        this.mapId = mapId;
     }
 
     public Sprite getSpriteInfoByID(String id) {

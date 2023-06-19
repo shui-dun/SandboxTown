@@ -27,15 +27,15 @@ public class StoreService {
 
     private final ItemMapper itemMapper;
 
-    private final String mapId;
+    @Value("${mapId}")
+    private String mapId;
 
-    public StoreService(StoreItemMapper storeItemMapper, SpriteMapper spriteMapper, SpriteItemMapper spriteItemMapper, BuildingMapper buildingMapper, ItemMapper itemMapper, @Value("${mapId}") String mapId) {
+    public StoreService(StoreItemMapper storeItemMapper, SpriteMapper spriteMapper, SpriteItemMapper spriteItemMapper, BuildingMapper buildingMapper, ItemMapper itemMapper) {
         this.storeItemMapper = storeItemMapper;
         this.spriteMapper = spriteMapper;
         this.spriteItemMapper = spriteItemMapper;
         this.buildingMapper = buildingMapper;
         this.itemMapper = itemMapper;
-        this.mapId = mapId;
     }
 
     public List<StoreItemView> listByStore(String store) {

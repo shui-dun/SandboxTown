@@ -6,6 +6,7 @@ import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.ApplePickingMapper;
 import com.shuidun.sandbox_town_backend.mapper.TreeMapper;
+import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,15 +23,13 @@ public class TreeService {
 
     private final ItemService itemService;
 
-    private final String mapId;
+    @Value("${mapId}")
+    private String mapId;
 
-    private final Random random = new Random();
-
-    public TreeService(TreeMapper treeMapper, ApplePickingMapper applePickingMapper, ItemService itemService, @Value("${mapId}") String mapId) {
+    public TreeService(TreeMapper treeMapper, ApplePickingMapper applePickingMapper, ItemService itemService) {
         this.treeMapper = treeMapper;
         this.applePickingMapper = applePickingMapper;
         this.itemService = itemService;
-        this.mapId = mapId;
     }
 
     /**
@@ -88,7 +87,7 @@ public class TreeService {
     public void createRandomTree(String treeId) {
         Tree tree = new Tree();
         tree.setId(treeId);
-        tree.setApplesCount(1 + random.nextInt(5));
+        tree.setApplesCount(1 + GameCache.random.nextInt(5));
         tree.setMaxApplesCount(tree.getApplesCount());
         tree.setLimitPerSprite(1);
         treeMapper.insert(tree);

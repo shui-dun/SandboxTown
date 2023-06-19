@@ -20,12 +20,12 @@ public class BuildingService {
 
     private final BuildingTypeMapper buildingTypeMapper;
 
-    private final String mapId;
+    @Value("${mapId}")
+    private String mapId;
 
-    public BuildingService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, @Value("${mapId}") String mapId) {
+    public BuildingService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper) {
         this.buildingMapper = buildingMapper;
         this.buildingTypeMapper = buildingTypeMapper;
-        this.mapId = mapId;
     }
 
     // 获取所有建筑类型

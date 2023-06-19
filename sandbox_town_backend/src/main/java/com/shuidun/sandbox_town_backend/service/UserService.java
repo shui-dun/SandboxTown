@@ -31,13 +31,13 @@ public class UserService {
 
     private final SpriteMapper spriteMapper;
 
-    private final String mapId;
+    @Value("${mapId}")
+    private String mapId;
 
-    public UserService(UserMapper userMapper, UserRoleMapper userRoleMapper, SpriteMapper spriteMapper, @Value("${mapId}") String mapId) {
+    public UserService(UserMapper userMapper, UserRoleMapper userRoleMapper, SpriteMapper spriteMapper) {
         this.userMapper = userMapper;
         this.userRoleMapper = userRoleMapper;
         this.spriteMapper = spriteMapper;
-        this.mapId = mapId;
     }
 
     public User findUserByName(String username) {
