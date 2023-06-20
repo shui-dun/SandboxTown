@@ -39,8 +39,8 @@ var clickShapes = null;
 // 保存所有计时器
 var timerList = [];
 
-// 上一个动画
-var lastTween = null;
+// 角色->补间动画
+var id2tween = {};
 
 // scene的指针
 var scene = null;
@@ -380,7 +380,7 @@ function closeGame() {
         clearTimeout(timerList[i]);
     }
     lastCreateWsTime = null;
-    lastTween = null;
+    id2tween = {};
     scene = null;
 }
 
@@ -431,9 +431,9 @@ async function websocketOnMessage(event) {
                 path.lineTo(originPath[i], originPath[i + 1]);
             }
             let tweenProgress = { value: 0 };
-            if (lastTween != null) {
+            if (id2tween[response.data.id] != null) {
                 // 如果上一个补间动画还没结束，就停止上一个补间动画
-                lastTween.stop();
+                id2tween[response.data.id].stop();
             }
             let tween = scene.tweens.add({
                 targets: tweenProgress,
@@ -457,8 +457,15 @@ async function websocketOnMessage(event) {
                     arriveEvent();
                 }
             });
-            lastTween = tween;
-        } else if (response.type === 'COORDINATE') { // 如果是坐标通知                
+            id2tween[response.data.id] = tween;
+        } else if (response.type === 'COORDINATE') { // 如果是坐标通知
+            // 如果坐标通知带有速度，说明该角色在直接地移动，而非通过补间动画在移动（因为补间动画时速度为0）
+            // 因此要停止补间动画
+            if (response.data.vx != 0 || response.data.vy != 0) {
+                if (id2tween[response.data.id] != null) {
+                    id2tween[response.data.id].stop();
+                }
+            }
             // 游戏对象
             let gameObject = await getGameObjectById(response.data.id);
             // 更新其坐标
