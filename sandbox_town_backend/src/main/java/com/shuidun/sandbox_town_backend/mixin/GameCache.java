@@ -1,6 +1,7 @@
 package com.shuidun.sandbox_town_backend.mixin;
 
 import com.shuidun.sandbox_town_backend.bean.Point;
+import com.shuidun.sandbox_town_backend.bean.SpriteCache;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
 
 import java.awt.image.BufferedImage;
@@ -24,9 +25,6 @@ public class GameCache {
     /** 地图，用于寻路算法，0表示可以通过，1代表围墙，非0表示障碍物ID的哈希值 */
     public static int[][] map;
 
-    // 角色坐标信息，保存在内存中，定期写入数据库
-    public static Map<String, Point> spriteAxis = new ConcurrentHashMap<>();
-
-    // 角色状态信息，保存在内存中，不写入数据库（暂时还没用到）
-    public static Map<String, SpriteStatus> spriteStatus = new ConcurrentHashMap<>();
+    // 角色缓存信息，保存在内存中，定期写入数据库
+    public static Map<String, SpriteCache> spriteCacheMap = new ConcurrentHashMap<>();
 }

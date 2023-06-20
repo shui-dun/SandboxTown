@@ -41,10 +41,10 @@ public class SpriteService {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
         // 看看有没有cached的坐标信息
-        Point point = GameCache.spriteAxis.get(id);
-        if (point != null) {
-            sprite.setX(point.getX());
-            sprite.setY(point.getY());
+        var spriteCache = GameCache.spriteCacheMap.get(id);
+        if (spriteCache != null) {
+            sprite.setX(spriteCache.getX());
+            sprite.setY(spriteCache.getY());
         }
         return sprite;
     }
@@ -156,11 +156,11 @@ public class SpriteService {
     }
 
     public List<Sprite> getOnlineSprites() {
-        List<Sprite> sprites = spriteMapper.selectBatchIds(GameCache.spriteAxis.keySet());
+        List<Sprite> sprites = spriteMapper.selectBatchIds(GameCache.spriteCacheMap.keySet());
         // 更新坐标为缓存中的最新坐标
         for (Sprite sprite : sprites) {
-            sprite.setX(GameCache.spriteAxis.get(sprite.getId()).getX());
-            sprite.setY(GameCache.spriteAxis.get(sprite.getId()).getY());
+            sprite.setX(GameCache.spriteCacheMap.get(sprite.getId()).getX());
+            sprite.setY(GameCache.spriteCacheMap.get(sprite.getId()).getY());
         }
         return sprites;
     }

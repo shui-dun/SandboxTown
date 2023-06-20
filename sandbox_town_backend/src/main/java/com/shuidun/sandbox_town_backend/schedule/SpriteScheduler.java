@@ -55,7 +55,7 @@ public class SpriteScheduler {
     @Scheduled(initialDelay = 0, fixedDelay = 1000)
     public void schedule() {
         // 遍历所有角色
-        for (String id : GameCache.spriteAxis.keySet()) {
+        for (String id : GameCache.spriteCacheMap.keySet()) {
             // 得到其角色
             Sprite sprite = spriteService.getSpriteInfoByID(id);
             // 调用对应的处理函数

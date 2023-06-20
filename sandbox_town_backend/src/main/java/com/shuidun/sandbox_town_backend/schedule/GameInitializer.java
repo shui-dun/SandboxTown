@@ -1,7 +1,8 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
 import com.shuidun.sandbox_town_backend.bean.GameMap;
-import com.shuidun.sandbox_town_backend.bean.Point;
+import com.shuidun.sandbox_town_backend.bean.SpriteCache;
+import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
@@ -36,7 +37,13 @@ public class GameInitializer {
 
         // 放置没有主人的角色
         spriteService.getUnownedSprites().forEach(sprite ->
-                GameCache.spriteAxis.put(sprite.getId(), new Point(sprite.getX(), sprite.getY()))
+                GameCache.spriteCacheMap.put(sprite.getId(), new SpriteCache(
+                        sprite.getX(),
+                        sprite.getY(),
+                        0,
+                        0,
+                        SpriteStatus.STOPPED
+                ))
         );
     }
 }

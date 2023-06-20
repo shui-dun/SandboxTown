@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum SpriteStatus {
-    STOP,
+    STOPPED,
 
     FINDING_PATH,
 }
