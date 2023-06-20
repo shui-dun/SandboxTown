@@ -158,7 +158,10 @@ public class GameMapService {
     }
 
 
-    /** 寻路算法 */
+    /**
+     * 寻路算法
+     * 如果没有终点物体，那么destinationHashCode为null
+     * */
     public List<Point> findPath(int x0, int y0, int x1, int y1, int itemWidth, int itemHeight, Integer destinationHashCode) {
         // 将物理坐标转换为地图坐标
         int startX = x0 / Constants.PIXELS_PER_GRID;
@@ -360,5 +363,10 @@ public class GameMapService {
             }
 
         }
+    }
+
+    // 计算两点之间的距离
+    public double calcDistance(int x1, int y1, int x2, int y2) {
+        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 }

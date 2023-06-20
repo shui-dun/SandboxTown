@@ -65,9 +65,22 @@ public class UserService {
                     currentDate, null);
             userMapper.insert(user);
             userRoleMapper.insertUserRole(user.getUsername(), "normal");
-            Sprite sprite = new Sprite(user.getUsername(), "user", null,
-                    10, 0, 1, 100, 100,
-                    10, 10, 5, 0, 0, 150, 150, mapId, null);
+            Sprite sprite = new Sprite();
+            sprite.setId(user.getUsername());
+            sprite.setType("user");
+            sprite.setMoney(10);
+            sprite.setExp(0);
+            sprite.setLevel(1);
+            sprite.setHunger(100);
+            sprite.setHp(100);
+            sprite.setAttack(10);
+            sprite.setDefense(10);
+            sprite.setSpeed(5);
+            sprite.setX(0);
+            sprite.setY(0);
+            sprite.setWidth(150);
+            sprite.setHeight(150);
+            sprite.setMap(mapId);
             spriteMapper.insert(sprite);
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException(StatusCodeEnum.USER_ALREADY_EXIST);

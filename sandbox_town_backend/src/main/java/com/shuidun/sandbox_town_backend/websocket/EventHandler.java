@@ -80,7 +80,7 @@ public class EventHandler {
             WSResponse response;
             if (isFirstTime) {
                 // 广播上线信息
-                response = new WSResponse(WSResponseEnum.ONLINE, JSONObject.parseObject(JSON.toJSONString(spriteService.getSpriteInfoByID(id)), Map.class));
+                response = new WSResponse(WSResponseEnum.ONLINE, JSONObject.parseObject(JSON.toJSONString(spriteService.selectById(id)), Map.class));
             } else { // 如果不是第一次通报坐标信息，只需广播坐标信息
                 response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
                         "id", id,
@@ -112,7 +112,6 @@ public class EventHandler {
             spriteCache.setY(y0);
             spriteCache.setVx(0);
             spriteCache.setVy(0);
-            log.info("SpriteCache: {}", GameCache.spriteCacheMap.get(initiator));
             // 更新玩家的找到的路径
             // TO-DO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
             List<Point> path = gameMapService.findPath(x0, y0, x1, y1, (int) (150 * 0.65), (int) (150 * 0.75),
@@ -125,7 +124,7 @@ public class EventHandler {
             // 通知玩家移动
             Map<String, Object> result = new HashMap<>();
             result.put("id", initiator);
-            result.put("speed", spriteService.getSpriteInfoByID(initiator).getSpeed());
+            result.put("speed", spriteService.selectById(initiator).getSpeed());
             result.put("path", DataCompressor.compressPath(path));
             result.put("dest_id", data.get("dest_id"));
             WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE, result));

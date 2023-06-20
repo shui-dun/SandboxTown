@@ -1,7 +1,6 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import com.shuidun.sandbox_town_backend.bean.MyAndMyPetInfo;
-import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.Sprite;
 import com.shuidun.sandbox_town_backend.bean.SpriteType;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
@@ -35,16 +34,19 @@ public class SpriteService {
         this.spriteTypeMapper = spriteTypeMapper;
     }
 
-    public Sprite getSpriteInfoByID(String id) {
+    public Sprite selectById(String id) {
         Sprite sprite = spriteMapper.getSpriteById(id);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
-        // 看看有没有cached的坐标信息
+        // 看看有没有cached信息
         var spriteCache = GameCache.spriteCacheMap.get(id);
         if (spriteCache != null) {
             sprite.setX(spriteCache.getX());
             sprite.setY(spriteCache.getY());
+            sprite.setVx(spriteCache.getVx());
+            sprite.setVy(spriteCache.getVy());
+            sprite.setStatus(spriteCache.getStatus());
         }
         return sprite;
     }
@@ -64,7 +66,7 @@ public class SpriteService {
         } catch (BadSqlGrammarException e) {
             throw new BusinessException(StatusCodeEnum.ILLEGAL_ARGUMENT);
         }
-        return getSpriteInfoByID(id);
+        return selectById(id);
     }
 
     /** 判断角色属性值是否在合理范围内（包含升级操作） */

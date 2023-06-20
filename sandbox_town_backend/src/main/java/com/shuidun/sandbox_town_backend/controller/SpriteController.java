@@ -24,14 +24,14 @@ public class SpriteController {
     /** 获取角色属性信息 */
     @GetMapping("/list/{id}")
     public RestResponse<?> getSpriteById(@PathVariable("id") String id) {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.getSpriteInfoByID(id));
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.selectById(id));
     }
 
     /** 获取当前登陆玩家的属性信息 */
     @GetMapping("/listMine")
     public RestResponse<?> getMyPlayerInfo() {
         String username = StpUtil.getLoginIdAsString();
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.getSpriteInfoByID(username));
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.selectById(username));
     }
 
     /** 获取整个地图上的所有角色信息 */
