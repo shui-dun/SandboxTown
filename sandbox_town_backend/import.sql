@@ -66,7 +66,7 @@ VALUES ('1', 'Ⅰ', 4000, 3000, 32784924),
        ('2', 'Ⅱ', 4000, 3000, 234757802);
 
 # 创建物品表
-CREATE TABLE item
+CREATE TABLE item_type
 (
     # id 用于标识物品，比如 wood, stone
     id          VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -77,16 +77,16 @@ CREATE TABLE item
     basic_price INT          NOT NULL DEFAULT 0,
     # 稀有度（稀有度越高，商店刷出的概率越高）
     rarity      INT          NOT NULL DEFAULT 0,
-    # 是否可堆叠
-    stackable   BIT          NOT NULL DEFAULT FALSE
+    # 耐久度（耐久度越高寿命越长，-1代表无限耐久，同时也代表可堆叠）
+    durability  INT          NOT NULL DEFAULT -1
 );
 
-INSERT INTO item (id, name, description, basic_price, rarity, stackable)
-VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 5, 10, FALSE),
-       ('stone', '石头', '用于建造房屋和其他工具', 8, 7, FALSE),
-       ('bread', '面包', '具有松软的质地和微甜的口感', 5, 7, FALSE),
-       ('apple', '苹果', '禁忌和知识之果', 5, 8, FALSE),
-       ('treasure_chest', '宝箱', '打开宝箱，获得随机物品', 20, 1, FALSE);
+INSERT INTO item_type (id, name, description, basic_price, rarity, durability)
+VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 5, 10, -1),
+       ('stone', '石头', '用于建造房屋和其他工具', 8, 7, -1),
+       ('bread', '面包', '具有松软的质地和微甜的口感', 5, 7, -1),
+       ('apple', '苹果', '禁忌和知识之果', 5, 8, -1),
+       ('treasure_chest', '宝箱', '打开宝箱，获得随机物品', 20, 1, -1);
 
 # 创建角色类型表
 CREATE TABLE sprite_type
@@ -132,39 +132,29 @@ VALUES ('user', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120,
 # 创建角色表，包含玩家、宠物、怪物等角色
 CREATE TABLE sprite
 (
-    id       VARCHAR(255) NOT NULL PRIMARY KEY,
+    id      VARCHAR(255) NOT NULL PRIMARY KEY,
     # 类型
-    type     VARCHAR(255) NOT NULL,
+    type    VARCHAR(255) NOT NULL,
     # 主人
-    owner    VARCHAR(255),
+    owner   VARCHAR(255),
     # 角色的各个属性都是基础值，不包括装备、效果等加成
-    money    INT                   DEFAULT 0,
-    exp      INT          NOT NULL DEFAULT 0,
-    level    INT          NOT NULL DEFAULT 1,
-    hunger   INT          NOT NULL DEFAULT 100,
-    hp       INT          NOT NULL DEFAULT 100,
-    attack   INT          NOT NULL DEFAULT 10,
-    defense  INT          NOT NULL DEFAULT 10,
-    speed    INT          NOT NULL DEFAULT 10,
-    helmet   VARCHAR(255),
-    chest    VARCHAR(255),
-    leg      VARCHAR(255),
-    boots    VARCHAR(255),
-    handheld VARCHAR(255),
-    x        INT          NOT NULL DEFAULT 0,
-    y        INT          NOT NULL DEFAULT 0,
-    width    INT          NOT NULL DEFAULT 120,
-    height   INT          NOT NULL DEFAULT 120,
+    money   INT                   DEFAULT 0,
+    exp     INT          NOT NULL DEFAULT 0,
+    level   INT          NOT NULL DEFAULT 1,
+    hunger  INT          NOT NULL DEFAULT 100,
+    hp      INT          NOT NULL DEFAULT 100,
+    attack  INT          NOT NULL DEFAULT 10,
+    defense INT          NOT NULL DEFAULT 10,
+    speed   INT          NOT NULL DEFAULT 10,
+    x       INT          NOT NULL DEFAULT 0,
+    y       INT          NOT NULL DEFAULT 0,
+    width   INT          NOT NULL DEFAULT 120,
+    height  INT          NOT NULL DEFAULT 120,
     # 所在地图名称
-    map      VARCHAR(255) NOT NULL,
+    map     VARCHAR(255) NOT NULL,
     CONSTRAINT fk_sprite_type FOREIGN KEY (type) REFERENCES sprite_type (type),
     CONSTRAINT fk_sprite_map FOREIGN KEY (map) REFERENCES game_map (id),
-    CONSTRAINT fk_sprite_owner FOREIGN KEY (owner) REFERENCES sprite (id),
-    CONSTRAINT fk_sprite_helmet FOREIGN KEY (helmet) REFERENCES item (id),
-    CONSTRAINT fk_sprite_chest FOREIGN KEY (chest) REFERENCES item (id),
-    CONSTRAINT fk_sprite_leg FOREIGN KEY (leg) REFERENCES item (id),
-    CONSTRAINT fk_sprite_boots FOREIGN KEY (boots) REFERENCES item (id),
-    CONSTRAINT fk_sprite_handheld FOREIGN KEY (handheld) REFERENCES item (id)
+    CONSTRAINT fk_sprite_owner FOREIGN KEY (owner) REFERENCES sprite (id)
 );
 
 INSERT INTO sprite (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
@@ -204,7 +194,7 @@ create table sprite_effect
 );
 
 # 物品标签表
-create table item_label
+create table item_type_label
 (
     item  varchar(255) not null,
     # 物品的标签包含food（可食用）、usable（用品）、
@@ -213,16 +203,17 @@ create table item_label
     # 注意：food（可食用）、usable（用品）实际上也是一样的，就是可直接使用的物品，只是给前端的细分分类
     label varchar(255) not null,
     primary key (item, label),
-    foreign key (item) references item (id)
+    foreign key (item) references item_type (id)
 );
 
-insert into item_label
+insert into item_type_label
 values ('bread', 'food'),
        ('apple', 'food'),
        ('treasure_chest', 'usable');
 
 # 装备、使用、或手持该物品后对角色各个属性的增益值
-create table item_attribute
+# 注意：这些增益值指的是等级为1的物品带来的增益值，等级越高，增益值越高
+create table item_type_attribute
 (
     item        varchar(255) not null,
     # 装备（equip）、使用（use）、或手持（handheld）
@@ -247,17 +238,19 @@ create table item_attribute
     # 增加速度
     speed_inc   INT          NOT NULL DEFAULT 0,
     primary key (item, operation),
-    foreign key (item) references item (id)
+    foreign key (item) references item_type (id)
 );
 
-insert into item_attribute(item, operation, money_inc, exp_inc, level_inc, hunger_inc, hp_inc, attack_inc, defense_inc,
-                           speed_inc)
+insert into item_type_attribute(item, operation, money_inc, exp_inc, level_inc, hunger_inc, hp_inc, attack_inc,
+                                defense_inc,
+                                speed_inc)
 values ('bread', 'use', 0, 0, 0, 10, 0, 0, 0, 0),
        ('apple', 'use', 0, 4, 0, 4, 0, 0, 0, 0);
 
 
 # 装备物品后对对角色带来的特殊效果
-create table item_effect
+# 注意：这些效果的持续时间指的是等级为1的物品的效果持续时间，等级越高，持续时间越长
+create table item_type_effect
 (
     item      varchar(255) not null,
     # 装备（equip）、使用（use）、或手持（handheld）
@@ -270,63 +263,31 @@ create table item_effect
     # -1 表示永久
     duration  INT          NOT NULL DEFAULT 0,
     primary key (item, operation, effect),
-    foreign key (item) references item (id),
+    foreign key (item) references item_type (id),
     foreign key (effect) references effect (id)
 );
 
-
-# 创建角色背包表
-
-CREATE TABLE sprite_backpack
+# 创建物品表
+create table item
 (
+    id         varchar(255) not null primary key,
     owner      VARCHAR(255) NOT NULL,
     item_type  VARCHAR(255) NOT NULL,
-    # 对于可堆叠的物品，item_id就为空，否则为物品的唯一id
-    item_id    VARCHAR(255),
     item_count INT          NOT NULL DEFAULT 1,
-    PRIMARY KEY (owner, item_type),
+    # 寿命（0-100，100表示刚刚获得）
+    life       INT          NOT NULL DEFAULT 100,
+    # 等级（1-10，1表示刚刚获得）
+    level      INT          NOT NULL DEFAULT 1,
+    # 位置，包括背包（backpack）、手持（handheld）、helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）、itembar（物品栏）
+    position   VARCHAR(255) NOT NULL,
     FOREIGN KEY (owner) REFERENCES sprite (id),
-    FOREIGN KEY (item_type) REFERENCES item (id)
+    FOREIGN KEY (item_type) REFERENCES item_type (id)
 );
 
-INSERT INTO sprite_backpack(owner, item_type, item_id, item_count)
-values ('user_xixi', 'wood', null, 3),
-       ('user_xixi', 'stone', null, 1),
-       ('user_xixi', 'bread', null, 2),
-       ('user_xixi', 'apple', null, 3),
-       ('user_haha', 'wood', null, 3),
-       ('user_haha', 'stone', null, 1),
-       ('user_haha', 'bread', null, 2),
-       ('user_haha', 'apple', null, 3);
-
-
-# 玩家物品栏
-CREATE TABLE sprite_itembar
-(
-    owner      VARCHAR(255) NOT NULL,
-    item_type  VARCHAR(255) NOT NULL,
-    # 对于可堆叠的物品，item_id就为空，否则为物品的唯一id
-    item_id    VARCHAR(255),
-    item_count INT          NOT NULL DEFAULT 1,
-    PRIMARY KEY (owner, item_type),
-    FOREIGN KEY (owner) REFERENCES sprite (id),
-    FOREIGN KEY (item_type) REFERENCES item (id)
-);
-
-INSERT INTO sprite_itembar(owner, item_type, item_id, item_count)
-values ('user_xixi', 'wood', null, 3),
-       ('user_xixi', 'stone', null, 1),
-       ('user_xixi', 'bread', null, 2),
-       ('user_xixi', 'apple', null, 3),
-       ('user_haha', 'wood', null, 3),
-       ('user_haha', 'stone', null, 1),
-       ('user_haha', 'bread', null, 2),
-       ('user_haha', 'apple', null, 3),
-       ('user_heihei', 'wood', null, 3),
-       ('user_heihei', 'stone', null, 1),
-       ('user_heihei', 'bread', null, 2),
-       ('user_heihei', 'apple', null, 3);
-
+insert into item(id, owner, item_type, item_count, life, level, position)
+values ('bread', 'user_xixi', 'bread', 1, 100, 1, 'backpack'),
+       ('apple', 'user_xixi', 'apple', 2, 100, 1, 'backpack'),
+       ('treasure_chest', 'user_xixi', 'treasure_chest', 1, 100, 1, 'backpack');
 
 # 创建建筑类型表
 CREATE TABLE building_type
@@ -412,9 +373,9 @@ CREATE TABLE apple_picking
 );
 
 # 创建商店商品表
-CREATE TABLE store_item
+CREATE TABLE store_item_type
 (
-    # 商品id
+    # 商品类型
     item  VARCHAR(255) NOT NULL,
     # 商店
     store VARCHAR(255) NOT NULL,
@@ -424,12 +385,11 @@ CREATE TABLE store_item
     price INT          NOT NULL DEFAULT 0,
     PRIMARY KEY (item, store),
     CONSTRAINT fk_store_item_store FOREIGN KEY (store) REFERENCES building (id),
-    CONSTRAINT fk_store_item_item FOREIGN KEY (item) REFERENCES item (id)
+    CONSTRAINT fk_store_item_item FOREIGN KEY (item) REFERENCES item_type (id)
 );
 
-insert into store_item (item, store, count, price)
+insert into store_item_type (item, store, count, price)
 values ('wood', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10),
        ('stone', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10),
        ('bread', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10),
        ('apple', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10);
-
