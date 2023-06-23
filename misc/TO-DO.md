@@ -74,10 +74,11 @@ jsfxr
 ## 物品模块
 
 - item表：item名称、稀有度、基础价格、介绍、**耐久度**（耐久度为-1表示该物品没有耐久度，可以堆叠）等等。
-- item_label表：记录物品的标签，物品可以有多个标签，包含food（可食用）、usable（可直接使用的物品）、 handheld（可手持）、Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
+- item_label表：记录物品的标签，物品可以有多个标签，包含food（可食用）、usable（用品，即可直接使用的物品）、 weapon（武器）、Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
+- 注意：所以东西都可以手持，weapon（武器）只是给前端的一个分类
 - 装备
   - 对于前端：Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）在背包中被合并显示为装备
-  - 对于后端，handheld（可手持）、Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）统一对应:
+  - 对于后端，Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）统一对应:
     - equipment_attribute表：装备该装备后对攻击等各个属性的增益值
     - equipment_effect表，包括装备该装备后对对角色带来的特殊效果
 
@@ -90,6 +91,8 @@ jsfxr
   - sprite要添加Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）、hand（手持）
   - sprite_effect表：玩家的效果列表（只包含使用物品带来的效果以及其过期时间，装备的效果自己去equipment_effect表查）
   - sprite_itembar表：玩家物品栏
+  - sprite_item也要改，要有id和type，对于不可堆叠的物品，id唯一，对于可堆叠的，id和type一样就行了
+  - 前端：背包中右键物品将其放置到物品栏
 
 
 ## 角色模块
