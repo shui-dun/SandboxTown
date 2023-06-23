@@ -18,20 +18,20 @@ public interface SpriteMapper extends BaseMapper<Sprite> {
             ON sprite.type = sprite_type.type
             WHERE id = #{id}
             """)
-    Sprite getSpriteById(@Param("id") String id);
+    Sprite selectByIdWithType(@Param("id") String id);
 
 
     @Update("UPDATE sprite SET ${attribute} = #{value} WHERE id = #{id}")
-    void updateSpriteAttribute(@Param("id") String id, @Param("attribute") String attribute, @Param("value") int value);
+    void updateAttribute(@Param("id") String id, @Param("attribute") String attribute, @Param("value") int value);
 
     // 得到某个地图上的所有角色
     @Select("SELECT * FROM sprite WHERE map = #{map}")
-    List<Sprite> getSpritesByMap(@Param("map") String map);
+    List<Sprite> selectByMap(@Param("map") String map);
 
     @Select("SELECT * FROM sprite WHERE owner = #{owner}")
     List<Sprite> selectByOwner(String owner);
 
     // 得到没有主人的角色
     @Select("SELECT * FROM sprite where owner IS NULL and type != 'user'")
-    List<Sprite> getUnownedSprites();
+    List<Sprite> selectUnownedSprites();
 }

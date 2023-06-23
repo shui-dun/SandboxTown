@@ -15,6 +15,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.shuidun.sandbox_town_backend.mixin.Constants.EXP_PER_LEVEL;
@@ -35,7 +36,7 @@ public class SpriteService {
     }
 
     public Sprite selectById(String id) {
-        Sprite sprite = spriteMapper.getSpriteById(id);
+        Sprite sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
@@ -62,7 +63,7 @@ public class SpriteService {
     @Transactional
     public Sprite updateSpriteAttribute(String id, String attribute, int value) {
         try {
-            spriteMapper.updateSpriteAttribute(id, attribute, value);
+            spriteMapper.updateAttribute(id, attribute, value);
         } catch (BadSqlGrammarException e) {
             throw new BusinessException(StatusCodeEnum.ILLEGAL_ARGUMENT);
         }
@@ -113,7 +114,7 @@ public class SpriteService {
 
     // 得到某个地图上的所有角色
     public List<Sprite> getSpritesByMap(String map) {
-        return spriteMapper.getSpritesByMap(map);
+        return spriteMapper.selectByMap(map);
     }
 
     // 生成随机的指定类型的角色，并写入数据库
@@ -158,6 +159,9 @@ public class SpriteService {
     }
 
     public List<Sprite> getOnlineSprites() {
+        if (GameCache.spriteCacheMap.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<Sprite> sprites = spriteMapper.selectBatchIds(GameCache.spriteCacheMap.keySet());
         // 更新坐标为缓存中的最新坐标
         for (Sprite sprite : sprites) {
@@ -169,7 +173,7 @@ public class SpriteService {
 
     public MyAndMyPetInfo getMyAndMyPetInfo(String ownerId) {
         MyAndMyPetInfo myAndMyPetInfo = new MyAndMyPetInfo();
-        myAndMyPetInfo.setMe(spriteMapper.getSpriteById(ownerId));
+        myAndMyPetInfo.setMe(spriteMapper.selectByIdWithType(ownerId));
         myAndMyPetInfo.setMyPets(spriteMapper.selectByOwner(ownerId));
         return myAndMyPetInfo;
     }
@@ -181,6 +185,6 @@ public class SpriteService {
 
     // 得到所有未被玩家拥有的角色
     public List<Sprite> getUnownedSprites() {
-        return spriteMapper.getUnownedSprites();
+        return spriteMapper.selectUnownedSprites();
     }
 }

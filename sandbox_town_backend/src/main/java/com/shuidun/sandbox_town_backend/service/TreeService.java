@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Random;
 
 @Service
 public class TreeService {
@@ -49,7 +48,7 @@ public class TreeService {
             throw new BusinessException(StatusCodeEnum.TREE_APPLE_PICKED);
         }
         // 查找角色摘苹果的信息
-        ApplePicking applePicking = applePickingMapper.getApplePickingBySpriteIdAndTreeId(spriteId, treeId);
+        ApplePicking applePicking = applePickingMapper.selectById(spriteId, treeId);
         // 如果信息为空，说明角色第一次摘苹果，插入一条记录
         if (applePicking == null) {
             applePicking = new ApplePicking();
@@ -57,20 +56,20 @@ public class TreeService {
             applePicking.setTree(treeId);
             applePicking.setCount(1);
             applePicking.setPickTime(new java.util.Date());
-            applePickingMapper.insertApplePicking(applePicking);
+            applePickingMapper.insert(applePicking);
         } else {
             // 如果上次摘苹果时间超过10分钟
             if (applePicking.getPickTime().getTime() + 10 * 60 * 1000 < System.currentTimeMillis()) {
                 applePicking.setCount(1);
                 applePicking.setPickTime(new java.util.Date());
-                applePickingMapper.updateApplePicking(applePicking);
+                applePickingMapper.updateById(applePicking);
             } else {
                 // 如果上次摘苹果时间不超过一天
                 // 如果摘苹果数量小于树的限制
                 if (applePicking.getCount() < tree.getLimitPerSprite()) {
                     applePicking.setCount(applePicking.getCount() + 1);
                     applePicking.setPickTime(new java.util.Date());
-                    applePickingMapper.updateApplePicking(applePicking);
+                    applePickingMapper.updateById(applePicking);
                 } else {
                     throw new BusinessException(StatusCodeEnum.PICK_APPLE_LIMIT_EXCEEDED);
                 }

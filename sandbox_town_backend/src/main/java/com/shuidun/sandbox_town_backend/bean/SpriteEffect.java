@@ -6,24 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName("item")
+@TableName("sprite_effect")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Item {
+public class SpriteEffect {
 
-    @TableId
-    private String id;
+    private String sprite;
 
-    private String owner;
+    private String effect;
 
-    private String itemType;
-
-    private Integer itemCount;
-
-    private Integer life;
-
-    private Integer level;
-
-    private String position;
+    private Integer duration;
 }

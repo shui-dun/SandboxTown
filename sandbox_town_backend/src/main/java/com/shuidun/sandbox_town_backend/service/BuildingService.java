@@ -1,7 +1,5 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.shuidun.sandbox_town_backend.bean.Building;
 import com.shuidun.sandbox_town_backend.bean.BuildingType;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
@@ -35,6 +33,6 @@ public class BuildingService {
 
     // 查找某个地图上的所有建筑
     public List<Building> getAllBuildings() {
-        return buildingMapper.getAllBuildingsByMapId(mapId);
+        return buildingMapper.selectByMapId(mapId);
     }
 }

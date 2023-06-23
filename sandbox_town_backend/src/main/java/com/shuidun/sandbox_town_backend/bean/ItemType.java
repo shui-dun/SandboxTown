@@ -6,24 +6,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName("item")
+@TableName("item_type")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Item {
+public class ItemType {
 
     @TableId
     private String id;
 
-    private String owner;
+    private String name;
 
-    private String itemType;
+    private String description;
 
-    private Integer itemCount;
+    private Integer basicPrice;
 
-    private Integer life;
+    private Integer rarity;
 
-    private Integer level;
-
-    private String position;
+    private Integer durability;
 }

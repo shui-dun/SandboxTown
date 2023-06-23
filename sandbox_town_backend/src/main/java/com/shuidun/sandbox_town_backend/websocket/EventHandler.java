@@ -63,7 +63,7 @@ public class EventHandler {
             // 如果是第一次通报坐标信息，说明刚上线
             boolean isFirstTime = !GameCache.spriteCacheMap.containsKey(id);
 
-            // TO-DO: 只能控制自己或者是自己的宠物或者公共npc
+            // TODO: 只能控制自己或者是自己的宠物或者公共npc
             // 如果是其他玩家或者是其他玩家的宠物，直接返回
             // 更新坐标信息
             var spriteCache = GameCache.spriteCacheMap.get(id);
@@ -113,14 +113,14 @@ public class EventHandler {
             spriteCache.setVx(0);
             spriteCache.setVy(0);
             // 更新玩家的找到的路径
-            // TO-DO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
+            // TODO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
             List<Point> path = gameMapService.findPath(x0, y0, x1, y1, (int) (150 * 0.65), (int) (150 * 0.75),
                     destId != null ? destId.hashCode() : null);
             // 如果找不到路径，直接返回
             if (path == null) {
                 return null;
             }
-            // TO-DO: 更新玩家的状态
+            // TODO: 更新玩家的状态
             // 通知玩家移动
             Map<String, Object> result = new HashMap<>();
             result.put("id", initiator);

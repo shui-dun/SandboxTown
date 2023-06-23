@@ -23,11 +23,9 @@ CREATE TABLE user
 
 # 密码都是123456
 INSERT INTO user (username, password, salt)
-VALUES ('user_haha', '3ff432d13d5060159f9daf745c6c0c414624159bce95b32437e6e4c59211a144', 'I+zxIDZF1PJ/G/LGQrwtgw==');
-INSERT INTO user (username, password, salt)
-VALUES ('user_heihei', 'ed63891bacfd0861da88898ad002534f6d61058bce25c41e67b763a2d95f642a', 'ykzgDWYsa77gmD2bhMm41A==');
-INSERT INTO user (username, password, salt)
-VALUES ('user_xixi', '38232ca0c66eb3f33cc55696233fbf905fd02ceaad4242f5cd41b97b272c55d8', 'KaSg9wFMopkEaU/cDY+Xvg==');
+VALUES ('user_haha', '3ff432d13d5060159f9daf745c6c0c414624159bce95b32437e6e4c59211a144', 'I+zxIDZF1PJ/G/LGQrwtgw=='),
+       ('user_heihei', 'ed63891bacfd0861da88898ad002534f6d61058bce25c41e67b763a2d95f642a', 'ykzgDWYsa77gmD2bhMm41A=='),
+       ('user_xixi', '38232ca0c66eb3f33cc55696233fbf905fd02ceaad4242f5cd41b97b272c55d8', 'KaSg9wFMopkEaU/cDY+Xvg==');
 
 # 创建用户权限表
 CREATE TABLE user_role
@@ -40,11 +38,9 @@ CREATE TABLE user_role
 
 
 INSERT INTO user_role (username, role)
-VALUES ('user_haha', 'normal');
-INSERT INTO user_role (username, role)
-VALUES ('user_heihei', 'admin');
-INSERT INTO user_role (username, role)
-VALUES ('user_xixi', 'normal');
+VALUES ('user_haha', 'normal'),
+       ('user_heihei', 'admin'),
+       ('user_xixi', 'normal');
 
 # 创建地图表
 CREATE TABLE game_map
@@ -196,14 +192,14 @@ create table sprite_effect
 # 物品标签表
 create table item_type_label
 (
-    item  varchar(255) not null,
+    item_type varchar(255) not null,
     # 物品的标签包含food（可食用）、usable（用品）、
     # weapon（武器）、Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
     # 注意：所以东西都可以手持，所以东西都可以手持，weapon（武器）只是给前端的一个分类
     # 注意：food（可食用）、usable（用品）实际上也是一样的，就是可直接使用的物品，只是给前端的细分分类
-    label varchar(255) not null,
-    primary key (item, label),
-    foreign key (item) references item_type (id)
+    label     varchar(255) not null,
+    primary key (item_type, label),
+    foreign key (item_type) references item_type (id)
 );
 
 insert into item_type_label
@@ -215,10 +211,10 @@ values ('bread', 'food'),
 # 注意：这些增益值指的是等级为1的物品带来的增益值，等级越高，增益值越高
 create table item_type_attribute
 (
-    item        varchar(255) not null,
+    item_type   varchar(255) not null,
     # 装备（equip）、使用（use）、或手持（handheld）
     # 装备指在装备栏放置Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
-    # 使用指使用food（可食用）、usable（用品）
+    # 使用指使用food（食品）、usable（用品）
     # 手持指手持物品
     operation   varchar(255) not null,
     # 增加金钱
@@ -237,11 +233,11 @@ create table item_type_attribute
     defense_inc INT          NOT NULL DEFAULT 0,
     # 增加速度
     speed_inc   INT          NOT NULL DEFAULT 0,
-    primary key (item, operation),
-    foreign key (item) references item_type (id)
+    primary key (item_type, operation),
+    foreign key (item_type) references item_type (id)
 );
 
-insert into item_type_attribute(item, operation, money_inc, exp_inc, level_inc, hunger_inc, hp_inc, attack_inc,
+insert into item_type_attribute(item_type, operation, money_inc, exp_inc, level_inc, hunger_inc, hp_inc, attack_inc,
                                 defense_inc,
                                 speed_inc)
 values ('bread', 'use', 0, 0, 0, 10, 0, 0, 0, 0),
@@ -252,7 +248,7 @@ values ('bread', 'use', 0, 0, 0, 10, 0, 0, 0, 0),
 # 注意：这些效果的持续时间指的是等级为1的物品的效果持续时间，等级越高，持续时间越长
 create table item_type_effect
 (
-    item      varchar(255) not null,
+    item_type varchar(255) not null,
     # 装备（equip）、使用（use）、或手持（handheld）
     # 装备指在装备栏放置Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
     # 使用指使用food（可食用）、usable（用品）
@@ -262,8 +258,8 @@ create table item_type_effect
     # 持续时间（秒）
     # -1 表示永久
     duration  INT          NOT NULL DEFAULT 0,
-    primary key (item, operation, effect),
-    foreign key (item) references item_type (id),
+    primary key (item_type, operation, effect),
+    foreign key (item_type) references item_type (id),
     foreign key (effect) references effect (id)
 );
 
@@ -288,6 +284,7 @@ insert into item(id, owner, item_type, item_count, life, level, position)
 values ('bread', 'user_xixi', 'bread', 1, 100, 1, 'backpack'),
        ('apple', 'user_xixi', 'apple', 2, 100, 1, 'backpack'),
        ('treasure_chest', 'user_xixi', 'treasure_chest', 1, 100, 1, 'backpack');
+
 
 # 创建建筑类型表
 CREATE TABLE building_type
@@ -339,9 +336,6 @@ CREATE TABLE building
     CONSTRAINT fk_building_map FOREIGN KEY (map) REFERENCES game_map (id)
 );
 
-INSERT INTO building (id, type, map, level, owner, origin_x, origin_y, width, height)
-VALUES ('store_Pk86H7rTSm2XJdGoHFe-7A', 'store', '1', 1, 'user_xixi', 0, 0, 400, 400);
-
 # 创建树表
 CREATE TABLE tree
 (
@@ -376,20 +370,15 @@ CREATE TABLE apple_picking
 CREATE TABLE store_item_type
 (
     # 商品类型
-    item  VARCHAR(255) NOT NULL,
+    item_type VARCHAR(255) NOT NULL,
     # 商店
-    store VARCHAR(255) NOT NULL,
+    store     VARCHAR(255) NOT NULL,
     # 商品数量
-    count INT          NOT NULL DEFAULT 0,
+    count     INT          NOT NULL DEFAULT 0,
     # 商品价格
-    price INT          NOT NULL DEFAULT 0,
-    PRIMARY KEY (item, store),
+    price     INT          NOT NULL DEFAULT 0,
+    PRIMARY KEY (item_type, store),
     CONSTRAINT fk_store_item_store FOREIGN KEY (store) REFERENCES building (id),
-    CONSTRAINT fk_store_item_item FOREIGN KEY (item) REFERENCES item_type (id)
+    CONSTRAINT fk_store_item_item FOREIGN KEY (item_type) REFERENCES item_type (id)
 );
 
-insert into store_item_type (item, store, count, price)
-values ('wood', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10),
-       ('stone', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10),
-       ('bread', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10),
-       ('apple', 'store_Pk86H7rTSm2XJdGoHFe-7A', 10, 10);

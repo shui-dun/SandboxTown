@@ -1,22 +1,21 @@
 package com.shuidun.sandbox_town_backend.bean ;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName("sprite_item")
+@TableName("item_type_effect")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SpriteItem {
+public class ItemTypeEffect {
 
-    @TableId
-    private String owner;
+    private String itemType;
 
-    @TableId
-    private String itemId;
+    private String operation;
 
-    private Integer itemCount;
+    private String effect;
+
+    private Integer duration;
 }

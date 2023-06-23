@@ -64,7 +64,7 @@ public class UserService {
             User user = new User(username, saltAndPasswd[1], saltAndPasswd[0], null, 0,
                     currentDate, null);
             userMapper.insert(user);
-            userRoleMapper.insertUserRole(user.getUsername(), "normal");
+            userRoleMapper.insert(user.getUsername(), "normal");
             Sprite sprite = new Sprite();
             sprite.setId(user.getUsername());
             sprite.setType("user");
@@ -94,7 +94,7 @@ public class UserService {
 
     @Transactional
     public void banUser(String username, int days) {
-        Set<String> roleSet = userRoleMapper.getRolesByUserName(username);
+        Set<String> roleSet = userRoleMapper.selectByUserName(username);
         if (roleSet.contains("admin")) {
             throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
         }
@@ -109,7 +109,7 @@ public class UserService {
 
     @Transactional
     public int deleteNotAdminUser(String username) {
-        Set<String> roleSet = userRoleMapper.getRolesByUserName(username);
+        Set<String> roleSet = userRoleMapper.selectByUserName(username);
         if (roleSet.contains("admin")) {
             throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
         }
@@ -174,9 +174,9 @@ public class UserService {
             }
         }
         // 获得玩家当前金钱
-        int money = spriteMapper.getSpriteById(username).getMoney();
+        int money = spriteMapper.selectByIdWithType(username).getMoney();
         // 更新玩家金钱
-        spriteMapper.updateSpriteAttribute(username, "money", money + reward);
+        spriteMapper.updateAttribute(username, "money", money + reward);
         // 更新玩家上次登录时间
         user.setLastOnline(new Date(System.currentTimeMillis()));
         userMapper.updateById(user);

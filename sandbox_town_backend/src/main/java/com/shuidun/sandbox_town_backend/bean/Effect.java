@@ -6,24 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName("item")
+@TableName("effect")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Item {
+public class Effect {
 
     @TableId
     private String id;
 
-    private String owner;
+    private String name;
 
-    private String itemType;
-
-    private Integer itemCount;
-
-    private Integer life;
-
-    private Integer level;
-
-    private String position;
+    private String description;
 }

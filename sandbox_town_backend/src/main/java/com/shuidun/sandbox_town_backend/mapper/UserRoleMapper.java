@@ -11,10 +11,10 @@ import java.util.Set;
 public interface UserRoleMapper {
 
     @Select("select role from user_role where username=#{username}")
-    Set<String> getRolesByUserName(String username);
+    Set<String> selectByUserName(String username);
 
     @Insert("insert into user_role values (#{username}, #{role})")
-    void insertUserRole(String username, String role);
+    void insert(String username, String role);
 
     @Delete("delete from user_role where username= #{username}")
     void deleteByUsername(String username);

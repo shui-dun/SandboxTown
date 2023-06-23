@@ -16,6 +16,6 @@ public class RoleService {
     }
 
     public Set<String> getRolesByUserName(String username) {
-        return userRoleMapper.getRolesByUserName(username);
+        return userRoleMapper.selectByUserName(username);
     }
 }

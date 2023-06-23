@@ -50,7 +50,7 @@ public class UserServiceTest {
     @Test
     public void testBanUser() {
         roleSet.add("normal");
-        when(userRoleMapper.getRolesByUserName(username)).thenReturn(roleSet);
+        when(userRoleMapper.selectByUserName(username)).thenReturn(roleSet);
         when(userMapper.selectById(username)).thenReturn(user);
 
         userService.banUser(username, 3);
@@ -70,14 +70,14 @@ public class UserServiceTest {
     @Test
     public void testBanUserAdmin() {
         roleSet.add("admin");
-        when(userRoleMapper.getRolesByUserName(username)).thenReturn(roleSet);
+        when(userRoleMapper.selectByUserName(username)).thenReturn(roleSet);
 
         assertThrows(BusinessException.class, () -> userService.banUser(username, 3));
     }
 
     @Test
     public void testBanUserNotFound() {
-        when(userRoleMapper.getRolesByUserName(username)).thenReturn(roleSet);
+        when(userRoleMapper.selectByUserName(username)).thenReturn(roleSet);
         when(userMapper.selectById(username)).thenReturn(null);
 
         assertThrows(BusinessException.class, () -> userService.banUser(username, 3));

@@ -1,29 +1,19 @@
-package com.shuidun.sandbox_town_backend.bean;
+package com.shuidun.sandbox_town_backend.bean ;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@TableName("item_type_attribute")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SpriteItemView {
+public class ItemTypeAttribute {
 
-    private String owner;
+    private String itemType;
 
-    private String itemId;
-
-    private Integer itemCount;
-
-    private String name;
-
-    private String description;
-
-    private Integer basicPrice;
-
-    private Integer rarity;
-
-    private Boolean usable;
+    private String operation;
 
     private Integer moneyInc;
 

@@ -7,12 +7,12 @@ import org.apache.ibatis.annotations.Update;
 
 public interface ApplePickingMapper {
     @Insert("insert into apple_picking values (#{sprite}, #{tree}, #{count}, #{pickTime})")
-    void insertApplePicking(ApplePicking applePicking);
+    void insert(ApplePicking applePicking);
 
     @Select("select * from apple_picking where sprite = #{spriteId} and tree = #{treeId}")
-    ApplePicking getApplePickingBySpriteIdAndTreeId(String spriteId, String treeId);
+    ApplePicking selectById(String spriteId, String treeId);
 
     @Update("update apple_picking set count = #{count}, pick_time = #{pickTime} where sprite = #{sprite} and tree = #{tree}")
-    void updateApplePicking(ApplePicking applePicking);
+    void updateById(ApplePicking applePicking);
 
 }

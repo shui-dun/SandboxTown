@@ -22,9 +22,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 地图相关的服务
@@ -149,7 +146,7 @@ public class GameMapService {
         }
 
         // 获取当前地图上的所有建筑物
-        var buildings = buildingMapper.getAllBuildingsByMapId(mapId);
+        var buildings = buildingMapper.selectByMapId(mapId);
 
         // 将建筑放置在地图上
         for (Building building : buildings) {
