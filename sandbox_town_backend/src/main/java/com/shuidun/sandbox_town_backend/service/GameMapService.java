@@ -204,8 +204,8 @@ public class GameMapService {
         // 遍历建筑的每一个格子
         for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
             for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
-                // 如果当前格子已有其他建筑
-                if (!(GameCache.map[i][j] == 0 || GameCache.map[i][j] == 1)) {
+                // 如果当前格子已有其他建筑（或者围墙）
+                if (GameCache.map[i][j] != 0) {
                     // 得到当前格中心的物理坐标
                     int pixelX = i * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
                     int pixelY = j * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
@@ -281,7 +281,7 @@ public class GameMapService {
     }
 
     // 初始化地图（建造建筑等）
-    public void initGameMap(int nBuildings) {
+    public void createEnvironment(int nBuildings) {
         // 得到所有建筑类型
         var buildingTypes = buildingTypeMapper.selectList(null);
         // 首先，所有类型的建筑都有一个

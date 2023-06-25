@@ -114,7 +114,7 @@ public class SpriteService {
 
     // 得到某个地图上的所有角色
     public List<Sprite> getSpritesByMap(String map) {
-        return spriteMapper.selectByMap(map);
+        return spriteMapper.selectByMapId(map);
     }
 
     // 生成随机的指定类型的角色，并写入数据库

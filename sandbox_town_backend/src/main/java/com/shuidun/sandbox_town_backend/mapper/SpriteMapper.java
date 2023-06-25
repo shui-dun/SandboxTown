@@ -26,7 +26,7 @@ public interface SpriteMapper extends BaseMapper<Sprite> {
 
     // 得到某个地图上的所有角色
     @Select("SELECT * FROM sprite WHERE map = #{map}")
-    List<Sprite> selectByMap(@Param("map") String map);
+    List<Sprite> selectByMapId(@Param("map") String map);
 
     @Select("SELECT * FROM sprite WHERE owner = #{owner}")
     List<Sprite> selectByOwner(String owner);

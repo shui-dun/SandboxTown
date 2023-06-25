@@ -28,11 +28,11 @@ public class GameMapController {
         return new RestResponse<>(StatusCodeEnum.SUCCESS, gameMapService.getGameMap());
     }
 
-    /** 初始化地图（建造随机的生态系统等） */
+    /** 建造随机的生态系统 */
     @SaCheckRole("admin")
-    @GetMapping("/initGameMap")
-    public RestResponse<?> initGameMap(int nBuildings) {
-        gameMapService.initGameMap(nBuildings);
+    @GetMapping("/createEnvironment")
+    public RestResponse<?> createEnvironment(int nBuildings) {
+        gameMapService.createEnvironment(nBuildings);
         return new RestResponse<>(StatusCodeEnum.SUCCESS);
     }
 }

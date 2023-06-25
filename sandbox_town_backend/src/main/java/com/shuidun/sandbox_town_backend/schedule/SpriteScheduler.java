@@ -53,19 +53,16 @@ public class SpriteScheduler {
                     return null;
                 }
                 SpriteCache ownerSprite = GameCache.spriteCacheMap.get(owner);
-                log.info("ownerSprite: {}", ownerSprite);
                 if (ownerSprite == null) {
                     return null;
                 }
                 double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), ownerSprite.getX(), ownerSprite.getY());
-                log.info("distance: {}", distance);
                 // 如果距离过远，那就不跟随
                 if (distance > 1000) {
                     return null;
                 }
                 // 寻找路径
                 var path = gameMapService.findPath(sprite.getX(), sprite.getY(), ownerSprite.getX(), ownerSprite.getY(), (int) (sprite.getWidth() * 0.65), (int) (sprite.getHeight() * 0.75), null);
-                log.info("path: {}", path);
                 // 如果找不到路径，那就不跟随
                 if (path == null) {
                     return null;
