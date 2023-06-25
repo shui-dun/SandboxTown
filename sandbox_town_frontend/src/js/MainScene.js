@@ -418,10 +418,6 @@ async function websocketOnMessage(event) {
             // 创建补间动画
             const path = new Phaser.Curves.Path(originPath[0], originPath[1]);
             let lastPos = originPath.length;
-            // 如果终点类型是建筑，提前几步终止，防止到达终点后因为卡进建筑而抖动
-            if (dest_id != null && buildingTypes.map(item => item.id).indexOf(dest_id.split("_", 2)[0]) != -1) {
-                lastPos -= 6;
-            }
             // 如果路径长度为0，就直接到达终点
             if (lastPos <= 2) {
                 arriveEvent();

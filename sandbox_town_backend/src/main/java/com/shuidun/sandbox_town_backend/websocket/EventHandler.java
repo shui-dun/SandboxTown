@@ -120,6 +120,11 @@ public class EventHandler {
             if (path == null) {
                 return null;
             }
+            // 如果有终点，那么提前几步终止，防止到达终点后因为卡进建筑而抖动
+            int removeLen = 3;
+            if (destId != null) {
+                path = path.subList(0, Math.max(0, path.size() - removeLen));
+            }
             // TODO: 更新玩家的状态
             // 通知玩家移动
             Map<String, Object> result = new HashMap<>();
