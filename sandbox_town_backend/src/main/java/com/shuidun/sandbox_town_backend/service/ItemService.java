@@ -1,9 +1,6 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.Item;
-import com.shuidun.sandbox_town_backend.bean.ItemType;
-import com.shuidun.sandbox_town_backend.bean.ItemTypeAttribute;
-import com.shuidun.sandbox_town_backend.bean.Sprite;
+import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.*;
@@ -13,6 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,8 +39,19 @@ public class ItemService {
         this.itemTypeMapper = itemTypeMapper;
     }
 
-    public List<Item> list(String owner) {
-        return itemMapper.selectByOwner(owner);
+    public List<Item> listByOwnerWithTypeAndLabel(String owner) {
+        // 找到所有物品
+        List<Item> items = itemMapper.selectByOwner(owner);
+        // 找到这些物品所对应的物品类型
+        List<String> itemTypeIds = items.stream().map(Item::getItemType).toList();
+        List<ItemType> itemTypes = itemTypeMapper.selectBatchIds(itemTypeIds);
+        Map<String, ItemType> itemTypeMap = itemTypes.stream().collect(Collectors.toMap(ItemType::getId, itemType -> itemType));
+        items.forEach(item -> item.setItemTypeBean(itemTypeMap.get(item.getItemType())));
+        // 找到这些物品所对应的标签列表
+        List<ItemTypeLabel> itemTypeLabels = itemTypeLabelMapper.selectByItemTypes(itemTypeIds);
+        Map<String, Set<String>> itemTypeLabelMap = itemTypeLabels.stream().collect(Collectors.groupingBy(ItemTypeLabel::getItemType, Collectors.mapping(ItemTypeLabel::getLabel, Collectors.toSet())));
+        items.forEach(item -> item.setLabels(itemTypeLabelMap.get(item.getItemType())));
+        return items;
     }
 
     @Transactional

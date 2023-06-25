@@ -24,7 +24,7 @@ public class ItemController {
     /** 获取当前登陆玩家的物品信息 */
     @GetMapping("/listMine")
     public RestResponse<?> listMine() {
-        return new  RestResponse<>(StatusCodeEnum.SUCCESS, itemService.list(StpUtil.getLoginIdAsString()));
+        return new  RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listByOwnerWithTypeAndLabel(StpUtil.getLoginIdAsString()));
     }
 
     /** 使用物品 */

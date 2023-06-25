@@ -36,4 +36,7 @@ spring:
 mybatis:
   configuration:
     # 将数据库的下划线命令转换为Java的驼峰命名
-    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    root: info

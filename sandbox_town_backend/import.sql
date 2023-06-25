@@ -205,6 +205,7 @@ create table item_type_label
 insert into item_type_label
 values ('bread', 'food'),
        ('apple', 'food'),
+       ('apple', 'usable'),
        ('treasure_chest', 'usable');
 
 # 装备、使用、或手持该物品后对角色各个属性的增益值
@@ -281,9 +282,9 @@ create table item
 );
 
 insert into item(id, owner, item_type, item_count, life, level, position)
-values ('bread', 'user_xixi', 'bread', 1, 100, 1, 'backpack'),
-       ('apple', 'user_xixi', 'apple', 2, 100, 1, 'backpack'),
-       ('treasure_chest', 'user_xixi', 'treasure_chest', 1, 100, 1, 'backpack');
+values ('bread_jhdfiu', 'user_xixi', 'bread', 1, 100, 1, 'backpack'),
+       ('apple_hdjfdjeio', 'user_xixi', 'apple', 2, 100, 1, 'backpack'),
+       ('treasure_chest_ixdiue', 'user_xixi', 'treasure_chest', 1, 100, 1, 'backpack');
 
 
 # 创建建筑类型表
