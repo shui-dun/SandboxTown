@@ -1,9 +1,9 @@
 <template>
-    <gameCanvas @showAttributeList="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
-    <BackpackWindow v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation" />
-    <AttributeList v-if="attributeListOpened" :itemName="itemNameOfAttributeList" @close="closeAttributeList"
+    <gameCanvas @showAttributePannel="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
+    <BackpackPannel v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation" />
+    <AttributePannel v-if="attributeListOpened" :itemName="itemNameOfAttributePannel" @close="closeAttributePannel"
         @mousedown="preventMousedownPropagation">
-    </AttributeList>
+    </AttributePannel>
     <StorePannel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation" :storeId="currentStoreID"></StorePannel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <FadeInfo ref="fadeInfo" />
@@ -14,9 +14,9 @@
 <script>
 import GameCanvas from '@/components/GameCanvas.vue';
 import FloatingButton from '@/components/FloatingButton.vue';
-import BackpackWindow from '@/components/BackpackWindow.vue';
+import BackpackPannel from '@/components/BackpackPannel.vue';
 import FadeInfo from '@/components/FadeInfo.vue';
-import AttributeList from '@/components/AttributeList.vue';
+import AttributePannel from '@/components/AttributePannel.vue';
 import StorePannel from '@/components/StorePannel.vue';
 import ProcessBar from '@/components/ProcessBar.vue';
 import myUtils from "@/js/myUtils.js";
@@ -31,9 +31,9 @@ export default {
     components: {
         GameCanvas,
         FloatingButton,
-        BackpackWindow,
+        BackpackPannel,
         FadeInfo,
-        AttributeList,
+        AttributePannel,
         StorePannel,
         ProcessBar
     },
@@ -50,7 +50,7 @@ export default {
             processBarDuration: 5,
             processBarText: '加载中...',
             EventOfProgressComplete: () => { },
-            itemNameOfAttributeList: '',
+            itemNameOfAttributePannel: '',
             currentStoreID: '',
         };
     },
@@ -66,10 +66,10 @@ export default {
         },
 
         attributeListShow(itemID) {
-            this.itemNameOfAttributeList = itemID;
+            this.itemNameOfAttributePannel = itemID;
             this.attributeListOpened = true;
         },
-        closeAttributeList() {
+        closeAttributePannel() {
             this.attributeListOpened = false;
         },
 

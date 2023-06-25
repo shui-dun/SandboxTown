@@ -36,8 +36,8 @@ export default {
             this.fadeInfoShow(event.msg);
         });
 
-        this.game.events.on('showAttributeList', (event) => {
-            this.$emit('showAttributeList', event.itemID);
+        this.game.events.on('showAttributePannel', (event) => {
+            this.$emit('showAttributePannel', event.itemID);
         });
 
         this.game.events.on('ArriveAtTarget', (event) => {

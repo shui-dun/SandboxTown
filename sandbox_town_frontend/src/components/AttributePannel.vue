@@ -2,7 +2,7 @@
     <div>
         <NavGroup @close="$emit('close')">
             <template v-slot:0>
-                <InfoList title="🔍 基础信息" :items="itemInfo" />
+                <InfoPannel title="🔍 基础信息" :items="itemInfo" />
             </template>
         </NavGroup>
     </div>
@@ -10,7 +10,7 @@
 
 <script>
 import NavGroup from './NavGroup.vue';
-import InfoList from './InfoList.vue';
+import InfoPannel from './InfoPannel.vue';
 import myUtils from "@/js/myUtils.js";
 
 export default {
@@ -22,7 +22,7 @@ export default {
     },
     components: {
         NavGroup,
-        InfoList,
+        InfoPannel,
     },
     data() {
         return {
