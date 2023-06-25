@@ -5,8 +5,8 @@
             <button class="btn btn-outline-primary tab-btn" @click="filterItemsByLabel('all')"
                 :class="{ active: 'all' == filterdlabel }">全部</button>
             <button v-for="label in labels" class="btn btn-outline-primary tab-btn"
-                :class="{ active: label.name == filterdlabel }" @click="filterItemsByLabel(label.name)"
-                :key="label.name">{{ label.prompt }}</button>
+                :class="{ active: label.name == filterdlabel }" @click="filterItemsByLabel(label.name)" :key="label.name">{{
+                    label.prompt }}</button>
         </div>
         <div class="input-group" style="width: 120px;">
             <input type="text" class="form-control" v-model="searchTerm" placeholder="关键词"
@@ -25,8 +25,8 @@
                 <img :src="item.image" :alt="item.name" class="item-image" ref="" />
                 <div>{{ item.name }}</div>
                 <div v-if="item.caption != undefined">
-                    <div class="extra" v-for="(extraItemVal, extraItemKey) in item.caption"
-                        :key="item.id + extraItemKey"> {{ extraItemVal }}</div>
+                    <div class="caption" v-for="(captionItemVal, captionItemKey) in item.caption" :key="item.id + captionItemKey">
+                        {{ captionItemVal }}</div>
                 </div>
                 <div class="my-tip">{{ item.description }}</div>
             </div>

@@ -30,13 +30,16 @@ public class ItemService {
 
     private final ItemTypeMapper itemTypeMapper;
 
-    public ItemService(SpriteMapper spriteMapper, SpriteService spriteService, ItemMapper itemMapper, ItemTypeLabelMapper itemTypeLabelMapper, ItemTypeAttributeMapper itemTypeAttributeMapper, ItemTypeMapper itemTypeMapper) {
+    private final ItemTypeEffectMapper itemTypeEffectMapper;
+
+    public ItemService(SpriteMapper spriteMapper, SpriteService spriteService, ItemMapper itemMapper, ItemTypeLabelMapper itemTypeLabelMapper, ItemTypeAttributeMapper itemTypeAttributeMapper, ItemTypeMapper itemTypeMapper, ItemTypeEffectMapper itemTypeEffectMapper) {
         this.spriteMapper = spriteMapper;
         this.spriteService = spriteService;
         this.itemMapper = itemMapper;
         this.itemTypeLabelMapper = itemTypeLabelMapper;
         this.itemTypeAttributeMapper = itemTypeAttributeMapper;
         this.itemTypeMapper = itemTypeMapper;
+        this.itemTypeEffectMapper = itemTypeEffectMapper;
     }
 
     public List<Item> listByOwnerWithTypeAndLabel(String owner) {
@@ -70,7 +73,7 @@ public class ItemService {
             throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
         }
         // 判断物品是否可用
-        List<String> labels = itemTypeLabelMapper.selectByItemType(item.getItemType());
+        Set<String> labels = itemTypeLabelMapper.selectByItemType(item.getItemType());
         if (!labels.contains("food") && !labels.contains("usable")) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_USABLE);
         }
@@ -141,5 +144,27 @@ public class ItemService {
                 itemMapper.updateById(item);
             }
         }
+    }
+
+    public Item detail(String itemId) {
+        Item item = itemMapper.selectById(itemId);
+        if (item == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
+        // 找到物品类型
+        item.setItemTypeBean(itemTypeMapper.selectById(item.getItemType()));
+        // 找到物品标签
+        item.setLabels(itemTypeLabelMapper.selectByItemType(item.getItemType()));
+        // 找到物品带来的属性增益
+        Set<ItemTypeAttribute> itemTypeAttributes = itemTypeAttributeMapper.selectByItemType(item.getItemType());
+        // 根据操作组装成map
+        Map<String, ItemTypeAttribute> itemTypeAttributeMap = itemTypeAttributes.stream().collect(Collectors.toMap(ItemTypeAttribute::getOperation, itemTypeAttribute -> itemTypeAttribute));
+        item.setAttributes(itemTypeAttributeMap);
+        // 找到物品带来的效果
+        Set<ItemTypeEffect> itemTypeEffects = itemTypeEffectMapper.selectByItemType(item.getItemType());
+        // 根据操作和效果名称组装成map
+        Map<String, Map<String, ItemTypeEffect>> itemTypeEffectMap = itemTypeEffects.stream().collect(Collectors.groupingBy(ItemTypeEffect::getOperation, Collectors.toMap(ItemTypeEffect::getEffect, itemTypeEffect -> itemTypeEffect)));
+        item.setEffects(itemTypeEffectMap);
+        return item;
     }
 }

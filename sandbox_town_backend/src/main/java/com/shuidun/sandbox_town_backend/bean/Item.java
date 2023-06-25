@@ -1,4 +1,4 @@
-package com.shuidun.sandbox_town_backend.bean ;
+package com.shuidun.sandbox_town_backend.bean;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
 import java.util.Set;
 
 @TableName("item")
@@ -35,5 +36,11 @@ public class Item {
 
     @TableField(exist = false)
     private Set<String> labels;
+
+    @TableField(exist = false)
+    private Map<String, ItemTypeAttribute> attributes;
+
+    @TableField(exist = false)
+    private Map<String, Map<String, ItemTypeEffect>> effects;
 
 }

@@ -32,4 +32,10 @@ public class ItemController {
     public RestResponse<?> use(String itemId) {
         return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.use(StpUtil.getLoginIdAsString(), itemId));
     }
+
+    /** 显示某个物品的详细信息 */
+    @GetMapping("/detail")
+    public RestResponse<?> detail(String itemId) {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.detail(itemId));
+    }
 }
