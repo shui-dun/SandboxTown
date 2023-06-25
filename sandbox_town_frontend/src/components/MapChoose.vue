@@ -87,7 +87,7 @@ export default {
     height: 80px;
 }
 
-.extra {
+.caption {
     background-color: #ddd;
     border-radius: 5px;
     margin-bottom: 3px;

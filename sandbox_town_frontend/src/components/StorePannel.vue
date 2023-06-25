@@ -98,7 +98,7 @@ export default {
                 item.id = item.item;
                 item.image = require(`@/assets/img/${item.id}.png`);
                 item.category = 'item';
-                item.extra = { price: '￥' + item.price, num: item.count };
+                item.caption = { price: '￥' + item.price, num: item.count };
                 this.buyItems.push(item);
             });
         });
@@ -110,17 +110,17 @@ export default {
         bugItemEvent(item) {
             this.willingOperation = 'buy';
             this.selectedItem = item;
-            this.maxNumber = item.extra.num;
+            this.maxNumber = item.caption.num;
             this.showNumberChoose = true;
         },
         soldItemEvent(item) {
-            if (item.extra.num === 0) {
+            if (item.caption.num === 0) {
                 this.fadeInfoShow(`你没有${item.name}了`)
                 return;
             }
             this.willingOperation = 'sold';
             this.selectedItem = item;
-            this.maxNumber = item.extra.num;
+            this.maxNumber = item.caption.num;
             this.showNumberChoose = true;
         },
         async confirm(value) {
@@ -137,13 +137,13 @@ export default {
                         // 由父节点显示提示信息
                         this.fadeInfoShow(`购买${this.willingNumber}个${this.selectedItem.name}`)
                         // 更新商品列表中该商品的数目
-                        this.selectedItem.extra.num -= this.willingNumber;
+                        this.selectedItem.caption.num -= this.willingNumber;
                     },
                 )
             } else if (this.willingOperation === 'sold') {
                 // 处理出售请求
                 let item = this.selectedItem;
-                item.extra.num -= this.willingNumber;
+                item.caption.num -= this.willingNumber;
                 // 由父节点显示提示信息
                 this.fadeInfoShow(`出售${this.willingNumber}个${this.selectedItem.name}`)
             }

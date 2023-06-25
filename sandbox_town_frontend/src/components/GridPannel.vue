@@ -2,11 +2,11 @@
     <h4>{{ title }}</h4>
     <div style="margin-bottom: 20px; display:flex;">
         <div class="btn-group">
-            <button class="btn btn-outline-primary tab-btn" @click="filterItemsByCategory('all')"
-                :class="{ active: 'all' == filterdcategory }">全部</button>
-            <button v-for="item in categories" class="btn btn-outline-primary tab-btn"
-                :class="{ active: item.label == filterdcategory }" @click="filterItemsByCategory(item.label)"
-                :key="'button-' + item.label">{{ item.prompt }}</button>
+            <button class="btn btn-outline-primary tab-btn" @click="filterItemsByLabel('all')"
+                :class="{ active: 'all' == filterdlabel }">全部</button>
+            <button v-for="label in labels" class="btn btn-outline-primary tab-btn"
+                :class="{ active: label.name == filterdlabel }" @click="filterItemsByLabel(label.name)"
+                :key="label.name">{{ label.prompt }}</button>
         </div>
         <div class="input-group" style="width: 120px;">
             <input type="text" class="form-control" v-model="searchTerm" placeholder="关键词"
@@ -21,14 +21,14 @@
     </div>
     <div class="container">
         <div class="row" style="width: 450px;">
-            <div class="col-3 item" v-for="item in filteredItems" :key="'grid-' + item.id" @click="clickItem(item)">
+            <div class="col-3 item" v-for="item in filteredItems" :key="item.id" @click="clickItem(item)">
                 <img :src="item.image" :alt="item.name" class="item-image" ref="" />
                 <div>{{ item.name }}</div>
-                <div v-if="item.extra != undefined">
-                    <div class="extra" v-for="(extraItemVal, extraItemKey) in item.extra"
-                        :key="'grid-extra-' + item.id + extraItemKey"> {{ extraItemVal }}</div>
+                <div v-if="item.caption != undefined">
+                    <div class="extra" v-for="(extraItemVal, extraItemKey) in item.caption"
+                        :key="item.id + extraItemKey"> {{ extraItemVal }}</div>
                 </div>
-                <div class="tool-tip">{{ item.description }}</div>
+                <div class="my-tip">{{ item.description }}</div>
             </div>
         </div>
     </div>
@@ -59,14 +59,14 @@ export default {
             type: Array,
             required: true,
         },
-        categories: {
+        labels: {
             type: Array,
             required: true,
         },
     },
     data() {
         return {
-            filterdcategory: 'all',
+            filterdlabel: 'all',
             searchTerm: '',
             currentPage: 1,
             itemsPerPage: 8,
@@ -74,11 +74,11 @@ export default {
         };
     },
     mounted() {
-        this.filterItems('all');
+        this.filterItems();
     },
     methods: {
-        filterItemsByCategory(category) {
-            this.filterdcategory = category;
+        filterItemsByLabel(label) {
+            this.filterdlabel = label;
             this.currentPage = 1;
             this.filterItems();
         },
@@ -100,10 +100,10 @@ export default {
         filterItems() {
             let tmpItems = [];
             // 按照分类筛选
-            if (this.filterdcategory === 'all') {
+            if (this.filterdlabel === 'all') {
                 tmpItems = this.items;
             } else {
-                tmpItems = this.items.filter((item) => item.category === this.filterdcategory);
+                tmpItems = this.items.filter((item) => item.labels.includes(this.filterdlabel));
             }
             // 按照搜索词筛选
             if (this.searchTerm !== '') {
@@ -133,12 +133,12 @@ export default {
     height: 80px;
 }
 
-.tool-tip {
+.my-tip {
     display: none;
     z-index: 101;
 }
 
-.item:hover .tool-tip {
+.item:hover .my-tip {
     display: block;
     position: absolute;
     background-color: #f9f9f9;
@@ -151,7 +151,7 @@ export default {
     width: 100px;
 }
 
-.extra {
+.caption {
     background-color: #ddd;
     border-radius: 5px;
     margin-bottom: 3px;

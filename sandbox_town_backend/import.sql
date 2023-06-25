@@ -193,10 +193,10 @@ create table sprite_effect
 create table item_type_label
 (
     item_type varchar(255) not null,
-    # 物品的标签包含food（可食用）、usable（用品）、
-    # weapon（武器）、Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
+    # 物品的标签包含food（可食用）、usable（用品）、weapon（武器）、helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
     # 注意：所以东西都可以手持，所以东西都可以手持，weapon（武器）只是给前端的一个分类
     # 注意：food（可食用）、usable（用品）实际上也是一样的，就是可直接使用的物品，只是给前端的细分分类
+    # 注意：在前端：helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）合并显示为装备
     label     varchar(255) not null,
     primary key (item_type, label),
     foreign key (item_type) references item_type (id)
@@ -214,7 +214,7 @@ create table item_type_attribute
 (
     item_type   varchar(255) not null,
     # 装备（equip）、使用（use）、或手持（handheld）
-    # 装备指在装备栏放置Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
+    # 装备指在装备栏放置helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
     # 使用指使用food（食品）、usable（用品）
     # 手持指手持物品
     operation   varchar(255) not null,
@@ -251,7 +251,7 @@ create table item_type_effect
 (
     item_type varchar(255) not null,
     # 装备（equip）、使用（use）、或手持（handheld）
-    # 装备指在装备栏放置Helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
+    # 装备指在装备栏放置helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
     # 使用指使用food（可食用）、usable（用品）
     # 手持指手持物品
     operation varchar(255) not null,

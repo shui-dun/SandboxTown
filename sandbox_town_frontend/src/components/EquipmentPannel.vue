@@ -144,7 +144,7 @@ export default {
     width: 100px;
 }
 
-.extra {
+.caption {
     background-color: #ddd;
     border-radius: 5px;
     margin-top: 5px;

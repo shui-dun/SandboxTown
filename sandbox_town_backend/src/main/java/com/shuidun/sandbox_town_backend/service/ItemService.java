@@ -42,6 +42,10 @@ public class ItemService {
     public List<Item> listByOwnerWithTypeAndLabel(String owner) {
         // 找到所有物品
         List<Item> items = itemMapper.selectByOwner(owner);
+        // 如果没有物品，直接返回
+        if (items == null || items.isEmpty()) {
+            return items;
+        }
         // 找到这些物品所对应的物品类型
         List<String> itemTypeIds = items.stream().map(Item::getItemType).toList();
         List<ItemType> itemTypes = itemTypeMapper.selectBatchIds(itemTypeIds);
