@@ -10,7 +10,7 @@
 
 <script>
 import NavGroup from './NavGroup.vue';
-import InfoPannel from './InfoPannel.vue';
+import InfoPannel from './ListPannel.vue';
 import myUtils from "@/js/myUtils.js";
 
 export default {

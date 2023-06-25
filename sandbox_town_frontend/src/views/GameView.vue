@@ -1,6 +1,6 @@
 <template>
-    <gameCanvas @showAttributePannel="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
-    <BackpackPannel v-if="backpackOpened" @close="closeBackpack" @mousedown="preventMousedownPropagation" />
+    <GameCanvas @showAttributePannel="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
+    <MyInfoPannel v-if="myInfoPannelOpened" @close="closeMyInfoPannel" @mousedown="preventMousedownPropagation" />
     <AttributePannel v-if="attributeListOpened" :itemName="itemNameOfAttributePannel" @close="closeAttributePannel"
         @mousedown="preventMousedownPropagation">
     </AttributePannel>
@@ -14,7 +14,7 @@
 <script>
 import GameCanvas from '@/components/GameCanvas.vue';
 import FloatingButton from '@/components/FloatingButton.vue';
-import BackpackPannel from '@/components/BackpackPannel.vue';
+import MyInfoPannel from '@/components/MyInfoPannel.vue';
 import FadeInfo from '@/components/FadeInfo.vue';
 import AttributePannel from '@/components/AttributePannel.vue';
 import StorePannel from '@/components/StorePannel.vue';
@@ -31,7 +31,7 @@ export default {
     components: {
         GameCanvas,
         FloatingButton,
-        BackpackPannel,
+        MyInfoPannel,
         FadeInfo,
         AttributePannel,
         StorePannel,
@@ -42,7 +42,7 @@ export default {
     data() {
         return {
             fadeInfoMsg: '',
-            backpackOpened: false,
+            myInfoPannelOpened: false,
             attributeListOpened: false,
             storeOpened: false,
             // 进度条相关设置
@@ -59,10 +59,10 @@ export default {
             this.$refs.fadeInfo.showInfo(msg);
         },
         clickBackpack() {
-            this.backpackOpened = true;
+            this.myInfoPannelOpened = true;
         },
-        closeBackpack() {
-            this.backpackOpened = false;
+        closeMyInfoPannel() {
+            this.myInfoPannelOpened = false;
         },
 
         attributeListShow(itemID) {
