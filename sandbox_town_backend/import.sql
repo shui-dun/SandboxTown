@@ -257,6 +257,12 @@ create table item_type_effect
     foreign key (effect) references effect (id)
 );
 
+insert into item_type_effect(item_type, operation, effect, duration)
+values ('BREAD', 'USE', 'LIFE', 10),
+       ('APPLE', 'USE', 'LIFE', 10),
+       ('APPLE', 'HANDHELD', 'LIFE', 1);
+
+
 # 创建物品表
 create table item
 (

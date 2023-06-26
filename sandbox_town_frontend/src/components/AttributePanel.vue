@@ -2,7 +2,9 @@
     <div>
         <NavGroup @close="$emit('close')">
             <template v-slot:0>
-                <InfoPanel title="🔍 基础信息" :items="itemInfo" />
+                <div style="max-width: 400px;">
+                    <ListPanel title="🔍 基础信息" :items="itemInfo" />
+                </div>
             </template>
         </NavGroup>
     </div>
@@ -10,7 +12,7 @@
 
 <script>
 import NavGroup from './NavGroup.vue';
-import InfoPanel from './ListPanel.vue';
+import ListPanel from './ListPanel.vue';
 import myUtils from "@/js/myUtils.js";
 
 export default {
@@ -22,24 +24,24 @@ export default {
     },
     components: {
         NavGroup,
-        InfoPanel,
+        ListPanel,
     },
     data() {
         return {
             info: {
             },
             itemInfo: [
-                { 'label': 'id', 'show': '🆔 ID' },
-                { 'label': 'description', 'show': '📝 介绍' },
-                { 'label': 'owner', 'show': '👤 拥有者' },
-                { 'label': 'money', 'show': '💰 金钱' },
-                { 'label': 'level', 'show': '⬆️ 等级' },
-                { 'label': 'exp', 'show': '🍾 经验值' },
-                { 'label': 'hunger', 'show': '🥪 饱腹值' },
-                { 'label': 'attack', 'show': '⚔️ 攻击力' },
-                { 'label': 'defense', 'show': '🛡️ 防御力' },
-                { 'label': 'speed', 'show': '🏃 速度' },
-                { 'label': 'hp', 'show': '🩸 血量' },
+                { 'id': 'id', 'key': '🆔 ID' },
+                { 'id': 'description', 'key': '📝 介绍' },
+                { 'id': 'owner', 'key': '👤 拥有者' },
+                { 'id': 'money', 'key': '💰 金钱' },
+                { 'id': 'level', 'key': '⬆️ 等级' },
+                { 'id': 'exp', 'key': '🍾 经验值' },
+                { 'id': 'hunger', 'key': '🥪 饱腹值' },
+                { 'id': 'attack', 'key': '⚔️ 攻击力' },
+                { 'id': 'defense', 'key': '🛡️ 防御力' },
+                { 'id': 'speed', 'key': '🏃 速度' },
+                { 'id': 'hp', 'key': '🩸 血量' },
             ],
             componentItems: []
         };
@@ -53,8 +55,8 @@ export default {
         }
         // 将信息添加到userInfo中
         this.itemInfo.forEach((item) => {
-            if (this.info[item.label] !== null) {
-                item.value = this.info[item.label];
+            if (this.info[item.id] !== null) {
+                item.value = this.info[item.id];
             }
         });
     },

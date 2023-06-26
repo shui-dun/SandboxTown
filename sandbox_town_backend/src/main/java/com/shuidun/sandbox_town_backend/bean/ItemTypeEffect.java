@@ -1,5 +1,6 @@
-package com.shuidun.sandbox_town_backend.bean ;
+package com.shuidun.sandbox_town_backend.bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemOperationEnum;
@@ -21,4 +22,7 @@ public class ItemTypeEffect {
     private EffectEnum effect;
 
     private Integer duration;
+
+    @TableField(exist = false)
+    private Effect effectObj;
 }

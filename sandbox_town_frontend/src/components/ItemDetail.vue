@@ -5,6 +5,11 @@
                 <!-- 物品名称 -->
                 <p>{{ (item == null) ? '' : item.itemTypeBean.name }}</p>
             </div>
+            <div class="popup-panel-content">{{ (item == null) ? '' : item.itemTypeBean.description }}</div>
+            <ListPanel v-if="basicInfo.length > 0" title="基本信息" :items="basicInfo" />
+            <ListPanel v-if="useInfo.length > 0" title="使用效果" :items="useInfo" />
+            <ListPanel v-if="equipInfo.length > 0" title="装备效果" :items="equipInfo" />
+            <ListPanel v-if="handheldInfo.length > 0" title="手持效果" :items="handheldInfo" />
             <div class="button-group">
                 <button class="cancel-btn" @click="cancel()">取消</button>
                 <button class="ok-btn" @click="confirm('ITEMBAR')">放入物槽</button>
@@ -18,9 +23,13 @@
   
 <script>
 import myUtils from '@/js/myUtils';
+import ListPanel from './ListPanel.vue';
 
 
 export default {
+    components: {
+        ListPanel,
+    },
     props: {
         itemId: {
             type: String,
@@ -30,8 +39,14 @@ export default {
     data() {
         return {
             item: null,
+            // 是否可以装备
             canEquip: false,
+            // 是否可以使用
             canUse: false,
+            basicInfo: [],
+            useInfo: [],
+            equipInfo: [],
+            handheldInfo: [],
         };
     },
     methods: {
@@ -47,6 +62,65 @@ export default {
         this.canEquip = this.item.labels.includes('HELMET') || this.item.labels.includes('CHEST')
             || this.item.labels.includes('LEG') || this.item.labels.includes('BOOTS');
         this.canUse = this.item.labels.includes('FOOD') || this.item.labels.includes('USABLE');
+        this.durability = this.item.itemTypeBean.durability;
+        this.basicInfo = [
+            { key: '🔢 数目', value: this.item.itemCount },
+
+            { key: '⭐ 等级', value: this.item.level },
+
+        ]
+        // 如果耐久度不为-1，说明有寿命，需要显示耐久度以及寿命
+        if (this.item.itemTypeBean.durability != -1) {
+            this.basicInfo.push({ key: '🔨 耐久', value: this.item.itemTypeBean.durability });
+            this.basicInfo.push({ key: '⏳ 寿命', value: this.item.life });
+        }
+        let attributes = {
+            'USE': this.useInfo,
+            'EQUIP': this.equipInfo,
+            'HANDHELD': this.handheldInfo,
+        };
+        for (let operation in this.item.attributes) {
+            let attribute = this.item.attributes[operation];
+            if (attribute.moneyInc != 0) {
+                attributes[operation].push({ key: '❄ 金钱', value: attribute.moneyInc });
+            }
+            if (attribute.expInc != 0) {
+                attributes[operation].push({ key: '❄ 经验', value: attribute.expInc });
+            }
+            if (attribute.levelInc != 0) {
+                attributes[operation].push({ key: '❄ 等级', value: attribute.levelInc });
+            }
+            if (attribute.hungerInc != 0) {
+                attributes[operation].push({ key: '❄ 饥饿', value: attribute.hungerInc });
+            }
+            if (attribute.hpInc != 0) {
+                attributes[operation].push({ key: '❄ 生命', value: attribute.hpInc });
+            }
+            if (attribute.attackInc != 0) {
+                attributes[operation].push({ key: '❄ 攻击', value: attribute.attackInc });
+            }
+            if (attribute.defenseInc != 0) {
+                attributes[operation].push({ key: '❄ 防御', value: attribute.defenseInc });
+            }
+            if (attribute.speedInc != 0) {
+                attributes[operation].push({ key: '❄ 速度', value: attribute.speedInc });
+            }
+        }
+        for (let operation in this.item.effects) {
+            let effects = this.item.effects[operation];
+            // 对于每个效果，都要显示效果的名称和持续时间
+            for (let effectId in effects) {
+                let effect = effects[effectId];
+                let key = `🧪 ${effect.effectObj.name}`;
+                let value = `${effect.effectObj.description}`;
+                // 如果有持续时间，显示持续时间
+                if (effect.duration != -1) {
+                    value += `，持续${effect.duration}秒`;
+                }
+                console.log(key, value);
+                attributes[operation].push({ key: key, value: value });
+            }
+        }
     },
 };
 </script>
@@ -72,18 +146,17 @@ export default {
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
 }
 
 .popup-panel-header {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
     color: #333;
-    margin-bottom: 20px;
 }
 
 .popup-panel-content {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 18px;
     color: #333;
     margin-bottom: 20px;
 }
@@ -94,6 +167,7 @@ export default {
 }
 
 .button-group button {
+    margin-top: 20px;
     padding-left: 15px;
     padding-right: 15px;
     padding-top: 7px;

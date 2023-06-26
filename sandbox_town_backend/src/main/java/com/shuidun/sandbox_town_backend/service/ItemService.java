@@ -32,7 +32,9 @@ public class ItemService {
 
     private final ItemTypeEffectMapper itemTypeEffectMapper;
 
-    public ItemService(SpriteMapper spriteMapper, SpriteService spriteService, ItemMapper itemMapper, ItemTypeLabelMapper itemTypeLabelMapper, ItemTypeAttributeMapper itemTypeAttributeMapper, ItemTypeMapper itemTypeMapper, ItemTypeEffectMapper itemTypeEffectMapper) {
+    private final EffectMapper effectMapper;
+
+    public ItemService(SpriteMapper spriteMapper, SpriteService spriteService, ItemMapper itemMapper, ItemTypeLabelMapper itemTypeLabelMapper, ItemTypeAttributeMapper itemTypeAttributeMapper, ItemTypeMapper itemTypeMapper, ItemTypeEffectMapper itemTypeEffectMapper, EffectMapper effectMapper) {
         this.spriteMapper = spriteMapper;
         this.spriteService = spriteService;
         this.itemMapper = itemMapper;
@@ -40,6 +42,7 @@ public class ItemService {
         this.itemTypeAttributeMapper = itemTypeAttributeMapper;
         this.itemTypeMapper = itemTypeMapper;
         this.itemTypeEffectMapper = itemTypeEffectMapper;
+        this.effectMapper = effectMapper;
     }
 
     // 为物品列表设置物品类型信息和标签信息
@@ -156,6 +159,16 @@ public class ItemService {
         }
     }
 
+    // 获得物品类型的效果列表
+    public Set<ItemTypeEffect> selectEffectsByItemType(ItemTypeEnum itemType) {
+        Set<ItemTypeEffect> itemTypeEffects = itemTypeEffectMapper.selectByItemType(itemType);
+        // 得到效果的详细信息，例如效果的描述
+        Set<EffectEnum> effectEnums = itemTypeEffects.stream().map(ItemTypeEffect::getEffect).collect(Collectors.toSet());
+        Map<EffectEnum, Effect> effectMap = effectMapper.selectBatchIds(effectEnums).stream().collect(Collectors.toMap(Effect::getId, effect -> effect));
+        itemTypeEffects.forEach(itemTypeEffect -> itemTypeEffect.setEffectObj(effectMap.get(itemTypeEffect.getEffect())));
+        return itemTypeEffects;
+    }
+
     public Item detail(String itemId) {
         Item item = itemMapper.selectById(itemId);
         if (item == null) {
@@ -171,7 +184,7 @@ public class ItemService {
         Map<ItemOperationEnum, ItemTypeAttribute> itemTypeAttributeMap = itemTypeAttributes.stream().collect(Collectors.toMap(ItemTypeAttribute::getOperation, itemTypeAttribute -> itemTypeAttribute));
         item.setAttributes(itemTypeAttributeMap);
         // 找到物品带来的效果
-        Set<ItemTypeEffect> itemTypeEffects = itemTypeEffectMapper.selectByItemType(item.getItemType());
+        Set<ItemTypeEffect> itemTypeEffects = selectEffectsByItemType(item.getItemType());
         // 根据操作和效果名称组装成map
         Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffect>> itemTypeEffectMap = itemTypeEffects.stream().collect(Collectors.groupingBy(ItemTypeEffect::getOperation, Collectors.toMap(ItemTypeEffect::getEffect, itemTypeEffect -> itemTypeEffect)));
         item.setEffects(itemTypeEffectMap);
