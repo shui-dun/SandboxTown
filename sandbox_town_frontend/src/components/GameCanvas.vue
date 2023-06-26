@@ -9,7 +9,6 @@ import storeScene from "../js/StoreScene.js";
 import myUtils from "@/js/myUtils.js";
 
 export default {
-    inject: ['fadeInfoShow'],
     mounted() {
         const config = {
             type: Phaser.AUTO,
@@ -33,7 +32,7 @@ export default {
         this.game = new Phaser.Game(config);
 
         this.game.events.on('showFadeInfo', (event) => {
-            this.fadeInfoShow(event.msg);
+            myUtils.fadeInfoShow(event.msg);
         });
 
         this.game.events.on('showAttributePannel', (event) => {
@@ -52,7 +51,7 @@ export default {
                                 treeId: event.targetID,
                             }),
                             () => {
-                                this.fadeInfoShow('摘苹果成功');
+                                myUtils.fadeInfoShow('摘苹果成功');
                             },
                         );
                     },

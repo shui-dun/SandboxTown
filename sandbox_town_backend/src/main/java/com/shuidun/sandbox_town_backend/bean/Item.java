@@ -37,9 +37,11 @@ public class Item {
     @TableField(exist = false)
     private Set<String> labels;
 
+    // Map<operationName, itemTypeAttribute>
     @TableField(exist = false)
     private Map<String, ItemTypeAttribute> attributes;
 
+    // Map<operationName, <effectName, itemTypeEffect>>
     @TableField(exist = false)
     private Map<String, Map<String, ItemTypeEffect>> effects;
 

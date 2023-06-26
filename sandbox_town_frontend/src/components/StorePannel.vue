@@ -115,7 +115,7 @@ export default {
         },
         soldItemEvent(item) {
             if (item.caption.num === 0) {
-                this.fadeInfoShow(`你没有${item.name}了`)
+                myUtils.fadeInfoShow(`你没有${item.name}了`)
                 return;
             }
             this.willingOperation = 'sold';
@@ -135,7 +135,7 @@ export default {
                     }),
                     () => {
                         // 由父节点显示提示信息
-                        this.fadeInfoShow(`购买${this.willingNumber}个${this.selectedItem.name}`)
+                        myUtils.fadeInfoShow(`购买${this.willingNumber}个${this.selectedItem.name}`)
                         // 更新商品列表中该商品的数目
                         this.selectedItem.caption.num -= this.willingNumber;
                     },
@@ -145,7 +145,7 @@ export default {
                 let item = this.selectedItem;
                 item.caption.num -= this.willingNumber;
                 // 由父节点显示提示信息
-                this.fadeInfoShow(`出售${this.willingNumber}个${this.selectedItem.name}`)
+                myUtils.fadeInfoShow(`出售${this.willingNumber}个${this.selectedItem.name}`)
             }
             this.showNumberChoose = false;
         },
@@ -153,7 +153,6 @@ export default {
             this.showNumberChoose = false;
         },
     },
-    inject: ['fadeInfoShow'],
 };
 </script>
 

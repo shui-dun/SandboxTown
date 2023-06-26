@@ -24,7 +24,6 @@
 import myUtils from "@/js/myUtils.js";
 
 export default {
-    inject: ['fadeInfoShow'],
     components: {
     },
     data() {
@@ -43,17 +42,17 @@ export default {
         async onChangePasswd() {
             // 检查旧密码是否为空
             if (this.oldpassword === '') {
-                this.fadeInfoShow('旧密码不能为空');
+                myUtils.fadeInfoShow('旧密码不能为空');
                 return;
             }
             // 新密码长度不能小于 6 位
             if (this.newpassword.length < 6) {
-                this.fadeInfoShow('新密码长度不能小于 6 位');
+                myUtils.fadeInfoShow('新密码长度不能小于 6 位');
                 return;
             }
             // 检查两次输入的密码是否一致
             if (this.newpassword !== this.repassword) {
-                this.fadeInfoShow('两次输入的密码不一致');
+                myUtils.fadeInfoShow('两次输入的密码不一致');
                 return;
             }
             // 向后端发送修改密码请求
@@ -64,7 +63,7 @@ export default {
                     newPassword: this.newpassword,
                 }),
                 () => {
-                    this.fadeInfoShow('修改密码成功');
+                    myUtils.fadeInfoShow('修改密码成功');
                 },
             );
         },

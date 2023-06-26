@@ -37,7 +37,6 @@ import myUtils from '@/js/myUtils.js';
 import InquiryPanel from './InquiryPanel.vue';
 
 export default {
-    inject: ['fadeInfoShow'],
     components: {
         InquiryPanel,
     },
@@ -83,7 +82,7 @@ export default {
         },
         confirm() {
             this.equipmentItems[this.selectedItemKey] = {};
-            this.fadeInfoShow(`卸下${this.selectedItem.name}`)
+            myUtils.fadeInfoShow(`卸下${this.selectedItem.name}`)
             this.showInquiryPanel = false;
         },
     },

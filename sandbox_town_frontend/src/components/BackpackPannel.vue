@@ -11,7 +11,6 @@ import InquiryPanel from './InquiryPanel.vue';
 import myUtils from '@/js/myUtils.js';
 
 export default {
-    inject: ['fadeInfoShow'],
     components: {
         GridPannel,
         InquiryPanel,
@@ -80,14 +79,14 @@ export default {
             //     )
             // } else if (this.selectedItem.category === 'equipment') {
             //     this.selectedItem.caption.num -= 1;
-            //     this.fadeInfoShow(`装备${this.selectedItem.name}`)
+            //     myUtils.fadeInfoShow(`装备${this.selectedItem.name}`)
             // } else if (this.selectedItem.category === 'pet') {
             //     this.selectedItem.caption.num -= 1;
-            //     this.fadeInfoShow(`放置${this.selectedItem.name}`)
+            //     myUtils.fadeInfoShow(`放置${this.selectedItem.name}`)
             // } else if (this.selectedItem.category === 'architecture') {
             //     // 先要进行放置操作
             //     this.selectedItem.caption.num -= 1;
-            //     this.fadeInfoShow(`放置${this.selectedItem.name}`)
+            //     myUtils.fadeInfoShow(`放置${this.selectedItem.name}`)
             // }
             this.showInquiryPanel = false;
         },
@@ -97,12 +96,12 @@ export default {
         onClickBackpackItem(item) {
             // // 如果物品不可使用，直接返回
             // if (!item.usable) {
-            //     this.fadeInfoShow(`不能使用${item.name}`);
+            //     myUtils.fadeInfoShow(`不能使用${item.name}`);
             //     return;
             // }
             // this.selectedItem = item;
             // if (item.caption.num <= 0) {
-            //     this.fadeInfoShow(`你没有${this.selectedItem.name}`)
+            //     myUtils.fadeInfoShow(`你没有${this.selectedItem.name}`)
             //     return;
             // }
             // if (item.category === 'item') {

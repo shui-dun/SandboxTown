@@ -33,17 +33,17 @@ export default {
         onRegister() {
             // 检查用户名是否过短
             if (this.username.length < 3) {
-                this.fadeInfoShow('用户名过短');
+                myUtils.fadeInfoShow('用户名过短');
                 return;
             }
             // 密码长度不能小于 6 位
             if (this.password.length < 6) {
-                this.fadeInfoShow('密码长度不能小于 6 位');
+                myUtils.fadeInfoShow('密码长度不能小于 6 位');
                 return;
             }
             // 检查两次输入的密码是否一致
             if (this.password !== this.repassword) {
-                this.fadeInfoShow('两次输入的密码不一致');
+                myUtils.fadeInfoShow('两次输入的密码不一致');
                 return;
             }
             // 向后端发送注册请求
@@ -54,13 +54,12 @@ export default {
                     password: this.password,
                 }),
                 () => {
-                    this.fadeInfoShow('注册成功');
+                    myUtils.fadeInfoShow('注册成功');
                     this.$emit('signup');
                 },
             );
         },
     },
-    inject: ['fadeInfoShow'],
 };
 </script>
   

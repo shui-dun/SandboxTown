@@ -33,11 +33,11 @@ export default {
     methods: {
         onLogin() {
             if (this.username === '') {
-                this.fadeInfoShow('用户名不能为空');
+                myUtils.fadeInfoShow('用户名不能为空');
                 return;
             }
             if (this.password === '') {
-                this.fadeInfoShow('密码不能为空');
+                myUtils.fadeInfoShow('密码不能为空');
                 return;
             }
             myUtils.myPOST(
@@ -48,13 +48,12 @@ export default {
                     rememberMe: this.rememberMe,
                 }),
                 () => {
-                    this.fadeInfoShow('登录成功');
+                    myUtils.fadeInfoShow('登录成功');
                     this.$emit('login');
                 },
             );
             
         },
     },
-    inject: ['fadeInfoShow'],
 };
 </script>

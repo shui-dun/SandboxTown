@@ -56,7 +56,6 @@
                 </div>
             </div>
         </div>
-        <FadeInfo ref="fadeInfo" />
     </div>
 </template>
     
@@ -67,27 +66,17 @@ import RegisterForm from '../components/RegisterForm.vue';
 import CircleBackground from '@/components/CircleBackground.vue';
 import MapChoose from '@/components/MapChoose.vue';
 import ChangePasswd from '@/components/ChangePasswd.vue';
-import FadeInfo from '@/components/FadeInfo.vue';
 import myUtils from "@/js/myUtils.js";
 
 export default {
-    provide() {
-        return {
-            fadeInfoShow: this.fadeInfoShow,
-        };
-    },
     components: {
         LoginForm,
         RegisterForm,
         CircleBackground,
         MapChoose,
         ChangePasswd,
-        FadeInfo,
     },
     mounted() {
-        // 设置全局的工具类里面的fadeInfoShow方法
-        myUtils.setFadeInfoShow(this.fadeInfoShow);
-
         // 判断是否是横屏
         let myInterval = setInterval(() => {
             if (!this.checkIsVertical()) {
@@ -132,9 +121,6 @@ export default {
                 this.isLogin = false;
                 this.curTab = 'login';
             });
-        },
-        fadeInfoShow(msg) {
-            this.$refs.fadeInfo.showInfo(msg);
         },
     },
 };
