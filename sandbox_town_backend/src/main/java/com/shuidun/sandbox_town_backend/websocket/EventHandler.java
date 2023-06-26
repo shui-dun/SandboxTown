@@ -22,7 +22,7 @@ import java.util.function.BiFunction;
 @Component
 public class EventHandler {
     // 事件类型 -> 处理函数
-    private Map<EventEnum, BiFunction<String, Map<String, Object>, Void>> eventMap = new HashMap<>();
+    private final Map<EventEnum, BiFunction<String, Map<String, Object>, Void>> eventMap = new HashMap<>();
 
     public void handle(EventMessage eventMessage) {
         try {
@@ -58,7 +58,6 @@ public class EventHandler {
             int y = NumUtils.toInt(data.get("y"));
             double vx = NumUtils.toDouble(data.get("vx"));
             double vy = NumUtils.toDouble(data.get("vy"));
-            var position = new Point(x, y);
             String id = data.get("id").toString();
             // 如果是第一次通报坐标信息，说明刚上线
             boolean isFirstTime = !GameCache.spriteCacheMap.containsKey(id);
@@ -81,6 +80,7 @@ public class EventHandler {
             if (isFirstTime) {
                 // 广播上线信息
                 response = new WSResponse(WSResponseEnum.ONLINE, JSONObject.parseObject(JSON.toJSONString(spriteService.selectById(id)), Map.class));
+
             } else { // 如果不是第一次通报坐标信息，只需广播坐标信息
                 response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
                         "id", id,

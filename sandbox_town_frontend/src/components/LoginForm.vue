@@ -43,7 +43,7 @@ export default {
             myUtils.myPOST(
                 '/rest/user/login',
                 new URLSearchParams({
-                    username: 'user_' + this.username,
+                    username: 'USER_' + this.username,
                     password: this.password,
                     rememberMe: this.rememberMe,
                 }),

@@ -187,11 +187,11 @@ public class GameMapService {
     // 查看某建筑是否与其他建筑有重叠，或者超出边界
     private boolean isBuildingOverlap(Building building) {
         // 获取建筑物的左上角的坐标
-        int buildingX = (int) building.getOriginX();
-        int buildingY = (int) building.getOriginY();
+        int buildingX = building.getOriginX();
+        int buildingY = building.getOriginY();
         // 获取建筑物的宽高（暂时不知道宽和高写反了没有，因为现在的图片都是正方形的）
-        int buildingWidth = (int) building.getWidth();
-        int buildingHeight = (int) building.getHeight();
+        int buildingWidth = building.getWidth();
+        int buildingHeight = building.getHeight();
         // 获取建筑的左上角的逻辑坐标
         int buildingLogicalX = buildingX / Constants.PIXELS_PER_GRID;
         int buildingLogicalY = buildingY / Constants.PIXELS_PER_GRID;
@@ -237,11 +237,11 @@ public class GameMapService {
     // 放置建筑
     private void placeBuildingOnMap(Building building) {
         // 获取建筑物的左上角的坐标
-        int buildingX = (int) building.getOriginX();
-        int buildingY = (int) building.getOriginY();
+        int buildingX = building.getOriginX();
+        int buildingY = building.getOriginY();
         // 获取建筑物的宽高（暂时不知道宽和高写反了没有，因为现在的图片都是正方形的）
-        int buildingWidth = (int) building.getWidth();
-        int buildingHeight = (int) building.getHeight();
+        int buildingWidth = building.getWidth();
+        int buildingHeight = building.getHeight();
         // 获取建筑的左上角的逻辑坐标
         int buildingLogicalX = buildingX / Constants.PIXELS_PER_GRID;
         int buildingLogicalY = buildingY / Constants.PIXELS_PER_GRID;
@@ -336,7 +336,7 @@ public class GameMapService {
                 // 放置建筑
                 placeBuildingOnMap(building);
                 // 如果是树
-                if (buildingType.getId().equals("tree")) {
+                if (buildingType.getId().equals(BuildingTypeEnum.TREE)) {
                     // 在树下以一定概率生成几只狗
                     if (Math.random() < 0.3) {
                         // 随机生成狗的数量
@@ -351,7 +351,7 @@ public class GameMapService {
                         }
                     }
                     treeService.createRandomTree(building.getId());
-                } else if (buildingType.getId().equals("store")) { // 如果是商店
+                } else if (buildingType.getId().equals(BuildingTypeEnum.STORE)) { // 如果是商店
                     // 刷新商店商品
                     storeService.refresh(building.getId());
                 }

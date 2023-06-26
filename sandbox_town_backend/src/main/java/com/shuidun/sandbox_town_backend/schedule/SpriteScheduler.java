@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.schedule;
 import com.shuidun.sandbox_town_backend.bean.Sprite;
 import com.shuidun.sandbox_town_backend.bean.SpriteCache;
 import com.shuidun.sandbox_town_backend.bean.WSResponse;
+import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
@@ -22,14 +23,14 @@ import java.util.function.Function;
 public class SpriteScheduler {
 
     // 类型到函数的映射
-    private final Map<String, Function<Sprite, Void>> typeToFunction = new HashMap<>();
+    private final Map<SpriteTypeEnum, Function<Sprite, Void>> typeToFunction = new HashMap<>();
 
     private final SpriteService spriteService;
 
     public SpriteScheduler(SpriteService spriteService, GameMapService gameMapService) {
         this.spriteService = spriteService;
         // 狗的处理函数
-        typeToFunction.put("dog", sprite -> {
+        typeToFunction.put(SpriteTypeEnum.DOG, sprite -> {
             // 获得狗的主人
             String owner = sprite.getOwner();
             // 如果狗没有主人

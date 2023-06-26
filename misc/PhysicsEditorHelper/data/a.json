@@ -1,8 +1,8 @@
 {
 	"generator_info": "Shape definitions generated with PhysicsEditor. Visit https://www.codeandweb.com/physicseditor",
-	"cat": {
+	"CAT": {
 		"type": "fromPhysicsEditor",
-		"label": "cat",
+		"label": "CAT",
 		"isStatic": false,
 		"density": 0.1,
 		"restitution": -0.1,
@@ -27,9 +27,9 @@
 			}
 		]
 	},
-	"dog": {
+	"DOG": {
 		"type": "fromPhysicsEditor",
-		"label": "dog",
+		"label": "DOG",
 		"isStatic": false,
 		"density": 0.10000000149011612,
 		"restitution": -0.1,
@@ -53,13 +53,13 @@
 			}
 		]
 	},
-	"user": {
+	"USER": {
 		"type": "fromPhysicsEditor",
-		"label": "user",
+		"label": "USER",
 		"isStatic": false,
-		"density": 0.10000000149011612,
+		"density": 0.1,
 		"restitution": -1,
-		"friction": 0.10000000149011612,
+		"friction": 0.1,
 		"frictionAir": 0.1,
 		"frictionStatic": 0.5,
 		"collisionFilter": {
@@ -80,9 +80,9 @@
 			}
 		]
 	},
-	"store": {
+	"STORE": {
 		"type": "fromPhysicsEditor",
-		"label": "store",
+		"label": "STORE",
 		"isStatic": false,
 		"density": 0.10000000149011612,
 		"restitution": 0,
@@ -106,9 +106,9 @@
 			}
 		]
 	},
-	"tree": {
+	"TREE": {
 		"type": "fromPhysicsEditor",
-		"label": "tree",
+		"label": "TREE",
 		"isStatic": false,
 		"density": 0.10000000149011612,
 		"restitution": 0,
@@ -135,9 +135,9 @@
 			}
 		]
 	},
-	"tree-2": {
+	"TREE-2": {
 		"type": "fromPhysicsEditor",
-		"label": "tree-2",
+		"label": "TREE-2",
 		"isStatic": false,
 		"density": 0.1,
 		"restitution": 0,
@@ -159,9 +159,9 @@
 			}
 		]
 	},
-	"store-2": {
+	"STORE-2": {
 		"type": "fromPhysicsEditor",
-		"label": "store-2",
+		"label": "STORE-2",
 		"isStatic": false,
 		"density": 0.10000000149011612,
 		"restitution": 0,
@@ -183,9 +183,9 @@
 			}
 		]
 	},
-	"wall": {
+	"WALL": {
 		"type": "fromPhysicsEditor",
-		"label": "wall",
+		"label": "WALL",
 		"isStatic": false,
 		"density": 0.1,
 		"restitution": 0,

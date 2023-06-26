@@ -59,7 +59,7 @@ public class UserService {
         // 生成盐和加密后的密码
         String[] saltAndPasswd = PasswordEncryptor.generateSaltedHash(password);
         // 用户名为"user_" + usernameSuffix
-        String username = "user_" + usernameSuffix;
+        String username = SpriteTypeEnum.USER.name() + "_" + usernameSuffix;
         try {
             Date currentDate = new Date(System.currentTimeMillis());
             User user = new User(username, saltAndPasswd[1], saltAndPasswd[0], null, 0,

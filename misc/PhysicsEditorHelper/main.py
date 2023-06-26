@@ -24,7 +24,7 @@ def genCollapseShapes():
         jsonData[originKey] = jsonData[key]
         jsonData[originKey]["label"] = originKey
         del jsonData[key]
-    with open("output/collapseShapes.json", 'w', encoding='utf8') as f:
+    with open("../../sandbox_town_frontend/src/assets/json/collapseShapes.json", 'w', encoding='utf8') as f:
         # json.dump(jsonData, f, ensure_ascii=False, indent=4)
         json.dump(jsonData, f, ensure_ascii=False)
 
@@ -55,7 +55,7 @@ def genClickShape():
                 # 也不知道size[0]和size[1]写反了没有，因为目前是正方形
                 jsonData[name].append(axis[0] + int(size[0] / 2))
                 jsonData[name].append(axis[1] + int(size[1] / 2))
-        with open("output/clickShapes.json", 'w', encoding='utf8') as f:
+        with open("../../sandbox_town_frontend/src/assets/json/clickShapes.json", 'w', encoding='utf8') as f:
             # json.dump(jsonData, f, ensure_ascii=False, indent=4)
             json.dump(jsonData, f, ensure_ascii=False)
 
@@ -105,7 +105,7 @@ def genBitmap():
             size = sizeList[i]
             polygon = polygonList[i]
             # 生成bitmap
-            foo(size[0], size[1], polygon, 'output/bitmap/' + name + '.png')
+            foo(size[0], size[1], polygon, '../../sandbox_town_backend/src/main/resources/static/bitmap/' + name + '.png')
 
 
 

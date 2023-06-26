@@ -48,17 +48,17 @@ var scene = null;
 const mainScene = {
     key: 'main',
     preload: function () {
-        this.load.image("user", require("@/assets/img/user.png"));
-        this.load.image("dog", require("@/assets/img/dog.png"));
-        this.load.image("cat", require("@/assets/img/cat.png"));
-        this.load.image("store", require("@/assets/img/store.png"));
-        this.load.image("tree", require("@/assets/img/tree.png"));
+        this.load.image("USER", require("@/assets/img/USER.png"));
+        this.load.image("DOG", require("@/assets/img/DOG.png"));
+        this.load.image("CAT", require("@/assets/img/CAT.png"));
+        this.load.image("STORE", require("@/assets/img/STORE.png"));
+        this.load.image("TREE", require("@/assets/img/TREE.png"));
 
         // 围墙
-        this.load.image("wall", require("@/assets/img/wall.png"));
+        this.load.image("WALL", require("@/assets/img/WALL.png"));
 
         // 加载纹理图片
-        this.load.spritesheet("tiles", require("@/assets/img/tiles.png"), { frameWidth: 128, frameHeight: 128, endFrame: 11 });
+        this.load.spritesheet("TILES", require("@/assets/img/TILES.png"), { frameWidth: 128, frameHeight: 128, endFrame: 11 });
 
         this.load.json('collapseShapes', require("@/assets/json/collapseShapes.json"));
         this.load.json('clickShapes', require("@/assets/json/clickShapes.json"));
@@ -121,7 +121,7 @@ const mainScene = {
                 }
                 let randomNum1 = Math.floor(Math.random() * 21) - 10;
                 let randomNum2 = Math.floor(Math.random() * 21) - 10;
-                const texture = this.add.sprite(i * textureLen + randomNum1, j * textureLen + randomNum2, 'tiles', Math.floor(Math.random() * 12));
+                const texture = this.add.sprite(i * textureLen + randomNum1, j * textureLen + randomNum2, 'TILES', Math.floor(Math.random() * 12));
                 texture.setDisplaySize(textureLen, textureLen);
             }
         }
@@ -131,7 +131,7 @@ const mainScene = {
         for (let x = 0; x < gameMap.data.length; ++x) {
             for (let y = 0; y < gameMap.data[0].length; ++y) {
                 if (gameMap.data[x][y] == 1) {
-                    const texture = this.matter.add.sprite(x * pixelsPerGrid, y * pixelsPerGrid, 'wall', null, { isStatic: true, shape: collapseShapes["wall"] })
+                    const texture = this.matter.add.sprite(x * pixelsPerGrid, y * pixelsPerGrid, 'WALL', null, { isStatic: true, shape: collapseShapes["WALL"] })
                     texture.setDisplaySize(pixelsPerGrid, pixelsPerGrid);
                 }
             }
@@ -204,7 +204,7 @@ const mainScene = {
                 // 如果角色是自己、主人是自己、公共NPC（例如蜘蛛）
                 if (id === myUsername ||
                     id2spriteInfo[id].owner === myUsername ||
-                    (id2spriteInfo[id].owner == null && id2spriteInfo[id].type !== "user")) {
+                    (id2spriteInfo[id].owner == null && id2spriteInfo[id].type !== "USER")) {
                     // 如果上一次发送的位置和当前位置不同
                     if (lastAxisMap[id] == null ||
                         lastAxisMap[id].x !== id2gameObject[id].x ||
@@ -243,8 +243,8 @@ const mainScene = {
                 return;
             }
             // 如果是玩家与商店碰撞
-            if (item1 === id2gameObject[myUsername] && item2.body.label === 'store'
-                || item1.body.label === 'store' && item2 === id2gameObject[myUsername]) {
+            if (item1 === id2gameObject[myUsername] && item2.body.label === 'STORE'
+                || item1.body.label === 'STORE' && item2 === id2gameObject[myUsername]) {
                 if (now - lastCollisionTime < 1000) {
                     return;
                 }
@@ -402,7 +402,7 @@ async function websocketOnMessage(event) {
             // 目的地的到达事件
             let arriveEvent = () => {
                 // 如果是其他玩家或者其他玩家的宠物，就不触发到达事件
-                if ((initatorSprite.id.startsWith("user") && initatorSprite.id != myUsername) ||
+                if ((initatorSprite.id.startsWith("USER") && initatorSprite.id != myUsername) ||
                     (initatorSprite.owner != null && initatorSprite.owner != myUsername)) {
                     return;
                 }

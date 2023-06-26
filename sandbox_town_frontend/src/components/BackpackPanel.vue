@@ -20,10 +20,10 @@ export default {
             items: [
             ],
             labels: [
-                { 'name': 'food', 'prompt': '食品' },
-                { 'name': 'usable', 'prompt': '用品' },
-                { 'name': 'weapon', 'prompt': '武器' },
-                { 'name': 'equipment', 'prompt': '装备' },
+                { 'name': 'FOOD', 'prompt': '食品' },
+                { 'name': 'USABLE', 'prompt': '用品' },
+                { 'name': 'WEAPON', 'prompt': '武器' },
+                { 'name': 'EQUIPMENT', 'prompt': '装备' },
             ],
             showItemDetail: false,
             // 选择的物品
@@ -42,12 +42,12 @@ export default {
                 item.image = require(`@/assets/img/${element.itemType}.png`);
                 // 设置物品的标签
                 item.labels = [];
-                // 如果物品包含helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）的label，将其替换为equipment（装备）
+                // 如果物品包含HELMET（头盔）, CHEST（胸甲）, LEG（腿甲）, BOOTS（鞋）的LABEL，将其替换为EQUIPMENT（装备）
                 let isEquipment = false;
                 for (let label of element.labels) {
-                    if ((label === 'helmet' || label === 'chest' || label === 'leg' || label === 'boots') && !isEquipment) {
+                    if ((label === 'HELMET' || label === 'CHEST' || label === 'LEG' || label === 'BOOTS') && !isEquipment) {
                         isEquipment = true;
-                        item.labels.push('equipment');
+                        item.labels.push('EQUIPMENT');
                     } else {
                         item.labels.push(label);
                     }

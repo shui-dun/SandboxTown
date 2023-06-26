@@ -10,7 +10,7 @@ export default {
 </script>
 <style scoped>
 .floating-button {
-    background-image: url('../assets/img/backpack.jpg');
+    background-image: url('../assets/img/BACKPACK.jpg');
     background-size: 100% 100%;
     /* 固定位置 */
     position: fixed;

@@ -8,7 +8,7 @@ Custom values (from the <bodies> section)
 List of all bodies:
 
 
-    Name:               cat
+    Name:               CAT
     Custom values (from the <bodies> section):
         Identifier:     0
         FixedRotation:  NO
@@ -45,7 +45,7 @@ List of all bodies:
 
 
 
-    Name:               dog
+    Name:               DOG
     Custom values (from the <bodies> section):
         Identifier:     0
         FixedRotation:  NO
@@ -81,7 +81,7 @@ List of all bodies:
 
 
 
-    Name:               user
+    Name:               USER
     Custom values (from the <bodies> section):
         Identifier:     0
         FixedRotation:  NO
@@ -118,7 +118,7 @@ List of all bodies:
 
 
 
-    Name:               store
+    Name:               STORE
     Custom values (from the <bodies> section):
         Identifier:     0
         FixedRotation:  NO
@@ -154,7 +154,7 @@ List of all bodies:
 
 
 
-    Name:               tree
+    Name:               TREE
     Custom values (from the <bodies> section):
         Identifier:     0
         FixedRotation:  NO
@@ -193,7 +193,7 @@ List of all bodies:
 
 
 
-    Name:               tree-2
+    Name:               TREE-2
     Custom values (from the <bodies> section):
         Identifier:     0
         FixedRotation:  NO
@@ -227,7 +227,7 @@ List of all bodies:
 
 
 
-    Name:               store-2
+    Name:               STORE-2
     Custom values (from the <bodies> section):
         Identifier:     0
         FixedRotation:  NO
@@ -261,7 +261,7 @@ List of all bodies:
 
 
 
-    Name:               wall
+    Name:               WALL
     Custom values (from the <bodies> section):
         Identifier:     0
         FixedRotation:  NO

@@ -7,10 +7,10 @@
             </div>
             <div class="button-group">
                 <button class="cancel-btn" @click="cancel()">取消</button>
-                <button class="ok-btn" @click="confirm('itembar')">放入物槽</button>
-                <button class="ok-btn" @click="confirm('hand')">手持</button>
-                <button v-if="canEquip" class="ok-btn" @click="confirm('equip')">装备</button>
-                <button v-if="canUse" class="ok-btn" @click="confirm('use')">使用</button>
+                <button class="ok-btn" @click="confirm('ITEMBAR')">放入物槽</button>
+                <button class="ok-btn" @click="confirm('HAND')">手持</button>
+                <button v-if="canEquip" class="ok-btn" @click="confirm('EQUIP')">装备</button>
+                <button v-if="canUse" class="ok-btn" @click="confirm('USE')">使用</button>
             </div>
         </div>
     </div>
@@ -44,9 +44,9 @@ export default {
     },
     async mounted() {
         this.item = await myUtils.myGET("/rest/item/detail", new URLSearchParams({ itemId: this.itemId }));
-        this.canEquip = this.item.labels.includes('helmet') || this.item.labels.includes('chest')
-            || this.item.labels.includes('leg') || this.item.labels.includes('boots');
-        this.canUse = this.item.labels.includes('food') || this.item.labels.includes('usable');
+        this.canEquip = this.item.labels.includes('HELMET') || this.item.labels.includes('CHEST')
+            || this.item.labels.includes('LEG') || this.item.labels.includes('BOOTS');
+        this.canUse = this.item.labels.includes('FOOD') || this.item.labels.includes('USABLE');
     },
 };
 </script>

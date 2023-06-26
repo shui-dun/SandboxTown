@@ -48,7 +48,7 @@ export default {
         // 从后端获取物品信息
         this.info = await myUtils.myGET(`/rest/sprite/list/${this.itemName}`);
         // 如果是用户，删掉前缀
-        if (this.itemName.startsWith("user_")) {
+        if (this.itemName.startsWith("USER_")) {
             this.info.id = this.info.id.split("_", 2)[1];
         }
         // 将信息添加到userInfo中

@@ -22,7 +22,7 @@
                             </div>
                         </div>
                         <div v-else>
-                            <img :src='require("@/assets/img/placeholder.jpg")' class="item-image" ref="" />
+                            <img :src='require("@/assets/img/PLACEHOLDER.jpg")' class="item-image" ref="" />
                         </div>
                         <div class="extra"> {{ itemKey }}</div>
                     </div>
@@ -59,7 +59,7 @@ export default {
                 '护甲': {},
                 '鞋子': {},
                 '左手': {},
-                '右手': { id: 2, name: '锯子', image: require("@/assets/img/saw.png"), category: 'equipment', description: '简单而有效的切割工具' },
+                '右手': { id: 2, name: '锯子', image: require("@/assets/img/SAW.png"), category: 'EQUIPMENT', description: '简单而有效的切割工具' },
             },
             // 选择的物品
             selectedItem: null,

@@ -40,7 +40,7 @@ export default {
         });
 
         this.game.events.on('ArriveAtTarget', (event) => {
-            if (event.type === 'tree') {
+            if (event.type === 'TREE') {
                 let msg = {
                     duration: 5,
                     text: '正在摘苹果...',
@@ -57,7 +57,7 @@ export default {
                     },
                 }
                 this.$emit('processBarShow', msg);
-            } else if (event.type == 'store') {
+            } else if (event.type == 'STORE') {
                 this.$emit('showStore', event.targetID);
             }
         });

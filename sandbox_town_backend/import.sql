@@ -300,8 +300,8 @@ CREATE TABLE building_type
 );
 
 INSERT INTO building_type (id, description, basic_price, image_path, basic_width, basic_height, rarity)
-VALUES ('STORE', '买卖商品的场所', 200, 'static/bitmap/store.png', 400, 400, 15),
-       ('TREE', '可以伐木或摘苹果', 100, 'static/bitmap/tree.png', 500, 500, 40);
+VALUES ('STORE', '买卖商品的场所', 200, 'static/bitmap/STORE.png', 400, 400, 15),
+       ('TREE', '可以伐木或摘苹果', 100, 'static/bitmap/TREE.png', 500, 500, 40);
 
 
 # 创建建筑表

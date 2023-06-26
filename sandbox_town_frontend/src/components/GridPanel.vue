@@ -2,8 +2,8 @@
     <h4>{{ title }}</h4>
     <div style="margin-bottom: 20px; display:flex;">
         <div class="btn-group">
-            <button class="btn btn-outline-primary tab-btn" @click="filterItemsByLabel('all')"
-                :class="{ active: 'all' == filterdlabel }">全部</button>
+            <button class="btn btn-outline-primary tab-btn" @click="filterItemsByLabel('ALL')"
+                :class="{ active: 'ALL' == filterdlabel }">全部</button>
             <button v-for="label in labels" class="btn btn-outline-primary tab-btn"
                 :class="{ active: label.name == filterdlabel }" @click="filterItemsByLabel(label.name)" :key="label.name">{{
                     label.prompt }}</button>
@@ -66,7 +66,7 @@ export default {
     },
     data() {
         return {
-            filterdlabel: 'all',
+            filterdlabel: 'ALL',
             searchTerm: '',
             currentPage: 1,
             itemsPerPage: 8,
@@ -100,7 +100,7 @@ export default {
         filterItems() {
             let tmpItems = [];
             // 按照分类筛选
-            if (this.filterdlabel === 'all') {
+            if (this.filterdlabel === 'ALL') {
                 tmpItems = this.items;
             } else {
                 tmpItems = this.items.filter((item) => item.labels.includes(this.filterdlabel));
