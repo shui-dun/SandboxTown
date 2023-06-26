@@ -1,6 +1,6 @@
 <template>
-    <div class="pannel-wrapper">
-        <div class="my-pannel">
+    <div class="panel-wrapper">
+        <div class="my-panel">
             <button class="close-btn" @click="close">×</button>
             <div class="nav-group">
                 <div v-if="items.length > 1" class="nav nav-pills nav-group-nav">
@@ -49,7 +49,7 @@ export default {
 </script>
 
 <style scoped>
-.pannel-wrapper {
+.panel-wrapper {
     position: fixed;
     top: 0;
     left: 0;
@@ -63,7 +63,7 @@ export default {
     pointer-events: auto;
 }
 
-.my-pannel {
+.my-panel {
     background-color: #fff;
     border-radius: 5px;
     padding: 1rem;

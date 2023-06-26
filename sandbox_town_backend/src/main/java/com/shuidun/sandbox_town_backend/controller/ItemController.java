@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.RestResponse;
+import com.shuidun.sandbox_town_backend.enumeration.ItemPositionEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.ItemService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +22,18 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-    /** 获取当前登陆玩家的物品信息 */
-    @GetMapping("/listMine")
-    public RestResponse<?> listMine() {
+    /** 获取当前登陆玩家的所有物品信息 */
+    @GetMapping("/listMyItems")
+    public RestResponse<?> listMyItems() {
         return new  RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listByOwnerWithTypeAndLabel(StpUtil.getLoginIdAsString()));
     }
+
+    /** 获取当前登陆玩家的背包中的所有物品信息 */
+    @GetMapping("/listMyItemsInBackpack")
+    public RestResponse<?> listMyItemsInBackpack() {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listByOwnerAndPositionWithTypeAndLabel(StpUtil.getLoginIdAsString(), ItemPositionEnum.BACKPACK));
+    }
+
 
     /** 使用物品 */
     @PostMapping("/use")

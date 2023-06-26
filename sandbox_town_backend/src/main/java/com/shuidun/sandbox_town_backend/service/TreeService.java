@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.service;
 
 import com.shuidun.sandbox_town_backend.bean.ApplePicking;
 import com.shuidun.sandbox_town_backend.bean.Tree;
+import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.ApplePickingMapper;
@@ -79,7 +80,7 @@ public class TreeService {
         tree.setApplesCount(tree.getApplesCount() - 1);
         treeMapper.updateById(tree);
         // 给角色增加苹果
-        itemService.add(spriteId, "apple", 1);
+        itemService.add(spriteId, ItemTypeEnum.APPLE, 1);
     }
 
     /** 创建一棵树 */

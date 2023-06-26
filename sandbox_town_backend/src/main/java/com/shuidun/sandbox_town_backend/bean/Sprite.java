@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
+import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class Sprite {
     @TableId
     private String id;
 
-    private String type;
+    private SpriteTypeEnum type;
 
     private String owner;
 

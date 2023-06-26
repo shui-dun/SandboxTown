@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.mixin;
 
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.SpriteCache;
+import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
 
 import java.awt.image.BufferedImage;
@@ -20,7 +21,7 @@ public class GameCache {
     public static Random random = new Random();
 
     // 建筑类型图片
-    public static Map<String, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
+    public static Map<BuildingTypeEnum, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
     /** 地图，用于寻路算法，0表示可以通过，1代表围墙，非0表示障碍物ID的哈希值 */
     public static int[][] map;

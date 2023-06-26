@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import com.shuidun.sandbox_town_backend.bean.*;
-import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
+import com.shuidun.sandbox_town_backend.enumeration.*;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.utils.NameGenerator;
@@ -42,6 +42,23 @@ public class ItemService {
         this.itemTypeEffectMapper = itemTypeEffectMapper;
     }
 
+    // 为物品列表设置物品类型信息和标签信息
+    private void setItemTypeAndLabelsForItems(List<Item> items) {
+        // 如果没有物品，直接返回
+        if (items == null || items.isEmpty()) {
+            return;
+        }
+        // 找到这些物品所对应的物品类型
+        List<ItemTypeEnum> itemTypeIds = items.stream().map(Item::getItemType).toList();
+        List<ItemType> itemTypes = itemTypeMapper.selectBatchIds(itemTypeIds);
+        Map<ItemTypeEnum, ItemType> itemTypeMap = itemTypes.stream().collect(Collectors.toMap(ItemType::getId, itemType -> itemType));
+        items.forEach(item -> item.setItemTypeBean(itemTypeMap.get(item.getItemType())));
+        // 找到这些物品所对应的标签列表
+        List<ItemTypeLabel> itemTypeLabels = itemTypeLabelMapper.selectByItemTypes(itemTypeIds);
+        Map<ItemTypeEnum, Set<ItemLabelEnum>> itemTypeLabelMap = itemTypeLabels.stream().collect(Collectors.groupingBy(ItemTypeLabel::getItemType, Collectors.mapping(ItemTypeLabel::getLabel, Collectors.toSet())));
+        items.forEach(item -> item.setLabels(itemTypeLabelMap.get(item.getItemType())));
+    }
+
     public List<Item> listByOwnerWithTypeAndLabel(String owner) {
         // 找到所有物品
         List<Item> items = itemMapper.selectByOwner(owner);
@@ -49,15 +66,8 @@ public class ItemService {
         if (items == null || items.isEmpty()) {
             return items;
         }
-        // 找到这些物品所对应的物品类型
-        List<String> itemTypeIds = items.stream().map(Item::getItemType).toList();
-        List<ItemType> itemTypes = itemTypeMapper.selectBatchIds(itemTypeIds);
-        Map<String, ItemType> itemTypeMap = itemTypes.stream().collect(Collectors.toMap(ItemType::getId, itemType -> itemType));
-        items.forEach(item -> item.setItemTypeBean(itemTypeMap.get(item.getItemType())));
-        // 找到这些物品所对应的标签列表
-        List<ItemTypeLabel> itemTypeLabels = itemTypeLabelMapper.selectByItemTypes(itemTypeIds);
-        Map<String, Set<String>> itemTypeLabelMap = itemTypeLabels.stream().collect(Collectors.groupingBy(ItemTypeLabel::getItemType, Collectors.mapping(ItemTypeLabel::getLabel, Collectors.toSet())));
-        items.forEach(item -> item.setLabels(itemTypeLabelMap.get(item.getItemType())));
+        // 为物品列表设置物品类型信息和标签信息
+        setItemTypeAndLabelsForItems(items);
         return items;
     }
 
@@ -73,12 +83,12 @@ public class ItemService {
             throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
         }
         // 判断物品是否可用
-        Set<String> labels = itemTypeLabelMapper.selectByItemType(item.getItemType());
-        if (!labels.contains("food") && !labels.contains("usable")) {
-            throw new BusinessException(StatusCodeEnum.ITEM_NOT_USABLE);
-        }
+        // Set<ItemLabelEnum> labels = itemTypeLabelMapper.selectByItemType(item.getItemType());
+        // if (!labels.contains("food") && !labels.contains("usable")) {
+        //     throw new BusinessException(StatusCodeEnum.ITEM_NOT_USABLE);
+        // }
         // 得到物品带来的属性变化
-        ItemTypeAttribute itemTypeAttribute = itemTypeAttributeMapper.selectByItemTypeAndOperation(item.getItemType(), "use");
+        ItemTypeAttribute itemTypeAttribute = itemTypeAttributeMapper.selectByItemTypeAndOperation(item.getItemType(), ItemOperationEnum.USE);
         // TODO: 根据物品等级计算属性变化
         // 得到角色原先属性
         Sprite sprite = spriteMapper.selectById(owner);
@@ -107,20 +117,20 @@ public class ItemService {
 
     // 给玩家添加物品
     @Transactional
-    public void add(String spriteId, String itemTypeId, int count) {
+    public void add(String spriteId, ItemTypeEnum itemTypeId, int count) {
         ItemType itemType = itemTypeMapper.selectById(itemTypeId);
         // 判断物品是否可堆叠
         if (itemType.getDurability() != -1) {
             // 不可堆叠，直接插入
             for (int i = 0; i < count; i++) {
                 Item item = new Item();
-                item.setId(NameGenerator.generateItemName(itemTypeId));
+                item.setId(NameGenerator.generateItemName(itemTypeId.name()));
                 item.setOwner(spriteId);
                 item.setItemType(itemTypeId);
                 item.setItemCount(1);
                 item.setLife(100);
                 item.setLevel(1);
-                item.setPosition("backpack");
+                item.setPosition(ItemPositionEnum.BACKPACK);
                 itemMapper.insert(item);
             }
         } else {
@@ -129,13 +139,13 @@ public class ItemService {
             if (items == null || items.size() == 0) {
                 // 玩家没有该物品，直接插入
                 Item item = new Item();
-                item.setId(NameGenerator.generateItemName(itemTypeId));
+                item.setId(NameGenerator.generateItemName(itemTypeId.name()));
                 item.setOwner(spriteId);
                 item.setItemType(itemTypeId);
                 item.setItemCount(count);
                 item.setLife(100);
                 item.setLevel(1);
-                item.setPosition("backpack");
+                item.setPosition(ItemPositionEnum.BACKPACK);
                 itemMapper.insert(item);
             } else {
                 Item item = items.get(0);
@@ -158,13 +168,25 @@ public class ItemService {
         // 找到物品带来的属性增益
         Set<ItemTypeAttribute> itemTypeAttributes = itemTypeAttributeMapper.selectByItemType(item.getItemType());
         // 根据操作组装成map
-        Map<String, ItemTypeAttribute> itemTypeAttributeMap = itemTypeAttributes.stream().collect(Collectors.toMap(ItemTypeAttribute::getOperation, itemTypeAttribute -> itemTypeAttribute));
+        Map<ItemOperationEnum, ItemTypeAttribute> itemTypeAttributeMap = itemTypeAttributes.stream().collect(Collectors.toMap(ItemTypeAttribute::getOperation, itemTypeAttribute -> itemTypeAttribute));
         item.setAttributes(itemTypeAttributeMap);
         // 找到物品带来的效果
         Set<ItemTypeEffect> itemTypeEffects = itemTypeEffectMapper.selectByItemType(item.getItemType());
         // 根据操作和效果名称组装成map
-        Map<String, Map<String, ItemTypeEffect>> itemTypeEffectMap = itemTypeEffects.stream().collect(Collectors.groupingBy(ItemTypeEffect::getOperation, Collectors.toMap(ItemTypeEffect::getEffect, itemTypeEffect -> itemTypeEffect)));
+        Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffect>> itemTypeEffectMap = itemTypeEffects.stream().collect(Collectors.groupingBy(ItemTypeEffect::getOperation, Collectors.toMap(ItemTypeEffect::getEffect, itemTypeEffect -> itemTypeEffect)));
         item.setEffects(itemTypeEffectMap);
         return item;
+    }
+
+    public List<Item> listByOwnerAndPositionWithTypeAndLabel(String owner, ItemPositionEnum position) {
+        // 找到所有物品
+        List<Item> items = itemMapper.selectByOwnerAndPosition(owner, position);
+        // 如果没有物品，直接返回
+        if (items == null || items.isEmpty()) {
+            return items;
+        }
+        // 为物品列表设置物品类型信息和标签信息
+        setItemTypeAndLabelsForItems(items);
+        return items;
     }
 }

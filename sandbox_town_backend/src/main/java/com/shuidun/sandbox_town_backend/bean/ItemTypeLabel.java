@@ -1,6 +1,8 @@
 package com.shuidun.sandbox_town_backend.bean ;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.shuidun.sandbox_town_backend.enumeration.ItemLabelEnum;
+import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ItemTypeLabel {
 
-    private String itemType;
+    private ItemTypeEnum itemType;
 
-    private String label;
+    private ItemLabelEnum label;
 }

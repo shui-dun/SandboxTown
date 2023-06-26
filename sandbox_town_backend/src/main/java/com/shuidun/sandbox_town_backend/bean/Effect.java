@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.bean ;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Effect {
 
     @TableId
-    private String id;
+    private EffectEnum id;
 
     private String name;
 

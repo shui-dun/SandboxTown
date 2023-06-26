@@ -77,7 +77,7 @@ public class UserController {
     }
 
     @PostMapping("/ban")
-    @SaCheckRole("admin")
+    @SaCheckRole("ADMIN")
     public RestResponse<?> ban(String username, int banDays) {
         userService.banUser(username, banDays);
         // 踢出用户
@@ -88,7 +88,7 @@ public class UserController {
     }
 
     @PostMapping("/unban")
-    @SaCheckRole("admin")
+    @SaCheckRole("ADMIN")
     public RestResponse<?> unban(String username) {
         userService.unbanUser(username);
         // 打印信息

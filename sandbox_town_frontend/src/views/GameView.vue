@@ -1,10 +1,10 @@
 <template>
-    <GameCanvas @showAttributePannel="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
-    <MyInfoPannel v-if="myInfoPannelOpened" @close="closeMyInfoPannel" @mousedown="preventMousedownPropagation" />
-    <AttributePannel v-if="attributeListOpened" :itemName="itemNameOfAttributePannel" @close="closeAttributePannel"
+    <GameCanvas @showAttributePanel="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
+    <MyInfoPanel v-if="myInfoPanelOpened" @close="closeMyInfoPanel" @mousedown="preventMousedownPropagation" />
+    <AttributePanel v-if="attributeListOpened" :itemName="itemNameOfAttributePanel" @close="closeAttributePanel"
         @mousedown="preventMousedownPropagation">
-    </AttributePannel>
-    <StorePannel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation" :storeId="currentStoreID"></StorePannel>
+    </AttributePanel>
+    <StorePanel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation" :storeId="currentStoreID"></StorePanel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <ProcessBar v-if="showProcessBar" :duration="processBarDuration" :text="processBarText"
         :progressCompleteEvent="EventOfProgressComplete" @progressComplete="onProgressComplete" />
@@ -13,9 +13,9 @@
 <script>
 import GameCanvas from '@/components/GameCanvas.vue';
 import FloatingButton from '@/components/FloatingButton.vue';
-import MyInfoPannel from '@/components/MyInfoPannel.vue';
-import AttributePannel from '@/components/AttributePannel.vue';
-import StorePannel from '@/components/StorePannel.vue';
+import MyInfoPanel from '@/components/MyInfoPanel.vue';
+import AttributePanel from '@/components/AttributePanel.vue';
+import StorePanel from '@/components/StorePanel.vue';
 import ProcessBar from '@/components/ProcessBar.vue';
 import myUtils from "@/js/myUtils.js";
 
@@ -24,16 +24,16 @@ export default {
     components: {
         GameCanvas,
         FloatingButton,
-        MyInfoPannel,
-        AttributePannel,
-        StorePannel,
+        MyInfoPanel,
+        AttributePanel,
+        StorePanel,
         ProcessBar
     },
     props: {
     },
     data() {
         return {
-            myInfoPannelOpened: false,
+            myInfoPanelOpened: false,
             attributeListOpened: false,
             storeOpened: false,
             // 进度条相关设置
@@ -41,23 +41,23 @@ export default {
             processBarDuration: 5,
             processBarText: '加载中...',
             EventOfProgressComplete: () => { },
-            itemNameOfAttributePannel: '',
+            itemNameOfAttributePanel: '',
             currentStoreID: '',
         };
     },
     methods: {
         clickBackpack() {
-            this.myInfoPannelOpened = true;
+            this.myInfoPanelOpened = true;
         },
-        closeMyInfoPannel() {
-            this.myInfoPannelOpened = false;
+        closeMyInfoPanel() {
+            this.myInfoPanelOpened = false;
         },
 
         attributeListShow(itemID) {
-            this.itemNameOfAttributePannel = itemID;
+            this.itemNameOfAttributePanel = itemID;
             this.attributeListOpened = true;
         },
-        closeAttributePannel() {
+        closeAttributePanel() {
             this.attributeListOpened = false;
         },
 

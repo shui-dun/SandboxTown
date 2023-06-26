@@ -1,6 +1,7 @@
 package com.shuidun.sandbox_town_backend.mapper;
 
 import com.shuidun.sandbox_town_backend.bean.StoreItemType;
+import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
@@ -17,7 +18,7 @@ public interface StoreItemTypeMapper {
     @Select("SELECT * FROM store_item_type WHERE store = #{store} AND item_type = #{itemType}")
     @Options(flushCache = Options.FlushCachePolicy.TRUE)
     // 禁用缓存
-    StoreItemType selectByStoreAndItemType(String store, String itemType);
+    StoreItemType selectByStoreAndItemType(String store, ItemTypeEnum itemType);
 
     /** 根据商店名和物品名更新商店物品所有信息 */
     @Select("UPDATE store_item_type SET count = #{count}, price = #{price} WHERE store = #{store} AND item_type = #{itemType}")

@@ -2,11 +2,11 @@
     <div>
         <NavGroup :items="componentItems" @close="$emit('close')">
             <template v-slot:0>
-                <GridPannel ref="bugGridPannel" title="🏪 购买商品" :items="this.buyItems" :categories="this.categories"
+                <GridPanel ref="bugGridPanel" title="🏪 购买商品" :items="this.buyItems" :categories="this.categories"
                     @clickGridItem="bugItemEvent($event)" />
             </template>
             <template v-slot:1>
-                <GridPannel title="🏬 卖出商品" :items="this.soldItems" :categories="this.categories"
+                <GridPanel title="🏬 卖出商品" :items="this.soldItems" :categories="this.categories"
                     @clickGridItem="soldItemEvent($event)" />
             </template>
         </NavGroup>
@@ -16,7 +16,7 @@
 
 <script>
 import NavGroup from './NavGroup.vue';
-import GridPannel from './GridPannel.vue';
+import GridPanel from './GridPanel.vue';
 import NumberChoose from './NumberChoose.vue';
 import myUtils from "@/js/myUtils.js";
 
@@ -29,7 +29,7 @@ export default {
     },
     components: {
         NavGroup,
-        GridPannel,
+        GridPanel,
         NumberChoose,
     },
     data() {
@@ -102,7 +102,7 @@ export default {
                 this.buyItems.push(item);
             });
         });
-        this.$refs.bugGridPannel.filterItems('all');
+        this.$refs.bugGridPanel.filterItems('all');
     },
     computed: {
     },

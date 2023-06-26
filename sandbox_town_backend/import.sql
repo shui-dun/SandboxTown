@@ -23,9 +23,9 @@ CREATE TABLE user
 
 # 密码都是123456
 INSERT INTO user (username, password, salt)
-VALUES ('user_haha', '3ff432d13d5060159f9daf745c6c0c414624159bce95b32437e6e4c59211a144', 'I+zxIDZF1PJ/G/LGQrwtgw=='),
-       ('user_heihei', 'ed63891bacfd0861da88898ad002534f6d61058bce25c41e67b763a2d95f642a', 'ykzgDWYsa77gmD2bhMm41A=='),
-       ('user_xixi', '38232ca0c66eb3f33cc55696233fbf905fd02ceaad4242f5cd41b97b272c55d8', 'KaSg9wFMopkEaU/cDY+Xvg==');
+VALUES ('USER_haha', '3ff432d13d5060159f9daf745c6c0c414624159bce95b32437e6e4c59211a144', 'I+zxIDZF1PJ/G/LGQrwtgw=='),
+       ('USER_heihei', 'ed63891bacfd0861da88898ad002534f6d61058bce25c41e67b763a2d95f642a', 'ykzgDWYsa77gmD2bhMm41A=='),
+       ('USER_xixi', '38232ca0c66eb3f33cc55696233fbf905fd02ceaad4242f5cd41b97b272c55d8', 'KaSg9wFMopkEaU/cDY+Xvg==');
 
 # 创建用户权限表
 CREATE TABLE user_role
@@ -38,9 +38,9 @@ CREATE TABLE user_role
 
 
 INSERT INTO user_role (username, role)
-VALUES ('user_haha', 'normal'),
-       ('user_heihei', 'admin'),
-       ('user_xixi', 'normal');
+VALUES ('USER_haha', 'NORMAL'),
+       ('USER_heihei', 'ADMIN'),
+       ('USER_xixi', 'NORMAL');
 
 # 创建地图表
 CREATE TABLE game_map
@@ -78,11 +78,11 @@ CREATE TABLE item_type
 );
 
 INSERT INTO item_type (id, name, description, basic_price, rarity, durability)
-VALUES ('wood', '木头', '建筑的材料，也可处于烤火', 5, 10, -1),
-       ('stone', '石头', '用于建造房屋和其他工具', 8, 7, -1),
-       ('bread', '面包', '具有松软的质地和微甜的口感', 5, 7, -1),
-       ('apple', '苹果', '禁忌和知识之果', 5, 8, -1),
-       ('treasure_chest', '宝箱', '打开宝箱，获得随机物品', 20, 1, -1);
+VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 10, -1),
+       ('STONE', '石头', '用于建造房屋和其他工具', 8, 7, -1),
+       ('BREAD', '面包', '具有松软的质地和微甜的口感', 5, 7, -1),
+       ('APPLE', '苹果', '禁忌和知识之果', 5, 8, -1),
+       ('TREASURE_CHEST', '宝箱', '打开宝箱，获得随机物品', 20, 1, -1);
 
 # 创建角色类型表
 CREATE TABLE sprite_type
@@ -119,11 +119,11 @@ CREATE TABLE sprite_type
 INSERT INTO sprite_type (type, name, description, basic_price, basic_money,
                          basic_exp, basic_level, basic_hunger, basic_hp,
                          basic_attack, basic_defense, basic_speed, basic_width, basic_height)
-VALUES ('user', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
-       ('dog', '狗狗', '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
-       ('cat', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120,
+VALUES ('USER', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
+       ('DOG', '狗狗', '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
+       ('CAT', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120,
         120),
-       ('spider', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120);
+       ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
 CREATE TABLE sprite
@@ -155,12 +155,12 @@ CREATE TABLE sprite
 
 INSERT INTO sprite (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
                     height)
-VALUES ('user_xixi', 'user', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 150, 150),
-       ('user_haha', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 150, 150),
-       ('user_heihei', 'user', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1', 150, 150),
-       ('dog_Vz5n_o-CQk-okcK5vQFRsA', 'dog', 'user_xixi', null, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 150, 150),
-       ('dog_q83jrKyCTtGm1QvywN48pw', 'dog', 'user_xixi', null, 10, 2, 70, 40, 13, 6, 8, 400, 400, '1', 250, 250),
-       ('cat_iZUc8IiRTCOQXNjLNbQUFQ', 'cat', 'user_xixi', null, 10, 2, 70, 40, 8, 6, 8, 400, 500, '1', 150, 150);
+VALUES ('USER_xixi', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 150, 150),
+       ('USER_haha', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 150, 150),
+       ('USER_heihei', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1', 150, 150),
+       ('DOG_Vz5n_o-CQk-okcK5vQFRsA', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 150, 150),
+       ('DOG_q83jrKyCTtGm1QvywN48pw', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 13, 6, 8, 400, 400, '1', 250, 250),
+       ('CAT_iZUc8IiRTCOQXNjLNbQUFQ', 'CAT', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 400, 500, '1', 150, 150);
 
 
 # 创建效果表
@@ -173,8 +173,8 @@ create table effect
 );
 
 INSERT INTO effect (id, name, description)
-VALUES ('nothingness', '虚无', '虚无的存在，难以被攻击'),
-       ('life', '生命', '生命，能够治愈伤口');
+VALUES ('NOTHINGNESS', '虚无', '虚无的存在，难以被攻击'),
+       ('LIFE', '生命', '生命，能够治愈伤口');
 
 # 角色的效果列表
 # 只包含使用物品带来的效果以及其过期时间，装备的效果自己去查
@@ -193,20 +193,16 @@ create table sprite_effect
 create table item_type_label
 (
     item_type varchar(255) not null,
-    # 物品的标签包含food（可食用）、usable（用品）、weapon（武器）、helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
-    # 注意：所以东西都可以手持，所以东西都可以手持，weapon（武器）只是给前端的一个分类
-    # 注意：food（可食用）、usable（用品）实际上也是一样的，就是可直接使用的物品，只是给前端的细分分类
-    # 注意：在前端：helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）合并显示为装备
     label     varchar(255) not null,
     primary key (item_type, label),
     foreign key (item_type) references item_type (id)
 );
 
 insert into item_type_label
-values ('bread', 'food'),
-       ('apple', 'food'),
-       ('apple', 'usable'),
-       ('treasure_chest', 'usable');
+values ('BREAD', 'FOOD'),
+       ('APPLE', 'FOOD'),
+       ('APPLE', 'USABLE'),
+       ('TREASURE_CHEST', 'USABLE');
 
 # 装备、使用、或手持该物品后对角色各个属性的增益值
 # 注意：这些增益值指的是等级为1的物品带来的增益值，等级越高，增益值越高
@@ -241,8 +237,8 @@ create table item_type_attribute
 insert into item_type_attribute(item_type, operation, money_inc, exp_inc, level_inc, hunger_inc, hp_inc, attack_inc,
                                 defense_inc,
                                 speed_inc)
-values ('bread', 'use', 0, 0, 0, 10, 0, 0, 0, 0),
-       ('apple', 'use', 0, 4, 0, 4, 0, 0, 0, 0);
+values ('BREAD', 'USE', 0, 0, 0, 10, 0, 0, 0, 0),
+       ('APPLE', 'USE', 0, 4, 0, 4, 0, 0, 0, 0);
 
 
 # 装备物品后对对角色带来的特殊效果
@@ -250,10 +246,7 @@ values ('bread', 'use', 0, 0, 0, 10, 0, 0, 0, 0),
 create table item_type_effect
 (
     item_type varchar(255) not null,
-    # 装备（equip）、使用（use）、或手持（handheld）
-    # 装备指在装备栏放置helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
-    # 使用指使用food（可食用）、usable（用品）
-    # 手持指手持物品
+    # 进行什么操作，例如装备、使用等
     operation varchar(255) not null,
     effect    varchar(255) not null,
     # 持续时间（秒）
@@ -275,16 +268,16 @@ create table item
     life       INT          NOT NULL DEFAULT 100,
     # 等级（1-10，1表示刚刚获得）
     level      INT          NOT NULL DEFAULT 1,
-    # 位置，包括背包（backpack）、手持（handheld）、helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）、itembar（物品栏）
+    # 位置，包括背包等
     position   VARCHAR(255) NOT NULL,
     FOREIGN KEY (owner) REFERENCES sprite (id),
     FOREIGN KEY (item_type) REFERENCES item_type (id)
 );
 
 insert into item(id, owner, item_type, item_count, life, level, position)
-values ('bread_jhdfiu', 'user_xixi', 'bread', 1, 100, 1, 'backpack'),
-       ('apple_hdjfdjeio', 'user_xixi', 'apple', 2, 100, 1, 'backpack'),
-       ('treasure_chest_ixdiue', 'user_xixi', 'treasure_chest', 1, 100, 1, 'backpack');
+values ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
+       ('APPLE_hdjfdjeio', 'USER_xixi', 'APPLE', 2, 100, 1, 'BACKPACK'),
+       ('TREASURE_CHEST_ixdiue', 'USER_xixi', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK');
 
 
 # 创建建筑类型表
@@ -307,8 +300,8 @@ CREATE TABLE building_type
 );
 
 INSERT INTO building_type (id, description, basic_price, image_path, basic_width, basic_height, rarity)
-VALUES ('store', '买卖商品的场所', 200, 'static/bitmap/store.png', 400, 400, 15),
-       ('tree', '可以伐木或摘苹果', 100, 'static/bitmap/tree.png', 500, 500, 40);
+VALUES ('STORE', '买卖商品的场所', 200, 'static/bitmap/store.png', 400, 400, 15),
+       ('TREE', '可以伐木或摘苹果', 100, 'static/bitmap/tree.png', 500, 500, 40);
 
 
 # 创建建筑表

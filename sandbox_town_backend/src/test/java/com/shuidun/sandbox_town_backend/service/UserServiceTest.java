@@ -49,7 +49,7 @@ public class UserServiceTest {
 
     @Test
     public void testBanUser() {
-        roleSet.add("normal");
+        roleSet.add("NORMAL");
         when(userRoleMapper.selectByUserName(username)).thenReturn(roleSet);
         when(userMapper.selectById(username)).thenReturn(user);
 
@@ -69,7 +69,7 @@ public class UserServiceTest {
 
     @Test
     public void testBanUserAdmin() {
-        roleSet.add("admin");
+        roleSet.add("ADMIN");
         when(userRoleMapper.selectByUserName(username)).thenReturn(roleSet);
 
         assertThrows(BusinessException.class, () -> userService.banUser(username, 3));

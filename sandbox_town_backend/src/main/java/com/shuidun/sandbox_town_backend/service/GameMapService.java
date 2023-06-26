@@ -4,6 +4,8 @@ import com.shuidun.sandbox_town_backend.bean.Building;
 import com.shuidun.sandbox_town_backend.bean.BuildingType;
 import com.shuidun.sandbox_town_backend.bean.GameMap;
 import com.shuidun.sandbox_town_backend.bean.Point;
+import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
+import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
@@ -135,7 +137,7 @@ public class GameMapService {
         // 建筑物的黑白图的字典
         var buildingTypes = buildingTypeMapper.selectList(null);
         for (BuildingType buildingType : buildingTypes) {
-            String buildingTypeId = buildingType.getId();
+            BuildingTypeEnum buildingTypeId = buildingType.getId();
             String imagePath = buildingType.getImagePath();
             try {
                 BufferedImage image = ImageIO.read(new ClassPathResource(imagePath).getInputStream());
@@ -319,7 +321,7 @@ public class GameMapService {
             double scale = Math.random() * 0.4 + 0.8;
             // 创建建筑对象
             Building building = new Building();
-            building.setId(NameGenerator.generateItemName(buildingType.getId()));
+            building.setId(NameGenerator.generateItemName(buildingType.getId().name()));
             building.setType(buildingType.getId());
             building.setMap(mapId);
             building.setLevel(1);
@@ -345,7 +347,7 @@ public class GameMapService {
                             int dogX = building.getOriginX() + (int) (Math.random() * building.getWidth());
                             int dogY = building.getOriginY() + (int) (Math.random() * building.getHeight());
                             // 创建狗
-                            spriteService.generateRandomSprite("dog", null, dogX, dogY);
+                            spriteService.generateRandomSprite(SpriteTypeEnum.DOG, null, dogX, dogY);
                         }
                     }
                     treeService.createRandomTree(building.getId());

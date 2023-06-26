@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.RestResponse;
+import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.StoreService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class StoreController {
      * @param amount 数量
      */
     @PostMapping("/buy")
-    public RestResponse<?> buy(String store, String item, Integer amount) {
+    public RestResponse<?> buy(String store, ItemTypeEnum item, Integer amount) {
         storeService.buy(StpUtil.getLoginIdAsString(), store, item, amount);
         return new RestResponse<>(StatusCodeEnum.SUCCESS);
     }

@@ -1,6 +1,8 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import com.shuidun.sandbox_town_backend.bean.*;
+import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
+import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.*;
@@ -41,7 +43,7 @@ public class StoreService {
 
     /** 买入商品 */
     @Transactional
-    public void buy(String spriteId, String store, String item, Integer amount) {
+    public void buy(String spriteId, String store, ItemTypeEnum item, Integer amount) {
         StoreItemType storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item);
         // 检查商品是否存在
         if (storeItemType == null) {
@@ -123,7 +125,7 @@ public class StoreService {
     /** 刷新所有商店商品 */
     public void refreshAll() {
         // 得到所有商店
-        List<Building> stores = buildingMapper.selectByMapIdAndType(mapId, "store");
+        List<Building> stores = buildingMapper.selectByMapIdAndType(mapId, BuildingTypeEnum.STORE);
         for (Building store : stores) {
             refresh(store.getId());
         }

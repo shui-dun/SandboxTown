@@ -1,12 +1,12 @@
 <template>
-    <div class="popup-window-wrapper">
+    <div class="grey-bg">
         <div class="popup-window">
             <div class="header">
                 <p>{{ prompt }}</p>
             </div>
-            <div class="footer">
-                <button class="cancel" @click="cancel">取消</button>
-                <button class="confirm" @click="confirm">确定</button>
+            <div class="button-group">
+                <button @click="cancel">取消</button>
+                <button @click="confirm">确定</button>
             </div>
         </div>
     </div>
@@ -37,7 +37,7 @@ export default {
 </script>
   
 <style scoped>
-.popup-window-wrapper {
+.grey-bg {
     position: fixed;
     left: 0;
     top: 0;
@@ -54,7 +54,6 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 300px;
     background-color: #f0f0f0;
     border-radius: 10px;
     padding: 20px;
@@ -68,29 +67,26 @@ export default {
     margin-bottom: 20px;
 }
 
-.footer {
+.button-group {
     display: flex;
     justify-content: space-between;
     width: 100%;
 }
 
-.footer button {
-    width: 110px;
-    padding: 10px;
-    font-size: 16px;
-    font-weight: bold;
+.button-group button {
+    width: 80px;
+    padding: 5px;
+    font-size: 14px;
     color: #fff;
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    background-color: #6c757d;
 }
 
-.cancel {
-    background-color: #999999;
+.button-group button:not(:last-child) {
+    margin-right: 20px;
 }
 
-.confirm {
-    background-color: #1165d5;
-}
 </style>
   

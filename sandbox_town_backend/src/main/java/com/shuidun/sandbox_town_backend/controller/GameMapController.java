@@ -29,7 +29,7 @@ public class GameMapController {
     }
 
     /** 建造随机的生态系统 */
-    @SaCheckRole("admin")
+    @SaCheckRole("ADMIN")
     @GetMapping("/createEnvironment")
     public RestResponse<?> createEnvironment(int nBuildings) {
         gameMapService.createEnvironment(nBuildings);

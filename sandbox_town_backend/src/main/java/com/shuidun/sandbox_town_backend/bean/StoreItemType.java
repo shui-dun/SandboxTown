@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.bean ;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,10 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StoreItemType {
 
-    @TableId
-    private String itemType;
+    private ItemTypeEnum itemType;
 
-    @TableId
     private String store;
 
     private Integer count;

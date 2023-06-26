@@ -1,6 +1,8 @@
 package com.shuidun.sandbox_town_backend.bean ;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.shuidun.sandbox_town_backend.enumeration.ItemOperationEnum;
+import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,9 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ItemTypeAttribute {
 
-    private String itemType;
+    private ItemTypeEnum itemType;
 
-    private String operation;
+    private ItemOperationEnum operation;
 
     private Integer moneyInc;
 

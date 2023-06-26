@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.MyAndMyPetInfo;
 import com.shuidun.sandbox_town_backend.bean.Sprite;
 import com.shuidun.sandbox_town_backend.bean.SpriteType;
+import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
@@ -118,10 +119,10 @@ public class SpriteService {
     }
 
     // 生成随机的指定类型的角色，并写入数据库
-    public Sprite generateRandomSprite(String type, String owner, int x, int y) {
+    public Sprite generateRandomSprite(SpriteTypeEnum type, String owner, int x, int y) {
         Sprite sprite = new Sprite();
         SpriteType spriteType = spriteTypeMapper.selectById(type);
-        sprite.setId(NameGenerator.generateItemName(type));
+        sprite.setId(NameGenerator.generateItemName(type.name()));
         sprite.setType(type);
         sprite.setOwner(owner);
         // 根据基础属性值和随机数随机生成角色的属性

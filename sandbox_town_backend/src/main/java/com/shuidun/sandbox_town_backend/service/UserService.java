@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.service;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.Sprite;
 import com.shuidun.sandbox_town_backend.bean.User;
+import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
@@ -64,10 +65,10 @@ public class UserService {
             User user = new User(username, saltAndPasswd[1], saltAndPasswd[0], null, 0,
                     currentDate, null);
             userMapper.insert(user);
-            userRoleMapper.insert(user.getUsername(), "normal");
+            userRoleMapper.insert(user.getUsername(), "NORMAL");
             Sprite sprite = new Sprite();
             sprite.setId(user.getUsername());
-            sprite.setType("user");
+            sprite.setType(SpriteTypeEnum.USER);
             sprite.setMoney(10);
             sprite.setExp(0);
             sprite.setLevel(1);
@@ -95,7 +96,7 @@ public class UserService {
     @Transactional
     public void banUser(String username, int days) {
         Set<String> roleSet = userRoleMapper.selectByUserName(username);
-        if (roleSet.contains("admin")) {
+        if (roleSet.contains("ADMIN")) {
             throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
         }
         User user = userMapper.selectById(username);
@@ -110,7 +111,7 @@ public class UserService {
     @Transactional
     public int deleteNotAdminUser(String username) {
         Set<String> roleSet = userRoleMapper.selectByUserName(username);
-        if (roleSet.contains("admin")) {
+        if (roleSet.contains("ADMIN")) {
             throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
         }
         userRoleMapper.deleteByUsername(username);

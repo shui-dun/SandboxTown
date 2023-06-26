@@ -2,10 +2,10 @@
     <div>
         <NavGroup :items="tabs" @close="$emit('close')">
             <template v-slot:0>
-                <EquipmentPannel />
+                <EquipmentPanel />
             </template>
             <template v-slot:1>
-                <BackpackPannel />
+                <BackpackPanel />
             </template>
         </NavGroup>
     </div>
@@ -13,14 +13,14 @@
 
 <script>
 import NavGroup from './NavGroup.vue';
-import EquipmentPannel from './EquipmentPannel.vue';
-import BackpackPannel from './BackpackPannel.vue';
+import EquipmentPanel from './EquipmentPanel.vue';
+import BackpackPanel from './BackpackPanel.vue';
 
 export default {
     components: {
         NavGroup,
-        EquipmentPannel,
-        BackpackPannel,
+        EquipmentPanel,
+        BackpackPanel,
     },
     data() {
         return {
