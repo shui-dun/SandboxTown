@@ -52,7 +52,14 @@ export default {
         // 如果是用户，删掉前缀
         if (this.itemName.startsWith("USER_")) {
             this.info.id = this.info.id.split("_", 2)[1];
+        } else {
+            // 否则对名字进行哈希
+            this.info.id = myUtils.hashName(this.info.id);
         }
+        // 如果主人是用户，删掉前缀
+        if (this.info.owner != null && this.info.owner.startsWith("USER_")) {
+            this.info.owner = this.info.owner.split("_", 2)[1];
+        } 
         // 将信息添加到userInfo中
         this.itemInfo.forEach((item) => {
             if (this.info[item.id] !== null) {
