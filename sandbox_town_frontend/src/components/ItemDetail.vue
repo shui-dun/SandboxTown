@@ -83,31 +83,35 @@ export default {
             'EQUIP': this.equipInfo,
             'HANDHELD': this.handheldInfo,
         };
+        // 显示＋号
+        function showPlusSign(inc) {
+            return inc > 0 ? `+${inc}` : `${inc}`;
+        }
         for (let operation in this.item.itemTypeObj.attributes) {
             let attribute = this.item.itemTypeObj.attributes[operation];
             if (attribute.moneyInc != 0) {
-                attributes[operation].push({ key: '❄ 金钱', value: attribute.moneyInc });
+                attributes[operation].push({ key: '❄ 金钱', value: showPlusSign(attribute.moneyInc) });
             }
             if (attribute.expInc != 0) {
-                attributes[operation].push({ key: '❄ 经验', value: attribute.expInc });
+                attributes[operation].push({ key: '❄ 经验', value: showPlusSign(attribute.expInc) });
             }
             if (attribute.levelInc != 0) {
-                attributes[operation].push({ key: '❄ 等级', value: attribute.levelInc });
+                attributes[operation].push({ key: '❄ 等级', value: showPlusSign(attribute.levelInc) });
             }
             if (attribute.hungerInc != 0) {
-                attributes[operation].push({ key: '❄ 饥饿', value: attribute.hungerInc });
+                attributes[operation].push({ key: '❄ 饱腹', value: showPlusSign(attribute.hungerInc) });
             }
             if (attribute.hpInc != 0) {
-                attributes[operation].push({ key: '❄ 生命', value: attribute.hpInc });
+                attributes[operation].push({ key: '❄ 生命', value: showPlusSign(attribute.hpInc) });
             }
             if (attribute.attackInc != 0) {
-                attributes[operation].push({ key: '❄ 攻击', value: attribute.attackInc });
+                attributes[operation].push({ key: '❄ 攻击', value: showPlusSign(attribute.attackInc) });
             }
             if (attribute.defenseInc != 0) {
-                attributes[operation].push({ key: '❄ 防御', value: attribute.defenseInc });
+                attributes[operation].push({ key: '❄ 防御', value: showPlusSign(attribute.defenseInc) });
             }
             if (attribute.speedInc != 0) {
-                attributes[operation].push({ key: '❄ 速度', value: attribute.speedInc });
+                attributes[operation].push({ key: '❄ 速度', value: showPlusSign(attribute.speedInc) });
             }
         }
         for (let operation in this.item.itemTypeObj.effects) {
