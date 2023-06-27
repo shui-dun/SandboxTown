@@ -1,6 +1,5 @@
 <template>
     <div>
-        <h4>{{ title }}</h4>
         <table class="custom-table">
             <tbody>
                 <tr v-for="item in items" :key='item.key' :id="'tr-' + item.key">
@@ -14,10 +13,6 @@
 <script>
 export default {
     props: {
-        title: {
-            type: String,
-            required: true,
-        },
         items: {
             type: Array,
             required: true,

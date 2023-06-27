@@ -347,7 +347,7 @@ function createSprite(sprite) {
     spriteSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
         // 鼠标左键点击
         if (pointer.button === 0) {
-            scene.game.events.emit('showAttributePanel', { "itemID": sprite.id });
+            scene.game.events.emit('showSpritePanel', { "itemID": sprite.id });
         } else if (pointer.button === 2) { // 鼠标右键点击
             // TO-DO: 发送攻击请求
         }

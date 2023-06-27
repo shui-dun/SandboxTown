@@ -1,9 +1,9 @@
 <template>
-    <GameCanvas @showAttributePanel="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
+    <GameCanvas @showSpritePanel="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
     <MyInfoPanel v-if="myInfoPanelOpened" @close="closeMyInfoPanel" @mousedown="preventMousedownPropagation" />
-    <AttributePanel v-if="attributeListOpened" :itemName="itemNameOfAttributePanel" @close="closeAttributePanel"
+    <SpritePanel v-if="attributeListOpened" :itemName="itemNameOfSpritePanel" @close="closeSpritePanel"
         @mousedown="preventMousedownPropagation">
-    </AttributePanel>
+    </SpritePanel>
     <StorePanel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation" :storeId="currentStoreID"></StorePanel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <ProcessBar v-if="showProcessBar" :duration="processBarDuration" :text="processBarText"
@@ -14,7 +14,7 @@
 import GameCanvas from '@/components/GameCanvas.vue';
 import FloatingButton from '@/components/FloatingButton.vue';
 import MyInfoPanel from '@/components/MyInfoPanel.vue';
-import AttributePanel from '@/components/AttributePanel.vue';
+import SpritePanel from '@/components/SpritePanel.vue';
 import StorePanel from '@/components/StorePanel.vue';
 import ProcessBar from '@/components/ProcessBar.vue';
 import myUtils from "@/js/myUtils.js";
@@ -25,7 +25,7 @@ export default {
         GameCanvas,
         FloatingButton,
         MyInfoPanel,
-        AttributePanel,
+        SpritePanel,
         StorePanel,
         ProcessBar
     },
@@ -41,7 +41,7 @@ export default {
             processBarDuration: 5,
             processBarText: '加载中...',
             EventOfProgressComplete: () => { },
-            itemNameOfAttributePanel: '',
+            itemNameOfSpritePanel: '',
             currentStoreID: '',
         };
     },
@@ -54,10 +54,10 @@ export default {
         },
 
         attributeListShow(itemID) {
-            this.itemNameOfAttributePanel = itemID;
+            this.itemNameOfSpritePanel = itemID;
             this.attributeListOpened = true;
         },
-        closeAttributePanel() {
+        closeSpritePanel() {
             this.attributeListOpened = false;
         },
 

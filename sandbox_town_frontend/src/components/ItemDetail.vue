@@ -6,9 +6,13 @@
                 <p>{{ (item == null) ? '' : item.itemTypeObj.name }}</p>
             </div>
             <div class="popup-panel-content">{{ (item == null) ? '' : item.itemTypeObj.description }}</div>
-            <ListPanel v-if="basicInfo.length > 0" title="基本信息" :items="basicInfo" />
+            <h4 v-if="basicInfo.length > 0" >基本信息</h4>
+            <ListPanel v-if="basicInfo.length > 0" :items="basicInfo" />
+                <h4 v-if="useInfo.length > 0" >使用效果</h4>
             <ListPanel v-if="useInfo.length > 0" title="使用效果" :items="useInfo" />
+                <h4 v-if="equipInfo.length > 0" >装备效果</h4>
             <ListPanel v-if="equipInfo.length > 0" title="装备效果" :items="equipInfo" />
+                <h4 v-if="handheldInfo.length > 0" >手持效果</h4>
             <ListPanel v-if="handheldInfo.length > 0" title="手持效果" :items="handheldInfo" />
             <div class="button-group">
                 <button class="cancel-btn" @click="cancel()">取消</button>

@@ -184,6 +184,9 @@ public class ItemService {
         Set<ItemTypeEffect> itemTypeEffects = itemTypeEffectMapper.selectByItemType(itemType);
         // 得到效果的详细信息，例如效果的描述
         Set<EffectEnum> effectEnums = itemTypeEffects.stream().map(ItemTypeEffect::getEffect).collect(Collectors.toSet());
+        if (effectEnums.isEmpty()) {
+            return itemTypeEffects;
+        }
         Map<EffectEnum, Effect> effectMap = effectMapper.selectBatchIds(effectEnums).stream().collect(Collectors.toMap(Effect::getId, effect -> effect));
         itemTypeEffects.forEach(itemTypeEffect -> itemTypeEffect.setEffectObj(effectMap.get(itemTypeEffect.getEffect())));
         return itemTypeEffects;
