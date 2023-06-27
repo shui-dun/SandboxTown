@@ -18,6 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+/**
+ * 事件处理器
+ * 充当中介者的角色
+ * 收到事件后，根据事件类型，调用相应的处理函数，里面会调用各个模块的服务
+ */
 @Slf4j
 @Component
 public class EventHandler {

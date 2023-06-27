@@ -55,6 +55,16 @@ export default {
     },
     methods: {
         confirm(event) {
+            if (event == 'ITEMBAR') {
+                // 放入物槽
+            } else if (event == 'HAND') {
+                // 手持
+            } else if (event == 'EQUIP') {
+                // 装备
+            } else if (event == 'USE') {
+                // 使用
+                myUtils.myPOST("/rest/item/use", new URLSearchParams({ itemId: this.itemId }));
+            }
             this.$emit('onConfirm');
         },
         cancel() {

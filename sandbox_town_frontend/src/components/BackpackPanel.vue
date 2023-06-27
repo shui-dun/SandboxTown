@@ -64,7 +64,9 @@ export default {
     },
     methods: {
         confirm() {
-            // TODO: 减少物品数量
+            // 减少物品数量
+            this.selectedItem.content.itemCount--;
+            this.selectedItem.caption.num--;
             this.showItemDetail = false;
         },
         cancel() {
