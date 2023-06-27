@@ -37,14 +37,14 @@ export default {
             data.forEach((element) => {
                 let item = {};
                 item.id = element.id;
-                item.name = element.itemTypeBean.name;
+                item.name = element.itemTypeObj.name;
                 item.caption = { num: element.itemCount };
                 item.image = require(`@/assets/img/${element.itemType}.png`);
                 // 设置物品的标签
                 item.labels = [];
                 // 如果物品包含HELMET（头盔）, CHEST（胸甲）, LEG（腿甲）, BOOTS（鞋）的LABEL，将其替换为EQUIPMENT（装备）
                 let isEquipment = false;
-                for (let label of element.labels) {
+                for (let label of element.itemTypeObj.labels) {
                     if ((label === 'HELMET' || label === 'CHEST' || label === 'LEG' || label === 'BOOTS') && !isEquipment) {
                         isEquipment = true;
                         item.labels.push('EQUIPMENT');
@@ -52,7 +52,7 @@ export default {
                         item.labels.push(label);
                     }
                 }
-                item.description = element.itemTypeBean.description;
+                item.description = element.itemTypeObj.description;
                 item.content = element;
                 // 将用户物品信息添加到items
                 this.items.push(item);

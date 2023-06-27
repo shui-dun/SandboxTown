@@ -8,9 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-import java.util.Set;
-
 @TableName("item")
 @Data
 @AllArgsConstructor
@@ -33,15 +30,6 @@ public class Item {
     private ItemPositionEnum position;
 
     @TableField(exist = false)
-    private ItemType itemTypeBean;
-
-    @TableField(exist = false)
-    private Set<ItemLabelEnum> labels;
-
-    @TableField(exist = false)
-    private Map<ItemOperationEnum, ItemTypeAttribute> attributes;
-
-    @TableField(exist = false)
-    private Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffect>> effects;
+    private ItemType itemTypeObj;
 
 }

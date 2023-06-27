@@ -3,9 +3,9 @@
         <div class="popup-panel">
             <div class="popup-panel-header">
                 <!-- 物品名称 -->
-                <p>{{ (item == null) ? '' : item.itemTypeBean.name }}</p>
+                <p>{{ (item == null) ? '' : item.itemTypeObj.name }}</p>
             </div>
-            <div class="popup-panel-content">{{ (item == null) ? '' : item.itemTypeBean.description }}</div>
+            <div class="popup-panel-content">{{ (item == null) ? '' : item.itemTypeObj.description }}</div>
             <ListPanel v-if="basicInfo.length > 0" title="基本信息" :items="basicInfo" />
             <ListPanel v-if="useInfo.length > 0" title="使用效果" :items="useInfo" />
             <ListPanel v-if="equipInfo.length > 0" title="装备效果" :items="equipInfo" />
@@ -58,11 +58,11 @@ export default {
         }
     },
     async mounted() {
-        this.item = await myUtils.myGET("/rest/item/detail", new URLSearchParams({ itemId: this.itemId }));
-        this.canEquip = this.item.labels.includes('HELMET') || this.item.labels.includes('CHEST')
-            || this.item.labels.includes('LEG') || this.item.labels.includes('BOOTS');
-        this.canUse = this.item.labels.includes('FOOD') || this.item.labels.includes('USABLE');
-        this.durability = this.item.itemTypeBean.durability;
+        this.item = await myUtils.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
+        this.canEquip = this.item.itemTypeObj.labels.includes('HELMET') || this.item.itemTypeObj.labels.includes('CHEST')
+            || this.item.itemTypeObj.labels.includes('LEG') || this.item.itemTypeObj.labels.includes('BOOTS');
+        this.canUse = this.item.itemTypeObj.labels.includes('FOOD') || this.item.itemTypeObj.labels.includes('USABLE');
+        this.durability = this.item.itemTypeObj.durability;
         this.basicInfo = [
             { key: '🔢 数目', value: this.item.itemCount },
 
@@ -70,8 +70,8 @@ export default {
 
         ]
         // 如果耐久度不为-1，说明有寿命，需要显示耐久度以及寿命
-        if (this.item.itemTypeBean.durability != -1) {
-            this.basicInfo.push({ key: '🔨 耐久', value: this.item.itemTypeBean.durability });
+        if (this.item.itemTypeObj.durability != -1) {
+            this.basicInfo.push({ key: '🔨 耐久', value: this.item.itemTypeObj.durability });
             this.basicInfo.push({ key: '⏳ 寿命', value: this.item.life });
         }
         let attributes = {
@@ -79,8 +79,8 @@ export default {
             'EQUIP': this.equipInfo,
             'HANDHELD': this.handheldInfo,
         };
-        for (let operation in this.item.attributes) {
-            let attribute = this.item.attributes[operation];
+        for (let operation in this.item.itemTypeObj.attributes) {
+            let attribute = this.item.itemTypeObj.attributes[operation];
             if (attribute.moneyInc != 0) {
                 attributes[operation].push({ key: '❄ 金钱', value: attribute.moneyInc });
             }
@@ -106,8 +106,8 @@ export default {
                 attributes[operation].push({ key: '❄ 速度', value: attribute.speedInc });
             }
         }
-        for (let operation in this.item.effects) {
-            let effects = this.item.effects[operation];
+        for (let operation in this.item.itemTypeObj.effects) {
+            let effects = this.item.itemTypeObj.effects[operation];
             // 对于每个效果，都要显示效果的名称和持续时间
             for (let effectId in effects) {
                 let effect = effects[effectId];
@@ -117,7 +117,6 @@ export default {
                 if (effect.duration != -1) {
                     value += `，持续${effect.duration}秒`;
                 }
-                console.log(key, value);
                 attributes[operation].push({ key: key, value: value });
             }
         }

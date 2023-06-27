@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.RestResponse;
 import com.shuidun.sandbox_town_backend.enumeration.ItemPositionEnum;
+import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.ItemService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +26,13 @@ public class ItemController {
     /** 获取当前登陆玩家的所有物品信息 */
     @GetMapping("/listMyItems")
     public RestResponse<?> listMyItems() {
-        return new  RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listByOwnerWithTypeAndLabel(StpUtil.getLoginIdAsString()));
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listByOwnerWithTypeAndLabel(StpUtil.getLoginIdAsString()));
     }
 
     /** 获取当前登陆玩家的背包中的所有物品信息 */
     @GetMapping("/listMyItemsInBackpack")
     public RestResponse<?> listMyItemsInBackpack() {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listByOwnerAndPositionWithTypeAndLabel(StpUtil.getLoginIdAsString(), ItemPositionEnum.BACKPACK));
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listItemsByOwnerAndPositionWithTypeAndLabel(StpUtil.getLoginIdAsString(), ItemPositionEnum.BACKPACK));
     }
 
 
@@ -42,8 +43,14 @@ public class ItemController {
     }
 
     /** 显示某个物品的详细信息 */
-    @GetMapping("/detail")
+    @GetMapping("/itemDetail")
     public RestResponse<?> detail(String itemId) {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.detail(itemId));
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.getItemDetailById(itemId));
+    }
+
+    /** 显示某个物品类型的详细信息 */
+    @GetMapping("/itemTypeDetail")
+    public RestResponse<?> detailByItemType(ItemTypeEnum itemType) {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.getItemTypeDetailById(itemType));
     }
 }
