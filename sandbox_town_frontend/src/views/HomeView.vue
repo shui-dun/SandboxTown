@@ -66,7 +66,7 @@ import RegisterForm from '../components/RegisterForm.vue';
 import CircleBackground from '@/components/CircleBackground.vue';
 import MapChoose from '@/components/MapChoose.vue';
 import ChangePasswd from '@/components/ChangePasswd.vue';
-import myUtils from "@/js/myUtils.js";
+import mixin from "@/js/mixin.js";
 
 export default {
     components: {
@@ -105,7 +105,7 @@ export default {
         },
         async checkIsLogin() {
             // 向后端发送请求，检查是否登录
-            let username = await myUtils.myGET('/rest/user/getUsername');
+            let username = await mixin.myGET('/rest/user/getUsername');
             if (username == null) {
                 // 未登录
                 this.isLogin = false;
@@ -117,7 +117,7 @@ export default {
         },
         doLogout() {
             // 向后端发送请求，退出登录
-            myUtils.myPOST('/rest/user/logout', null, () => {
+            mixin.myPOST('/rest/user/logout', null, () => {
                 this.isLogin = false;
                 this.curTab = 'login';
             });

@@ -17,7 +17,7 @@
 </template>
   
 <script>
-import myUtils from "@/js/myUtils.js";
+import mixin from "@/js/mixin.js";
 
 export default {
     components: {
@@ -33,28 +33,28 @@ export default {
         onRegister() {
             // 检查用户名是否过短
             if (this.username.length < 3) {
-                myUtils.fadeInfoShow('用户名过短');
+                mixin.fadeInfoShow('用户名过短');
                 return;
             }
             // 密码长度不能小于 6 位
             if (this.password.length < 6) {
-                myUtils.fadeInfoShow('密码长度不能小于 6 位');
+                mixin.fadeInfoShow('密码长度不能小于 6 位');
                 return;
             }
             // 检查两次输入的密码是否一致
             if (this.password !== this.repassword) {
-                myUtils.fadeInfoShow('两次输入的密码不一致');
+                mixin.fadeInfoShow('两次输入的密码不一致');
                 return;
             }
             // 向后端发送注册请求
-            myUtils.myPOST(
+            mixin.myPOST(
                 '/rest/user/signup',
                 new URLSearchParams({
                     usernameSuffix: this.username,
                     password: this.password,
                 }),
                 () => {
-                    myUtils.fadeInfoShow('注册成功');
+                    mixin.fadeInfoShow('注册成功');
                     this.$emit('signup');
                 },
             );

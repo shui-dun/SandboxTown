@@ -17,7 +17,7 @@ import MyInfoPanel from '@/components/MyInfoPanel.vue';
 import SpritePanel from '@/components/SpritePanel.vue';
 import StorePanel from '@/components/StorePanel.vue';
 import ProcessBar from '@/components/ProcessBar.vue';
-import myUtils from "@/js/myUtils.js";
+import mixin from "@/js/mixin.js";
 
 
 export default {
@@ -86,7 +86,7 @@ export default {
     },
     async mounted() {
         // 向后端发送请求，检查是否登录
-        let username = await myUtils.myGET('/rest/user/getUsername');
+        let username = await mixin.myGET('/rest/user/getUsername');
         if (username == null) {
             // 未登录，跳转到登录页面
             this.$router.push('/');

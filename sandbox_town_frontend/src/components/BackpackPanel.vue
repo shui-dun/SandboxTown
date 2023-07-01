@@ -8,7 +8,7 @@
 <script>
 import GridPanel from './GridPanel.vue';
 import ItemDetail from './ItemDetail.vue';
-import myUtils from '@/js/myUtils.js';
+import mixin from '@/js/mixin.js';
 
 export default {
     components: {
@@ -32,7 +32,7 @@ export default {
     },
     mounted() {
         // 从后端获取玩家物品信息
-        myUtils.myGET('/rest/item/listMyItemsInBackpack', null, (data) => {
+        mixin.myGET('/rest/item/listMyItemsInBackpack', null, (data) => {
             // 重命名物品的属性名
             data.forEach((element) => {
                 let item = {};

@@ -6,7 +6,7 @@
 import Phaser from "phaser";
 import {mainScene, closeGame} from "../js/MainScene.js";
 import storeScene from "../js/StoreScene.js";
-import myUtils from "@/js/myUtils.js";
+import mixin from "@/js/mixin.js";
 
 export default {
     mounted() {
@@ -32,7 +32,7 @@ export default {
         this.game = new Phaser.Game(config);
 
         this.game.events.on('showFadeInfo', (event) => {
-            myUtils.fadeInfoShow(event.msg);
+            mixin.fadeInfoShow(event.msg);
         });
 
         this.game.events.on('showSpritePanel', (event) => {
@@ -46,12 +46,12 @@ export default {
                     text: '正在摘苹果...',
                     progressCompleteEvent: () => {
                         // 向后端发送摘苹果请求
-                        myUtils.myPOST('/rest/tree/pickApple',
+                        mixin.myPOST('/rest/tree/pickApple',
                             new URLSearchParams({
                                 treeId: event.targetID,
                             }),
                             () => {
-                                myUtils.fadeInfoShow('摘苹果成功');
+                                mixin.fadeInfoShow('摘苹果成功');
                             },
                         );
                     },

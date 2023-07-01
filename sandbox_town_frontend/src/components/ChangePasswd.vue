@@ -21,7 +21,7 @@
 </template>
   
 <script>
-import myUtils from "@/js/myUtils.js";
+import mixin from "@/js/mixin.js";
 
 export default {
     components: {
@@ -36,34 +36,34 @@ export default {
     },
     async mounted() {
         // 获取用户名后缀
-        this.usernameSuffix = (await myUtils.myGET('/rest/user/getUsername', null)).slice(5);
+        this.usernameSuffix = (await mixin.myGET('/rest/user/getUsername', null)).slice(5);
     },
     methods: {
         async onChangePasswd() {
             // 检查旧密码是否为空
             if (this.oldpassword === '') {
-                myUtils.fadeInfoShow('旧密码不能为空');
+                mixin.fadeInfoShow('旧密码不能为空');
                 return;
             }
             // 新密码长度不能小于 6 位
             if (this.newpassword.length < 6) {
-                myUtils.fadeInfoShow('新密码长度不能小于 6 位');
+                mixin.fadeInfoShow('新密码长度不能小于 6 位');
                 return;
             }
             // 检查两次输入的密码是否一致
             if (this.newpassword !== this.repassword) {
-                myUtils.fadeInfoShow('两次输入的密码不一致');
+                mixin.fadeInfoShow('两次输入的密码不一致');
                 return;
             }
             // 向后端发送修改密码请求
-            await myUtils.myPOST(
+            await mixin.myPOST(
                 '/rest/user/changePassword',
                 new URLSearchParams({
                     oldPassword: this.oldpassword,
                     newPassword: this.newpassword,
                 }),
                 () => {
-                    myUtils.fadeInfoShow('修改密码成功');
+                    mixin.fadeInfoShow('修改密码成功');
                 },
             );
         },

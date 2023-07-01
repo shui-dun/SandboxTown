@@ -11,6 +11,8 @@
 </template>
   
 <script>
+
+import mixin from "@/js/mixin.js";
 const { v4: uuidv4 } = require('uuid');
 
 export default {
@@ -20,7 +22,36 @@ export default {
             show: {}
         };
     },
-    mounted() { },
+    mounted() {
+        mixin.emitter.on("spriteAttributeChange", msg => {
+            let showMap = {
+                "moneyInc": "💰 金钱",
+                "expInc": "📖 经验",
+                "levelInc": "📈 等级",
+                "hungerInc": "🍔 饥饿",
+                "hpInc": "❤️ 生命值",
+                "attackInc": "⚔️ 攻击力",
+                "defenseInc": "🛡️ 防御力",
+                "speedInc": "🏃 速度",
+            };
+            let self = this;
+            function showMsg(attr) {
+                console.log(attr, msg[attr], showMap[attr])
+                if (msg[attr] > 0) {
+                    self.showInfo(`您的${showMap[attr]}增加了${msg[attr]}`);
+                } else if (msg[attr] < 0) {
+                    self.showInfo(`您的${showMap[attr]}减少了${-msg[attr]}`);
+                }
+            }
+            for (let key in showMap) {
+                // 如果等级提升了，那么不显示经验值的变化
+                if (key === "expInc" && msg["levelInc"] > 0) {
+                    continue;
+                }
+                showMsg(key);
+            }
+        });
+    },
     methods: {
         showInfo(msg) {
             const uuid = uuidv4();

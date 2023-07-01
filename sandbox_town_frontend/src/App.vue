@@ -4,7 +4,7 @@
 </template>
 <script>
 import FadeInfo from '@/components/FadeInfo.vue';
-import myUtils from "@/js/myUtils.js";
+import mixin from "@/js/mixin.js";
 
 export default {
     components: {
@@ -12,7 +12,7 @@ export default {
     },
     mounted() {
         // 设置全局的工具类里面的fadeInfoShow方法
-        myUtils.fadeInfoShow = (msg) => {
+        mixin.fadeInfoShow = (msg) => {
             this.$refs.fadeInfo.showInfo(msg)
         };
     },

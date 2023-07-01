@@ -1,4 +1,6 @@
-const myUtils = {
+import mitt from "mitt";
+
+const mixin = {
     // 显示提示框
     fadeInfoShow: null,
 
@@ -65,7 +67,8 @@ const myUtils = {
             return Math.abs(hash); // 使用绝对值来确保得到的是正数
         }
         return nameList[hashString(originName) % nameList.length];
-    }
+    },
+    emitter: mitt(),
 }
 
-export default myUtils;
+export default mixin;

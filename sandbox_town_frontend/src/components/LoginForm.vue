@@ -18,7 +18,7 @@
 </template>
   
 <script>
-import myUtils from "@/js/myUtils.js";
+import mixin from "@/js/mixin.js";
 
 export default {
     components: {
@@ -33,14 +33,14 @@ export default {
     methods: {
         onLogin() {
             if (this.username === '') {
-                myUtils.fadeInfoShow('用户名不能为空');
+                mixin.fadeInfoShow('用户名不能为空');
                 return;
             }
             if (this.password === '') {
-                myUtils.fadeInfoShow('密码不能为空');
+                mixin.fadeInfoShow('密码不能为空');
                 return;
             }
-            myUtils.myPOST(
+            mixin.myPOST(
                 '/rest/user/login',
                 new URLSearchParams({
                     username: 'USER_' + this.username,
@@ -48,7 +48,7 @@ export default {
                     rememberMe: this.rememberMe,
                 }),
                 () => {
-                    myUtils.fadeInfoShow('登录成功');
+                    mixin.fadeInfoShow('登录成功');
                     this.$emit('login');
                 },
             );

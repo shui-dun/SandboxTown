@@ -26,7 +26,7 @@
 </template>
   
 <script>
-import myUtils from '@/js/myUtils';
+import mixin from '@/js/mixin';
 import ListPanel from './ListPanel.vue';
 
 
@@ -54,7 +54,7 @@ export default {
         };
     },
     methods: {
-        confirm(event) {
+        async confirm(event) {
             if (event == 'ITEMBAR') {
                 // 放入物槽
             } else if (event == 'HAND') {
@@ -63,7 +63,8 @@ export default {
                 // 装备
             } else if (event == 'USE') {
                 // 使用
-                myUtils.myPOST("/rest/item/use", new URLSearchParams({ itemId: this.itemId }));
+                let spriteChange = await mixin.myPOST("/rest/item/use", new URLSearchParams({ itemId: this.itemId }));
+                mixin.emitter.emit('spriteAttributeChange', spriteChange.spriteAttributeChange);
             }
             this.$emit('onConfirm');
         },
@@ -72,7 +73,7 @@ export default {
         }
     },
     async mounted() {
-        this.item = await myUtils.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
+        this.item = await mixin.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
         this.canEquip = this.item.itemTypeObj.labels.includes('HELMET') || this.item.itemTypeObj.labels.includes('CHEST')
             || this.item.itemTypeObj.labels.includes('LEG') || this.item.itemTypeObj.labels.includes('BOOTS');
         this.canUse = this.item.itemTypeObj.labels.includes('FOOD') || this.item.itemTypeObj.labels.includes('USABLE');
@@ -99,29 +100,20 @@ export default {
         }
         for (let operation in this.item.itemTypeObj.attributes) {
             let attribute = this.item.itemTypeObj.attributes[operation];
-            if (attribute.moneyInc != 0) {
-                attributes[operation].push({ key: '❄ 金钱', value: showPlusSign(attribute.moneyInc) });
+            let attributeMap = {
+                'moneyInc': '金钱',
+                'expInc': '经验',
+                'levelInc': '等级',
+                'hungerInc': '饱腹',
+                'hpInc': '生命',
+                'attackInc': '攻击',
+                'defenseInc': '防御',
+                'speedInc': '速度',
             }
-            if (attribute.expInc != 0) {
-                attributes[operation].push({ key: '❄ 经验', value: showPlusSign(attribute.expInc) });
-            }
-            if (attribute.levelInc != 0) {
-                attributes[operation].push({ key: '❄ 等级', value: showPlusSign(attribute.levelInc) });
-            }
-            if (attribute.hungerInc != 0) {
-                attributes[operation].push({ key: '❄ 饱腹', value: showPlusSign(attribute.hungerInc) });
-            }
-            if (attribute.hpInc != 0) {
-                attributes[operation].push({ key: '❄ 生命', value: showPlusSign(attribute.hpInc) });
-            }
-            if (attribute.attackInc != 0) {
-                attributes[operation].push({ key: '❄ 攻击', value: showPlusSign(attribute.attackInc) });
-            }
-            if (attribute.defenseInc != 0) {
-                attributes[operation].push({ key: '❄ 防御', value: showPlusSign(attribute.defenseInc) });
-            }
-            if (attribute.speedInc != 0) {
-                attributes[operation].push({ key: '❄ 速度', value: showPlusSign(attribute.speedInc) });
+            for (let key in attributeMap) {
+                if (attribute[key] != 0) {
+                    attributes[operation].push({ key: `❄ ${attributeMap[key]}`, value: showPlusSign(attribute[key]) });
+                }
             }
         }
         for (let operation in this.item.itemTypeObj.effects) {

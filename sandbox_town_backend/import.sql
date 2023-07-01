@@ -282,8 +282,11 @@ create table item
 
 insert into item(id, owner, item_type, item_count, life, level, position)
 values ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
-       ('APPLE_hdjfdjeio', 'USER_xixi', 'APPLE', 2, 100, 1, 'BACKPACK'),
-       ('TREASURE_CHEST_ixdiue', 'USER_xixi', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK');
+       ('APPLE_hdjfdjeio', 'USER_xixi', 'APPLE', 5, 100, 1, 'BACKPACK'),
+       ('TREASURE_CHEST_ixdiue', 'USER_xixi', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK'),
+       ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
+       ('APPLE_hdjfdjedfio', 'USER_haha', 'APPLE', 5, 100, 1, 'BACKPACK'),
+       ('TREASURE_CHEST_ixdiudfdfde', 'USER_haha', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK');
 
 
 # 创建建筑类型表

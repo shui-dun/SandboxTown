@@ -18,7 +18,7 @@
 import NavGroup from './NavGroup.vue';
 import GridPanel from './GridPanel.vue';
 import NumberChoose from './NumberChoose.vue';
-import myUtils from "@/js/myUtils.js";
+import mixin from "@/js/mixin.js";
 
 export default {
     props: {
@@ -62,7 +62,7 @@ export default {
     },
     async mounted() {
         // 获得商品列表
-        await myUtils.myGET('/rest/store/listByStore',
+        await mixin.myGET('/rest/store/listByStore',
             new URLSearchParams({
                 store: this.storeId,
             }),
@@ -88,7 +88,7 @@ export default {
         },
         soldItemEvent(item) {
             if (item.caption.num === 0) {
-                myUtils.fadeInfoShow(`你没有${item.name}了`)
+                mixin.fadeInfoShow(`你没有${item.name}了`)
                 return;
             }
             this.willingOperation = 'SOLD';
@@ -100,7 +100,7 @@ export default {
             this.willingNumber = value;
             if (this.willingOperation === 'BUY') {
                 // 处理购买请求
-                await myUtils.myPOST('/rest/store/buy',
+                await mixin.myPOST('/rest/store/buy',
                     new URLSearchParams({
                         store: this.storeId,
                         item: this.selectedItem.id,
@@ -108,7 +108,7 @@ export default {
                     }),
                     () => {
                         // 由父节点显示提示信息
-                        myUtils.fadeInfoShow(`购买${this.willingNumber}个${this.selectedItem.name}`)
+                        mixin.fadeInfoShow(`购买${this.willingNumber}个${this.selectedItem.name}`)
                         // 更新商品列表中该商品的数目
                         this.selectedItem.caption.num -= this.willingNumber;
                     },
@@ -118,7 +118,7 @@ export default {
                 let item = this.selectedItem;
                 item.caption.num -= this.willingNumber;
                 // 由父节点显示提示信息
-                myUtils.fadeInfoShow(`出售${this.willingNumber}个${this.selectedItem.name}`)
+                mixin.fadeInfoShow(`出售${this.willingNumber}个${this.selectedItem.name}`)
             }
             this.showNumberChoose = false;
         },

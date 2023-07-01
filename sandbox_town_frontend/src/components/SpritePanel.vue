@@ -15,7 +15,7 @@
 <script>
 import NavGroup from './NavGroup.vue';
 import ListPanel from './ListPanel.vue';
-import myUtils from "@/js/myUtils.js";
+import mixin from "@/js/mixin.js";
 
 export default {
     props: {
@@ -51,13 +51,13 @@ export default {
     },
     async mounted() {
         // 从后端获取物品信息
-        this.info = await myUtils.myGET(`/rest/sprite/list/${this.itemName}`);
+        this.info = await mixin.myGET(`/rest/sprite/list/${this.itemName}`);
         // 如果是用户，删掉前缀
         if (this.itemName.startsWith("USER_")) {
             this.info.id = this.info.id.split("_", 2)[1];
         } else {
             // 否则对名字进行哈希
-            this.info.id = myUtils.hashName(this.info.id);
+            this.info.id = mixin.hashName(this.info.id);
         }
         this.id = this.info.id;
         this.description = this.info.description;

@@ -46,7 +46,8 @@ public class ItemService {
     }
 
     @Transactional
-    public Sprite use(String owner, String itemId) {
+    public SpriteChange use(String owner, String itemId) {
+        SpriteChange spriteChange = new SpriteChange();
         // 判断物品是否存在
         Item item = itemMapper.selectById(itemId);
         if (item == null) {
@@ -66,6 +67,7 @@ public class ItemService {
         // TODO: 根据物品等级计算属性变化
         // 得到角色原先属性
         Sprite sprite = spriteMapper.selectById(owner);
+        spriteChange.getSpriteAttributeChange().setOriginal(sprite);
         // 更新角色属性
         sprite.setMoney(sprite.getMoney() + itemTypeAttribute.getMoneyInc());
         sprite.setExp(sprite.getExp() + itemTypeAttribute.getExpInc());
@@ -74,9 +76,10 @@ public class ItemService {
         sprite.setAttack(sprite.getAttack() + itemTypeAttribute.getAttackInc());
         sprite.setDefense(sprite.getDefense() + itemTypeAttribute.getDefenseInc());
         sprite.setSpeed(sprite.getSpeed() + itemTypeAttribute.getSpeedInc());
-        // TODO: 向角色施加效果
         // 判断新属性是否在合理范围内（包含升级操作），随后写入数据库
         sprite = spriteService.normalizeAndUpdatePlayer(sprite);
+        spriteChange.getSpriteAttributeChange().setChanged(sprite);
+        // TODO: 向角色施加效果
         // 判断是否是最后一个物品
         if (item.getItemCount() <= 1) {
             // 删除物品
@@ -86,7 +89,7 @@ public class ItemService {
             item.setItemCount(item.getItemCount() - 1);
             itemMapper.updateById(item);
         }
-        return sprite;
+        return spriteChange;
     }
 
     // 给玩家添加物品

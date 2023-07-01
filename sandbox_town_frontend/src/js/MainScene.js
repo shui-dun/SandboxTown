@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import myUtils from "@/js/myUtils.js";
+import mixin from "@/js/mixin.js";
 
 // 设置id->gameObject的映射
 var id2gameObject = {};
@@ -71,27 +71,27 @@ const mainScene = {
         this.input.mouse.disableContextMenu();
 
         // 得到地图信息
-        gameMap = await myUtils.myGET('/rest/gamemap/getGameMap');
+        gameMap = await mixin.myGET('/rest/gamemap/getGameMap');
 
         // 得到自己以及自己宠物的信息
-        let myAndMyPetInfo = await myUtils.myGET('/rest/sprite/myAndMyPetInfo');
+        let myAndMyPetInfo = await mixin.myGET('/rest/sprite/myAndMyPetInfo');
         // 得到当前用户的用户名
         myUsername = myAndMyPetInfo.me.id;
 
         // 得到当前在线的角色列表
-        spriteList = await myUtils.myGET('/rest/sprite/listAllOnline');
+        spriteList = await mixin.myGET('/rest/sprite/listAllOnline');
         // 将自己和自己的宠物加入角色列表
         spriteList.push(myAndMyPetInfo.me);
         spriteList.push(...myAndMyPetInfo.myPets);
 
         // 得到建筑类型列表
-        buildingTypes = await myUtils.myGET('/rest/building/getAllBuildingTypes');
+        buildingTypes = await mixin.myGET('/rest/building/getAllBuildingTypes');
 
         // 得到建筑列表
-        buildingList = await myUtils.myGET('/rest/building/getAllBuildings');
+        buildingList = await mixin.myGET('/rest/building/getAllBuildings');
 
         // 获得登录奖励
-        let loginReward = await myUtils.myPOST('/rest/user/enterGameToReceiveReward');
+        let loginReward = await mixin.myPOST('/rest/user/enterGameToReceiveReward');
         if (loginReward != 0) {
             scene.game.events.emit('showFadeInfo', { 'msg': '登录奖励: ' + loginReward + '金币💰' });
         }
@@ -506,7 +506,7 @@ function createWebSocket() {
 async function getGameObjectById(id) {
     // 如果id2gameObject中不存在该id，说明是网络问题，例如ONLINE消息丢失，需要手动从后端获得
     if (id2gameObject[id] == null) {
-        let response = await myUtils.myGET(`/rest/sprite/list/${id}`);
+        let response = await mixin.myGET(`/rest/sprite/list/${id}`);
         createSprite(response);
     }
     return id2gameObject[id];
@@ -516,7 +516,7 @@ async function getGameObjectById(id) {
 async function getSpriteInfoById(id) {
     // 如果id2gameObject中不存在该id，说明是网络问题，例如ONLINE消息丢失，需要手动从后端获得
     if (id2spriteInfo[id] == null) {
-        let response = await myUtils.myGET(`/rest/sprite/list/${id}`);
+        let response = await mixin.myGET(`/rest/sprite/list/${id}`);
         createSprite(response);
     }
     return id2spriteInfo[id];

@@ -33,7 +33,7 @@
     <InquiryPanel v-if="showInquiryPanel" :prompt="inquiryPanelPrompt" @onConfirm="confirm" @onCancel="cancel" />
 </template>
 <script>
-import myUtils from '@/js/myUtils.js';
+import mixin from '@/js/mixin.js';
 import InquiryPanel from './InquiryPanel.vue';
 
 export default {
@@ -82,13 +82,13 @@ export default {
         },
         confirm() {
             this.equipmentItems[this.selectedItemKey] = {};
-            myUtils.fadeInfoShow(`卸下${this.selectedItem.name}`)
+            mixin.fadeInfoShow(`卸下${this.selectedItem.name}`)
             this.showInquiryPanel = false;
         },
     },
     mounted() {
         // 从后端获取玩家信息
-        myUtils.myGET('/rest/sprite/listMine', null, (data) => {
+        mixin.myGET('/rest/sprite/listMine', null, (data) => {
             data.id = data.id.split("_", 2)[1];
             this.player = data;
             // 将用户信息添加到userInfo中
