@@ -1,6 +1,6 @@
 # TO-DO
 
-我使用vue3，我有三个组件A, B, C，还有一个js文件D，当A向后端发送一个请求时，A从后端获得响应，但我希望B, C, D也能收到响应并进行一些操作，如何实现？通过事件总线mitt实现
+- 玩家可以向商店卖出商店，按照物品在商店价格的50%售卖，如果商店没有该物品，则按照物品基础价格的50%售卖
 
 ## 架构设计
 
@@ -23,6 +23,12 @@
 - 对于每个地图独有的数据，例如物品的坐标，不需要redis，直接用java的并发容器放在Java内存里比较快，但需要定期写回MySQL
 
 ## 前端
+
+### 素材
+
+bing prompt: 
+
+> cute cartoon dog, white background, Illustration, Graphic Design, Minimalism, simple, color, front view
 
 ### 增加物品栏
 

@@ -1,17 +1,26 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.*;
+import com.shuidun.sandbox_town_backend.bean.Building;
+import com.shuidun.sandbox_town_backend.bean.ItemType;
+import com.shuidun.sandbox_town_backend.bean.Sprite;
+import com.shuidun.sandbox_town_backend.bean.StoreItemType;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
-import com.shuidun.sandbox_town_backend.mapper.*;
+import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
+import com.shuidun.sandbox_town_backend.mapper.ItemTypeMapper;
+import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
+import com.shuidun.sandbox_town_backend.mapper.StoreItemTypeMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -38,7 +47,19 @@ public class StoreService {
     }
 
     public List<StoreItemType> listByStore(String store) {
-        return storeItemTypeMapper.selectByStore(store);
+        List<StoreItemType> storeItemTypes = storeItemTypeMapper.selectByStore(store);
+        if (storeItemTypes == null || storeItemTypes.isEmpty()) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
+        // 得到所有的物品类型枚举（不重复）
+        Set<ItemTypeEnum> itemTypes = storeItemTypes.stream().map(StoreItemType::getItemType).collect(Collectors.toSet());
+        // 得到所有的物品类型
+        Map<ItemTypeEnum, ItemType> itemTypeMap = itemTypeMapper.selectBatchIds(itemTypes).stream().collect(Collectors.toMap(ItemType::getId, itemType -> itemType));
+        // 为所有物品类型设置标签
+        itemService.setLabelsForItemTypes(itemTypeMap.values());
+        // 为所有商店商品设置物品类型
+        storeItemTypes.forEach(storeItemType -> storeItemType.setItemTypeObj(itemTypeMap.get(storeItemType.getItemType())));
+        return storeItemTypes;
     }
 
     /** 买入商品 */

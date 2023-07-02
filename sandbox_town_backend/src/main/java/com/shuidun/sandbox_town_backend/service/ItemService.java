@@ -9,9 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -161,13 +159,13 @@ public class ItemService {
     }
 
     // 为物品类型列表设置标签信息
-    private void setLabelsForItemTypes(List<ItemType> itemTypes) {
+    public void setLabelsForItemTypes(Collection<ItemType> itemTypes) {
         // 找到所有物品类型的标签
         List<ItemTypeLabel> itemTypeLabels = itemTypeLabelMapper.selectByItemTypes(itemTypes.stream().map(ItemType::getId).collect(Collectors.toList()));
         // 根据物品类型id分组
         Map<ItemTypeEnum, Set<ItemTypeLabel>> itemTypeLabelMap = itemTypeLabels.stream().collect(Collectors.groupingBy(ItemTypeLabel::getItemType, Collectors.toSet()));
-        // 为每个物品类型设置标签
-        itemTypes.forEach(itemType -> itemType.setLabels(itemTypeLabelMap.get(itemType.getId()).stream().map(ItemTypeLabel::getLabel).collect(Collectors.toSet())));
+        // 为每个物品类型设置标签（如果没有标签，会返回空集合）
+        itemTypes.forEach(itemType -> itemType.setLabels(itemTypeLabelMap.getOrDefault(itemType.getId(), new HashSet<>()).stream().map(ItemTypeLabel::getLabel).collect(Collectors.toSet())));
     }
 
     // 为物品列表设置物品类型信息（带有标签信息）
