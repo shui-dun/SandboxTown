@@ -74,7 +74,7 @@
 
 ## 素材来源
 
-- https://www.bing.com/create 所有建筑以及角色等等素材
+- https://www.bing.com/create 所有建筑、角色、物品的素材
 - https://cupnooble.itch.io/sprout-lands-asset-pack 背景纹理和围墙
-- https://remixicon.com/ 箭头等图标
+- https://remixicon.com/ 箭头、搜索等图标
 
