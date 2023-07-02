@@ -4,7 +4,7 @@
             <template v-slot:0>
                 <div style="max-width: 250px;">
                     <h4>{{ id }}</h4>
-                    <div>{{ description }}</div>
+                    <div style="margin-bottom: 15px;">{{ description }}</div>
                     <ListPanel :items="itemInfo" />
                 </div>
             </template>

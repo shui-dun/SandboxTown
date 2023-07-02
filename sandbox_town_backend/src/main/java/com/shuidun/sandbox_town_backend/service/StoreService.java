@@ -46,6 +46,7 @@ public class StoreService {
         this.itemService = itemService;
     }
 
+    /** 列出商店的所有商品 */
     public List<StoreItemType> listByStore(String store) {
         List<StoreItemType> storeItemTypes = storeItemTypeMapper.selectByStore(store);
         if (storeItemTypes == null || storeItemTypes.isEmpty()) {
@@ -150,5 +151,16 @@ public class StoreService {
         for (Building store : stores) {
             refresh(store.getId());
         }
+    }
+
+    /** 列出指定商店中指定商品的信息（包含标签信息、属性增益信息、效果信息等） */
+    public StoreItemType detailByStoreAndItemType(String store, ItemTypeEnum itemType) {
+        StoreItemType storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, itemType);
+        if (storeItemType == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
+        // 得到标签信息、属性增益信息、效果信息等
+        storeItemType.setItemTypeObj(itemService.getItemTypeDetailById(itemType));
+        return storeItemType;
     }
 }

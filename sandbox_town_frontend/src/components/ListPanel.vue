@@ -22,7 +22,8 @@ export default {
 </script>
 <style scoped>
 .custom-table {
-    margin-top: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
     table-layout: fixed;
 }
 

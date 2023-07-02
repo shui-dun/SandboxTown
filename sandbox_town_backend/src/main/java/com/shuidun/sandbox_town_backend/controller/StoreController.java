@@ -21,7 +21,7 @@ public class StoreController {
         this.storeService = storeService;
     }
 
-    // 得到某个商店的所有商品
+    // 得到某个商店的所有商品列表
     @GetMapping("/listByStore")
     public RestResponse<?> listByStore(String store) {
         return new RestResponse<>(StatusCodeEnum.SUCCESS, storeService.listByStore(store));
@@ -38,6 +38,12 @@ public class StoreController {
     public RestResponse<?> buy(String store, ItemTypeEnum item, Integer amount) {
         storeService.buy(StpUtil.getLoginIdAsString(), store, item, amount);
         return new RestResponse<>(StatusCodeEnum.SUCCESS);
+    }
+
+    // 得到某个商店的某个商品的详细信息
+    @GetMapping("/getByStoreAndItemType")
+    public RestResponse<?> getByStoreAndItem(String store, ItemTypeEnum itemType) {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, storeService.detailByStoreAndItemType(store, itemType));
     }
 }
 

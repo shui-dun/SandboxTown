@@ -77,12 +77,9 @@ export default {
         this.canEquip = this.item.itemTypeObj.labels.includes('HELMET') || this.item.itemTypeObj.labels.includes('CHEST')
             || this.item.itemTypeObj.labels.includes('LEG') || this.item.itemTypeObj.labels.includes('BOOTS');
         this.canUse = this.item.itemTypeObj.labels.includes('FOOD') || this.item.itemTypeObj.labels.includes('USABLE');
-        this.durability = this.item.itemTypeObj.durability;
         this.basicInfo = [
             { key: '🔢 数目', value: this.item.itemCount },
-
             { key: '⭐ 等级', value: this.item.level },
-
         ]
         // 如果耐久度不为-1，说明有寿命，需要显示耐久度以及寿命
         if (this.item.itemTypeObj.durability != -1) {

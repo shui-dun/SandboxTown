@@ -1,7 +1,7 @@
 <template>
     <GridPanel ref="gridPanel" title="🏪 购买商品" :items="items" :labels="labels"
         @clickGridItem="onClickItem" />
-    <StoreItemTypeDetail v-if="showStoreItemTypeDetail" :storeId="storeId" :itemType="selectedItem.id" @ononBuy="onBuy" @onCancel="cancel" />
+    <StoreItemTypeDetail v-if="showStoreItemTypeDetail" :storeId="storeId" :itemType="selectedItem.id" @onBuy="onBuy" @onCancel="cancel" />
 </template>
 <script>
 import mixin from '@/js/mixin';
