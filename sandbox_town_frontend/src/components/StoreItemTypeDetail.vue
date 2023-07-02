@@ -24,24 +24,31 @@
 </template>
   
 <script>
+import mixin from '@/js/mixin';
+
 export default {
     props: {
         minNumber: {
             type: Number,
             default: 1,
         },
-        maxNumber: {
-            type: Number,
-            required: true,
-        },
         prompt: {
             type: String,
             default: '请选择数目',
+        },
+        storeId: {
+            type: String,
+            required: true,
+        },
+        itemType: {
+            type: String,
+            required: true,
         },
     },
     data() {
         return {
             number: this.minNumber,
+            maxNumber: 1,
         };
     },
     methods: {
@@ -60,8 +67,23 @@ export default {
         cancel() {
             this.$emit('onCancel');
         },
-        confirm() {
-            this.$emit('onConfirm', this.number);
+        async confirm() {
+            this.willingNumber = this.number;
+            // 处理购买请求
+            await mixin.myPOST('/rest/store/buy',
+                new URLSearchParams({
+                    store: this.storeId,
+                    item: this.selectedItem.id,
+                    amount: this.willingNumber,
+                }),
+                () => {
+                    // 显示提示信息
+                    mixin.fadeInfoShow(`购买${this.willingNumber}个${this.selectedItem.name}`)
+                    // 由父组件更新商品列表中该商品的数目
+                    this.$emit('onConfirm', this.number);
+                },
+            )
+            
         },
     },
 };
@@ -143,5 +165,6 @@ export default {
 
 .confirm {
     background-color: #1165d5;
-}</style>
+}
+</style>
   

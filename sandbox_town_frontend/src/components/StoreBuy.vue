@@ -1,0 +1,87 @@
+<template>
+    <GridPanel ref="gridPanel" title="🏪 购买商品" :items="items" :labels="labels"
+        @clickGridItem="onClickItem" />
+    <StoreItemTypeDetail v-if="showStoreItemTypeDetail" :storeId="storeId" :itemType="selectedItem.id" @ononBuy="onBuy" @onCancel="cancel" />
+</template>
+<script>
+import mixin from '@/js/mixin';
+import GridPanel from './GridPanel.vue';
+import StoreItemTypeDetail from './StoreItemTypeDetail.vue';
+
+export default {
+    props: {
+        storeId: {
+            type: String,
+            required: true,
+        },
+    },
+    components: {
+        GridPanel,
+        StoreItemTypeDetail,
+    },
+    data() {
+        return {
+            showStoreItemTypeDetail: false,
+            // 用户可以买的物品
+            items: [
+            ],
+            labels: [
+                { 'name': 'FOOD', 'prompt': '食品' },
+                { 'name': 'USABLE', 'prompt': '用品' },
+                { 'name': 'WEAPON', 'prompt': '武器' },
+                { 'name': 'EQUIPMENT', 'prompt': '装备' },
+            ],
+            // 选择的物品
+            selectedItem: null,
+            // 想要买入的数目
+            willingNumber: 0,
+        };
+    },
+    async mounted() {
+        // 获得商品列表
+        await mixin.myGET('/rest/store/listByStore',
+            new URLSearchParams({
+                store: this.storeId,
+            }),
+        ).then((goods) => {
+            goods.forEach((element) => {
+                let item = {};
+                item.id = element.itemType;
+                item.name = element.itemTypeObj.name;
+                item.caption = { price: '￥' + element.price, num: element.count };
+                item.image = require(`@/assets/img/${element.itemType}.png`);
+                // 设置物品的标签
+                item.labels = [];
+                // 如果物品包含HELMET（头盔）, CHEST（胸甲）, LEG（腿甲）, BOOTS（鞋）的LABEL，将其替换为EQUIPMENT（装备）
+                let isEquipment = false;
+                for (let label of element.itemTypeObj.labels) {
+                    if ((label === 'HELMET' || label === 'CHEST' || label === 'LEG' || label === 'BOOTS') && !isEquipment) {
+                        isEquipment = true;
+                        item.labels.push('EQUIPMENT');
+                    } else {
+                        item.labels.push(label);
+                    }
+                }
+                item.description = element.itemTypeObj.description;
+                item.content = element;                
+                this.items.push(item);
+            });
+        });
+        this.$refs.gridPanel.filterItems();
+    },
+    methods: {
+        onClickItem(item) {
+            this.selectedItem = item;
+            this.showStoreItemTypeDetail = true;
+        },
+        async onBuy(value) {
+            this.selectedItem.content.count -= value;
+            this.selectedItem.caption.num -= value;
+            this.showStoreItemTypeDetail = false;
+        },
+        cancel() {
+            this.showStoreItemTypeDetail = false;
+        },
+    },
+}
+</script>
