@@ -100,7 +100,7 @@ export default {
             this.$emit('onCancel');
         }
     },
-    async mounted() {
+    async created() {
         this.item = await mixin.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
         // 评估能买多少钱
         this.soldPrice = await mixin.myGET("/rest/store/soldPrice", new URLSearchParams({ store: this.storeId, itemId: this.itemId }));
@@ -131,7 +131,7 @@ export default {
                 'expInc': '经验',
                 'levelInc': '等级',
                 'hungerInc': '饱腹',
-                'hpInc': '生命',
+                'hpInc': '血量',
                 'attackInc': '攻击',
                 'defenseInc': '防御',
                 'speedInc': '速度',

@@ -24,7 +24,7 @@ export default {
     },
     data() {
         return {
-            tabs: ['装备栏', '物品栏'],
+            tabs: ['装备栏', '背包'],
         };
     },
 }

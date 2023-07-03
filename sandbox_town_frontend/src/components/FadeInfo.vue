@@ -29,7 +29,7 @@ export default {
                 "expInc": "📖 经验",
                 "levelInc": "📈 等级",
                 "hungerInc": "🍔 饥饿",
-                "hpInc": "❤️ 生命值",
+                "hpInc": "❤️ 血量",
                 "attackInc": "⚔️ 攻击力",
                 "defenseInc": "🛡️ 防御力",
                 "speedInc": "🏃 速度",

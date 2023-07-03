@@ -72,7 +72,7 @@ export default {
             this.$emit('onCancel');
         }
     },
-    async mounted() {
+    async created() { // created比mounted先执行
         this.item = await mixin.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
         this.canEquip = this.item.itemTypeObj.labels.includes('HELMET') || this.item.itemTypeObj.labels.includes('CHEST')
             || this.item.itemTypeObj.labels.includes('LEG') || this.item.itemTypeObj.labels.includes('BOOTS');
@@ -102,7 +102,7 @@ export default {
                 'expInc': '经验',
                 'levelInc': '等级',
                 'hungerInc': '饱腹',
-                'hpInc': '生命',
+                'hpInc': '血量',
                 'attackInc': '攻击',
                 'defenseInc': '防御',
                 'speedInc': '速度',

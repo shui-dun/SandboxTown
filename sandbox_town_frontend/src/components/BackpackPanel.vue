@@ -1,6 +1,6 @@
 <template>
     <div>
-        <GridPanel ref="gridPanel" title="🎒 物品栏" :items="items" :labels="labels" @clickGridItem="onClickBackpackItem" />
+        <GridPanel ref="gridPanel" title="🎒 背包" :items="items" :labels="labels" @clickGridItem="onClickBackpackItem" />
         <ItemDetail v-if="showItemDetail" :itemId="selectedItem.id" @onConfirm="confirm" @onCancel="cancel" />
     </div>
 </template>

@@ -98,7 +98,7 @@ export default {
             this.$emit('onCancel');
         }
     },
-    async mounted() {
+    async created() {
         this.storeItemType = await mixin.myGET("/rest/store/getByStoreAndItemType", new URLSearchParams({ store: this.storeId, itemType: this.itemType }));
         // 添加数目
         this.maxNumber = this.storeItemType.count;
@@ -127,7 +127,7 @@ export default {
                 'expInc': '经验',
                 'levelInc': '等级',
                 'hungerInc': '饱腹',
-                'hpInc': '生命',
+                'hpInc': '血量',
                 'attackInc': '攻击',
                 'defenseInc': '防御',
                 'speedInc': '速度',
