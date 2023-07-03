@@ -131,6 +131,34 @@ public class ItemService {
         }
     }
 
+    // 给角色减少物品
+    @Transactional
+    public void reduce(String spriteId, String itemId, int count) {
+        // 查询玩家拥有的该物品
+        Item item = itemMapper.selectById(itemId);
+        // 判断物品是否存在
+        if (item == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
+        // 判断物品是否属于该玩家
+        if (!item.getOwner().equals(spriteId)) {
+            throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
+        }
+        // 判断物品数量是否足够
+        if (item.getItemCount() < count) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_ENOUGH);
+        }
+        // 判断减少后是否为0
+        if (item.getItemCount() == count) {
+            // 物品数量为0，直接删除
+            itemMapper.deleteById(item);
+        } else {
+            // 物品数量不为0，更新数量
+            item.setItemCount(item.getItemCount() - count);
+            itemMapper.updateById(item);
+        }
+    }
+
     // 根据主人查询物品（带有物品类型信息和标签信息）
     public List<Item> listByOwnerWithTypeAndLabel(String owner) {
         // 找到所有物品
@@ -225,6 +253,17 @@ public class ItemService {
         Item item = itemMapper.selectById(itemId);
         // 找到物品类型
         ItemType itemType = getItemTypeDetailById(item.getItemType());
+        // 设置物品类型
+        item.setItemTypeObj(itemType);
+        return item;
+    }
+
+    // 根据物品id查询物品以及物品类型信息
+    public Item getItemWithTypeById(String itemId) {
+        // 找到物品
+        Item item = itemMapper.selectById(itemId);
+        // 找到物品类型
+        ItemType itemType = itemTypeMapper.selectById(item.getItemType());
         // 设置物品类型
         item.setItemTypeObj(itemType);
         return item;

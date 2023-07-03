@@ -45,5 +45,19 @@ public class StoreController {
     public RestResponse<?> getByStoreAndItem(String store, ItemTypeEnum itemType) {
         return new RestResponse<>(StatusCodeEnum.SUCCESS, storeService.detailByStoreAndItemType(store, itemType));
     }
+
+    // 得到用户向商店出售时的售价
+    @GetMapping("/soldPrice")
+    public RestResponse<?> soldPrice(String store, String itemId) {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, storeService.soldPrice(store, itemId));
+    }
+
+    /** 出售物品 */
+    @PostMapping("/sell")
+    public RestResponse<?> sell(String store, String itemId, Integer amount, Integer perPrice) {
+        storeService.sell(StpUtil.getLoginIdAsString(), store, itemId, amount, perPrice);
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, null);
+    }
+
 }
 

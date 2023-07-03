@@ -3,10 +3,9 @@
         <div class="popup-panel">
             <div class="popup-panel-header">
                 <!-- 物品名称 -->
-                <p>{{ (storeItemType == null) ? '' : storeItemType.itemTypeObj.name }}</p>
+                <p>{{ (item == null) ? '' : item.itemTypeObj.name }}</p>
             </div>
-            <div class="popup-panel-content">{{ (storeItemType == null) ? '' : storeItemType.itemTypeObj.description }}
-            </div>
+            <div class="popup-panel-content">{{ (item == null) ? '' : item.itemTypeObj.description }}</div>
             <h4 v-if="basicInfo.length > 0">基本信息</h4>
             <ListPanel v-if="basicInfo.length > 0" :items="basicInfo" />
             <h4 v-if="useInfo.length > 0">使用效果</h4>
@@ -16,7 +15,7 @@
             <h4 v-if="handheldInfo.length > 0">手持效果</h4>
             <ListPanel v-if="handheldInfo.length > 0" title="手持效果" :items="handheldInfo" />
             <div class="button-group">
-                <button class="cancel-btn" @click="cancel">取消</button>
+                <button class="cancel-btn" @click="cancel()">取消</button>
                 <div>
                     <button @click="decrement"><svg width="25" height="25" xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24">
@@ -28,7 +27,7 @@
                             <path d="M16 12L10 18V6L16 12Z"></path>
                         </svg></button>
                 </div>
-                <button class="ok-btn" @click="confirm">购买</button>
+                <button class="ok-btn" @click="confirm">售卖</button>
             </div>
         </div>
     </div>
@@ -48,7 +47,7 @@ export default {
             type: String,
             required: true,
         },
-        itemType: {
+        itemId: {
             type: String,
             required: true,
         },
@@ -58,7 +57,8 @@ export default {
             minNumber: 1,
             number: 1,
             maxNumber: 1,
-            storeItemType: null,
+            item: null,
+            soldPrice: 0,
             basicInfo: [],
             useInfo: [],
             equipInfo: [],
@@ -79,18 +79,20 @@ export default {
             this.number--;
         },
         async confirm() {
-            // 处理购买请求
-            await mixin.myPOST('/rest/store/buy',
+            // 处理卖出请求
+            await mixin.myPOST('/rest/store/sell',
                 new URLSearchParams({
                     store: this.storeId,
-                    item: this.itemType,
+                    itemId: this.itemId,
                     amount: this.number,
+                    perPrice: this.soldPrice,
                 }),
                 () => {
                     // 显示提示信息
-                    mixin.fadeInfoShow(`购买${this.number}个${this.storeItemType.itemTypeObj.name}`)
+                    mixin.fadeInfoShow(`卖出${this.number}个${this.item.itemTypeObj.name}`)
+                    mixin.fadeInfoShow(`获得${this.number * this.soldPrice}金币`)
                     // 由父组件更新商品列表中该商品的数目
-                    this.$emit('onBuy', this.number);
+                    this.$emit('onSold', this.number);
                 },
             )
         },
@@ -99,17 +101,19 @@ export default {
         }
     },
     async mounted() {
-        this.storeItemType = await mixin.myGET("/rest/store/getByStoreAndItemType", new URLSearchParams({ store: this.storeId, itemType: this.itemType }));
-        // 添加数目
-        this.maxNumber = this.storeItemType.count;
-        this.basicInfo.push({ key: '🔢 数目', value: this.maxNumber });
-        // 添加价格
-        this.basicInfo.push({ key: '💰 价格', value: this.storeItemType.price });
-        // 添加稀有度
-        this.basicInfo.push({ key: '🌟 稀有度', value: this.storeItemType.itemTypeObj.rarity });
+        this.item = await mixin.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
+        // 评估能买多少钱
+        this.soldPrice = await mixin.myGET("/rest/store/soldPrice", new URLSearchParams({ store: this.storeId, itemId: this.itemId }));
+        this.basicInfo = [
+            { key: '🔢 数目', value: this.item.itemCount },
+            { key: '⭐ 等级', value: this.item.level },
+            { key: '💰 售价', value: this.soldPrice },
+        ]
+        this.maxNumber = this.item.itemCount;
         // 如果耐久度不为-1，说明有寿命，需要显示耐久度以及寿命
-        if (this.storeItemType.itemTypeObj.durability != -1) {
-            this.basicInfo.push({ key: '🔨 耐久', value: this.storeItemType.itemTypeObj.durability });
+        if (this.item.itemTypeObj.durability != -1) {
+            this.basicInfo.push({ key: '🔨 耐久', value: this.item.itemTypeObj.durability });
+            this.basicInfo.push({ key: '⏳ 寿命', value: this.item.life });
         }
         let attributes = {
             'USE': this.useInfo,
@@ -120,8 +124,8 @@ export default {
         function showPlusSign(inc) {
             return inc > 0 ? `+${inc}` : `${inc}`;
         }
-        for (let operation in this.storeItemType.itemTypeObj.attributes) {
-            let attribute = this.storeItemType.itemTypeObj.attributes[operation];
+        for (let operation in this.item.itemTypeObj.attributes) {
+            let attribute = this.item.itemTypeObj.attributes[operation];
             let attributeMap = {
                 'moneyInc': '金钱',
                 'expInc': '经验',
@@ -138,8 +142,8 @@ export default {
                 }
             }
         }
-        for (let operation in this.storeItemType.itemTypeObj.effects) {
-            let effects = this.storeItemType.itemTypeObj.effects[operation];
+        for (let operation in this.item.itemTypeObj.effects) {
+            let effects = this.item.itemTypeObj.effects[operation];
             // 对于每个效果，都要显示效果的名称和持续时间
             for (let effectId in effects) {
                 let effect = effects[effectId];
@@ -155,7 +159,7 @@ export default {
     },
 };
 </script>
-
+  
 <style scoped>
 .grey-bg {
     position: fixed;

@@ -1,17 +1,11 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.Building;
-import com.shuidun.sandbox_town_backend.bean.ItemType;
-import com.shuidun.sandbox_town_backend.bean.Sprite;
-import com.shuidun.sandbox_town_backend.bean.StoreItemType;
+import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
-import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
-import com.shuidun.sandbox_town_backend.mapper.ItemTypeMapper;
-import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
-import com.shuidun.sandbox_town_backend.mapper.StoreItemTypeMapper;
+import com.shuidun.sandbox_town_backend.mapper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,15 +30,21 @@ public class StoreService {
 
     private final ItemService itemService;
 
+    private final ItemMapper itemMapper;
+
+    private final SpriteService spriteService;
+
     @Value("${mapId}")
     private String mapId;
 
-    public StoreService(StoreItemTypeMapper storeItemTypeMapper, SpriteMapper spriteMapper, BuildingMapper buildingMapper, ItemTypeMapper itemTypeMapper, ItemService itemService) {
+    public StoreService(StoreItemTypeMapper storeItemTypeMapper, SpriteMapper spriteMapper, BuildingMapper buildingMapper, ItemTypeMapper itemTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteService spriteService) {
         this.storeItemTypeMapper = storeItemTypeMapper;
         this.spriteMapper = spriteMapper;
         this.buildingMapper = buildingMapper;
         this.itemTypeMapper = itemTypeMapper;
         this.itemService = itemService;
+        this.itemMapper = itemMapper;
+        this.spriteService = spriteService;
     }
 
     /** 列出商店的所有商品 */
@@ -162,5 +163,73 @@ public class StoreService {
         // 得到标签信息、属性增益信息、效果信息等
         storeItemType.setItemTypeObj(itemService.getItemTypeDetailById(itemType));
         return storeItemType;
+    }
+
+    public Integer soldPrice(String store, String itemId) {
+        int price;
+        // 得到物品信息（带有类型信息）
+        Item item = itemService.getItemWithTypeById(itemId);
+        // 得到商店商品信息
+        StoreItemType storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());
+        // 如果商店里面没有这个商品，那么那直接用物品的基础价格的一半
+        if (storeItemType == null) {
+            price = item.getItemTypeObj().getBasicPrice() / 2;
+        } else {
+            // 否则，用商店商品的价格的一半
+            price = storeItemType.getPrice() / 2;
+        }
+        // 乘以寿命比例
+        price = (int) ((double) price * item.getLife() / 100);
+        // 价格最低为1
+        if (price <= 0) {
+            price = 1;
+        }
+        return price;
+    }
+
+    @Transactional
+    public void sell(String spriteId, String store, String itemId, Integer amount, Integer perPrice) {
+        // 得到物品信息
+        Item item = itemMapper.selectById(itemId);
+        // 检查物品是否存在
+        if (item == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
+        // 检查物品数量是否足够
+        if (item.getItemCount() < amount) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_ENOUGH);
+        }
+        // 检查物品所有者
+        if (!item.getOwner().equals(spriteId)) {
+            throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
+        }
+        // 判断价格是否正确
+        if (!Objects.equals(perPrice, soldPrice(store, itemId))) {
+            throw new BusinessException(StatusCodeEnum.PRICE_NOT_MATCH);
+        }
+        // 得到用户信息
+        Sprite sprite = spriteMapper.selectById(spriteId);
+        // 更新用户金钱
+        sprite.setMoney(sprite.getMoney() + perPrice * amount);
+        sprite = spriteService.normalizeAndUpdatePlayer(sprite);
+        // 更新物品数量
+        itemService.reduce(spriteId, itemId, amount);
+        // 更新商店商品数量（只有全新物品商店才会再次出售）
+        if (item.getLife() == 100) {
+            StoreItemType storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());
+            if (storeItemType == null) {
+                // 如果商店里面没有这个商品，那么那直接用物品的售卖价格的两倍
+                storeItemType = new StoreItemType();
+                storeItemType.setStore(store);
+                storeItemType.setItemType(item.getItemType());
+                storeItemType.setCount(amount);
+                storeItemType.setPrice(perPrice * 2);
+                storeItemTypeMapper.insert(storeItemType);
+            } else {
+                // 否则，更新商店商品的数量
+                storeItemType.setCount(storeItemType.getCount() + amount);
+                storeItemTypeMapper.updateById(storeItemType);
+            }
+        }
     }
 }
