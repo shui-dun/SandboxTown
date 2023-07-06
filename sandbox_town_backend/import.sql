@@ -61,29 +61,6 @@ INSERT INTO game_map (id, name, width, height, seed)
 VALUES ('1', 'Ⅰ', 4000, 3000, 32784924),
        ('2', 'Ⅱ', 4000, 3000, 234757802);
 
-# 创建物品表
-CREATE TABLE item_type
-(
-    # id 用于标识物品，比如 wood, stone
-    id          VARCHAR(255) NOT NULL PRIMARY KEY,
-    # name 用于显示物品名称，比如 木头，石头
-    name        VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    # 注意这个价格只是参考价格，各个商店会有上下波动
-    basic_price INT          NOT NULL DEFAULT 0,
-    # 稀有度（稀有度越高，商店刷出的概率越高）
-    rarity      INT          NOT NULL DEFAULT 0,
-    # 耐久度（耐久度越高寿命越长，-1代表无限耐久，同时也代表可堆叠）
-    durability  INT          NOT NULL DEFAULT -1
-);
-
-INSERT INTO item_type (id, name, description, basic_price, rarity, durability)
-VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 10, -1),
-       ('STONE', '石头', '用于建造房屋和其他工具', 8, 7, -1),
-       ('BREAD', '面包', '具有松软的质地和微甜的口感', 5, 7, -1),
-       ('APPLE', '苹果', '禁忌和知识之果', 5, 8, -1),
-       ('TREASURE_CHEST', '宝箱', '打开宝箱，获得随机物品', 20, 1, -1);
-
 # 创建角色类型表
 CREATE TABLE sprite_type
 (
@@ -162,6 +139,53 @@ VALUES ('USER_xixi', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1'
        ('DOG_q83jrKyCTtGm1QvywN48pw', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 13, 6, 8, 400, 400, '1', 250, 250),
        ('CAT_iZUc8IiRTCOQXNjLNbQUFQ', 'CAT', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 400, 500, '1', 150, 150);
 
+# 创建物品表
+CREATE TABLE item_type
+(
+    # id 用于标识物品，比如 wood, stone
+    id          VARCHAR(255) NOT NULL PRIMARY KEY,
+    # name 用于显示物品名称，比如 木头，石头
+    name        VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    # 注意这个价格只是参考价格，各个商店会有上下波动
+    basic_price INT          NOT NULL DEFAULT 0,
+    # 稀有度（稀有度越高，商店刷出的概率越高）
+    rarity      INT          NOT NULL DEFAULT 0,
+    # 耐久度（范围在0~100之间，耐久度越高寿命越长，-1代表无限耐久，同时也代表可堆叠）
+    durability  INT          NOT NULL DEFAULT -1
+);
+
+INSERT INTO item_type (id, name, description, basic_price, rarity, durability)
+VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
+       ('STONE', '石头', '用于建造房屋和其他工具', 8, 30, -1),
+       ('BREAD', '面包', '具有松软的质地和微甜的口感', 30, 7, -1),
+       ('APPLE', '苹果', '禁忌和知识之果', 5, 40, -1),
+       ('TREASURE_CHEST', '宝箱', '打开宝箱，获得随机物品', 20, 7, -1),
+       ('FLYING_BOOTS', '飞翔靴', '踩上这双梦幻之靴，遨游天际，让风成为你最忠实的伙伴', 100, 4, 40),
+       ('INVISIBLE_CAP', '隐身帽', '戴上这神秘的帽子，藏匿无影，成为夜色中的幽灵战士', 280, 3, 50),
+       ('LEATHER_CHEST_ARMOR', '皮质盔甲', '提供基础的防御', 40, 16, 25),
+       ('SAW', '锯子', '这把锋利的工具是伐木的好帮手', 30, 40, 30),
+       ('STICK', '木棍', '一根木棍，横扫千军', 22, 40, 40);
+
+# 物品标签表
+create table item_type_label
+(
+    item_type varchar(255) not null,
+    # 物品的标签包含FOOD（可食用）、USABLE（用品）、WEAPON（武器）、HELMET（头盔）, CHEST（胸甲）, LEG（腿甲）, BOOTS（鞋）
+    label     varchar(255) not null,
+    primary key (item_type, label),
+    foreign key (item_type) references item_type (id)
+);
+
+insert into item_type_label
+values ('BREAD', 'FOOD'),
+       ('APPLE', 'FOOD'),
+       ('TREASURE_CHEST', 'USABLE'),
+       ('FLYING_BOOTS', 'BOOTS'),
+       ('INVISIBLE_CAP', 'HELMET'),
+       ('LEATHER_CHEST_ARMOR', 'CHEST'),
+       ('SAW', 'WEAPON'),
+       ('STICK', 'WEAPON');
 
 # 创建效果表
 create table effect
@@ -188,21 +212,6 @@ create table sprite_effect
     CONSTRAINT fk_sprite_effect_sprite FOREIGN KEY (sprite) REFERENCES sprite (id),
     CONSTRAINT fk_sprite_effect_effect FOREIGN KEY (effect) REFERENCES effect (id)
 );
-
-# 物品标签表
-create table item_type_label
-(
-    item_type varchar(255) not null,
-    label     varchar(255) not null,
-    primary key (item_type, label),
-    foreign key (item_type) references item_type (id)
-);
-
-insert into item_type_label
-values ('BREAD', 'FOOD'),
-       ('APPLE', 'FOOD'),
-       ('APPLE', 'USABLE'),
-       ('TREASURE_CHEST', 'USABLE');
 
 # 装备、使用、或手持该物品后对角色各个属性的增益值
 # 注意：这些增益值指的是等级为1的物品带来的增益值，等级越高，增益值越高
