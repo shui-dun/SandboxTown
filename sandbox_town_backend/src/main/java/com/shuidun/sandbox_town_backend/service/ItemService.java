@@ -186,6 +186,36 @@ public class ItemService {
         return items;
     }
 
+    // 根据主人查询背包中的物品（带有物品类型信息和标签信息）
+    public List<Item> listItemsInBackpackByOwner(String owner) {
+        return listItemsByOwnerAndPositionWithTypeAndLabel(owner, ItemPositionEnum.BACKPACK);
+    }
+
+    // 根据主人以及位置列表查询物品（带有物品类型信息和标签信息）
+    // 物品的位置在列表中的任意一个即可
+    public List<Item> listItemsByOwnerAndPositionsWithTypeAndLabel(String owner, List<ItemPositionEnum> positions) {
+        // 找到所有物品
+        List<Item> items = itemMapper.selectByOwnerAndPositions(owner, positions);
+        // 如果没有物品，直接返回
+        if (items == null || items.isEmpty()) {
+            return items;
+        }
+        // 为物品列表设置物品类型信息和标签信息
+        setItemTypeAndLabelsForItems(items);
+        return items;
+    }
+
+    // 根据主人查询装备栏中的物品（带有物品类型信息和标签信息）
+    // 这里的装备栏还包括手持
+    public List<Item> listItemsInEquipmentByOwner(String owner) {
+        return listItemsByOwnerAndPositionsWithTypeAndLabel(owner, Arrays.asList(ItemPositionEnum.HELMET, ItemPositionEnum.CHEST, ItemPositionEnum.LEG, ItemPositionEnum.BOOTS, ItemPositionEnum.HANDHELD));
+    }
+
+    // 根据主人查询物品栏（包括手持）中的物品（带有物品类型信息和标签信息）
+    public List<Item> listItemsInItemBarByOwner(String owner) {
+        return listItemsByOwnerAndPositionsWithTypeAndLabel(owner, Arrays.asList(ItemPositionEnum.ITEMBAR, ItemPositionEnum.HANDHELD));
+    }
+
     // 为物品类型列表设置标签信息
     public void setLabelsForItemTypes(Collection<ItemType> itemTypes) {
         // 找到所有物品类型的标签

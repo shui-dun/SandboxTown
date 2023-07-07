@@ -32,7 +32,19 @@ public class ItemController {
     /** 获取当前登陆玩家的背包中的所有物品信息 */
     @GetMapping("/listMyItemsInBackpack")
     public RestResponse<?> listMyItemsInBackpack() {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listItemsByOwnerAndPositionWithTypeAndLabel(StpUtil.getLoginIdAsString(), ItemPositionEnum.BACKPACK));
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listItemsInBackpackByOwner(StpUtil.getLoginIdAsString()));
+    }
+
+    /** 获取当前登陆玩家的装备栏中的所有物品信息 */
+    @GetMapping("/listMyItemsInEquipment")
+    public RestResponse<?> listMyItemsInEquipment() {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listItemsInEquipmentByOwner(StpUtil.getLoginIdAsString()));
+    }
+
+    /** 获取当前登陆玩家的物品栏中的所有物品信息 */
+    @GetMapping("/listMyItemsInItemBar")
+    public RestResponse<?> listMyItemsInItemBar() {
+        return new RestResponse<>(StatusCodeEnum.SUCCESS, itemService.listItemsInItemBarByOwner(StpUtil.getLoginIdAsString()));
     }
 
 
