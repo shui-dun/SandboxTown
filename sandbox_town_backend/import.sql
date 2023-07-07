@@ -218,9 +218,9 @@ create table sprite_effect
 create table item_type_attribute
 (
     item_type   varchar(255) not null,
-    # 装备（equip）、使用（use）、或手持（handheld）
-    # 装备指在装备栏放置helmet（头盔）, chest（胸甲）, leg（腿甲）, boots（鞋）
-    # 使用指使用food（食品）、usable（用品）
+    # 装备（EQUIP）、使用（USE）、或手持（HANDHELD）
+    # 装备指在装备栏放置HELMET（头盔）, CHEST（胸甲）, LEG（腿甲）, BOOTS（鞋）
+    # 使用指使用FOOD（食品）、USABLE（用品）
     # 手持指手持物品
     operation   varchar(255) not null,
     # 增加金钱
@@ -293,6 +293,10 @@ insert into item(id, owner, item_type, item_count, life, level, position)
 values ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('APPLE_hdjfdjeio', 'USER_xixi', 'APPLE', 5, 100, 1, 'BACKPACK'),
        ('TREASURE_CHEST_ixdiue', 'USER_xixi', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK'),
+       ('SAW_jhdfiu', 'USER_xixi', 'SAW', 1, 100, 1, 'BACKPACK'),
+       ('SAW_sdaajhdfiu', 'USER_xixi', 'SAW', 1, 100, 1, 'HANDHELD'),
+       ('LEATHER_CHEST_ARMOR_saeeiffkdlf', 'USER_xixi', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'BACKPACK'),
+       ('LEATHER_CHEST_ARMOR_dkfjeiffkdlf', 'USER_xixi', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST'),
        ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('APPLE_hdjfdjedfio', 'USER_haha', 'APPLE', 5, 100, 1, 'BACKPACK'),
        ('TREASURE_CHEST_ixdiudfdfde', 'USER_haha', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK');

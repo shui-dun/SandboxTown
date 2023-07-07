@@ -16,8 +16,9 @@
             <ListPanel v-if="handheldInfo.length > 0" title="手持效果" :items="handheldInfo" />
             <div class="button-group">
                 <button class="cancel-btn" @click="cancel()">取消</button>
-                <button class="ok-btn" @click="confirm('ITEMBAR')">放入物槽</button>
-                <button class="ok-btn" @click="confirm('HAND')">手持</button>
+                <button v-if="canBackpack" class="ok-btn" @click="confirm('BACKPACK')">放入背包</button>
+                <button v-if="canItembar" class="ok-btn" @click="confirm('ITEMBAR')">放入物品栏</button>
+                <button v-if="canHandheld" class="ok-btn" @click="confirm('HAND')">手持</button>
                 <button v-if="canEquip" class="ok-btn" @click="confirm('EQUIP')">装备</button>
                 <button v-if="canUse" class="ok-btn" @click="confirm('USE')">使用</button>
             </div>
@@ -43,6 +44,12 @@ export default {
     data() {
         return {
             item: null,
+            // 是否可以放入背包
+            canBackpack: false,
+            // 是否可以放入物品栏
+            canItembar: false,
+            // 是否可以手持
+            canHandheld: false,
             // 是否可以装备
             canEquip: false,
             // 是否可以使用
@@ -55,7 +62,9 @@ export default {
     },
     methods: {
         async confirm(event) {
-            if (event == 'ITEMBAR') {
+            if (event == 'BACKPACK') {
+                // 放入背包
+            } if (event == 'ITEMBAR') {
                 // 放入物槽
             } else if (event == 'HAND') {
                 // 手持
@@ -66,7 +75,7 @@ export default {
                 let spriteChange = await mixin.myPOST("/rest/item/use", new URLSearchParams({ itemId: this.itemId }));
                 mixin.emitter.emit('spriteAttributeChange', spriteChange.spriteAttributeChange);
             }
-            this.$emit('onConfirm');
+            this.$emit('onConfirm', event);
         },
         cancel() {
             this.$emit('onCancel');
@@ -74,8 +83,26 @@ export default {
     },
     async created() { // created比mounted先执行
         this.item = await mixin.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
-        this.canEquip = this.item.itemTypeObj.labels.includes('HELMET') || this.item.itemTypeObj.labels.includes('CHEST')
-            || this.item.itemTypeObj.labels.includes('LEG') || this.item.itemTypeObj.labels.includes('BOOTS');
+        let equipList = ['HELMET', 'CHEST', 'LEG', 'BOOTS'];
+        // 判断位置是否在背包
+        if (this.item.position == 'BACKPACK') {
+            this.canBackpack = false;
+            this.canItembar = true;
+            this.canHandheld = true;
+            // 如果在装备区
+        } else if (equipList.includes(this.item.position)){
+            this.canBackpack = true;
+            this.canItembar = true;
+            this.canHandheld = true;
+        } else { // 如果在物品栏或者手持
+            this.canBackpack = true;
+            this.canItembar = false;
+            this.canHandheld = false;
+        }
+        
+        // 判断是否可以装备
+        // 如果物品的位置不在装备区，并且物品是装备类型，可以装备
+        this.canEquip = !equipList.includes(this.item.position) && this.item.itemTypeObj.labels.some(label => equipList.includes(label));
         this.canUse = this.item.itemTypeObj.labels.includes('FOOD') || this.item.itemTypeObj.labels.includes('USABLE');
         this.basicInfo = [
             { key: '🔢 数目', value: this.item.itemCount },

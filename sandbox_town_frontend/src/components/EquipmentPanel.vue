@@ -24,27 +24,50 @@
                         <div v-else>
                             <img :src='require("@/assets/img/PLACEHOLDER.jpg")' class="item-image" ref="" />
                         </div>
-                        <div class="extra"> {{ itemKey }}</div>
+                        <div class="caption"> {{ itemKey }}</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <InquiryPanel v-if="showInquiryPanel" :prompt="inquiryPanelPrompt" @onConfirm="confirm" @onCancel="cancel" />
+    <ItemDetail v-if="showItemDetail" :itemId="selectedItem.id" @onConfirm="confirm" @onCancel="cancel" />
 </template>
 <script>
 import mixin from '@/js/mixin.js';
-import InquiryPanel from './InquiryPanel.vue';
+import ItemDetail from './ItemDetail.vue';
 
 export default {
     components: {
-        InquiryPanel,
+        ItemDetail,
     },
     props: {
     },
     data() {
         return {
-            userInfo: [
+            userInfo: [],
+            equipmentItems: {},
+            // 选择的物品
+            selectedItem: null,
+            showItemDetail: false,
+        };
+    },
+    methods: {
+        clickGridItem(itemKey, item) {
+            if (item.name) {
+                this.selectedItem = item;
+                this.showItemDetail = true;
+            }
+        },
+        cancel() {
+            this.showItemDetail = false;
+        },
+        confirm() {
+            this.showItemDetail = false;
+            this.refreshUserInfo();
+            this.refreshEquipment();
+        },
+        refreshUserInfo() {
+            this.userInfo = [
                 { 'label': 'id', 'show': '👨‍💼 名称' },
                 { 'label': 'money', 'show': '💰 金钱' },
                 { 'label': 'level', 'show': '⬆️ 等级' },
@@ -54,48 +77,49 @@ export default {
                 { 'label': 'defense', 'show': '🛡️ 防御力' },
                 { 'label': 'speed', 'show': '🏃 速度' },
                 { 'label': 'hp', 'show': '🩸 血量' },
-            ],
-            equipmentItems: {
-                '护甲': {},
+            ];
+            // 从后端获取玩家信息
+            mixin.myGET('/rest/sprite/listMine', null, (data) => {
+                data.id = data.id.split("_", 2)[1];
+                this.player = data;
+                // 将用户信息添加到userInfo中
+                this.userInfo.forEach((item) => {
+                    item.value = this.player[item.label];
+                });
+            });
+        },
+        refreshEquipment() {
+            this.equipmentItems = {
+                '头盔': {},
+                '胸甲': {},
+                '护腿': {},
                 '鞋子': {},
-                '左手': {},
-                '右手': { id: 2, name: '锯子', image: require("@/assets/img/SAW.png"), category: 'EQUIPMENT', description: '简单而有效的切割工具' },
-            },
-            // 选择的物品
-            selectedItem: null,
-            selectedItemKey: null,
-            showInquiryPanel: false,
-            inquiryPanelPrompt: '',
-        };
-    },
-    methods: {
-        clickGridItem(itemKey, item) {
-            if (item.name) {
-                this.inquiryPanelPrompt = '确定卸下' + item.name + '吗？';
-                this.selectedItem = item;
-                this.selectedItemKey = itemKey;
-                this.showInquiryPanel = true;
-            }
-        },
-        cancel() {
-            this.showInquiryPanel = false;
-        },
-        confirm() {
-            this.equipmentItems[this.selectedItemKey] = {};
-            mixin.fadeInfoShow(`卸下${this.selectedItem.name}`)
-            this.showInquiryPanel = false;
+            };
+            // 从后端获取玩家装备信息
+            mixin.myGET('/rest/item/listMyItemsInEquipment', null, (data) => {
+                // 将用户装备信息添加到equipmentItems中
+                for (let i = 0; i < data.length; i++) {
+                    let item = data[i];
+                    // item.id = item.id;
+                    item.name = item.itemTypeObj.name;
+                    item.image = require("@/assets/img/" + item.itemType + ".png");
+                    item.description = item.itemTypeObj.description;
+                    if (item.position == 'HELMET') {
+                        this.equipmentItems['头盔'] = item;
+                    } else if (item.position == 'CHEST') {
+                        this.equipmentItems['胸甲'] = item;
+                    } else if (item.position == 'LEG') {
+                        this.equipmentItems['护腿'] = item;
+                    } else if (item.position == 'BOOTS') {
+                        this.equipmentItems['鞋子'] = item;
+                    }
+                }
+            });
         },
     },
     mounted() {
-        // 从后端获取玩家信息
-        mixin.myGET('/rest/sprite/listMine', null, (data) => {
-            data.id = data.id.split("_", 2)[1];
-            this.player = data;
-            // 将用户信息添加到userInfo中
-            this.userInfo.forEach((item) => {
-                item.value = this.player[item.label];
-            });
-        });
+        this.refreshUserInfo();
+        this.refreshEquipment();
     },
 };
 </script>

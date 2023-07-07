@@ -1,12 +1,12 @@
 <template>
     <GridPanel ref="gridPanel" title="🏪 购买商品" :items="items" :labels="labels"
         @clickGridItem="onClickItem" />
-    <StoreItemTypeDetail v-if="showStoreItemTypeDetail" :storeId="storeId" :itemType="selectedItem.id" @onBuy="onBuy" @onCancel="cancel" />
+    <StoreItemBuyDetail v-if="showStoreItemBuyDetail" :storeId="storeId" :itemType="selectedItem.id" @onBuy="onBuy" @onCancel="cancel" />
 </template>
 <script>
 import mixin from '@/js/mixin';
 import GridPanel from './GridPanel.vue';
-import StoreItemTypeDetail from './StoreItemTypeDetail.vue';
+import StoreItemBuyDetail from './StoreItemBuyDetail.vue';
 
 export default {
     props: {
@@ -17,11 +17,11 @@ export default {
     },
     components: {
         GridPanel,
-        StoreItemTypeDetail,
+        StoreItemBuyDetail,
     },
     data() {
         return {
-            showStoreItemTypeDetail: false,
+            showStoreItemBuyDetail: false,
             // 用户可以买的物品
             items: [
             ],
@@ -74,15 +74,15 @@ export default {
     methods: {
         onClickItem(item) {
             this.selectedItem = item;
-            this.showStoreItemTypeDetail = true;
+            this.showStoreItemBuyDetail = true;
         },
         async onBuy(value) {
             this.selectedItem.content.count -= value;
             this.selectedItem.caption.num -= value;
-            this.showStoreItemTypeDetail = false;
+            this.showStoreItemBuyDetail = false;
         },
         cancel() {
-            this.showStoreItemTypeDetail = false;
+            this.showStoreItemBuyDetail = false;
         },
     },
 }
