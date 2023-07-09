@@ -1,9 +1,9 @@
 package com.shuidun.sandbox_town_backend.mixin;
 
-import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.SpriteCache;
+import com.shuidun.sandbox_town_backend.bean.TimeFrame;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
-import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
+import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -28,4 +28,7 @@ public class GameCache {
 
     // 角色缓存信息，保存在内存中，定期写入数据库
     public static Map<String, SpriteCache> spriteCacheMap = new ConcurrentHashMap<>();
+
+    // 当前时间段
+    public static TimeFrame timeFrame = new TimeFrame();
 }
