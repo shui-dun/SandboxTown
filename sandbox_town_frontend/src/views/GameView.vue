@@ -4,6 +4,7 @@
     <SpritePanel v-if="attributeListOpened" :itemName="itemNameOfSpritePanel" @close="closeSpritePanel"
         @mousedown="preventMousedownPropagation">
     </SpritePanel>
+    <ItemBar />
     <StorePanel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation" :storeId="currentStoreID"></StorePanel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <ProcessBar v-if="showProcessBar" :duration="processBarDuration" :text="processBarText"
@@ -17,6 +18,7 @@ import MyInfoPanel from '@/components/MyInfoPanel.vue';
 import SpritePanel from '@/components/SpritePanel.vue';
 import StorePanel from '@/components/StorePanel.vue';
 import ProcessBar from '@/components/ProcessBar.vue';
+import ItemBar from '@/components/ItemBar.vue';
 import mixin from "@/js/mixin.js";
 
 
@@ -27,7 +29,8 @@ export default {
         MyInfoPanel,
         SpritePanel,
         StorePanel,
-        ProcessBar
+        ProcessBar,
+        ItemBar,
     },
     props: {
     },

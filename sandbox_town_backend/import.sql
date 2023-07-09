@@ -299,7 +299,11 @@ values ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('LEATHER_CHEST_ARMOR_dkfjeiffkdlf', 'USER_xixi', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST'),
        ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('APPLE_hdjfdjedfio', 'USER_haha', 'APPLE', 5, 100, 1, 'BACKPACK'),
-       ('TREASURE_CHEST_ixdiudfdfde', 'USER_haha', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK');
+       ('TREASURE_CHEST_ixdiudfdfde', 'USER_haha', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK'),
+       ('SAW_jhdfdfddffiu', 'USER_haha', 'SAW', 1, 100, 1, 'BACKPACK'),
+       ('SAW_sdaajhdfdfddffiu', 'USER_haha', 'SAW', 1, 100, 1, 'HANDHELD'),
+       ('LEATHER_CHEST_ARMOR_saeeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'BACKPACK'),
+       ('LEATHER_CHEST_ARMOR_dkfjeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST');
 
 
 # 创建建筑类型表
