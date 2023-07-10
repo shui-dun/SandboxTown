@@ -9,8 +9,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MyAndMyPetInfo {
-    Sprite me;
+public class MyAndMyPetInfoVo {
+    SpriteDo me;
 
-    List<Sprite> myPets;
+    List<SpriteDo> myPets;
 }

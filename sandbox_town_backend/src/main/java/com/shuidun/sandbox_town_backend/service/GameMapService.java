@@ -1,8 +1,8 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.Building;
-import com.shuidun.sandbox_town_backend.bean.BuildingType;
-import com.shuidun.sandbox_town_backend.bean.GameMap;
+import com.shuidun.sandbox_town_backend.bean.BuildingDo;
+import com.shuidun.sandbox_town_backend.bean.BuildingTypeDo;
+import com.shuidun.sandbox_town_backend.bean.GameMapDo;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
@@ -136,7 +136,7 @@ public class GameMapService {
     public void placeAllBuildingsOnMap() {
         // 建筑物的黑白图的字典
         var buildingTypes = buildingTypeMapper.selectList(null);
-        for (BuildingType buildingType : buildingTypes) {
+        for (BuildingTypeDo buildingType : buildingTypes) {
             BuildingTypeEnum buildingTypeId = buildingType.getId();
             String imagePath = buildingType.getImagePath();
             try {
@@ -151,7 +151,7 @@ public class GameMapService {
         var buildings = buildingMapper.selectByMapId(mapId);
 
         // 将建筑放置在地图上
-        for (Building building : buildings) {
+        for (BuildingDo building : buildings) {
             placeBuildingOnMap(building);
         }
     }
@@ -185,7 +185,7 @@ public class GameMapService {
     }
 
     // 查看某建筑是否与其他建筑有重叠，或者超出边界
-    private boolean isBuildingOverlap(Building building) {
+    private boolean isBuildingOverlap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
         int buildingX = building.getOriginX();
         int buildingY = building.getOriginY();
@@ -235,7 +235,7 @@ public class GameMapService {
     }
 
     // 放置建筑
-    private void placeBuildingOnMap(Building building) {
+    private void placeBuildingOnMap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
         int buildingX = building.getOriginX();
         int buildingY = building.getOriginY();
@@ -276,8 +276,8 @@ public class GameMapService {
     }
 
     // 得到地图信息
-    public GameMap getGameMap() {
-        GameMap gameMap = gameMapMapper.selectById(mapId);
+    public GameMapDo getGameMap() {
+        GameMapDo gameMap = gameMapMapper.selectById(mapId);
         gameMap.setData(GameCache.map);
         return gameMap;
     }
@@ -287,10 +287,10 @@ public class GameMapService {
         // 得到所有建筑类型
         var buildingTypes = buildingTypeMapper.selectList(null);
         // 首先，所有类型的建筑都有一个
-        List<BuildingType> buildingTypesToBePlaced = new ArrayList<>(buildingTypes);
+        List<BuildingTypeDo> buildingTypesToBePlaced = new ArrayList<>(buildingTypes);
         // 计算总稀有度
         double totalRarity = 0;
-        for (BuildingType buildingType : buildingTypes) {
+        for (BuildingTypeDo buildingType : buildingTypes) {
             totalRarity += buildingType.getRarity();
         }
         // 随后，根据建筑类型的稀有度，根据轮盘赌算法，随机生成nBuildings-buildingTypes.size()个建筑
@@ -300,7 +300,7 @@ public class GameMapService {
             // 计算轮盘赌的结果
             double sum = 0;
             int index = 0;
-            for (BuildingType buildingType : buildingTypes) {
+            for (BuildingTypeDo buildingType : buildingTypes) {
                 sum += buildingType.getRarity();
                 if (sum >= randomValue) {
                     index = buildingTypes.indexOf(buildingType);
@@ -313,14 +313,14 @@ public class GameMapService {
         // 生成建筑
         for (int i = 0; i < buildingTypesToBePlaced.size(); ++i) {
             // 建筑类型
-            BuildingType buildingType = buildingTypesToBePlaced.get(i);
+            BuildingTypeDo buildingType = buildingTypesToBePlaced.get(i);
             // 随机生成建筑的左上角
             int x = (int) (Math.random() * (GameCache.map.length - 8)) * Constants.PIXELS_PER_GRID;
             int y = (int) (Math.random() * (GameCache.map[0].length - 8)) * Constants.PIXELS_PER_GRID;
             // 随机生成建筑的宽高，在基础宽高的基础上波动（0.8倍到1.2倍）
             double scale = Math.random() * 0.4 + 0.8;
             // 创建建筑对象
-            Building building = new Building();
+            BuildingDo building = new BuildingDo();
             building.setId(NameGenerator.generateItemName(buildingType.getId().name()));
             building.setType(buildingType.getId());
             building.setMap(mapId);

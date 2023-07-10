@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
-import com.shuidun.sandbox_town_backend.bean.RestResponse;
+import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,15 +23,15 @@ public class GameMapController {
 
     /** 得到地图的信息 */
     @GetMapping("/getGameMap")
-    public RestResponse<?> getGameMap() {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, gameMapService.getGameMap());
+    public RestResponseVo<?> getGameMap() {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, gameMapService.getGameMap());
     }
 
     /** 建造随机的生态系统 */
     @SaCheckRole("ADMIN")
     @GetMapping("/createEnvironment")
-    public RestResponse<?> createEnvironment(int nBuildings) {
+    public RestResponseVo<?> createEnvironment(int nBuildings) {
         gameMapService.createEnvironment(nBuildings);
-        return new RestResponse<>(StatusCodeEnum.SUCCESS);
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 }

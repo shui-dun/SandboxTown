@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.shuidun.sandbox_town_backend.bean.RestResponse;
+import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,31 +23,31 @@ public class SpriteController {
 
     /** 获取角色属性信息 */
     @GetMapping("/list/{id}")
-    public RestResponse<?> getSpriteById(@PathVariable("id") String id) {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.selectById(id));
+    public RestResponseVo<?> getSpriteById(@PathVariable("id") String id) {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, spriteService.selectById(id));
     }
 
     /** 获取当前登陆玩家的属性信息 */
     @GetMapping("/listMine")
-    public RestResponse<?> getMyPlayerInfo() {
+    public RestResponseVo<?> getMyPlayerInfo() {
         String username = StpUtil.getLoginIdAsString();
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.selectById(username));
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, spriteService.selectById(username));
     }
 
     /** 获取整个地图上的所有角色信息 */
     @GetMapping("/listAll")
-    public RestResponse<?> getAllSprite() {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.getSpritesByMap(mapId));
+    public RestResponseVo<?> getAllSprite() {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, spriteService.getSpritesByMap(mapId));
     }
 
     @GetMapping("/listAllOnline")
-    public RestResponse<?> getAllOnlineSprite() {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.getOnlineSprites());
+    public RestResponseVo<?> getAllOnlineSprite() {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, spriteService.getOnlineSprites());
     }
 
     @GetMapping("myAndMyPetInfo")
-    public RestResponse<?> getMyAndMyPetInfo() {
+    public RestResponseVo<?> getMyAndMyPetInfo() {
         String username = StpUtil.getLoginIdAsString();
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, spriteService.getMyAndMyPetInfo(username));
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, spriteService.getMyAndMyPetInfo(username));
     }
 }

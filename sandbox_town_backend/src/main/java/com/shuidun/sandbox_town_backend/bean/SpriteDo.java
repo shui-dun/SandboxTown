@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Sprite {
+public class SpriteDo {
 
     @TableId
     private String id;

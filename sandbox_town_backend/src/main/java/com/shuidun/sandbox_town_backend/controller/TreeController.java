@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.shuidun.sandbox_town_backend.bean.RestResponse;
+import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +22,8 @@ public class TreeController {
 
     // 摘苹果
     @PostMapping("/pickApple")
-    public RestResponse<?> pickApple(String treeId) {
+    public RestResponseVo<?> pickApple(String treeId) {
         treeService.pickApple(StpUtil.getLoginIdAsString(), treeId);
-        return new RestResponse<>(StatusCodeEnum.SUCCESS);
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 }

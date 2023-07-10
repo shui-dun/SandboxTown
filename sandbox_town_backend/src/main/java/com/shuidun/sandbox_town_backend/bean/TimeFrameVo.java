@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class TimeFrame {
+public class TimeFrameVo {
     private TimeFrameEnum timeFrame;
 
     /** 当前时间段的持续时间 */

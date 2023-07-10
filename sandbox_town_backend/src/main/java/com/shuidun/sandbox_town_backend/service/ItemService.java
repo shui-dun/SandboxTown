@@ -44,10 +44,10 @@ public class ItemService {
     }
 
     @Transactional
-    public SpriteChange use(String owner, String itemId) {
-        SpriteChange spriteChange = new SpriteChange();
+    public SpriteChangeVo use(String owner, String itemId) {
+        SpriteChangeVo spriteChange = new SpriteChangeVo();
         // 判断物品是否存在
-        Item item = itemMapper.selectById(itemId);
+        ItemDo item = itemMapper.selectById(itemId);
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
@@ -61,10 +61,10 @@ public class ItemService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_USABLE);
         }
         // 得到物品带来的属性变化
-        ItemTypeAttribute itemTypeAttribute = itemTypeAttributeMapper.selectByItemTypeAndOperation(item.getItemType(), ItemOperationEnum.USE);
+        ItemTypeAttributeDo itemTypeAttribute = itemTypeAttributeMapper.selectByItemTypeAndOperation(item.getItemType(), ItemOperationEnum.USE);
         // TODO: 根据物品等级计算属性变化
         // 得到角色原先属性
-        Sprite sprite = spriteMapper.selectById(owner);
+        SpriteDo sprite = spriteMapper.selectById(owner);
         spriteChange.getSpriteAttributeChange().setOriginal(sprite);
         // 更新角色属性
         sprite.setMoney(sprite.getMoney() + itemTypeAttribute.getMoneyInc());
@@ -93,12 +93,12 @@ public class ItemService {
     // 给玩家添加物品
     @Transactional
     public void add(String spriteId, ItemTypeEnum itemTypeId, int count) {
-        ItemType itemType = itemTypeMapper.selectById(itemTypeId);
+        ItemTypeDo itemType = itemTypeMapper.selectById(itemTypeId);
         // 判断物品是否可堆叠
         if (itemType.getDurability() != -1) {
             // 不可堆叠，直接插入
             for (int i = 0; i < count; i++) {
-                Item item = new Item();
+                ItemDo item = new ItemDo();
                 item.setId(NameGenerator.generateItemName(itemTypeId.name()));
                 item.setOwner(spriteId);
                 item.setItemType(itemTypeId);
@@ -110,10 +110,10 @@ public class ItemService {
             }
         } else {
             // 判断玩家是否拥有该物品
-            List<Item> items = itemMapper.selectByOwnerAndItemType(spriteId, itemTypeId);
+            List<ItemDo> items = itemMapper.selectByOwnerAndItemType(spriteId, itemTypeId);
             if (items == null || items.size() == 0) {
                 // 玩家没有该物品，直接插入
-                Item item = new Item();
+                ItemDo item = new ItemDo();
                 item.setId(NameGenerator.generateItemName(itemTypeId.name()));
                 item.setOwner(spriteId);
                 item.setItemType(itemTypeId);
@@ -123,7 +123,7 @@ public class ItemService {
                 item.setPosition(ItemPositionEnum.BACKPACK);
                 itemMapper.insert(item);
             } else {
-                Item item = items.get(0);
+                ItemDo item = items.get(0);
                 // 玩家有该物品，更新数量
                 item.setItemCount(item.getItemCount() + count);
                 itemMapper.updateById(item);
@@ -135,7 +135,7 @@ public class ItemService {
     @Transactional
     public void reduce(String spriteId, String itemId, int count) {
         // 查询玩家拥有的该物品
-        Item item = itemMapper.selectById(itemId);
+        ItemDo item = itemMapper.selectById(itemId);
         // 判断物品是否存在
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
@@ -160,9 +160,9 @@ public class ItemService {
     }
 
     // 根据主人查询物品（带有物品类型信息和标签信息）
-    public List<Item> listByOwnerWithTypeAndLabel(String owner) {
+    public List<ItemDo> listByOwnerWithTypeAndLabel(String owner) {
         // 找到所有物品
-        List<Item> items = itemMapper.selectByOwner(owner);
+        List<ItemDo> items = itemMapper.selectByOwner(owner);
         // 如果没有物品，直接返回
         if (items == null || items.isEmpty()) {
             return items;
@@ -174,9 +174,9 @@ public class ItemService {
 
 
     // 根据主人以及位置查询物品（带有物品类型信息和标签信息）
-    public List<Item> listItemsByOwnerAndPositionWithTypeAndLabel(String owner, ItemPositionEnum position) {
+    public List<ItemDo> listItemsByOwnerAndPositionWithTypeAndLabel(String owner, ItemPositionEnum position) {
         // 找到所有物品
-        List<Item> items = itemMapper.selectByOwnerAndPosition(owner, position);
+        List<ItemDo> items = itemMapper.selectByOwnerAndPosition(owner, position);
         // 如果没有物品，直接返回
         if (items == null || items.isEmpty()) {
             return items;
@@ -187,15 +187,15 @@ public class ItemService {
     }
 
     // 根据主人查询背包中的物品（带有物品类型信息和标签信息）
-    public List<Item> listItemsInBackpackByOwner(String owner) {
+    public List<ItemDo> listItemsInBackpackByOwner(String owner) {
         return listItemsByOwnerAndPositionWithTypeAndLabel(owner, ItemPositionEnum.BACKPACK);
     }
 
     // 根据主人以及位置列表查询物品（带有物品类型信息和标签信息）
     // 物品的位置在列表中的任意一个即可
-    public List<Item> listItemsByOwnerAndPositionsWithTypeAndLabel(String owner, List<ItemPositionEnum> positions) {
+    public List<ItemDo> listItemsByOwnerAndPositionsWithTypeAndLabel(String owner, List<ItemPositionEnum> positions) {
         // 找到所有物品
-        List<Item> items = itemMapper.selectByOwnerAndPositions(owner, positions);
+        List<ItemDo> items = itemMapper.selectByOwnerAndPositions(owner, positions);
         // 如果没有物品，直接返回
         if (items == null || items.isEmpty()) {
             return items;
@@ -207,70 +207,70 @@ public class ItemService {
 
     // 根据主人查询装备栏中的物品（带有物品类型信息和标签信息）
     // 这里的装备栏还包括手持
-    public List<Item> listItemsInEquipmentByOwner(String owner) {
+    public List<ItemDo> listItemsInEquipmentByOwner(String owner) {
         return listItemsByOwnerAndPositionsWithTypeAndLabel(owner, Arrays.asList(ItemPositionEnum.HELMET, ItemPositionEnum.CHEST, ItemPositionEnum.LEG, ItemPositionEnum.BOOTS, ItemPositionEnum.HANDHELD));
     }
 
     // 根据主人查询物品栏（包括手持）中的物品（带有物品类型信息和标签信息）
-    public List<Item> listItemsInItemBarByOwner(String owner) {
+    public List<ItemDo> listItemsInItemBarByOwner(String owner) {
         return listItemsByOwnerAndPositionsWithTypeAndLabel(owner, Arrays.asList(ItemPositionEnum.ITEMBAR, ItemPositionEnum.HANDHELD));
     }
 
     // 为物品类型列表设置标签信息
-    public void setLabelsForItemTypes(Collection<ItemType> itemTypes) {
+    public void setLabelsForItemTypes(Collection<ItemTypeDo> itemTypes) {
         // 找到所有物品类型的标签
-        List<ItemTypeLabel> itemTypeLabels = itemTypeLabelMapper.selectByItemTypes(itemTypes.stream().map(ItemType::getId).collect(Collectors.toList()));
+        List<ItemTypeLabelDo> itemTypeLabels = itemTypeLabelMapper.selectByItemTypes(itemTypes.stream().map(ItemTypeDo::getId).collect(Collectors.toList()));
         // 根据物品类型id分组
-        Map<ItemTypeEnum, Set<ItemTypeLabel>> itemTypeLabelMap = itemTypeLabels.stream().collect(Collectors.groupingBy(ItemTypeLabel::getItemType, Collectors.toSet()));
+        Map<ItemTypeEnum, Set<ItemTypeLabelDo>> itemTypeLabelMap = itemTypeLabels.stream().collect(Collectors.groupingBy(ItemTypeLabelDo::getItemType, Collectors.toSet()));
         // 为每个物品类型设置标签（如果没有标签，会返回空集合）
-        itemTypes.forEach(itemType -> itemType.setLabels(itemTypeLabelMap.getOrDefault(itemType.getId(), new HashSet<>()).stream().map(ItemTypeLabel::getLabel).collect(Collectors.toSet())));
+        itemTypes.forEach(itemType -> itemType.setLabels(itemTypeLabelMap.getOrDefault(itemType.getId(), new HashSet<>()).stream().map(ItemTypeLabelDo::getLabel).collect(Collectors.toSet())));
     }
 
     // 为物品列表设置物品类型信息（带有标签信息）
-    private void setItemTypeAndLabelsForItems(List<Item> items) {
+    private void setItemTypeAndLabelsForItems(List<ItemDo> items) {
         // 找到所有物品类型
-        List<ItemType> itemTypes = itemTypeMapper.selectBatchIds(items.stream().map(Item::getItemType).collect(Collectors.toList()));
+        List<ItemTypeDo> itemTypes = itemTypeMapper.selectBatchIds(items.stream().map(ItemDo::getItemType).collect(Collectors.toList()));
         // 为物品类型列表设置标签信息
         setLabelsForItemTypes(itemTypes);
         // 根据物品类型id分组
-        Map<ItemTypeEnum, ItemType> itemTypeMap = itemTypes.stream().collect(Collectors.toMap(ItemType::getId, itemType -> itemType));
+        Map<ItemTypeEnum, ItemTypeDo> itemTypeMap = itemTypes.stream().collect(Collectors.toMap(ItemTypeDo::getId, itemType -> itemType));
         // 为每个物品设置物品类型信息
         items.forEach(item -> item.setItemTypeObj(itemTypeMap.get(item.getItemType())));
     }
 
     // 获得物品类型的效果列表
-    private Set<ItemTypeEffect> selectEffectsByItemType(ItemTypeEnum itemType) {
-        Set<ItemTypeEffect> itemTypeEffects = itemTypeEffectMapper.selectByItemType(itemType);
+    private Set<ItemTypeEffectDo> selectEffectsByItemType(ItemTypeEnum itemType) {
+        Set<ItemTypeEffectDo> itemTypeEffects = itemTypeEffectMapper.selectByItemType(itemType);
         // 得到效果的详细信息，例如效果的描述
-        Set<EffectEnum> effectEnums = itemTypeEffects.stream().map(ItemTypeEffect::getEffect).collect(Collectors.toSet());
+        Set<EffectEnum> effectEnums = itemTypeEffects.stream().map(ItemTypeEffectDo::getEffect).collect(Collectors.toSet());
         if (effectEnums.isEmpty()) {
             return itemTypeEffects;
         }
-        Map<EffectEnum, Effect> effectMap = effectMapper.selectBatchIds(effectEnums).stream().collect(Collectors.toMap(Effect::getId, effect -> effect));
+        Map<EffectEnum, EffectDo> effectMap = effectMapper.selectBatchIds(effectEnums).stream().collect(Collectors.toMap(EffectDo::getId, effect -> effect));
         itemTypeEffects.forEach(itemTypeEffect -> itemTypeEffect.setEffectObj(effectMap.get(itemTypeEffect.getEffect())));
         return itemTypeEffects;
     }
 
     // 根据物品类型id查询物品类型详细信息（即包含标签信息、属性增益信息、效果信息）
-    public ItemType getItemTypeDetailById(ItemTypeEnum itemTypeId) {
+    public ItemTypeDo getItemTypeDetailById(ItemTypeEnum itemTypeId) {
         // 找到物品类型
-        ItemType itemType = itemTypeMapper.selectById(itemTypeId);
+        ItemTypeDo itemType = itemTypeMapper.selectById(itemTypeId);
 
         // 设置物品类型的标签
         Set<ItemLabelEnum> itemTypeLabels = itemTypeLabelMapper.selectByItemType(itemTypeId);
         itemType.setLabels(itemTypeLabels);
 
         // 找到物品类型的属性增益
-        Set<ItemTypeAttribute> itemTypeAttribute = itemTypeAttributeMapper.selectByItemType(itemTypeId);
+        Set<ItemTypeAttributeDo> itemTypeAttribute = itemTypeAttributeMapper.selectByItemType(itemTypeId);
         // 将物品品类型的属性增益按照操作类型分组
-        Map<ItemOperationEnum, ItemTypeAttribute> itemTypeAttributeMap = itemTypeAttribute.stream().collect(Collectors.toMap(ItemTypeAttribute::getOperation, itemTypeAttribute1 -> itemTypeAttribute1));
+        Map<ItemOperationEnum, ItemTypeAttributeDo> itemTypeAttributeMap = itemTypeAttribute.stream().collect(Collectors.toMap(ItemTypeAttributeDo::getOperation, itemTypeAttribute1 -> itemTypeAttribute1));
         // 设置物品类型的属性增益
         itemType.setAttributes(itemTypeAttributeMap);
 
         // 找到物品类型的效果
-        Set<ItemTypeEffect> itemTypeEffects = selectEffectsByItemType(itemTypeId);
+        Set<ItemTypeEffectDo> itemTypeEffects = selectEffectsByItemType(itemTypeId);
         // 根据操作和效果名称组装成map
-        Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffect>> itemTypeEffectMap = itemTypeEffects.stream().collect(Collectors.groupingBy(ItemTypeEffect::getOperation, Collectors.toMap(ItemTypeEffect::getEffect, itemTypeEffect -> itemTypeEffect)));
+        Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectDo>> itemTypeEffectMap = itemTypeEffects.stream().collect(Collectors.groupingBy(ItemTypeEffectDo::getOperation, Collectors.toMap(ItemTypeEffectDo::getEffect, itemTypeEffect -> itemTypeEffect)));
         // 设置物品类型的效果
         itemType.setEffects(itemTypeEffectMap);
 
@@ -278,22 +278,22 @@ public class ItemService {
     }
 
     // 根据物品id查询物品详细信息（即包含物品类型信息、标签信息、属性增益信息、效果信息）
-    public Item getItemDetailById(String itemId) {
+    public ItemDo getItemDetailById(String itemId) {
         // 找到物品
-        Item item = itemMapper.selectById(itemId);
+        ItemDo item = itemMapper.selectById(itemId);
         // 找到物品类型
-        ItemType itemType = getItemTypeDetailById(item.getItemType());
+        ItemTypeDo itemType = getItemTypeDetailById(item.getItemType());
         // 设置物品类型
         item.setItemTypeObj(itemType);
         return item;
     }
 
     // 根据物品id查询物品以及物品类型信息
-    public Item getItemWithTypeById(String itemId) {
+    public ItemDo getItemWithTypeById(String itemId) {
         // 找到物品
-        Item item = itemMapper.selectById(itemId);
+        ItemDo item = itemMapper.selectById(itemId);
         // 找到物品类型
-        ItemType itemType = itemTypeMapper.selectById(item.getItemType());
+        ItemTypeDo itemType = itemTypeMapper.selectById(item.getItemType());
         // 设置物品类型
         item.setItemTypeObj(itemType);
         return item;

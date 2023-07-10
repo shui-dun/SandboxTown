@@ -1,6 +1,5 @@
 package com.shuidun.sandbox_town_backend.enumeration;
 
-import com.shuidun.sandbox_town_backend.bean.WSResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

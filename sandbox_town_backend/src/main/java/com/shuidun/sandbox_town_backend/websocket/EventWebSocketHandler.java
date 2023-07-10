@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.shuidun.sandbox_town_backend.bean.EventMessage;
+import com.shuidun.sandbox_town_backend.bean.EventDto;
 import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,8 +50,8 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
         String userName = (String) session.getAttributes().get("userName");
         WSManager.usernameSession.remove(userName, session);
         // 发出下线事件
-        EventMessage eventMessage = new EventMessage(EventEnum.OFFLINE, userName, null);
-        eventHandler.handle(eventMessage);
+        EventDto eventDto = new EventDto(EventEnum.OFFLINE, userName, null);
+        eventHandler.handle(eventDto);
         super.afterConnectionClosed(session, status);
     }
 
@@ -65,10 +65,10 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
         if ("".equals(messagePayload)) {
             return;
         }
-        EventMessage eventMessage = JSONObject.parseObject(messagePayload, EventMessage.class);
-        eventMessage.setInitiator((String) session.getAttributes().get("userName"));
+        EventDto eventDto = JSONObject.parseObject(messagePayload, EventDto.class);
+        eventDto.setInitiator((String) session.getAttributes().get("userName"));
         // 交给事件处理器处理
-        eventHandler.handle(eventMessage);
+        eventHandler.handle(eventDto);
     }
 
 }

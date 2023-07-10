@@ -1,13 +1,15 @@
 package com.shuidun.sandbox_town_backend.bean;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@TableName("apple_picking")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApplePicking {
+public class ApplePickingDo {
 
     private String sprite;
 

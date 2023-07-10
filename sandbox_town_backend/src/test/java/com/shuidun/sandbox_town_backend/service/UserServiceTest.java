@@ -1,6 +1,6 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.User;
+import com.shuidun.sandbox_town_backend.bean.UserDo;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.UserRoleMapper;
 import com.shuidun.sandbox_town_backend.mapper.UserMapper;
@@ -34,7 +34,7 @@ public class UserServiceTest {
     @Mock
     private UserRoleMapper userRoleMapper;
 
-    private User user;
+    private UserDo user;
     private String username;
     private Set<String> roleSet;
 
@@ -42,7 +42,7 @@ public class UserServiceTest {
     // 在每个测试方法执行前执行一些预处理操作
     public void setUp() {
         username = "testUser";
-        user = new User();
+        user = new UserDo();
         user.setUsername(username);
         roleSet = new HashSet<>();
     }

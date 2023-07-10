@@ -1,6 +1,6 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
-import com.shuidun.sandbox_town_backend.bean.GameMap;
+import com.shuidun.sandbox_town_backend.bean.GameMapDo;
 import com.shuidun.sandbox_town_backend.bean.SpriteCache;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
@@ -21,7 +21,7 @@ public class GameInitializer {
     public GameInitializer(GameMapService gameMapService, SpriteService spriteService) {
 
         // 获得地图信息
-        GameMap gameMap = gameMapService.getGameMap();
+        GameMapDo gameMap = gameMapService.getGameMap();
 
         // 设置随机数种子
         GameCache.random.setSeed(gameMap.getSeed());

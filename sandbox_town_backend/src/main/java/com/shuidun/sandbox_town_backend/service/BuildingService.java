@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.Building;
-import com.shuidun.sandbox_town_backend.bean.BuildingType;
+import com.shuidun.sandbox_town_backend.bean.BuildingDo;
+import com.shuidun.sandbox_town_backend.bean.BuildingTypeDo;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +27,12 @@ public class BuildingService {
     }
 
     // 获取所有建筑类型
-    public List<BuildingType> getAllBuildingTypes() {
+    public List<BuildingTypeDo> getAllBuildingTypes() {
         return buildingTypeMapper.selectList(null);
     }
 
     // 查找某个地图上的所有建筑
-    public List<Building> getAllBuildings() {
+    public List<BuildingDo> getAllBuildings() {
         return buildingMapper.selectByMapId(mapId);
     }
 }

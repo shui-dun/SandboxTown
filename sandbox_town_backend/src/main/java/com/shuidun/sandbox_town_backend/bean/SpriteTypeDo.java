@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SpriteType {
+public class SpriteTypeDo {
 
     @TableId
     private SpriteTypeEnum type;

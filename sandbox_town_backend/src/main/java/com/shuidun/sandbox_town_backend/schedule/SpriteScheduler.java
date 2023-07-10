@@ -1,8 +1,8 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
-import com.shuidun.sandbox_town_backend.bean.Sprite;
+import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.bean.SpriteCache;
-import com.shuidun.sandbox_town_backend.bean.WSResponse;
+import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
@@ -23,7 +23,7 @@ import java.util.function.Function;
 public class SpriteScheduler {
 
     // 类型到函数的映射
-    private final Map<SpriteTypeEnum, Function<Sprite, Void>> typeToFunction = new HashMap<>();
+    private final Map<SpriteTypeEnum, Function<SpriteDo, Void>> typeToFunction = new HashMap<>();
 
     private final SpriteService spriteService;
 
@@ -41,7 +41,7 @@ public class SpriteScheduler {
                 }
                 double randomVx = sprite.getSpeed() * (Math.random() - 0.5);
                 double randomVy = sprite.getSpeed() * (Math.random() - 0.5);
-                WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.COORDINATE, Map.of(
+                WSManager.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.COORDINATE, Map.of(
                         "id", sprite.getId(),
                         "x", sprite.getX(),
                         "y", sprite.getY(),
@@ -81,7 +81,7 @@ public class SpriteScheduler {
                 result.put("speed", sprite.getSpeed());
                 result.put("path", DataCompressor.compressPath(path));
                 result.put("dest_id", null);
-                WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE, result));
+                WSManager.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, result));
             }
             return null;
         });
@@ -93,7 +93,7 @@ public class SpriteScheduler {
         // 遍历所有角色
         for (String id : GameCache.spriteCacheMap.keySet()) {
             // 得到其角色
-            Sprite sprite = spriteService.selectById(id);
+            SpriteDo sprite = spriteService.selectById(id);
             // 调用对应的处理函数
             var func = typeToFunction.get(sprite.getType());
             if (func != null) {

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemTypeLabel {
+public class ItemTypeLabelDo {
 
     private ItemTypeEnum itemType;
 

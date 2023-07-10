@@ -8,18 +8,18 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RestResponse<T> {
+public class RestResponseVo<T> {
     private int code;
     private String msg;
     private T data;
 
-    public RestResponse(StatusCodeEnum codeEnum, T data) {
+    public RestResponseVo(StatusCodeEnum codeEnum, T data) {
         this.code = codeEnum.getCode();
         this.msg = codeEnum.getMsg();
         this.data = data;
     }
 
-    public RestResponse(StatusCodeEnum codeEnum) {
+    public RestResponseVo(StatusCodeEnum codeEnum) {
         this.code = codeEnum.getCode();
         this.msg = codeEnum.getMsg();
     }

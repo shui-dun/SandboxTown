@@ -2,22 +2,21 @@ package com.shuidun.sandbox_town_backend.bean ;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName("tree")
+@TableName("effect")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Tree {
+public class EffectDo {
 
     @TableId
-    private String id;
+    private EffectEnum id;
 
-    private Integer applesCount;
+    private String name;
 
-    private Integer maxApplesCount;
-
-    private Integer limitPerSprite;
+    private String description;
 }

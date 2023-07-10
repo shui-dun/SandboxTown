@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.shuidun.sandbox_town_backend.bean.WSResponse;
+import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -17,7 +17,7 @@ public class WSManager {
     /**
      * 发送消息给指定用户
      */
-    public static void sendMessageToUser(String username, WSResponse response) {
+    public static void sendMessageToUser(String username, WSResponseVo response) {
         var message = new TextMessage(JSONObject.toJSONString(response));
         // 得到会话
         WebSocketSession session = WSManager.usernameSession.get(username);
@@ -38,7 +38,7 @@ public class WSManager {
     /**
      * 发送消息给所有用户
      */
-    public static void sendMessageToAllUsers(WSResponse response) {
+    public static void sendMessageToAllUsers(WSResponseVo response) {
         var message = new TextMessage(JSONObject.toJSONString(response));
         // 遍历所有用户session的键值对
         for (Map.Entry<String, WebSocketSession> entry : WSManager.usernameSession.entrySet()) {

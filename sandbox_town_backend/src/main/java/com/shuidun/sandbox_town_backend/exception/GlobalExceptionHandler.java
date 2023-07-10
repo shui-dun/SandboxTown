@@ -2,7 +2,7 @@ package com.shuidun.sandbox_town_backend.exception;
 
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.stp.StpUtil;
-import com.shuidun.sandbox_town_backend.bean.RestResponse;
+import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -24,30 +24,30 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
-    public RestResponse<?> exceptionHandler(Exception e) {
+    public RestResponseVo<?> exceptionHandler(Exception e) {
         log.error("User: {} Stack is :\n", currentUser(), e);
-        return new RestResponse<>(StatusCodeEnum.SERVER_ERROR);
+        return new RestResponseVo<>(StatusCodeEnum.SERVER_ERROR);
     }
 
     @ExceptionHandler(NotLoginException.class)
     @ResponseBody
-    public RestResponse<?> exceptionHandler(NotLoginException e) {
+    public RestResponseVo<?> exceptionHandler(NotLoginException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
-        return new RestResponse<>(StatusCodeEnum.NO_PERMISSION);
+        return new RestResponseVo<>(StatusCodeEnum.NO_PERMISSION);
     }
 
     @ExceptionHandler(BusinessException.class)
     @ResponseBody
-    public RestResponse<?> exceptionHandler(BusinessException e) {
+    public RestResponseVo<?> exceptionHandler(BusinessException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
-        return new RestResponse<>(e.getStatusCode());
+        return new RestResponseVo<>(e.getStatusCode());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseBody
-    public RestResponse<?> exceptionHandler(HttpRequestMethodNotSupportedException e) {
+    public RestResponseVo<?> exceptionHandler(HttpRequestMethodNotSupportedException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
-        return new RestResponse<>(StatusCodeEnum.REQUEST_METHOD_NOT_SUPPORTED);
+        return new RestResponseVo<>(StatusCodeEnum.REQUEST_METHOD_NOT_SUPPORTED);
     }
 
 }

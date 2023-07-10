@@ -1,9 +1,8 @@
 package com.shuidun.sandbox_town_backend.mixin;
 
 import com.shuidun.sandbox_town_backend.bean.SpriteCache;
-import com.shuidun.sandbox_town_backend.bean.TimeFrame;
+import com.shuidun.sandbox_town_backend.bean.TimeFrameVo;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
-import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -30,5 +29,5 @@ public class GameCache {
     public static Map<String, SpriteCache> spriteCacheMap = new ConcurrentHashMap<>();
 
     // 当前时间段
-    public static TimeFrame timeFrame = new TimeFrame();
+    public static TimeFrameVo timeFrame = new TimeFrameVo();
 }

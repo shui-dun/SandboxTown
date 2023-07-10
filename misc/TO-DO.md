@@ -1,6 +1,8 @@
 # TO-DO
 
-- 玩家可以向商店卖出商店，按照物品在商店价格的50%售卖，如果商店没有该物品，则按照物品基础价格的50%售卖
+- 前端js文件夹下放置mitt、websocket等等（把mixin拆分开）
+- 前端收到ws消息后，发射对应的mitt事件
+- 后端区分三种bean：需要区分前端发来的数据（DTO，Data Transfer Object），数据表对应的Bean（Entity或者DO，Data Object），返回给前端的Bean（VO，View Object）。注意命名，自动生成脚本的命名也要注意
 
 ## 架构设计
 

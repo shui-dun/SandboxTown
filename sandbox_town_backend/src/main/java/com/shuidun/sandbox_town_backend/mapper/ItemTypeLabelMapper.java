@@ -1,6 +1,6 @@
 package com.shuidun.sandbox_town_backend.mapper;
 
-import com.shuidun.sandbox_town_backend.bean.ItemTypeLabel;
+import com.shuidun.sandbox_town_backend.bean.ItemTypeLabelDo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemLabelEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import org.apache.ibatis.annotations.Select;
@@ -21,5 +21,5 @@ public interface ItemTypeLabelMapper {
                 </foreach>
             </script>
             """)
-    List<ItemTypeLabel> selectByItemTypes(List<ItemTypeEnum> itemTypes);
+    List<ItemTypeLabelDo> selectByItemTypes(List<ItemTypeEnum> itemTypes);
 }

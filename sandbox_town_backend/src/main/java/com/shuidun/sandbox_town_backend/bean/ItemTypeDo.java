@@ -18,7 +18,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemType {
+public class ItemTypeDo {
 
     @TableId
     private ItemTypeEnum id;
@@ -37,8 +37,8 @@ public class ItemType {
     private Set<ItemLabelEnum> labels;
 
     @TableField(exist = false)
-    private Map<ItemOperationEnum, ItemTypeAttribute> attributes;
+    private Map<ItemOperationEnum, ItemTypeAttributeDo> attributes;
 
     @TableField(exist = false)
-    private Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffect>> effects;
+    private Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectDo>> effects;
 }

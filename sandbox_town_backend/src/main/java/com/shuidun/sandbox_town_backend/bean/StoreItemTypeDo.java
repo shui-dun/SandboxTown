@@ -1,30 +1,26 @@
 package com.shuidun.sandbox_town_backend.bean;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName("game_map")
+@TableName("store_item_type")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GameMap {
+public class StoreItemTypeDo {
 
-    @TableId
-    private String id;
+    private ItemTypeEnum itemType;
 
-    private String name;
+    private String store;
 
-    private Integer width;
+    private Integer count;
 
-    private Integer height;
+    private Integer price;
 
-    private Integer seed;
-
-    // 数据
     @TableField(exist = false)
-    private int[][] data;
+    private ItemTypeDo itemTypeObj;
 }

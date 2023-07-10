@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.ApplePicking;
-import com.shuidun.sandbox_town_backend.bean.Tree;
+import com.shuidun.sandbox_town_backend.bean.ApplePickingDo;
+import com.shuidun.sandbox_town_backend.bean.TreeDo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
@@ -40,7 +40,7 @@ public class TreeService {
     @Transactional
     public void pickApple(String spriteId, String treeId) {
         // 查找树
-        Tree tree = treeMapper.selectById(treeId);
+        TreeDo tree = treeMapper.selectById(treeId);
         if (tree == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
@@ -49,10 +49,10 @@ public class TreeService {
             throw new BusinessException(StatusCodeEnum.TREE_APPLE_PICKED);
         }
         // 查找角色摘苹果的信息
-        ApplePicking applePicking = applePickingMapper.selectById(spriteId, treeId);
+        ApplePickingDo applePicking = applePickingMapper.selectById(spriteId, treeId);
         // 如果信息为空，说明角色第一次摘苹果，插入一条记录
         if (applePicking == null) {
-            applePicking = new ApplePicking();
+            applePicking = new ApplePickingDo();
             applePicking.setSprite(spriteId);
             applePicking.setTree(treeId);
             applePicking.setCount(1);
@@ -85,7 +85,7 @@ public class TreeService {
 
     /** 创建一棵树 */
     public void createRandomTree(String treeId) {
-        Tree tree = new Tree();
+        TreeDo tree = new TreeDo();
         tree.setId(treeId);
         tree.setApplesCount(1 + GameCache.random.nextInt(5));
         tree.setMaxApplesCount(tree.getApplesCount());
@@ -96,9 +96,9 @@ public class TreeService {
     /** 刷新所有树的苹果数目等信息 */
     public void refreshTrees() {
         // 查找所有树
-        List<Tree> trees = treeMapper.selectList(null);
+        List<TreeDo> trees = treeMapper.selectList(null);
         // 遍历所有树
-        for (Tree tree : trees) {
+        for (TreeDo tree : trees) {
             // 使得树的苹果数目等于最大苹果数目
             tree.setApplesCount(tree.getMaxApplesCount());
             // 更新树

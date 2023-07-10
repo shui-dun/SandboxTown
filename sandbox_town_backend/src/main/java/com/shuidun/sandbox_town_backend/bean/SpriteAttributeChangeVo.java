@@ -6,7 +6,7 @@ import lombok.Data;
  * 记录精灵的属性变化，只有玩家自己发生变化才会收到通知
  */
 @Data
-public class SpriteAttributeChange {
+public class SpriteAttributeChangeVo {
     // 精灵id
     private String id;
 
@@ -43,7 +43,7 @@ public class SpriteAttributeChange {
     private Integer speedInc;
 
     // 设置原先的属性值
-    public void setOriginal(Sprite original) {
+    public void setOriginal(SpriteDo original) {
         this.id = original.getId();
         this.money = original.getMoney();
         this.exp = original.getExp();
@@ -56,7 +56,7 @@ public class SpriteAttributeChange {
     }
 
     // 设置增量
-    public void setChanged(Sprite changed) {
+    public void setChanged(SpriteDo changed) {
         this.id = changed.getId();
         this.moneyInc = changed.getMoney() - this.money;
         this.expInc = changed.getExp() - this.exp;

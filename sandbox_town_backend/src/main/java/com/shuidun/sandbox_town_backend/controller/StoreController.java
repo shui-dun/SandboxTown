@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.shuidun.sandbox_town_backend.bean.RestResponse;
+import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.StoreService;
@@ -23,8 +23,8 @@ public class StoreController {
 
     // 得到某个商店的所有商品列表
     @GetMapping("/listByStore")
-    public RestResponse<?> listByStore(String store) {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, storeService.listByStore(store));
+    public RestResponseVo<?> listByStore(String store) {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, storeService.listByStore(store));
     }
 
     /**
@@ -35,28 +35,28 @@ public class StoreController {
      * @param amount 数量
      */
     @PostMapping("/buy")
-    public RestResponse<?> buy(String store, ItemTypeEnum item, Integer amount) {
+    public RestResponseVo<?> buy(String store, ItemTypeEnum item, Integer amount) {
         storeService.buy(StpUtil.getLoginIdAsString(), store, item, amount);
-        return new RestResponse<>(StatusCodeEnum.SUCCESS);
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
     // 得到某个商店的某个商品的详细信息
     @GetMapping("/getByStoreAndItemType")
-    public RestResponse<?> getByStoreAndItem(String store, ItemTypeEnum itemType) {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, storeService.detailByStoreAndItemType(store, itemType));
+    public RestResponseVo<?> getByStoreAndItem(String store, ItemTypeEnum itemType) {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, storeService.detailByStoreAndItemType(store, itemType));
     }
 
     // 得到用户向商店出售时的售价
     @GetMapping("/soldPrice")
-    public RestResponse<?> soldPrice(String store, String itemId) {
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, storeService.soldPrice(store, itemId));
+    public RestResponseVo<?> soldPrice(String store, String itemId) {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, storeService.soldPrice(store, itemId));
     }
 
     /** 出售物品 */
     @PostMapping("/sell")
-    public RestResponse<?> sell(String store, String itemId, Integer amount, Integer perPrice) {
+    public RestResponseVo<?> sell(String store, String itemId, Integer amount, Integer perPrice) {
         storeService.sell(StpUtil.getLoginIdAsString(), store, itemId, amount, perPrice);
-        return new RestResponse<>(StatusCodeEnum.SUCCESS, null);
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
 }

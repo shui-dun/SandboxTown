@@ -11,7 +11,7 @@ import java.util.List;
  * 或者虽然是其他精灵的变化，但会引起前端动画变化才会收到通知
  */
 @Data
-public class SpriteEffectChange {
+public class SpriteEffectChangeVo {
     // 精灵id
     private String id;
 

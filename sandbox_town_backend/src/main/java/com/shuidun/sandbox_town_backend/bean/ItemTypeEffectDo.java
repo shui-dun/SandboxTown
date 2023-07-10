@@ -1,35 +1,28 @@
-package com.shuidun.sandbox_town_backend.bean ;
+package com.shuidun.sandbox_town_backend.bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemOperationEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName("item_type_attribute")
+@TableName("item_type_effect")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemTypeAttribute {
+public class ItemTypeEffectDo {
 
     private ItemTypeEnum itemType;
 
     private ItemOperationEnum operation;
 
-    private Integer moneyInc;
+    private EffectEnum effect;
 
-    private Integer expInc;
+    private Integer duration;
 
-    private Integer levelInc;
-
-    private Integer hungerInc;
-
-    private Integer hpInc;
-
-    private Integer attackInc;
-
-    private Integer defenseInc;
-
-    private Integer speedInc;
+    @TableField(exist = false)
+    private EffectDo effectObj;
 }

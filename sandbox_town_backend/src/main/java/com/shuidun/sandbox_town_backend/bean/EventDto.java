@@ -11,7 +11,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventMessage {
+public class EventDto {
     private EventEnum type;
 
     // 事件发起者的用户名

@@ -48,15 +48,15 @@ public class StoreService {
     }
 
     /** 列出商店的所有商品 */
-    public List<StoreItemType> listByStore(String store) {
-        List<StoreItemType> storeItemTypes = storeItemTypeMapper.selectByStore(store);
+    public List<StoreItemTypeDo> listByStore(String store) {
+        List<StoreItemTypeDo> storeItemTypes = storeItemTypeMapper.selectByStore(store);
         if (storeItemTypes == null || storeItemTypes.isEmpty()) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
         // 得到所有的物品类型枚举（不重复）
-        Set<ItemTypeEnum> itemTypes = storeItemTypes.stream().map(StoreItemType::getItemType).collect(Collectors.toSet());
+        Set<ItemTypeEnum> itemTypes = storeItemTypes.stream().map(StoreItemTypeDo::getItemType).collect(Collectors.toSet());
         // 得到所有的物品类型
-        Map<ItemTypeEnum, ItemType> itemTypeMap = itemTypeMapper.selectBatchIds(itemTypes).stream().collect(Collectors.toMap(ItemType::getId, itemType -> itemType));
+        Map<ItemTypeEnum, ItemTypeDo> itemTypeMap = itemTypeMapper.selectBatchIds(itemTypes).stream().collect(Collectors.toMap(ItemTypeDo::getId, itemType -> itemType));
         // 为所有物品类型设置标签
         itemService.setLabelsForItemTypes(itemTypeMap.values());
         // 为所有商店商品设置物品类型
@@ -67,7 +67,7 @@ public class StoreService {
     /** 买入商品 */
     @Transactional
     public void buy(String spriteId, String store, ItemTypeEnum item, Integer amount) {
-        StoreItemType storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item);
+        StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item);
         // 检查商品是否存在
         if (storeItemType == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
@@ -77,7 +77,7 @@ public class StoreService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_ENOUGH);
         }
         // 得到用户的金钱
-        Sprite sprite = spriteMapper.selectById(spriteId);
+        SpriteDo sprite = spriteMapper.selectById(spriteId);
         int money = sprite.getMoney();
         // 检查用户金钱是否足够
         if (money < storeItemType.getPrice() * amount) {
@@ -100,7 +100,7 @@ public class StoreService {
         // 删除原有的商店商品
         storeItemTypeMapper.deleteByStore(store);
         // 获取所有物品信息
-        List<ItemType> itemTypes = itemTypeMapper.selectList(null);
+        List<ItemTypeDo> itemTypes = itemTypeMapper.selectList(null);
         // 进货随机数目种类的商品
         int count = (int) (Math.random() * 6) + 3;
         if (count > itemTypes.size()) {
@@ -108,14 +108,14 @@ public class StoreService {
         }
         // 首先计算总稀有度
         int totalRarity = 0;
-        for (ItemType itemType : itemTypes) {
+        for (ItemTypeDo itemType : itemTypes) {
             totalRarity += itemType.getRarity();
         }
         // 根据物品的稀有度，使用轮盘赌算法，随机选取物品
         for (int i = 0; i < count; i++) {
             int random = (int) (Math.random() * totalRarity);
             int sum = 0;
-            for (ItemType itemType : itemTypes) {
+            for (ItemTypeDo itemType : itemTypes) {
                 sum += itemType.getRarity();
                 if (sum >= random) {
                     // 选中了该物品
@@ -123,7 +123,7 @@ public class StoreService {
                     int itemCount = (int) (Math.random() * itemType.getRarity()) + 1;
                     // 如果该物品已经在商店中了，那么更新
                     // 这里要关闭缓存，否则会出现脏读
-                    StoreItemType storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, itemType.getId());
+                    StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, itemType.getId());
                     if (storeItemType != null) {
                         storeItemType.setCount(storeItemType.getCount() + itemCount);
                         storeItemTypeMapper.updateById(storeItemType);
@@ -132,7 +132,7 @@ public class StoreService {
                         // 以物品基础价格为基础，生成随机价格
                         int price = (int) (Math.random() * itemType.getBasicPrice()) + itemType.getBasicPrice() / 2;
                         // 生成商店商品
-                        storeItemType = new StoreItemType();
+                        storeItemType = new StoreItemTypeDo();
                         storeItemType.setStore(store);
                         storeItemType.setItemType(itemType.getId());
                         storeItemType.setCount(itemCount);
@@ -148,15 +148,15 @@ public class StoreService {
     /** 刷新所有商店商品 */
     public void refreshAll() {
         // 得到所有商店
-        List<Building> stores = buildingMapper.selectByMapIdAndType(mapId, BuildingTypeEnum.STORE);
-        for (Building store : stores) {
+        List<BuildingDo> stores = buildingMapper.selectByMapIdAndType(mapId, BuildingTypeEnum.STORE);
+        for (BuildingDo store : stores) {
             refresh(store.getId());
         }
     }
 
     /** 列出指定商店中指定商品的信息（包含标签信息、属性增益信息、效果信息等） */
-    public StoreItemType detailByStoreAndItemType(String store, ItemTypeEnum itemType) {
-        StoreItemType storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, itemType);
+    public StoreItemTypeDo detailByStoreAndItemType(String store, ItemTypeEnum itemType) {
+        StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, itemType);
         if (storeItemType == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
@@ -168,9 +168,9 @@ public class StoreService {
     public Integer soldPrice(String store, String itemId) {
         int price;
         // 得到物品信息（带有类型信息）
-        Item item = itemService.getItemWithTypeById(itemId);
+        ItemDo item = itemService.getItemWithTypeById(itemId);
         // 得到商店商品信息
-        StoreItemType storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());
+        StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());
         // 如果商店里面没有这个商品，那么那直接用物品的基础价格的一半
         if (storeItemType == null) {
             price = item.getItemTypeObj().getBasicPrice() / 2;
@@ -190,7 +190,7 @@ public class StoreService {
     @Transactional
     public void sell(String spriteId, String store, String itemId, Integer amount, Integer perPrice) {
         // 得到物品信息
-        Item item = itemMapper.selectById(itemId);
+        ItemDo item = itemMapper.selectById(itemId);
         // 检查物品是否存在
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
@@ -208,7 +208,7 @@ public class StoreService {
             throw new BusinessException(StatusCodeEnum.PRICE_NOT_MATCH);
         }
         // 得到用户信息
-        Sprite sprite = spriteMapper.selectById(spriteId);
+        SpriteDo sprite = spriteMapper.selectById(spriteId);
         // 更新用户金钱
         sprite.setMoney(sprite.getMoney() + perPrice * amount);
         sprite = spriteService.normalizeAndUpdatePlayer(sprite);
@@ -216,10 +216,10 @@ public class StoreService {
         itemService.reduce(spriteId, itemId, amount);
         // 更新商店商品数量（只有全新物品商店才会再次出售）
         if (item.getLife() == 100) {
-            StoreItemType storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());
+            StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());
             if (storeItemType == null) {
                 // 如果商店里面没有这个商品，那么那直接用物品的售卖价格的两倍
-                storeItemType = new StoreItemType();
+                storeItemType = new StoreItemTypeDo();
                 storeItemType.setStore(store);
                 storeItemType.setItemType(item.getItemType());
                 storeItemType.setCount(amount);

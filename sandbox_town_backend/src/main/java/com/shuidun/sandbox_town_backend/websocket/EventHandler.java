@@ -29,15 +29,15 @@ public class EventHandler {
     // 事件类型 -> 处理函数
     private final Map<EventEnum, BiFunction<String, Map<String, Object>, Void>> eventMap = new HashMap<>();
 
-    public void handle(EventMessage eventMessage) {
+    public void handle(EventDto eventDto) {
         try {
             // 如果类型是空，就不处理
-            if (eventMessage.getType() == null) {
+            if (eventDto.getType() == null) {
                 return;
             }
-            eventMap.get(eventMessage.getType()).apply(eventMessage.getInitiator(), eventMessage.getData());
+            eventMap.get(eventDto.getType()).apply(eventDto.getInitiator(), eventDto.getData());
         } catch (Exception e) {
-            log.error("handle {} event error", eventMessage, e);
+            log.error("handle {} event error", eventDto, e);
         }
     }
 
@@ -47,12 +47,12 @@ public class EventHandler {
         // 下线事件
         eventMap.put(EventEnum.OFFLINE, (initiator, data) -> {
             // 读取角色的所有宠物
-            List<Sprite> pets = spriteService.selectByOwner(initiator);
+            List<SpriteDo> pets = spriteService.selectByOwner(initiator);
             // 删除角色以及其宠物坐标等信息
             GameCache.spriteCacheMap.remove(initiator);
             pets.forEach(pet -> GameCache.spriteCacheMap.remove(pet.getId()));
             // 通知其他玩家
-            WSResponse wsResponse = new WSResponse(WSResponseEnum.OFFLINE, Map.of("id", initiator));
+            WSResponseVo wsResponse = new WSResponseVo(WSResponseEnum.OFFLINE, Map.of("id", initiator));
             WSManager.sendMessageToAllUsers(wsResponse);
             return null;
         });
@@ -81,13 +81,13 @@ public class EventHandler {
             spriteCache.setVy(vy);
             // 广播给其他玩家
             // 如果是第一次通报坐标信息，说明刚上线，需要广播上线信息
-            WSResponse response;
+            WSResponseVo response;
             if (isFirstTime) {
                 // 广播上线信息
-                response = new WSResponse(WSResponseEnum.ONLINE, JSONObject.parseObject(JSON.toJSONString(spriteService.selectById(id)), Map.class));
+                response = new WSResponseVo(WSResponseEnum.ONLINE, JSONObject.parseObject(JSON.toJSONString(spriteService.selectById(id)), Map.class));
 
             } else { // 如果不是第一次通报坐标信息，只需广播坐标信息
-                response = new WSResponse(WSResponseEnum.COORDINATE, Map.of(
+                response = new WSResponseVo(WSResponseEnum.COORDINATE, Map.of(
                         "id", id,
                         "x", x,
                         "y", y,
@@ -137,7 +137,7 @@ public class EventHandler {
             result.put("speed", spriteService.selectById(initiator).getSpeed());
             result.put("path", DataCompressor.compressPath(path));
             result.put("dest_id", data.get("dest_id"));
-            WSManager.sendMessageToAllUsers(new WSResponse(WSResponseEnum.MOVE, result));
+            WSManager.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, result));
             return null;
         });
 

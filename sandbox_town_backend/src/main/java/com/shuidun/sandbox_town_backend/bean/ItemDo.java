@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Item {
+public class ItemDo {
 
     @TableId
     private String id;
@@ -30,6 +30,6 @@ public class Item {
     private ItemPositionEnum position;
 
     @TableField(exist = false)
-    private ItemType itemTypeObj;
+    private ItemTypeDo itemTypeObj;
 
 }

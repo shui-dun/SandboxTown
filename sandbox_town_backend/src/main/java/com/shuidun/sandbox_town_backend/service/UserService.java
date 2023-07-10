@@ -1,8 +1,8 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.shuidun.sandbox_town_backend.bean.Sprite;
-import com.shuidun.sandbox_town_backend.bean.User;
+import com.shuidun.sandbox_town_backend.bean.SpriteDo;
+import com.shuidun.sandbox_town_backend.bean.UserDo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
@@ -41,7 +41,7 @@ public class UserService {
         this.spriteMapper = spriteMapper;
     }
 
-    public User findUserByName(String username) {
+    public UserDo findUserByName(String username) {
         return userMapper.selectById(username);
     }
 
@@ -62,11 +62,11 @@ public class UserService {
         String username = SpriteTypeEnum.USER.name() + "_" + usernameSuffix;
         try {
             Date currentDate = new Date(System.currentTimeMillis());
-            User user = new User(username, saltAndPasswd[1], saltAndPasswd[0], null, 0,
+            UserDo user = new UserDo(username, saltAndPasswd[1], saltAndPasswd[0], null, 0,
                     currentDate, null);
             userMapper.insert(user);
             userRoleMapper.insert(user.getUsername(), "NORMAL");
-            Sprite sprite = new Sprite();
+            SpriteDo sprite = new SpriteDo();
             sprite.setId(user.getUsername());
             sprite.setType(SpriteTypeEnum.USER);
             sprite.setMoney(10);
@@ -89,7 +89,7 @@ public class UserService {
         return username;
     }
 
-    public void updateUser(User user) {
+    public void updateUser(UserDo user) {
         userMapper.updateById(user);
     }
 
@@ -99,7 +99,7 @@ public class UserService {
         if (roleSet.contains("ADMIN")) {
             throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
         }
-        User user = userMapper.selectById(username);
+        UserDo user = userMapper.selectById(username);
         if (user == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
@@ -118,13 +118,13 @@ public class UserService {
         return userMapper.deleteById(username);
     }
 
-    public List<User> listAll() {
+    public List<UserDo> listAll() {
         return userMapper.selectList(null);
     }
 
     @Transactional
     public void unbanUser(String username) {
-        User user = userMapper.selectById(username);
+        UserDo user = userMapper.selectById(username);
         if (user == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
@@ -134,7 +134,7 @@ public class UserService {
 
     @Transactional
     public boolean isUserBanned(String username) {
-        User user = userMapper.selectById(username);
+        UserDo user = userMapper.selectById(username);
         if (user == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
@@ -153,7 +153,7 @@ public class UserService {
      */
     @Transactional
     public int enterGameToReceiveReward(String username) {
-        User user = userMapper.selectById(username);
+        UserDo user = userMapper.selectById(username);
         // 获取上次登录日期
         Date lastLoginDate = user.getLastOnline();
         // 计算奖励
@@ -189,7 +189,7 @@ public class UserService {
      */
     @Transactional
     public void login(String username, String password) {
-        User user = userMapper.selectById(username);
+        UserDo user = userMapper.selectById(username);
         // 判断用户是否存在
         if (user == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
@@ -217,7 +217,7 @@ public class UserService {
         }
         // 获取当前用户
         String username = StpUtil.getLoginIdAsString();
-        User user = userMapper.selectById(username);
+        UserDo user = userMapper.selectById(username);
         // 判断密码是否正确
         String encryptedPasswd = PasswordEncryptor.encryptedPasswd(oldPassword, user.getSalt());
         assert encryptedPasswd != null;

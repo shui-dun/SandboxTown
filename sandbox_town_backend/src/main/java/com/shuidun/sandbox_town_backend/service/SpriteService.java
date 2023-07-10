@@ -1,8 +1,8 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.MyAndMyPetInfo;
-import com.shuidun.sandbox_town_backend.bean.Sprite;
-import com.shuidun.sandbox_town_backend.bean.SpriteType;
+import com.shuidun.sandbox_town_backend.bean.MyAndMyPetInfoVo;
+import com.shuidun.sandbox_town_backend.bean.SpriteDo;
+import com.shuidun.sandbox_town_backend.bean.SpriteTypeDo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
@@ -36,8 +36,8 @@ public class SpriteService {
         this.spriteTypeMapper = spriteTypeMapper;
     }
 
-    public Sprite selectById(String id) {
-        Sprite sprite = spriteMapper.selectByIdWithType(id);
+    public SpriteDo selectById(String id) {
+        SpriteDo sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
@@ -62,7 +62,7 @@ public class SpriteService {
      * @return 更新后的玩家信息
      */
     @Transactional
-    public Sprite updateSpriteAttribute(String id, String attribute, int value) {
+    public SpriteDo updateSpriteAttribute(String id, String attribute, int value) {
         try {
             spriteMapper.updateAttribute(id, attribute, value);
         } catch (BadSqlGrammarException e) {
@@ -73,7 +73,7 @@ public class SpriteService {
 
     /** 判断角色属性值是否在合理范围内（包含升级操作） */
     @Transactional
-    public Sprite normalizeAndUpdatePlayer(Sprite sprite) {
+    public SpriteDo normalizeAndUpdatePlayer(SpriteDo sprite) {
         // 如果经验值足够升级，则升级
         if (sprite.getExp() >= EXP_PER_LEVEL) {
             sprite.setLevel(sprite.getLevel() + 1);
@@ -114,14 +114,14 @@ public class SpriteService {
     }
 
     // 得到某个地图上的所有角色
-    public List<Sprite> getSpritesByMap(String map) {
+    public List<SpriteDo> getSpritesByMap(String map) {
         return spriteMapper.selectByMapId(map);
     }
 
     // 生成随机的指定类型的角色，并写入数据库
-    public Sprite generateRandomSprite(SpriteTypeEnum type, String owner, int x, int y) {
-        Sprite sprite = new Sprite();
-        SpriteType spriteType = spriteTypeMapper.selectById(type);
+    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String owner, int x, int y) {
+        SpriteDo sprite = new SpriteDo();
+        SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
         sprite.setId(NameGenerator.generateItemName(type.name()));
         sprite.setType(type);
         sprite.setOwner(owner);
@@ -159,33 +159,33 @@ public class SpriteService {
         return sprite;
     }
 
-    public List<Sprite> getOnlineSprites() {
+    public List<SpriteDo> getOnlineSprites() {
         if (GameCache.spriteCacheMap.isEmpty()) {
             return new ArrayList<>();
         }
-        List<Sprite> sprites = spriteMapper.selectBatchIds(GameCache.spriteCacheMap.keySet());
+        List<SpriteDo> sprites = spriteMapper.selectBatchIds(GameCache.spriteCacheMap.keySet());
         // 更新坐标为缓存中的最新坐标
-        for (Sprite sprite : sprites) {
+        for (SpriteDo sprite : sprites) {
             sprite.setX(GameCache.spriteCacheMap.get(sprite.getId()).getX());
             sprite.setY(GameCache.spriteCacheMap.get(sprite.getId()).getY());
         }
         return sprites;
     }
 
-    public MyAndMyPetInfo getMyAndMyPetInfo(String ownerId) {
-        MyAndMyPetInfo myAndMyPetInfo = new MyAndMyPetInfo();
+    public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {
+        MyAndMyPetInfoVo myAndMyPetInfo = new MyAndMyPetInfoVo();
         myAndMyPetInfo.setMe(spriteMapper.selectByIdWithType(ownerId));
         myAndMyPetInfo.setMyPets(spriteMapper.selectByOwner(ownerId));
         return myAndMyPetInfo;
     }
 
     // 得到玩家的所有宠物
-    public List<Sprite> selectByOwner(String ownerId) {
+    public List<SpriteDo> selectByOwner(String ownerId) {
         return spriteMapper.selectByOwner(ownerId);
     }
 
     // 得到所有未被玩家拥有的角色
-    public List<Sprite> getUnownedSprites() {
+    public List<SpriteDo> getUnownedSprites() {
         return spriteMapper.selectUnownedSprites();
     }
 }

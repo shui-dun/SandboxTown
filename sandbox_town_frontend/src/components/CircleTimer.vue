@@ -3,7 +3,7 @@
         <svg :width="size" :height="size">
             <circle :r="radius" :cx="size / 2" :cy="size / 2" fill="white" :stroke="'#8bd1ef'" :stroke-width="strokeWidth"
                 :stroke-dasharray="circumference" :stroke-dashoffset="0" />
-            <circle :r="radius" :cx="size / 2" :cy="size / 2" fill="white" :stroke="'black'" :stroke-width="strokeWidth"
+            <circle :r="radius" :cx="size / 2" :cy="size / 2" fill="transparent" :stroke="'black'" :stroke-width="strokeWidth"
                 :stroke-dasharray="circumference" :stroke-dashoffset="offset" />
             <image :href="image" :width="size - strokeWidth * 2" :height="size - strokeWidth * 2" :x="strokeWidth"
                 :y="strokeWidth" />
@@ -23,7 +23,7 @@ export default {
         },
         strokeWidth: {
             type: Number,
-            default: 7,
+            default: 5,
         },
     },
     data() {

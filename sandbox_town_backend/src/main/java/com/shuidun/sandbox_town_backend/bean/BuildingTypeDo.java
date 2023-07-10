@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BuildingType {
+public class BuildingTypeDo {
 
     @TableId
     private BuildingTypeEnum id;

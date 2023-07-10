@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.shuidun.sandbox_town_backend.bean.Sprite;
+import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Update;
 import java.util.List;
 
 @Mapper
-public interface SpriteMapper extends BaseMapper<Sprite> {
+public interface SpriteMapper extends BaseMapper<SpriteDo> {
     // 根据角色id获取角色信息（包含sprite_type表中的角色描述信息）
     @Select("""
             SELECT * FROM sprite
@@ -18,7 +18,7 @@ public interface SpriteMapper extends BaseMapper<Sprite> {
             ON sprite.type = sprite_type.type
             WHERE id = #{id}
             """)
-    Sprite selectByIdWithType(@Param("id") String id);
+    SpriteDo selectByIdWithType(@Param("id") String id);
 
 
     @Update("UPDATE sprite SET ${attribute} = #{value} WHERE id = #{id}")
@@ -26,12 +26,12 @@ public interface SpriteMapper extends BaseMapper<Sprite> {
 
     // 得到某个地图上的所有角色
     @Select("SELECT * FROM sprite WHERE map = #{map}")
-    List<Sprite> selectByMapId(@Param("map") String map);
+    List<SpriteDo> selectByMapId(@Param("map") String map);
 
     @Select("SELECT * FROM sprite WHERE owner = #{owner}")
-    List<Sprite> selectByOwner(String owner);
+    List<SpriteDo> selectByOwner(String owner);
 
     // 得到没有主人的角色
     @Select("SELECT * FROM sprite where owner IS NULL and type != 'user'")
-    List<Sprite> selectUnownedSprites();
+    List<SpriteDo> selectUnownedSprites();
 }
