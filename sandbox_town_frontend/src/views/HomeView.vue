@@ -101,7 +101,7 @@ export default {
             return window.innerWidth < window.innerHeight;
         },
         checkIsMobile() {
-            return window.innerWidth < 500 || window.innerHeight < 500;
+            return window.innerWidth < 400 || window.innerHeight < 400;
         },
         async checkIsLogin() {
             // 向后端发送请求，检查是否登录

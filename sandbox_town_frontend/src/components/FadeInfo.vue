@@ -12,7 +12,7 @@
   
 <script>
 
-import mixin from "@/js/mixin.js";
+import emitter from "@/js/mitt";
 const { v4: uuidv4 } = require('uuid');
 
 export default {
@@ -23,7 +23,7 @@ export default {
         };
     },
     mounted() {
-        mixin.emitter.on("spriteAttributeChange", msg => {
+        emitter.on("SPRITE_ATTRIBUTE_CHANGE", msg => {
             let showMap = {
                 "moneyInc": "💰 金钱",
                 "expInc": "📖 经验",

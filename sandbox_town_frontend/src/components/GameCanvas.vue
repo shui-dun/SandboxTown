@@ -4,8 +4,8 @@
   
 <script>
 import Phaser from "phaser";
-import {mainScene, closeGame} from "../js/MainScene.js";
-import storeScene from "../js/StoreScene.js";
+import {mainScene, closeGame} from "../js/mainScene.js";
+import storeScene from "../js/storeScene.js";
 import mixin from "@/js/mixin.js";
 
 export default {

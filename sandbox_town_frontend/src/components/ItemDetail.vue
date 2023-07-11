@@ -28,6 +28,7 @@
   
 <script>
 import mixin from '@/js/mixin';
+import emitter from '@/js/mitt';
 import ListPanel from './ListPanel.vue';
 
 
@@ -73,7 +74,7 @@ export default {
             } else if (event == 'USE') {
                 // 使用
                 let spriteChange = await mixin.myPOST("/rest/item/use", new URLSearchParams({ itemId: this.itemId }));
-                mixin.emitter.emit('spriteAttributeChange', spriteChange.spriteAttributeChange);
+                emitter.emit('SPRITE_ATTRIBUTE_CHANGE', spriteChange.spriteAttributeChange);
             }
             this.$emit('onConfirm', event);
         },
