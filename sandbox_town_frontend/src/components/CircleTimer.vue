@@ -3,13 +3,14 @@
         <svg :width="size" :height="size">
             <circle :r="radius" :cx="size / 2" :cy="size / 2" fill="white" :stroke="'#8bd1ef'" :stroke-width="strokeWidth"
                 :stroke-dasharray="circumference" :stroke-dashoffset="0" />
-            <circle :r="radius" :cx="size / 2" :cy="size / 2" fill="transparent" :stroke="'black'" :stroke-width="strokeWidth"
-                :stroke-dasharray="circumference" :stroke-dashoffset="offset" />
+            <circle :r="radius" :cx="size / 2" :cy="size / 2" fill="transparent" :stroke="'black'"
+                :stroke-width="strokeWidth" :stroke-dasharray="circumference" :stroke-dashoffset="offset" />
             <image :href="image" :width="size - strokeWidth * 2" :height="size - strokeWidth * 2" :x="strokeWidth"
                 :y="strokeWidth" />
         </svg>
         <div class="my-tip">
-            <p>{{ title }} &nbsp;&nbsp; {{ remainTime }}s </p>
+            <h5>{{ title }}</h5>
+            <p v-if="durationMills != -1">{{ remainTime }}/{{ durationMills / 1000 }}s</p>
             <p v-if="description.length > 0"> {{ description }} </p>
         </div>
     </div>
