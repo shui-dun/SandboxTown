@@ -1,7 +1,6 @@
 package com.shuidun.sandbox_town_backend.websocket;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
@@ -9,7 +8,6 @@ import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
-import com.shuidun.sandbox_town_backend.utils.NumUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +25,7 @@ import java.util.function.BiFunction;
 @Component
 public class EventHandler {
     // 事件类型 -> 处理函数
-    private final Map<EventEnum, BiFunction<String, Map<String, Object>, Void>> eventMap = new HashMap<>();
+    private final Map<EventEnum, BiFunction<String, JSONObject, Void>> eventMap = new HashMap<>();
 
     public void handle(EventDto eventDto) {
         try {
@@ -35,6 +33,7 @@ public class EventHandler {
             if (eventDto.getType() == null) {
                 return;
             }
+            log.info("handle {} event", eventDto);
             eventMap.get(eventDto.getType()).apply(eventDto.getInitiator(), eventDto.getData());
         } catch (Exception e) {
             log.error("handle {} event error", eventDto, e);
@@ -45,7 +44,7 @@ public class EventHandler {
 
 
         // 下线事件
-        eventMap.put(EventEnum.OFFLINE, (initiator, data) -> {
+        eventMap.put(EventEnum.OFFLINE, (initiator, mapData) -> {
             // 读取角色的所有宠物
             List<SpriteDo> pets = spriteService.selectByOwner(initiator);
             // 删除角色以及其宠物坐标等信息
@@ -58,37 +57,33 @@ public class EventHandler {
         });
 
         // 告知坐标信息
-        eventMap.put(EventEnum.COORDINATE, (initiator, data) -> {
-            int x = NumUtils.toInt(data.get("x"));
-            int y = NumUtils.toInt(data.get("y"));
-            double vx = NumUtils.toDouble(data.get("vx"));
-            double vy = NumUtils.toDouble(data.get("vy"));
-            String id = data.get("id").toString();
+        eventMap.put(EventEnum.COORDINATE, (initiator, mapData) -> {
+            var data = mapData.toJavaObject(CoordinateDto.class);
             // 如果是第一次通报坐标信息，说明刚上线
-            boolean isFirstTime = !GameCache.spriteCacheMap.containsKey(id);
+            boolean isFirstTime = !GameCache.spriteCacheMap.containsKey(data.getId());
 
             // TODO: 只能控制自己或者是自己的宠物或者公共npc
             // 如果是其他玩家或者是其他玩家的宠物，直接返回
             // 更新坐标信息
-            var spriteCache = GameCache.spriteCacheMap.get(id);
+            var spriteCache = GameCache.spriteCacheMap.get(data.getId());
             if (spriteCache == null) {
                 spriteCache = new SpriteCache();
-                GameCache.spriteCacheMap.put(id, spriteCache);
+                GameCache.spriteCacheMap.put(data.getId(), spriteCache);
             }
-            spriteCache.setX(x);
-            spriteCache.setY(y);
-            spriteCache.setVx(vx);
-            spriteCache.setVy(vy);
+            spriteCache.setX(data.getX());
+            spriteCache.setY(data.getY());
+            spriteCache.setVx(data.getVx());
+            spriteCache.setVy(data.getVy());
             // 广播给其他玩家
             // 如果是第一次通报坐标信息，说明刚上线，需要广播上线信息
             WSResponseVo response;
             if (isFirstTime) {
                 // 广播上线信息
-                response = new WSResponseVo(WSResponseEnum.ONLINE, spriteService.selectById(id));
+                response = new WSResponseVo(WSResponseEnum.ONLINE, spriteService.selectById(data.getId()));
 
             } else { // 如果不是第一次通报坐标信息，只需广播坐标信息
                 response = new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
-                        id, x, y, vx, vy
+                        data.getId(), data.getX(), data.getY(), data.getVx(), data.getVy()
                 ));
             }
             WSManager.sendMessageToAllUsers(response);
@@ -96,34 +91,30 @@ public class EventHandler {
         });
 
         // 想要移动
-        eventMap.put(EventEnum.MOVE, (initiator, data) -> {
-            log.info("MOVE: {}", data);
-            int x0 = NumUtils.toInt(data.get("x0"));
-            int y0 = NumUtils.toInt(data.get("y0"));
-            int x1 = NumUtils.toInt(data.get("x1"));
-            int y1 = NumUtils.toInt(data.get("y1"));
-            String destId = data.get("dest_id") != null ? data.get("dest_id").toString() : null;
+        eventMap.put(EventEnum.MOVE, (initiator, mapData) -> {
+            var data = mapData.toJavaObject(MoveDto.class);
             // 更新玩家的坐标信息
             var spriteCache = GameCache.spriteCacheMap.get(initiator);
             if (spriteCache == null) {
                 spriteCache = new SpriteCache();
                 GameCache.spriteCacheMap.put(initiator, spriteCache);
             }
-            spriteCache.setX(x0);
-            spriteCache.setY(y0);
+            spriteCache.setX(data.getX0());
+            spriteCache.setY(data.getY0());
             spriteCache.setVx(0);
             spriteCache.setVy(0);
             // 更新玩家的找到的路径
             // TODO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
-            List<Point> path = gameMapService.findPath(x0, y0, x1, y1, (int) (150 * 0.65), (int) (150 * 0.75),
-                    destId != null ? destId.hashCode() : null);
+            List<Point> path = gameMapService.findPath(
+                    data.getX0(), data.getY0(), data.getX1(), data.getY1(), (int) (150 * 0.65), (int) (150 * 0.75),
+                    data.getDestId() != null ? data.getDestId().hashCode() : null);
             // 如果找不到路径，直接返回
             if (path == null) {
                 return null;
             }
             // 如果有终点，那么提前几步终止，防止到达终点后因为卡进建筑而抖动
             int removeLen = 3;
-            if (destId != null) {
+            if (data.getDestId() != null) {
                 path = path.subList(0, Math.max(0, path.size() - removeLen));
             }
             // TODO: 更新玩家的状态
@@ -132,7 +123,7 @@ public class EventHandler {
                     initiator,
                     spriteService.selectById(initiator).getSpeed(),
                     DataCompressor.compressPath(path),
-                    data.get("dest_id") != null ? data.get("dest_id").toString() : null
+                    data.getDestId()
             )));
             return null;
         });

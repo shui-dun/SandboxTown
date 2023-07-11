@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SpriteCache {
-    private int x;
-    private int y;
+    private double x;
+    private double y;
     private double vx;
     private double vy;
     SpriteStatus status;

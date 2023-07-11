@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CoordinateVo {
     private String id;
-    private int x;
-    private int y;
+    private double x;
+    private double y;
     private double vx;
     private double vy;
 }

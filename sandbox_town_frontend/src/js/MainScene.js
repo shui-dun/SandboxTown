@@ -182,7 +182,7 @@ class MainScene extends Phaser.Scene {
                         "y0": this.id2gameObject[this.myUsername].y,
                         "x1": x,
                         "y1": y,
-                        "dest_id": building.id,
+                        "destId": building.id,
                     }
                 }));
                 // 阻止事件冒泡
@@ -318,7 +318,7 @@ class MainScene extends Phaser.Scene {
                     "y0": this.id2gameObject[this.myUsername].y,
                     "x1": x,
                     "y1": y,
-                    "dest_id": null,
+                    "destId": null,
                 }
             }));
             // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
@@ -341,7 +341,7 @@ class MainScene extends Phaser.Scene {
             // 路径
             let originPath = data.path;
             // 终点id
-            let dest_id = data.dest_id;
+            let destId = data.destId;
             // 目的地的到达事件
             let arriveEvent = () => {
                 // 如果是其他玩家或者其他玩家的宠物，就不触发到达事件
@@ -349,9 +349,9 @@ class MainScene extends Phaser.Scene {
                     (initatorSprite.owner != null && initatorSprite.owner != this.myUsername)) {
                     return;
                 }
-                if (dest_id != null) {
-                    let type = dest_id.split("_", 2)[0];
-                    let targetID = dest_id;
+                if (destId != null) {
+                    let type = destId.split("_", 2)[0];
+                    let targetID = destId;
                     if (type === 'TREE') {
                         let msg = {
                             duration: 5,

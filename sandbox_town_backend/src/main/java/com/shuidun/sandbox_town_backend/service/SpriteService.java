@@ -44,8 +44,8 @@ public class SpriteService {
         // 看看有没有cached信息
         var spriteCache = GameCache.spriteCacheMap.get(id);
         if (spriteCache != null) {
-            sprite.setX(spriteCache.getX());
-            sprite.setY(spriteCache.getY());
+            sprite.setX((int) Math.round(spriteCache.getX()));
+            sprite.setY((int) Math.round(spriteCache.getY()));
             sprite.setVx(spriteCache.getVx());
             sprite.setVy(spriteCache.getVy());
             sprite.setStatus(spriteCache.getStatus());
@@ -166,8 +166,8 @@ public class SpriteService {
         List<SpriteDo> sprites = spriteMapper.selectBatchIds(GameCache.spriteCacheMap.keySet());
         // 更新坐标为缓存中的最新坐标
         for (SpriteDo sprite : sprites) {
-            sprite.setX(GameCache.spriteCacheMap.get(sprite.getId()).getX());
-            sprite.setY(GameCache.spriteCacheMap.get(sprite.getId()).getY());
+            sprite.setX((int) Math.round(GameCache.spriteCacheMap.get(sprite.getId()).getX()));
+            sprite.setY((int) Math.round(GameCache.spriteCacheMap.get(sprite.getId()).getY()));
         }
         return sprites;
     }
