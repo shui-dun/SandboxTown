@@ -1,8 +1,6 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
-import com.shuidun.sandbox_town_backend.bean.SpriteDo;
-import com.shuidun.sandbox_town_backend.bean.SpriteCache;
-import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
+import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
@@ -41,12 +39,12 @@ public class SpriteScheduler {
                 }
                 double randomVx = sprite.getSpeed() * (Math.random() - 0.5);
                 double randomVy = sprite.getSpeed() * (Math.random() - 0.5);
-                WSManager.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.COORDINATE, Map.of(
-                        "id", sprite.getId(),
-                        "x", sprite.getX(),
-                        "y", sprite.getY(),
-                        "vx", randomVx,
-                        "vy", randomVy
+                WSManager.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
+                        sprite.getId(),
+                        sprite.getX(),
+                        sprite.getY(),
+                        randomVx,
+                        randomVy
                 )));
             } else {
                 // 如果狗有主人，那么狗一定概率就跟着主人走
@@ -76,12 +74,12 @@ public class SpriteScheduler {
                 // 去掉后面一段
                 path = path.subList(0, path.size() - minLen);
                 // 发送移动消息
-                Map<String, Object> result = new HashMap<>();
-                result.put("id", sprite.getId());
-                result.put("speed", sprite.getSpeed());
-                result.put("path", DataCompressor.compressPath(path));
-                result.put("dest_id", null);
-                WSManager.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, result));
+                WSManager.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
+                        sprite.getId(),
+                        sprite.getSpeed(),
+                        DataCompressor.compressPath(path),
+                        null
+                )));
             }
             return null;
         });

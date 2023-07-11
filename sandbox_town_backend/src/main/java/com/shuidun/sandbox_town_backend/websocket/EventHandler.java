@@ -52,7 +52,7 @@ public class EventHandler {
             GameCache.spriteCacheMap.remove(initiator);
             pets.forEach(pet -> GameCache.spriteCacheMap.remove(pet.getId()));
             // 通知其他玩家
-            WSResponseVo wsResponse = new WSResponseVo(WSResponseEnum.OFFLINE, Map.of("id", initiator));
+            WSResponseVo wsResponse = new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(initiator));
             WSManager.sendMessageToAllUsers(wsResponse);
             return null;
         });
@@ -84,15 +84,11 @@ public class EventHandler {
             WSResponseVo response;
             if (isFirstTime) {
                 // 广播上线信息
-                response = new WSResponseVo(WSResponseEnum.ONLINE, JSONObject.parseObject(JSON.toJSONString(spriteService.selectById(id)), Map.class));
+                response = new WSResponseVo(WSResponseEnum.ONLINE, spriteService.selectById(id));
 
             } else { // 如果不是第一次通报坐标信息，只需广播坐标信息
-                response = new WSResponseVo(WSResponseEnum.COORDINATE, Map.of(
-                        "id", id,
-                        "x", x,
-                        "y", y,
-                        "vx", vx,
-                        "vy", vy
+                response = new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
+                        id, x, y, vx, vy
                 ));
             }
             WSManager.sendMessageToAllUsers(response);
@@ -132,12 +128,12 @@ public class EventHandler {
             }
             // TODO: 更新玩家的状态
             // 通知玩家移动
-            Map<String, Object> result = new HashMap<>();
-            result.put("id", initiator);
-            result.put("speed", spriteService.selectById(initiator).getSpeed());
-            result.put("path", DataCompressor.compressPath(path));
-            result.put("dest_id", data.get("dest_id"));
-            WSManager.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, result));
+            WSManager.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
+                    initiator,
+                    spriteService.selectById(initiator).getSpeed(),
+                    DataCompressor.compressPath(path),
+                    data.get("dest_id") != null ? data.get("dest_id").toString() : null
+            )));
             return null;
         });
 

@@ -6,7 +6,6 @@
 import Phaser from "phaser";
 import MainScene from "../js/MainScene.js";
 import StoreScene from "../js/StoreScene.js";
-import mixin from "@/js/mixin.js";
 
 export default {
     mounted() {
@@ -31,6 +30,7 @@ export default {
 
         this.game = new Phaser.Game(config);
 
+        // 将游戏场景中的事件转发到Vue组件
         this.game.events.on('forward', (event) => {
             this.$emit(event.name, event.data);
         });

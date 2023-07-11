@@ -11,5 +11,5 @@ import java.util.Map;
 public class WSResponseVo {
     private WSResponseEnum type;
 
-    private Map<String, Object> data;
+    private Object data;
 }
