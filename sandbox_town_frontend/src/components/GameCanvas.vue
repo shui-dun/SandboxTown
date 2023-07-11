@@ -4,8 +4,8 @@
   
 <script>
 import Phaser from "phaser";
-import {mainScene, closeGame} from "../js/mainScene.js";
-import storeScene from "../js/storeScene.js";
+import MainScene from "../js/MainScene.js";
+import StoreScene from "../js/StoreScene.js";
 import mixin from "@/js/mixin.js";
 
 export default {
@@ -26,7 +26,7 @@ export default {
                 }
             },
             pixelArt: false,
-            scene: [mainScene, storeScene],
+            scene: [MainScene, StoreScene],
         };
 
         this.game = new Phaser.Game(config);
@@ -64,10 +64,6 @@ export default {
 
     },
     methods: {
-    },
-    unmounted() {
-        this.game.destroy(true);
-        closeGame();
     },
 };
 

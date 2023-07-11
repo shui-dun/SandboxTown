@@ -1,4 +1,4 @@
-const storeScene = {
+const StoreScene = {
     key: 'store',
     preload: function () {},
     create: function () {},
@@ -6,4 +6,4 @@ const storeScene = {
 };
 
 
-export default storeScene;
+export default StoreScene;

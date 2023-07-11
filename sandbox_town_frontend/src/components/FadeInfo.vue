@@ -34,13 +34,12 @@ export default {
                 "defenseInc": "🛡️ 防御力",
                 "speedInc": "🏃 速度",
             };
-            let self = this;
-            function showMsg(attr) {
+            let showMsg = (attr) => {
                 console.log(attr, msg[attr], showMap[attr])
                 if (msg[attr] > 0) {
-                    self.showInfo(`您的${showMap[attr]}增加了${msg[attr]}`);
+                    this.showInfo(`您的${showMap[attr]}增加了${msg[attr]}`);
                 } else if (msg[attr] < 0) {
-                    self.showInfo(`您的${showMap[attr]}减少了${-msg[attr]}`);
+                    this.showInfo(`您的${showMap[attr]}减少了${-msg[attr]}`);
                 }
             }
             for (let key in showMap) {
