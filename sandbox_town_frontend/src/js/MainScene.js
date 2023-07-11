@@ -75,7 +75,7 @@ class MainScene extends Phaser.Scene {
         spriteSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
             // 鼠标左键点击
             if (pointer.button === 0) {
-                this.game.events.emit('showSpritePanel', { "itemID": sprite.id });
+                this.game.events.emit('forward', { name: 'showSpritePanel', data: sprite.id });
             } else if (pointer.button === 2) { // 鼠标右键点击
                 // TO-DO: 发送攻击请求
             }
@@ -194,7 +194,7 @@ class MainScene extends Phaser.Scene {
         // 获得登录奖励
         let loginReward = await mixin.myPOST('/rest/user/enterGameToReceiveReward');
         if (loginReward != 0) {
-            this.game.events.emit('showFadeInfo', { 'msg': '登录奖励: ' + loginReward + '金币💰' });
+            mixin.fadeInfoShow('登录奖励: ' + loginReward + '金币💰');
         }
 
         // 设置地图大小
@@ -350,7 +350,28 @@ class MainScene extends Phaser.Scene {
                     return;
                 }
                 if (dest_id != null) {
-                    this.game.events.emit('ArriveAtTarget', { "type": dest_id.split("_", 2)[0], "targetID": dest_id });
+                    let type = dest_id.split("_", 2)[0];
+                    let targetID = dest_id;
+                    if (type === 'TREE') {
+                        let msg = {
+                            duration: 5,
+                            text: '正在摘苹果...',
+                            progressCompleteEvent: () => {
+                                // 向后端发送摘苹果请求
+                                mixin.myPOST('/rest/tree/pickApple',
+                                    new URLSearchParams({
+                                        treeId: targetID,
+                                    }),
+                                    () => {
+                                        mixin.fadeInfoShow('摘苹果成功');
+                                    },
+                                );
+                            },
+                        }
+                        this.game.events.emit('forward', {name: 'processBarShow', data: msg});
+                    } else if (type == 'STORE') {
+                        this.game.events.emit('forward', {name: 'showStore', data: targetID});
+                    }
                 }
             };
             // 如果不存在路径，就直接到达终点

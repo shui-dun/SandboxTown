@@ -31,35 +31,8 @@ export default {
 
         this.game = new Phaser.Game(config);
 
-        this.game.events.on('showFadeInfo', (event) => {
-            mixin.fadeInfoShow(event.msg);
-        });
-
-        this.game.events.on('showSpritePanel', (event) => {
-            this.$emit('showSpritePanel', event.itemID);
-        });
-
-        this.game.events.on('ArriveAtTarget', (event) => {
-            if (event.type === 'TREE') {
-                let msg = {
-                    duration: 5,
-                    text: '正在摘苹果...',
-                    progressCompleteEvent: () => {
-                        // 向后端发送摘苹果请求
-                        mixin.myPOST('/rest/tree/pickApple',
-                            new URLSearchParams({
-                                treeId: event.targetID,
-                            }),
-                            () => {
-                                mixin.fadeInfoShow('摘苹果成功');
-                            },
-                        );
-                    },
-                }
-                this.$emit('processBarShow', msg);
-            } else if (event.type == 'STORE') {
-                this.$emit('showStore', event.targetID);
-            }
+        this.game.events.on('forward', (event) => {
+            this.$emit(event.name, event.data);
         });
 
     },

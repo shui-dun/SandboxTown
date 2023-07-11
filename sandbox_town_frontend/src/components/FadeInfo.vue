@@ -35,7 +35,6 @@ export default {
                 "speedInc": "🏃 速度",
             };
             let showMsg = (attr) => {
-                console.log(attr, msg[attr], showMap[attr])
                 if (msg[attr] > 0) {
                     this.showInfo(`您的${showMap[attr]}增加了${msg[attr]}`);
                 } else if (msg[attr] < 0) {
