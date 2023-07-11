@@ -30,14 +30,14 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String userName = (String) session.getAttributes().get("userName");
         // 如果用户已经存在，删除之前的session
-        if (WSManager.usernameSession.containsKey(userName)) {
-            WebSocketSession webSocketSession = WSManager.usernameSession.get(userName);
+        if (WSMessageSender.usernameSession.containsKey(userName)) {
+            WebSocketSession webSocketSession = WSMessageSender.usernameSession.get(userName);
             if (webSocketSession.isOpen()) {
                 webSocketSession.close();
             }
         }
         // 保存用户session
-        WSManager.usernameSession.put(userName, session);
+        WSMessageSender.usernameSession.put(userName, session);
         log.info("call afterConnectionEstablished");
     }
 
@@ -48,7 +48,7 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("call afterConnectionClosed");
         String userName = (String) session.getAttributes().get("userName");
-        WSManager.usernameSession.remove(userName, session);
+        WSMessageSender.usernameSession.remove(userName, session);
         // 发出下线事件
         EventDto eventDto = new EventDto(EventEnum.OFFLINE, userName, null);
         eventHandler.handle(eventDto);

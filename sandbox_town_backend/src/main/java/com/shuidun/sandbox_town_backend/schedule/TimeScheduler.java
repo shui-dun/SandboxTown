@@ -1,10 +1,12 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
-import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
+import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
+import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
-import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.StoreService;
+import com.shuidun.sandbox_town_backend.service.TimeService;
 import com.shuidun.sandbox_town_backend.service.TreeService;
+import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,17 +22,18 @@ public class TimeScheduler {
 
     private StoreService storeService;
 
-    public TimeScheduler(TreeService treeService, StoreService storeService) {
+    private TimeService timeService;
+
+    public TimeScheduler(TreeService treeService, StoreService storeService, TimeService timeService) {
         this.treeService = treeService;
         this.storeService = storeService;
+        this.timeService = timeService;
     }
 
     @Scheduled(initialDelay = Constants.DAY_START, fixedDelay = Constants.DAY_TOTAL_DURATION)
     public void enterDay() {
-        log.info("enter day");
-        GameCache.timeFrame.setTimeFrame(TimeFrameEnum.DAY);
-        GameCache.timeFrame.setTimeFrameDuration(Constants.DAY_DURATION);
-        GameCache.timeFrame.setTimeFrameEndTime(System.currentTimeMillis() + Constants.DAY_DURATION);
+        timeService.enterDay();
+        notifyTimeFrame();
         // 刷新苹果数目
         treeService.refreshTrees();
         // 刷新商店
@@ -39,26 +42,28 @@ public class TimeScheduler {
 
     @Scheduled(initialDelay = Constants.DUSK_START, fixedDelay = Constants.DAY_TOTAL_DURATION)
     public void enterDusk() {
-        log.info("enter dusk");
-        GameCache.timeFrame.setTimeFrame(TimeFrameEnum.DUSK);
-        GameCache.timeFrame.setTimeFrameDuration(Constants.DUSK_DURATION);
-        GameCache.timeFrame.setTimeFrameEndTime(System.currentTimeMillis() + Constants.DUSK_DURATION);
-
+        timeService.enterDusk();
+        notifyTimeFrame();
     }
 
     @Scheduled(initialDelay = Constants.NIGHT_START, fixedDelay = Constants.DAY_TOTAL_DURATION)
     public void enterNight() {
-        log.info("enter night");
-        GameCache.timeFrame.setTimeFrame(TimeFrameEnum.NIGHT);
-        GameCache.timeFrame.setTimeFrameDuration(Constants.NIGHT_DURATION);
-        GameCache.timeFrame.setTimeFrameEndTime(System.currentTimeMillis() + Constants.NIGHT_DURATION);
+        timeService.enterNight();
+        notifyTimeFrame();
     }
 
     @Scheduled(initialDelay = Constants.DAWN_START, fixedDelay = Constants.DAY_TOTAL_DURATION)
     public void enterDawn() {
-        log.info("enter dawn");
-        GameCache.timeFrame.setTimeFrame(TimeFrameEnum.DAWN);
-        GameCache.timeFrame.setTimeFrameDuration(Constants.DAWN_DURATION);
-        GameCache.timeFrame.setTimeFrameEndTime(System.currentTimeMillis() + Constants.DAWN_DURATION);
+        timeService.enterDawn();
+        notifyTimeFrame();
+    }
+
+    @Scheduled(initialDelay = 30000, fixedDelay = 30000)
+    public void notifyTimeFrame() {
+        log.info("notifyTimeFrame: {}", timeService.getTimeFrame());
+        WSMessageSender.sendMessageToAllUsers(new WSResponseVo(
+                WSResponseEnum.TIME_FRAME_NOTIFY,
+                timeService.getTimeFrame()
+        ));
     }
 }

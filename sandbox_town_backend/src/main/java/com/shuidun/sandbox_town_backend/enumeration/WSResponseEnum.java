@@ -15,4 +15,6 @@ public enum WSResponseEnum {
     ONLINE,
     // 下线
     OFFLINE,
+    // 时间段通知
+    TIME_FRAME_NOTIFY,
 }

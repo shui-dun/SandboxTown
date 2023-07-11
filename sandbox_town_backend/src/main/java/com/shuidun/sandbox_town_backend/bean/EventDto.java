@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.bean;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +18,6 @@ public class EventDto {
     // 事件发起者的用户名
     private String initiator;
 
-    private Map<String, Object> data;
+    private JSONObject data;
 
 }

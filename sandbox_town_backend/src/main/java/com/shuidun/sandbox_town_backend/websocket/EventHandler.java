@@ -33,7 +33,6 @@ public class EventHandler {
             if (eventDto.getType() == null) {
                 return;
             }
-            log.info("handle {} event", eventDto);
             eventMap.get(eventDto.getType()).apply(eventDto.getInitiator(), eventDto.getData());
         } catch (Exception e) {
             log.error("handle {} event error", eventDto, e);
@@ -52,7 +51,7 @@ public class EventHandler {
             pets.forEach(pet -> GameCache.spriteCacheMap.remove(pet.getId()));
             // 通知其他玩家
             WSResponseVo wsResponse = new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(initiator));
-            WSManager.sendMessageToAllUsers(wsResponse);
+            WSMessageSender.sendMessageToAllUsers(wsResponse);
             return null;
         });
 
@@ -86,7 +85,7 @@ public class EventHandler {
                         data.getId(), data.getX(), data.getY(), data.getVx(), data.getVy()
                 ));
             }
-            WSManager.sendMessageToAllUsers(response);
+            WSMessageSender.sendMessageToAllUsers(response);
             return null;
         });
 
@@ -119,7 +118,7 @@ public class EventHandler {
             }
             // TODO: 更新玩家的状态
             // 通知玩家移动
-            WSManager.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
+            WSMessageSender.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
                     initiator,
                     spriteService.selectById(initiator).getSpeed(),
                     DataCompressor.compressPath(path),

@@ -8,6 +8,10 @@
             <image :href="image" :width="size - strokeWidth * 2" :height="size - strokeWidth * 2" :x="strokeWidth"
                 :y="strokeWidth" />
         </svg>
+        <div class="my-tip">
+            <p>{{ title }} &nbsp;&nbsp; {{ remainTime }}s </p>
+            <p v-if="description.length > 0"> {{ description }} </p>
+        </div>
     </div>
 </template>
   
@@ -25,6 +29,14 @@ export default {
             type: Number,
             default: 5,
         },
+        title: {
+            type: String,
+            default: "",
+        },
+        description: {
+            type: String,
+            default: "",
+        },
     },
     data() {
         return {
@@ -33,6 +45,7 @@ export default {
             // 周长
             circumference: 2 * Math.PI * (this.size / 2 - this.strokeWidth),
             offset: 0,
+            remainTime: 0,
         };
     },
     mounted() {
@@ -44,6 +57,8 @@ export default {
             if (Date.now() >= this.endTimeMills) {
                 this.onComplete();
             }
+            // 更新剩余时间
+            this.calcRemain();
         }, 1000);
     },
     methods: {
@@ -52,13 +67,16 @@ export default {
         },
         onClick() {
             this.$emit("onClick");
-            alert("click");
         },
         calcOffset() {
             const toBeElapsed = this.endTimeMills - new Date().getTime();
             const progress = Math.max(toBeElapsed / this.durationMills, 0);
             return this.circumference * (1 - progress);
-        }
+        },
+        calcRemain() {
+            const toBeElapsed = this.endTimeMills - new Date().getTime();
+            this.remainTime = Math.max(toBeElapsed / 1000, 0).toFixed(0);
+        },
     },
 };
 </script>
@@ -66,6 +84,26 @@ export default {
 <style scoped>
 .circle-timer {
     cursor: pointer;
+}
+
+.my-tip {
+    display: none;
+    z-index: 101;
+}
+
+.circle-timer:hover .my-tip {
+    display: block;
+    /* 默认依据父级的坐标原始点为原始点 */
+    position: absolute;
+    top: 10px;
+    left: 40px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 18px;
+    min-width: 130px;
+    max-width: 300px;
 }
 </style>
   
