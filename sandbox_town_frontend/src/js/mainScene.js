@@ -375,6 +375,9 @@ function closeGame() {
 
 // 移动事件
 emitter.on('MOVE', async (data) => {
+    if (!isLoaded) {
+        return;
+    }
     // 移动事件的发起者
     let initatorSprite = await getSpriteInfoById(data.id);
     // 物品
@@ -445,6 +448,9 @@ emitter.on('MOVE', async (data) => {
 
 // 坐标通知事件
 emitter.on('COORDINATE', async (data) => {
+    if (!isLoaded) {
+        return;
+    }
     // 如果坐标通知带有速度，说明该角色在直接地移动，而非通过补间动画在移动（因为补间动画时速度为0）
     // 因此要停止补间动画
     if (data.vx != 0 || data.vy != 0) {
@@ -462,11 +468,17 @@ emitter.on('COORDINATE', async (data) => {
 
 // 上线通知事件
 emitter.on('ONLINE', async (data) => {
+    if (!isLoaded) {
+        return;
+    }
     createSprite(data, scene);
 });
 
 // 下线通知事件
 emitter.on('OFFLINE', async (data) => {
+    if (!isLoaded) {
+        return;
+    }
     // 删除角色以及角色的宠物
     for (let spriteId in id2gameObject) {
         // 如果是该角色的宠物或者是该角色，就删除
