@@ -7,6 +7,7 @@ import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.ApplePickingMapper;
 import com.shuidun.sandbox_town_backend.mapper.TreeMapper;
+import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,30 @@ public class TreeService {
         this.applePickingMapper = applePickingMapper;
         this.itemService = itemService;
     }
+
+    /**
+     * 判断是否可以摘苹果，如果不可以摘苹果，则抛出异常
+     */
+    public void checkPickApple(String spriteId, String treeId) {
+        // 查找树
+        TreeDo tree = treeMapper.selectById(treeId);
+        if (tree == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
+        // 如果树已经被摘完了
+        if (tree.getApplesCount() == 0) {
+            throw new BusinessException(StatusCodeEnum.TREE_APPLE_PICKED);
+        }
+        // 查找角色摘苹果的信息
+        ApplePickingDo applePicking = applePickingMapper.selectById(spriteId, treeId);
+        // 如果角色不是第一次摘苹果，并且上次摘苹果时间没有超过一天，并且如果摘苹果数量大于等于树的限制，说明不能摘苹果
+        if (applePicking != null
+                && applePicking.getPickTime().getTime() + Constants.DAY_TOTAL_DURATION >= System.currentTimeMillis()
+                && applePicking.getCount() >= tree.getLimitPerSprite()) {
+            throw new BusinessException(StatusCodeEnum.PICK_APPLE_LIMIT_EXCEEDED);
+        }
+    }
+
 
     /**
      * 角色摘苹果
@@ -59,8 +84,8 @@ public class TreeService {
             applePicking.setPickTime(new java.util.Date());
             applePickingMapper.insert(applePicking);
         } else {
-            // 如果上次摘苹果时间超过10分钟
-            if (applePicking.getPickTime().getTime() + 10 * 60 * 1000 < System.currentTimeMillis()) {
+            // 如果上次摘苹果时间超过一天
+            if (applePicking.getPickTime().getTime() + Constants.DAY_TOTAL_DURATION < System.currentTimeMillis()) {
                 applePicking.setCount(1);
                 applePicking.setPickTime(new java.util.Date());
                 applePickingMapper.updateById(applePicking);

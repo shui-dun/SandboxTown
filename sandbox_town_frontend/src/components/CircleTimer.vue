@@ -50,17 +50,22 @@ export default {
         };
     },
     mounted() {
-        this.offset = this.calcOffset();
-        setInterval(() => {
-            // 更新进度条比例
-            this.offset = this.calcOffset();
-            // 判断是否结束
-            if (Date.now() >= this.endTimeMills) {
-                this.onComplete();
-            }
+        if (this.durationMills != -1) {
             // 更新剩余时间
             this.calcRemain();
-        }, 1000);
+            // 更新进度条比例
+            this.offset = this.calcOffset();
+            // 启动定时器
+            this.timer = setInterval(() => {
+                this.calcRemain();
+                this.offset = this.calcOffset();
+                // 如果时间到了，就停止定时器
+                if (Date.now() >= this.endTimeMills) {
+                    this.onComplete();
+                    clearInterval(this.timer);
+                }
+            }, 1000);
+        }
     },
     methods: {
         onComplete() {
