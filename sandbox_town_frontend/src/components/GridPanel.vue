@@ -73,6 +73,10 @@ export default {
     },
     mounted() {
         this.filterItems();
+        // 监听items变化
+        this.$watch('items', () => {
+            this.filterItems();
+        });
     },
     methods: {
         filterItemsByLabel(label) {

@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class WSMessageSender {
+public class MessageSender {
     public static final Map<String, WebSocketSession> usernameSession = new ConcurrentHashMap<>();
 
     /**
@@ -20,11 +20,11 @@ public class WSMessageSender {
     public static void sendMessageToUser(String username, WSResponseVo response) {
         var message = new TextMessage(JSONObject.toJSONString(response));
         // 得到会话
-        WebSocketSession session = WSMessageSender.usernameSession.get(username);
+        WebSocketSession session = MessageSender.usernameSession.get(username);
         synchronized (session) {
             try {
                 if (!session.isOpen()) {
-                    WSMessageSender.usernameSession.remove(username, session);
+                    MessageSender.usernameSession.remove(username, session);
                 } else {
                     session.sendMessage(message);
                 }
@@ -41,7 +41,7 @@ public class WSMessageSender {
     public static void sendMessageToAllUsers(WSResponseVo response) {
         var message = new TextMessage(JSONObject.toJSONString(response));
         // 遍历所有用户session的键值对
-        for (Map.Entry<String, WebSocketSession> entry : WSMessageSender.usernameSession.entrySet()) {
+        for (Map.Entry<String, WebSocketSession> entry : MessageSender.usernameSession.entrySet()) {
             // 用户名
             String userName = entry.getKey();
             // 会话
@@ -54,7 +54,7 @@ public class WSMessageSender {
             synchronized (session) {
                 try {
                     if (!session.isOpen()) {
-                        WSMessageSender.usernameSession.remove(userName, session);
+                        MessageSender.usernameSession.remove(userName, session);
                     } else {
                         session.sendMessage(message);
                     }

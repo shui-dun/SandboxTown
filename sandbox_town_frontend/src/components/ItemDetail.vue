@@ -6,21 +6,21 @@
                 <p>{{ (item == null) ? '' : item.itemTypeObj.name }}</p>
             </div>
             <div class="popup-panel-content">{{ (item == null) ? '' : item.itemTypeObj.description }}</div>
-            <h4 v-if="basicInfo.length > 0" >基本信息</h4>
+            <h4 v-if="basicInfo.length > 0">基本信息</h4>
             <ListPanel v-if="basicInfo.length > 0" :items="basicInfo" />
-                <h4 v-if="useInfo.length > 0" >使用效果</h4>
+            <h4 v-if="useInfo.length > 0">使用效果</h4>
             <ListPanel v-if="useInfo.length > 0" title="使用效果" :items="useInfo" />
-                <h4 v-if="equipInfo.length > 0" >装备效果</h4>
+            <h4 v-if="equipInfo.length > 0">装备效果</h4>
             <ListPanel v-if="equipInfo.length > 0" title="装备效果" :items="equipInfo" />
-                <h4 v-if="handheldInfo.length > 0" >手持效果</h4>
+            <h4 v-if="handheldInfo.length > 0">手持效果</h4>
             <ListPanel v-if="handheldInfo.length > 0" title="手持效果" :items="handheldInfo" />
             <div class="button-group">
                 <button class="cancel-btn" @click="cancel()">取消</button>
-                <button v-if="canBackpack" class="ok-btn" @click="confirm('BACKPACK')">放入背包</button>
-                <button v-if="canItembar" class="ok-btn" @click="confirm('ITEMBAR')">放入物品栏</button>
-                <button v-if="canHandheld" class="ok-btn" @click="confirm('HAND')">手持</button>
-                <button v-if="canEquip" class="ok-btn" @click="confirm('EQUIP')">装备</button>
-                <button v-if="canUse" class="ok-btn" @click="confirm('USE')">使用</button>
+                <button v-if="canBackpack" class="ok-btn" @click="moveToBackpack">放入背包</button>
+                <button v-if="canItembar" class="ok-btn" @click="moveToItembar">放入物品栏</button>
+                <button v-if="canHandheld" class="ok-btn" @click="hold">手持</button>
+                <button v-if="canEquip" class="ok-btn" @click="equip">装备</button>
+                <button v-if="canUse" class="ok-btn" @click="use">使用</button>
             </div>
         </div>
     </div>
@@ -62,21 +62,32 @@ export default {
         };
     },
     methods: {
-        async confirm(event) {
-            if (event == 'BACKPACK') {
-                // 放入背包
-            } if (event == 'ITEMBAR') {
-                // 放入物槽
-            } else if (event == 'HAND') {
-                // 手持
-            } else if (event == 'EQUIP') {
-                // 装备
-            } else if (event == 'USE') {
-                // 使用
-                let spriteChange = await mixin.myPOST("/rest/item/use", new URLSearchParams({ itemId: this.itemId }));
-                emitter.emit('SPRITE_ATTRIBUTE_CHANGE', spriteChange.spriteAttributeChange);
-            }
-            this.$emit('onConfirm', event);
+        async moveToBackpack() {
+            this.$emit('onConfirm', 'BACKPACK');
+        },
+        async moveToItembar() {
+            this.$emit('onConfirm', 'ITEMBAR');
+        },
+        async hold() {
+            // 向后端发送请求，设置手持物品
+            mixin.myPOST(
+                '/rest/item/hold',
+                new URLSearchParams({
+                    itemId: this.itemId,
+                }),
+                () => {
+                    this.$emit('onConfirm', 'HAND');
+                }
+            );
+        },
+        async equip() {
+            this.$emit('onConfirm', 'EQUIP');
+        },
+        async use() {
+            // 使用
+            let spriteChange = await mixin.myPOST("/rest/item/use", new URLSearchParams({ itemId: this.itemId }));
+            emitter.emit('SPRITE_ATTRIBUTE_CHANGE', spriteChange.spriteAttributeChange);
+            this.$emit('onConfirm', 'USE');
         },
         cancel() {
             this.$emit('onCancel');
@@ -91,7 +102,7 @@ export default {
             this.canItembar = true;
             this.canHandheld = true;
             // 如果在装备区
-        } else if (equipList.includes(this.item.position)){
+        } else if (equipList.includes(this.item.position)) {
             this.canBackpack = true;
             this.canItembar = true;
             this.canHandheld = true;
@@ -100,7 +111,7 @@ export default {
             this.canItembar = false;
             this.canHandheld = false;
         }
-        
+
         // 判断是否可以装备
         // 如果物品的位置不在装备区，并且物品是装备类型，可以装备
         this.canEquip = !equipList.includes(this.item.position) && this.item.itemTypeObj.labels.some(label => equipList.includes(label));

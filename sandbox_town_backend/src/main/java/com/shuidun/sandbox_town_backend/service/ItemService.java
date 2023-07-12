@@ -4,6 +4,7 @@ import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.*;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.*;
+import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.utils.NameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -90,7 +91,7 @@ public class ItemService {
         return spriteChange;
     }
 
-    // 给玩家添加物品
+    /** 给玩家添加物品 */
     @Transactional
     public void add(String spriteId, ItemTypeEnum itemTypeId, int count) {
         ItemTypeDo itemType = itemTypeMapper.selectById(itemTypeId);
@@ -131,7 +132,7 @@ public class ItemService {
         }
     }
 
-    // 给角色减少物品
+    /** 给角色减少物品 */
     @Transactional
     public void reduce(String spriteId, String itemId, int count) {
         // 查询玩家拥有的该物品
@@ -159,7 +160,7 @@ public class ItemService {
         }
     }
 
-    // 根据主人查询物品（带有物品类型信息和标签信息）
+    /** 根据主人查询物品（带有物品类型信息和标签信息） */
     public List<ItemDo> listByOwnerWithTypeAndLabel(String owner) {
         // 找到所有物品
         List<ItemDo> items = itemMapper.selectByOwner(owner);
@@ -173,7 +174,7 @@ public class ItemService {
     }
 
 
-    // 根据主人以及位置查询物品（带有物品类型信息和标签信息）
+    /** 根据主人以及位置查询物品（带有物品类型信息和标签信息） */
     public List<ItemDo> listItemsByOwnerAndPositionWithTypeAndLabel(String owner, ItemPositionEnum position) {
         // 找到所有物品
         List<ItemDo> items = itemMapper.selectByOwnerAndPosition(owner, position);
@@ -186,13 +187,15 @@ public class ItemService {
         return items;
     }
 
-    // 根据主人查询背包中的物品（带有物品类型信息和标签信息）
+    /** 根据主人查询背包中的物品（带有物品类型信息和标签信息） */
     public List<ItemDo> listItemsInBackpackByOwner(String owner) {
         return listItemsByOwnerAndPositionWithTypeAndLabel(owner, ItemPositionEnum.BACKPACK);
     }
 
-    // 根据主人以及位置列表查询物品（带有物品类型信息和标签信息）
-    // 物品的位置在列表中的任意一个即可
+    /**
+     * 根据主人以及位置列表查询物品（带有物品类型信息和标签信息）
+     * 物品的位置在列表中的任意一个即可
+     */
     public List<ItemDo> listItemsByOwnerAndPositionsWithTypeAndLabel(String owner, List<ItemPositionEnum> positions) {
         // 找到所有物品
         List<ItemDo> items = itemMapper.selectByOwnerAndPositions(owner, positions);
@@ -205,18 +208,20 @@ public class ItemService {
         return items;
     }
 
-    // 根据主人查询装备栏中的物品（带有物品类型信息和标签信息）
-    // 这里的装备栏还包括手持
+    /**
+     * 根据主人查询装备栏中的物品（带有物品类型信息和标签信息）
+     * 这里的装备栏还包括手持
+     */
     public List<ItemDo> listItemsInEquipmentByOwner(String owner) {
         return listItemsByOwnerAndPositionsWithTypeAndLabel(owner, Arrays.asList(ItemPositionEnum.HELMET, ItemPositionEnum.CHEST, ItemPositionEnum.LEG, ItemPositionEnum.BOOTS, ItemPositionEnum.HANDHELD));
     }
 
-    // 根据主人查询物品栏（包括手持）中的物品（带有物品类型信息和标签信息）
+    /** 根据主人查询物品栏（包括手持）中的物品（带有物品类型信息和标签信息） */
     public List<ItemDo> listItemsInItemBarByOwner(String owner) {
         return listItemsByOwnerAndPositionsWithTypeAndLabel(owner, Arrays.asList(ItemPositionEnum.ITEMBAR, ItemPositionEnum.HANDHELD));
     }
 
-    // 为物品类型列表设置标签信息
+    /** 为物品类型列表设置标签信息 */
     public void setLabelsForItemTypes(Collection<ItemTypeDo> itemTypes) {
         // 找到所有物品类型的标签
         List<ItemTypeLabelDo> itemTypeLabels = itemTypeLabelMapper.selectByItemTypes(itemTypes.stream().map(ItemTypeDo::getId).collect(Collectors.toList()));
@@ -226,7 +231,7 @@ public class ItemService {
         itemTypes.forEach(itemType -> itemType.setLabels(itemTypeLabelMap.getOrDefault(itemType.getId(), new HashSet<>()).stream().map(ItemTypeLabelDo::getLabel).collect(Collectors.toSet())));
     }
 
-    // 为物品列表设置物品类型信息（带有标签信息）
+    /** 为物品列表设置物品类型信息（带有标签信息） */
     private void setItemTypeAndLabelsForItems(List<ItemDo> items) {
         // 找到所有物品类型
         List<ItemTypeDo> itemTypes = itemTypeMapper.selectBatchIds(items.stream().map(ItemDo::getItemType).collect(Collectors.toList()));
@@ -238,7 +243,7 @@ public class ItemService {
         items.forEach(item -> item.setItemTypeObj(itemTypeMap.get(item.getItemType())));
     }
 
-    // 获得物品类型的效果列表
+    /** 获得物品类型的效果列表 */
     private Set<ItemTypeEffectDo> selectEffectsByItemType(ItemTypeEnum itemType) {
         Set<ItemTypeEffectDo> itemTypeEffects = itemTypeEffectMapper.selectByItemType(itemType);
         // 得到效果的详细信息，例如效果的描述
@@ -251,7 +256,7 @@ public class ItemService {
         return itemTypeEffects;
     }
 
-    // 根据物品类型id查询物品类型详细信息（即包含标签信息、属性增益信息、效果信息）
+    /** 根据物品类型id查询物品类型详细信息（即包含标签信息、属性增益信息、效果信息） */
     public ItemTypeDo getItemTypeDetailById(ItemTypeEnum itemTypeId) {
         // 找到物品类型
         ItemTypeDo itemType = itemTypeMapper.selectById(itemTypeId);
@@ -277,7 +282,7 @@ public class ItemService {
         return itemType;
     }
 
-    // 根据物品id查询物品详细信息（即包含物品类型信息、标签信息、属性增益信息、效果信息）
+    /** 根据物品id查询物品详细信息（即包含物品类型信息、标签信息、属性增益信息、效果信息） */
     public ItemDo getItemDetailById(String itemId) {
         // 找到物品
         ItemDo item = itemMapper.selectById(itemId);
@@ -288,7 +293,7 @@ public class ItemService {
         return item;
     }
 
-    // 根据物品id查询物品以及物品类型信息
+    /** 根据物品id查询物品以及物品类型信息 */
     public ItemDo getItemWithTypeById(String itemId) {
         // 找到物品
         ItemDo item = itemMapper.selectById(itemId);
@@ -299,4 +304,39 @@ public class ItemService {
         return item;
     }
 
+    /**
+     * 手持物品
+     */
+    @Transactional
+    public void hold(String spriteId, String itemId) {
+        // 查询该物品
+        ItemDo item = itemMapper.selectById(itemId);
+        // 判断该物品是否存在
+        if (item == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
+        // 判断该物品是否属于该精灵
+        if (!item.getOwner().equals(spriteId)) {
+            throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
+        }
+        // 判断该物品是否已经是手持物品
+        if (item.getPosition() == ItemPositionEnum.HANDHELD) {
+            return;
+        }
+        // 判断物品栏是否已满
+        List<ItemDo> itemInItemBar = listItemsInItemBarByOwner(spriteId);
+        if (itemInItemBar.size() >= Constants.ITEM_BAR_SIZE) {
+            throw new BusinessException(StatusCodeEnum.ITEMBAR_FULL);
+        }
+        // 将之前的手持物品放入物品栏
+        List<ItemDo> handHeldItems = itemMapper.selectByOwnerAndPosition(spriteId, ItemPositionEnum.HANDHELD);
+        if (handHeldItems != null && !handHeldItems.isEmpty()) {
+            ItemDo handHeldItem = handHeldItems.get(0);
+            handHeldItem.setPosition(ItemPositionEnum.ITEMBAR);
+            itemMapper.updateById(handHeldItem);
+        }
+        // 将该物品放入手持物品栏
+        item.setPosition(ItemPositionEnum.HANDHELD);
+        itemMapper.updateById(item);
+    }
 }

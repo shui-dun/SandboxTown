@@ -1,6 +1,6 @@
 <template>
     <div>
-        <GridPanel ref="gridPanel" title="🎒 背包" :items="items" :labels="labels" @clickGridItem="onClickBackpackItem" />
+        <GridPanel title="🎒 背包" :items="items" :labels="labels" @clickGridItem="onClickBackpackItem" />
         <ItemDetail v-if="showItemDetail" :itemId="selectedItem.id" @onConfirm="confirm" @onCancel="cancel" />
     </div>
 </template>
@@ -20,7 +20,7 @@ export default {
             items: [
             ],
             labels: [
-                { 'name': 'ALL', 'prompt': '全部'},
+                { 'name': 'ALL', 'prompt': '全部' },
                 { 'name': 'FOOD', 'prompt': '食品' },
                 { 'name': 'USABLE', 'prompt': '用品' },
                 { 'name': 'WEAPON', 'prompt': '武器' },
@@ -33,42 +33,14 @@ export default {
         };
     },
     mounted() {
-        // 从后端获取玩家物品信息
-        mixin.myGET('/rest/item/listMyItemsInBackpack', null, (data) => {
-            // 重命名物品的属性名
-            data.forEach((element) => {
-                let item = {};
-                item.id = element.id;
-                item.name = element.itemTypeObj.name;
-                item.caption = { num: element.itemCount };
-                item.image = require(`@/assets/img/${element.itemType}.png`);
-                // 设置物品的标签
-                item.labels = [];
-                // 如果物品包含HELMET（头盔）, CHEST（胸甲）, LEG（腿甲）, BOOTS（鞋）的LABEL，将其替换为EQUIPMENT（装备）
-                let isEquipment = false;
-                for (let label of element.itemTypeObj.labels) {
-                    if ((label === 'HELMET' || label === 'CHEST' || label === 'LEG' || label === 'BOOTS') && !isEquipment) {
-                        isEquipment = true;
-                        item.labels.push('EQUIPMENT');
-                    } else {
-                        item.labels.push(label);
-                    }
-                }
-                item.description = element.itemTypeObj.description;
-                item.content = element;
-                // 将用户物品信息添加到items
-                this.items.push(item);
-            });
-            this.$refs.gridPanel.filterItems();
-        });
+        this.flush();
     },
     computed: {
     },
     methods: {
-        confirm() {
-            // 减少物品数量
-            this.selectedItem.content.itemCount--;
-            this.selectedItem.caption.num--;
+        confirm(event) {
+            // 刷新背包
+            this.flush();
             this.showItemDetail = false;
         },
         cancel() {
@@ -77,6 +49,36 @@ export default {
         onClickBackpackItem(item) {
             this.selectedItem = item;
             this.showItemDetail = true;
+        },
+        flush() {
+            // 从后端获取玩家物品信息
+            mixin.myGET('/rest/item/listMyItemsInBackpack', null, (data) => {
+                this.items = [];
+                // 重命名物品的属性名
+                data.forEach((element) => {
+                    let item = {};
+                    item.id = element.id;
+                    item.name = element.itemTypeObj.name;
+                    item.caption = { num: element.itemCount };
+                    item.image = require(`@/assets/img/${element.itemType}.png`);
+                    // 设置物品的标签
+                    item.labels = [];
+                    // 如果物品包含HELMET（头盔）, CHEST（胸甲）, LEG（腿甲）, BOOTS（鞋）的LABEL，将其替换为EQUIPMENT（装备）
+                    let isEquipment = false;
+                    for (let label of element.itemTypeObj.labels) {
+                        if ((label === 'HELMET' || label === 'CHEST' || label === 'LEG' || label === 'BOOTS') && !isEquipment) {
+                            isEquipment = true;
+                            item.labels.push('EQUIPMENT');
+                        } else {
+                            item.labels.push(label);
+                        }
+                    }
+                    item.description = element.itemTypeObj.description;
+                    item.content = element;
+                    // 将用户物品信息添加到items
+                    this.items.push(item);
+                });
+            });
         },
     },
 };

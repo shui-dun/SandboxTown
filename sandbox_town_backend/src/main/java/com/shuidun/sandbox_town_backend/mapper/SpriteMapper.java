@@ -11,7 +11,7 @@ import java.util.List;
 
 @Mapper
 public interface SpriteMapper extends BaseMapper<SpriteDo> {
-    // 根据角色id获取角色信息（包含sprite_type表中的角色描述信息）
+    /** 根据角色id获取角色信息（包含sprite_type表中的角色描述信息） */
     @Select("""
             SELECT * FROM sprite
             INNER JOIN sprite_type
@@ -24,14 +24,14 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
     @Update("UPDATE sprite SET ${attribute} = #{value} WHERE id = #{id}")
     void updateAttribute(@Param("id") String id, @Param("attribute") String attribute, @Param("value") int value);
 
-    // 得到某个地图上的所有角色
+    /** 得到某个地图上的所有角色 */
     @Select("SELECT * FROM sprite WHERE map = #{map}")
     List<SpriteDo> selectByMapId(@Param("map") String map);
 
     @Select("SELECT * FROM sprite WHERE owner = #{owner}")
     List<SpriteDo> selectByOwner(String owner);
 
-    // 得到没有主人的角色
+    /** 得到没有主人的角色 */
     @Select("SELECT * FROM sprite where owner IS NULL and type != 'user'")
     List<SpriteDo> selectUnownedSprites();
 }

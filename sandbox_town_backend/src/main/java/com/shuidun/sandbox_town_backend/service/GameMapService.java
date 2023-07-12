@@ -56,7 +56,7 @@ public class GameMapService {
         this.storeService = storeService;
     }
 
-    // 画一个2x2的墙
+    /** 画一个2x2的墙 */
     private void drawWall(int[][] map, int x, int y) {
         map[2 * x][2 * y] = 1;
         map[2 * x + 1][2 * y] = 1;
@@ -71,7 +71,7 @@ public class GameMapService {
         map[2 * x + 1][2 * y + 1] = 0;
     }
 
-    // 生成迷宫
+    /** 生成迷宫 */
     public void generateMaze(int[][] map, int x, int y, int w, int h) {
         if (w < 20 || h < 20) {
             return;
@@ -132,7 +132,7 @@ public class GameMapService {
         generateMaze(map, x + w / 2, y + h / 2, w / 2, h / 2);
     }
 
-    // 将所有建筑物放置在地图上
+    /** 将所有建筑物放置在地图上 */
     public void placeAllBuildingsOnMap() {
         // 建筑物的黑白图的字典
         var buildingTypes = buildingTypeMapper.selectList(null);
@@ -184,7 +184,7 @@ public class GameMapService {
         return path;
     }
 
-    // 查看某建筑是否与其他建筑有重叠，或者超出边界
+    /** 查看某建筑是否与其他建筑有重叠，或者超出边界 */
     private boolean isBuildingOverlap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
         int buildingX = building.getOriginX();
@@ -234,7 +234,7 @@ public class GameMapService {
         return false;
     }
 
-    // 放置建筑
+    /** 放置建筑 */
     private void placeBuildingOnMap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
         int buildingX = building.getOriginX();
@@ -275,14 +275,14 @@ public class GameMapService {
         }
     }
 
-    // 得到地图信息
+    /** 得到地图信息 */
     public GameMapDo getGameMap() {
         GameMapDo gameMap = gameMapMapper.selectById(mapId);
         gameMap.setData(GameCache.map);
         return gameMap;
     }
 
-    // 初始化地图（建造建筑等）
+    /** 初始化地图（建造建筑等） */
     public void createEnvironment(int nBuildings) {
         // 得到所有建筑类型
         var buildingTypes = buildingTypeMapper.selectList(null);
@@ -364,7 +364,7 @@ public class GameMapService {
         }
     }
 
-    // 计算两点之间的距离
+    /** 计算两点之间的距离 */
     public double calcDistance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }

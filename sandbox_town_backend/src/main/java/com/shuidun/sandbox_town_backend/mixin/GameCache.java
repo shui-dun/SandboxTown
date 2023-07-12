@@ -16,18 +16,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * 这些信息有一些会定期写入数据库
  */
 public class GameCache {
-    // 随机数产生器
+    /** 随机数产生器 */
     public static Random random = new Random();
 
-    // 建筑类型图片
+    /** 建筑类型图片 */
     public static Map<BuildingTypeEnum, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
     /** 地图，用于寻路算法，0表示可以通过，1代表围墙，非0表示障碍物ID的哈希值 */
     public static int[][] map;
 
-    // 角色缓存信息，保存在内存中，定期写入数据库
+    /** 角色缓存信息，保存在内存中，定期写入数据库 */
     public static Map<String, SpriteCache> spriteCacheMap = new ConcurrentHashMap<>();
 
-    // 当前时间段
+    /** 当前时间段 */
     public static TimeFrameVo timeFrame = new TimeFrameVo();
 }

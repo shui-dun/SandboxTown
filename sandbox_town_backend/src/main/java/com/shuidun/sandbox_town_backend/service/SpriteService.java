@@ -113,12 +113,12 @@ public class SpriteService {
         return sprite;
     }
 
-    // 得到某个地图上的所有角色
+    /** 得到某个地图上的所有角色 */
     public List<SpriteDo> getSpritesByMap(String map) {
         return spriteMapper.selectByMapId(map);
     }
 
-    // 生成随机的指定类型的角色，并写入数据库
+    /** 生成随机的指定类型的角色，并写入数据库 */
     public SpriteDo generateRandomSprite(SpriteTypeEnum type, String owner, int x, int y) {
         SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
@@ -179,12 +179,12 @@ public class SpriteService {
         return myAndMyPetInfo;
     }
 
-    // 得到玩家的所有宠物
+    /** 得到玩家的所有宠物 */
     public List<SpriteDo> selectByOwner(String ownerId) {
         return spriteMapper.selectByOwner(ownerId);
     }
 
-    // 得到所有未被玩家拥有的角色
+    /** 得到所有未被玩家拥有的角色 */
     public List<SpriteDo> getUnownedSprites() {
         return spriteMapper.selectUnownedSprites();
     }

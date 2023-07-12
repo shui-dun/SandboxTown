@@ -15,7 +15,7 @@ import java.util.Map;
  */
 @Service
 @Slf4j
-public class EventWebSocketInterceptor extends HttpSessionHandshakeInterceptor {
+public class MyWebSocketInterceptor extends HttpSessionHandshakeInterceptor {
     /**
      * 握手前
      */

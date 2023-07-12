@@ -10,7 +10,7 @@ import java.util.List;
 @Slf4j
 public class DataCompressor {
 
-    // 压缩路径
+    /** 压缩路径 */
     public static List<Integer> compressPath(List<Point> list) {
         // 将 [{"x":3, "y":5}, {"x":3, "y":6}, {"x":3, "y":7}] 压缩成 [3, 5, 3, 6, 3, 7]
         List<Integer> compressedList = new ArrayList<>();

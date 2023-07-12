@@ -8,13 +8,13 @@ import java.util.*;
 @Slf4j
 public class PathUtils {
 
-    // 定义八个方向的移动，包括斜向
+    /** 定义八个方向的移动，包括斜向 */
     private static final int[][] DIRECTIONS = {
             {-1, 0}, {1, 0}, {0, -1}, {0, 1}, // 上下左右
             {-1, -1}, {-1, 1}, {1, -1}, {1, 1} // 斜向
     };
 
-    // 节点类，用于表示地图上的一个位置
+    /** 节点类，用于表示地图上的一个位置 */
     private static class Node implements Comparable<Node> {
         int x, y;
         Node parent;
@@ -53,17 +53,17 @@ public class PathUtils {
         }
     }
 
-    // 计算启发式距离（二范数）
+    /** 计算启发式距离（二范数） */
     private static int heuristic(int x1, int y1, int x2, int y2) {
         return (int) (10 * Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)));
     }
 
-    // 判断给定的坐标是否在地图范围内
+    /** 判断给定的坐标是否在地图范围内 */
     private static boolean isValid(int[][] map, int x, int y) {
         return x >= 0 && x < map.length && y >= 0 && y < map[0].length;
     }
 
-    // 判断给定的坐标是否不能容下物体
+    /** 判断给定的坐标是否不能容下物体 */
     private static boolean cannotHold(int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight, int startX, int startY, int endX, int endY, Integer destinationHashCode) {
 
         // 如果坐标在目标点附近（距离小于物体大小），并且该点本身并非障碍物，那么直接认为可以容下物体

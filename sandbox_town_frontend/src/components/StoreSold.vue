@@ -1,5 +1,5 @@
 <template>
-    <GridPanel ref="gridPanel" title="🏬 售卖商品" :items="items" :labels="labels"
+    <GridPanel title="🏬 售卖商品" :items="items" :labels="labels"
         @clickGridItem="onClickItem" />
     <StoreItemSoldDetail v-if="showStoreItemSoldDetail" :storeId="storeId" :itemId="selectedItem.id" @onSold="onSold" @onCancel="cancel" />
 </template>
@@ -67,7 +67,6 @@ export default {
                 this.items.push(item);
             });
         });
-        this.$refs.gridPanel.filterItems();
     },
     methods: {
         onClickItem(item) {

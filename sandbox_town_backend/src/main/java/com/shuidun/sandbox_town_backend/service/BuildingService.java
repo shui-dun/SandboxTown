@@ -26,12 +26,12 @@ public class BuildingService {
         this.buildingTypeMapper = buildingTypeMapper;
     }
 
-    // 获取所有建筑类型
+    /** 获取所有建筑类型 */
     public List<BuildingTypeDo> getAllBuildingTypes() {
         return buildingTypeMapper.selectList(null);
     }
 
-    // 查找某个地图上的所有建筑
+    /** 查找某个地图上的所有建筑 */
     public List<BuildingDo> getAllBuildings() {
         return buildingMapper.selectByMapId(mapId);
     }

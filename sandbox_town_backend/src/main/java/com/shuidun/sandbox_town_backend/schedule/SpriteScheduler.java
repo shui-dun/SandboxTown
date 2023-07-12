@@ -7,7 +7,7 @@ import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
-import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
+import com.shuidun.sandbox_town_backend.websocket.MessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import java.util.function.Function;
 @Slf4j
 public class SpriteScheduler {
 
-    // 类型到函数的映射
+    /** 类型到函数的映射 */
     private final Map<SpriteTypeEnum, Function<SpriteDo, Void>> typeToFunction = new HashMap<>();
 
     private final SpriteService spriteService;
@@ -39,7 +39,7 @@ public class SpriteScheduler {
                 }
                 double randomVx = sprite.getSpeed() * (Math.random() - 0.5);
                 double randomVy = sprite.getSpeed() * (Math.random() - 0.5);
-                WSMessageSender.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
+                MessageSender.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
                         sprite.getId(),
                         sprite.getX(),
                         sprite.getY(),
@@ -74,7 +74,7 @@ public class SpriteScheduler {
                 // 去掉后面一段
                 path = path.subList(0, path.size() - minLen);
                 // 发送移动消息
-                WSMessageSender.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
+                MessageSender.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
                         sprite.getId(),
                         sprite.getSpeed(),
                         DataCompressor.compressPath(path),

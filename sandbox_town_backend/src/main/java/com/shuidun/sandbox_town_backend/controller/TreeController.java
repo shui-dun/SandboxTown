@@ -21,7 +21,7 @@ public class TreeController {
         this.treeService = treeService;
     }
 
-    // 摘苹果
+    /** 摘苹果 */
     @PostMapping("/pickApple")
     public RestResponseVo<?> pickApple(String treeId) {
         treeService.pickApple(StpUtil.getLoginIdAsString(), treeId);

@@ -19,13 +19,13 @@ public class BuildingController {
         this.buildingService = buildingService;
     }
 
-    // 得到所有建筑类型
+    /** 得到所有建筑类型 */
     @GetMapping("/getAllBuildingTypes")
     public RestResponseVo<?> getAllBuildingTypes() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, buildingService.getAllBuildingTypes());
     }
 
-    // 得到某个地图上的所有建筑
+    /** 得到某个地图上的所有建筑 */
     @GetMapping("/getAllBuildings")
     public RestResponseVo<?> getAllBuildings() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, buildingService.getAllBuildings());

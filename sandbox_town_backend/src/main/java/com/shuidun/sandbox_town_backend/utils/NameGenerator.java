@@ -5,7 +5,7 @@ import java.util.Base64;
 import java.util.UUID;
 
 public class NameGenerator {
-    // 生成名字
+    /** 生成名字 */
     public static String generateItemName(String prefix) {
         // 生成UUID
         UUID uuid = UUID.randomUUID();
@@ -16,7 +16,7 @@ public class NameGenerator {
         return prefix + '_' + uuidString;
     }
 
-    public static String uuidToBase64(UUID uuid) {
+    private static String uuidToBase64(UUID uuid) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[16]);
         byteBuffer.putLong(uuid.getMostSignificantBits());
         byteBuffer.putLong(uuid.getLeastSignificantBits());

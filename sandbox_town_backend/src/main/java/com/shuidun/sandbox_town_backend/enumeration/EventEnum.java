@@ -8,10 +8,10 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum EventEnum {
-    // 下线
+    /** 下线 */
     OFFLINE,
-    // 告知坐标信息
+    /** 告知坐标信息 */
     COORDINATE,
-    // 想要移动到某个位置
+    /** 想要移动到某个位置 */
     MOVE,
 }

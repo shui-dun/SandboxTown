@@ -24,7 +24,7 @@ import java.util.function.BiFunction;
 @Slf4j
 @Component
 public class EventHandler {
-    // 事件类型 -> 处理函数
+    /** 事件类型 -> 处理函数 */
     private final Map<EventEnum, BiFunction<String, JSONObject, Void>> eventMap = new HashMap<>();
 
     public void handle(EventDto eventDto) {
@@ -51,7 +51,7 @@ public class EventHandler {
             pets.forEach(pet -> GameCache.spriteCacheMap.remove(pet.getId()));
             // 通知其他玩家
             WSResponseVo wsResponse = new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(initiator));
-            WSMessageSender.sendMessageToAllUsers(wsResponse);
+            MessageSender.sendMessageToAllUsers(wsResponse);
             return null;
         });
 
@@ -85,7 +85,7 @@ public class EventHandler {
                         data.getId(), data.getX(), data.getY(), data.getVx(), data.getVy()
                 ));
             }
-            WSMessageSender.sendMessageToAllUsers(response);
+            MessageSender.sendMessageToAllUsers(response);
             return null;
         });
 
@@ -118,7 +118,7 @@ public class EventHandler {
             }
             // TODO: 更新玩家的状态
             // 通知玩家移动
-            WSMessageSender.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
+            MessageSender.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
                     initiator,
                     spriteService.selectById(initiator).getSpeed(),
                     DataCompressor.compressPath(path),

@@ -5,11 +5,13 @@
             <img :src="item.image" alt="item" />
         </div>
     </div>
-    <ItemDetail v-if="selectedItemIndex !== null" :itemId="items[selectedItemIndex].id" @onConfirm="confirm" @onCancel="cancel" />
+    <ItemDetail v-if="selectedItemIndex !== null" :itemId="items[selectedItemIndex].id" @onConfirm="confirm"
+        @onCancel="cancel" />
 </template>
   
 <script>
 import mixin from '@/js/mixin';
+import emitter from '@/js/mitt';
 import ItemDetail from './ItemDetail.vue';
 
 export default {
@@ -26,12 +28,18 @@ export default {
     methods: {
         // 点击左键，选中（手持）物品
         selectItem(index, item) {
-            // 如果是空物品，不显示
+            // 如果是空物品，不进行操作
             if (item.id == null) {
                 return;
             }
             this.handheldItemIndex = index;
-            // TODO: 手持物品
+            // 向后端发送请求，设置手持物品
+            mixin.myPOST(
+                '/rest/item/hold',
+                new URLSearchParams({
+                    itemId: item.id,
+                })
+            );
         },
         // 点击右键，查看物品信息
         emitClickEvent(index, item) {
@@ -48,10 +56,8 @@ export default {
         cancel() {
             this.selectedItemIndex = null;
         },
-    },
-    mounted() {
-        // 向后端请求物品栏物品数据
-        mixin.myGET('/rest/item/listMyItemsInItemBar', null, (data) => {
+        // 设置物品栏物品
+        setItems(data) {
             this.items = data;
             // 设置图片
             this.items.forEach((item) => {
@@ -63,6 +69,16 @@ export default {
             for (let i = this.items.length; i < 6; i++) {
                 this.items.push({ image: require("@/assets/img/PLACEHOLDER2.png") });
             }
+        },
+    },
+    mounted() {
+        // 向后端请求物品栏物品数据
+        mixin.myGET('/rest/item/listMyItemsInItemBar', null, (data) => {
+            this.setItems(data);
+        });
+        // 监听物品栏物品更新事件
+        emitter.on('ITEM_BAR_NOTIFY', (data) => {
+            this.setItems(data);
         });
     },
 };

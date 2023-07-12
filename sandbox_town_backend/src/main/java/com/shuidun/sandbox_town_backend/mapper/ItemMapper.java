@@ -10,20 +10,22 @@ import java.util.List;
 
 public interface ItemMapper extends BaseMapper<ItemDo> {
 
-    // 根据角色id获得其物品信息
+    /** 根据角色id获得其物品信息 */
     @Select("SELECT * FROM item WHERE owner = #{owner}")
     List<ItemDo> selectByOwner(String owner);
 
-    // 根据角色id和位置获得其物品信息
+    /** 根据角色id和位置获得其物品信息 */
     @Select("SELECT * FROM item WHERE owner = #{owner} AND position = #{position}")
     List<ItemDo> selectByOwnerAndPosition(String owner, ItemPositionEnum position);
 
-    // 根据角色id和物品类型获得其物品信息
+    /** 根据角色id和物品类型获得其物品信息 */
     @Select("SELECT * FROM item WHERE owner = #{owner} AND item_type = #{itemType}")
     List<ItemDo> selectByOwnerAndItemType(String owner, ItemTypeEnum itemType);
 
-    // 根据角色id和位置列表获得其物品信息
-    // 即，物品的位置在列表中的任意一个即可
+    /**
+     * 根据角色id和位置列表获得其物品信息
+     * 即，物品的位置在列表中的任意一个即可
+     */
     @Select("""
             <script>
                 SELECT * FROM item WHERE owner = #{owner} AND position in

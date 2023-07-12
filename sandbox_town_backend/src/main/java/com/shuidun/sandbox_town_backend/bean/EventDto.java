@@ -15,7 +15,7 @@ import java.util.Map;
 public class EventDto {
     private EventEnum type;
 
-    // 事件发起者的用户名
+    /** 事件发起者的用户名 */
     private String initiator;
 
     private JSONObject data;

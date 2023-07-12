@@ -6,7 +6,7 @@ import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.service.StoreService;
 import com.shuidun.sandbox_town_backend.service.TimeService;
 import com.shuidun.sandbox_town_backend.service.TreeService;
-import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
+import com.shuidun.sandbox_town_backend.websocket.MessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -14,10 +14,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class TimeScheduler {
-
-    // 因此，白天从0ms开始，黄昏从300000ms开始，夜晚从360000ms开始，黎明从540000ms开始
-
-
     private TreeService treeService;
 
     private StoreService storeService;
@@ -61,7 +57,7 @@ public class TimeScheduler {
     @Scheduled(initialDelay = 30000, fixedDelay = 30000)
     public void notifyTimeFrame() {
         log.info("notifyTimeFrame: {}", timeService.getTimeFrame());
-        WSMessageSender.sendMessageToAllUsers(new WSResponseVo(
+        MessageSender.sendMessageToAllUsers(new WSResponseVo(
                 WSResponseEnum.TIME_FRAME_NOTIFY,
                 timeService.getTimeFrame()
         ));

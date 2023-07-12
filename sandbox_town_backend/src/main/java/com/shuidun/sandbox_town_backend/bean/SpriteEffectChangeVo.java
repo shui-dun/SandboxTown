@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Data
 public class SpriteEffectChangeVo {
-    // 精灵id
+    /** 精灵id */
     private String id;
 
     private List<EffectEnum> startEffects = new ArrayList<>();

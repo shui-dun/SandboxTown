@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.config;
 
-import com.shuidun.sandbox_town_backend.websocket.EventWebSocketHandler;
-import com.shuidun.sandbox_town_backend.websocket.EventWebSocketInterceptor;
+import com.shuidun.sandbox_town_backend.websocket.MyWebSocketHandler;
+import com.shuidun.sandbox_town_backend.websocket.MyWebSocketInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -13,14 +13,14 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     /** websocket处理器 */
-    private final EventWebSocketHandler eventWebSocketHandler;
+    private final MyWebSocketHandler myWebSocketHandler;
 
     /** websocket拦截器 */
-    private final EventWebSocketInterceptor eventWebSocketInterceptor;
+    private final MyWebSocketInterceptor myWebSocketInterceptor;
 
-    public WebSocketConfig(EventWebSocketHandler eventWebSocketHandler, EventWebSocketInterceptor eventWebSocketInterceptor) {
-        this.eventWebSocketHandler = eventWebSocketHandler;
-        this.eventWebSocketInterceptor = eventWebSocketInterceptor;
+    public WebSocketConfig(MyWebSocketHandler myWebSocketHandler, MyWebSocketInterceptor myWebSocketInterceptor) {
+        this.myWebSocketHandler = myWebSocketHandler;
+        this.myWebSocketInterceptor = myWebSocketInterceptor;
     }
 
     @Override
@@ -28,8 +28,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
         // 配置handle
         // 配置websocket的监听url
         // 配置拦截器
-        registry.addHandler(eventWebSocketHandler, "/event").addInterceptors(eventWebSocketInterceptor).setAllowedOrigins("*");
-        registry.addHandler(eventWebSocketHandler, "/sockjs").addInterceptors(eventWebSocketInterceptor).setAllowedOrigins("*").withSockJS();
+        registry.addHandler(myWebSocketHandler, "/event").addInterceptors(myWebSocketInterceptor).setAllowedOrigins("*");
+        registry.addHandler(myWebSocketHandler, "/sockjs").addInterceptors(myWebSocketInterceptor).setAllowedOrigins("*").withSockJS();
     }
 
 }

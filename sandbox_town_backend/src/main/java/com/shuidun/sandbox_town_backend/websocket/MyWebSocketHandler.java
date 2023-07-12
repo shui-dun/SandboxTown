@@ -15,11 +15,11 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
  */
 @Service
 @Slf4j
-public class EventWebSocketHandler extends TextWebSocketHandler {
+public class MyWebSocketHandler extends TextWebSocketHandler {
 
     private final EventHandler eventHandler;
 
-    public EventWebSocketHandler(EventHandler eventHandler) {
+    public MyWebSocketHandler(EventHandler eventHandler) {
         this.eventHandler = eventHandler;
     }
 
@@ -30,14 +30,14 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String userName = (String) session.getAttributes().get("userName");
         // 如果用户已经存在，删除之前的session
-        if (WSMessageSender.usernameSession.containsKey(userName)) {
-            WebSocketSession webSocketSession = WSMessageSender.usernameSession.get(userName);
+        if (MessageSender.usernameSession.containsKey(userName)) {
+            WebSocketSession webSocketSession = MessageSender.usernameSession.get(userName);
             if (webSocketSession.isOpen()) {
                 webSocketSession.close();
             }
         }
         // 保存用户session
-        WSMessageSender.usernameSession.put(userName, session);
+        MessageSender.usernameSession.put(userName, session);
         log.info("call afterConnectionEstablished");
     }
 
@@ -48,7 +48,7 @@ public class EventWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("call afterConnectionClosed");
         String userName = (String) session.getAttributes().get("userName");
-        WSMessageSender.usernameSession.remove(userName, session);
+        MessageSender.usernameSession.remove(userName, session);
         // 发出下线事件
         EventDto eventDto = new EventDto(EventEnum.OFFLINE, userName, null);
         eventHandler.handle(eventDto);

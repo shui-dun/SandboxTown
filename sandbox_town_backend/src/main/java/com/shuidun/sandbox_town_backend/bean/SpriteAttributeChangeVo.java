@@ -7,7 +7,7 @@ import lombok.Data;
  */
 @Data
 public class SpriteAttributeChangeVo {
-    // 精灵id
+    /** 精灵id */
     private String id;
 
     private Integer money;
@@ -42,7 +42,7 @@ public class SpriteAttributeChangeVo {
 
     private Integer speedInc;
 
-    // 设置原先的属性值
+    /** 设置原先的属性值 */
     public void setOriginal(SpriteDo original) {
         this.id = original.getId();
         this.money = original.getMoney();
@@ -55,7 +55,7 @@ public class SpriteAttributeChangeVo {
         this.speed = original.getSpeed();
     }
 
-    // 设置增量
+    /** 设置增量 */
     public void setChanged(SpriteDo changed) {
         this.id = changed.getId();
         this.moneyInc = changed.getMoney() - this.money;

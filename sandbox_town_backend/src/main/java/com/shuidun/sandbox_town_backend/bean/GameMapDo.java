@@ -24,7 +24,7 @@ public class GameMapDo {
 
     private Integer seed;
 
-    // 数据
+    /** 数据 */
     @TableField(exist = false)
     private int[][] data;
 }
