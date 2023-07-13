@@ -308,7 +308,8 @@ public class ItemService {
      * 手持物品
      */
     @Transactional
-    public void hold(String spriteId, String itemId) {
+    public List<WSResponseVo> hold(String spriteId, String itemId) {
+        List<WSResponseVo> responses = new ArrayList<>();
         // 查询该物品
         ItemDo item = itemMapper.selectById(itemId);
         // 判断该物品是否存在
@@ -321,11 +322,11 @@ public class ItemService {
         }
         // 判断该物品是否已经是手持物品
         if (item.getPosition() == ItemPositionEnum.HANDHELD) {
-            return;
+            return responses;
         }
         // 判断物品栏是否已满
         List<ItemDo> itemInItemBar = listItemsInItemBarByOwner(spriteId);
-        if (itemInItemBar.size() >= Constants.ITEM_BAR_SIZE) {
+        if (itemInItemBar.size() >= Constants.ITEM_BAR_SIZE && item.getPosition() != ItemPositionEnum.ITEMBAR) {
             throw new BusinessException(StatusCodeEnum.ITEMBAR_FULL);
         }
         // 将之前的手持物品放入物品栏
@@ -338,5 +339,8 @@ public class ItemService {
         // 将该物品放入手持物品栏
         item.setPosition(ItemPositionEnum.HANDHELD);
         itemMapper.updateById(item);
+
+        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, listItemsInItemBarByOwner(spriteId)));
+        return responses;
     }
 }

@@ -2,7 +2,7 @@ package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.*;
-import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
+import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
@@ -23,9 +23,9 @@ import java.util.function.BiFunction;
  */
 @Slf4j
 @Component
-public class EventHandler {
+public class WSRequestHandler {
     /** 事件类型 -> 处理函数 */
-    private final Map<EventEnum, BiFunction<String, JSONObject, Void>> eventMap = new HashMap<>();
+    private final Map<WSRequestEnum, BiFunction<String, JSONObject, Void>> eventMap = new HashMap<>();
 
     public void handle(EventDto eventDto) {
         try {
@@ -39,11 +39,11 @@ public class EventHandler {
         }
     }
 
-    public EventHandler(SpriteService spriteService, GameMapService gameMapService) {
+    public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService) {
 
 
         // 下线事件
-        eventMap.put(EventEnum.OFFLINE, (initiator, mapData) -> {
+        eventMap.put(WSRequestEnum.OFFLINE, (initiator, mapData) -> {
             // 读取角色的所有宠物
             List<SpriteDo> pets = spriteService.selectByOwner(initiator);
             // 删除角色以及其宠物坐标等信息
@@ -51,12 +51,12 @@ public class EventHandler {
             pets.forEach(pet -> GameCache.spriteCacheMap.remove(pet.getId()));
             // 通知其他玩家
             WSResponseVo wsResponse = new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(initiator));
-            MessageSender.sendMessageToAllUsers(wsResponse);
+            WSMessageSender.sendResponse(wsResponse);
             return null;
         });
 
         // 告知坐标信息
-        eventMap.put(EventEnum.COORDINATE, (initiator, mapData) -> {
+        eventMap.put(WSRequestEnum.COORDINATE, (initiator, mapData) -> {
             var data = mapData.toJavaObject(CoordinateDto.class);
             // 如果是第一次通报坐标信息，说明刚上线
             boolean isFirstTime = !GameCache.spriteCacheMap.containsKey(data.getId());
@@ -85,12 +85,12 @@ public class EventHandler {
                         data.getId(), data.getX(), data.getY(), data.getVx(), data.getVy()
                 ));
             }
-            MessageSender.sendMessageToAllUsers(response);
+            WSMessageSender.sendResponse(response);
             return null;
         });
 
         // 想要移动
-        eventMap.put(EventEnum.MOVE, (initiator, mapData) -> {
+        eventMap.put(WSRequestEnum.MOVE, (initiator, mapData) -> {
             var data = mapData.toJavaObject(MoveDto.class);
             // 更新玩家的坐标信息
             var spriteCache = GameCache.spriteCacheMap.get(initiator);
@@ -118,7 +118,7 @@ public class EventHandler {
             }
             // TODO: 更新玩家的状态
             // 通知玩家移动
-            MessageSender.sendMessageToAllUsers(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
+            WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
                     initiator,
                     spriteService.selectById(initiator).getSpeed(),
                     DataCompressor.compressPath(path),

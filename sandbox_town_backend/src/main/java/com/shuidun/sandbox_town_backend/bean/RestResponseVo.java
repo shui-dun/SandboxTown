@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * restful接口返回的数据
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

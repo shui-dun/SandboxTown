@@ -6,7 +6,7 @@ import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.service.StoreService;
 import com.shuidun.sandbox_town_backend.service.TimeService;
 import com.shuidun.sandbox_town_backend.service.TreeService;
-import com.shuidun.sandbox_town_backend.websocket.MessageSender;
+import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -57,7 +57,7 @@ public class TimeScheduler {
     @Scheduled(initialDelay = 30000, fixedDelay = 30000)
     public void notifyTimeFrame() {
         log.info("notifyTimeFrame: {}", timeService.getTimeFrame());
-        MessageSender.sendMessageToAllUsers(new WSResponseVo(
+        WSMessageSender.sendResponse(new WSResponseVo(
                 WSResponseEnum.TIME_FRAME_NOTIFY,
                 timeService.getTimeFrame()
         ));

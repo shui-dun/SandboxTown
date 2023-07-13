@@ -4,8 +4,9 @@ import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.Map;
-
+/**
+ * 服务器向客户端发送的事件
+ */
 @Data
 @AllArgsConstructor
 public class WSResponseVo {

@@ -2,7 +2,7 @@ package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.EventDto;
-import com.shuidun.sandbox_town_backend.enumeration.EventEnum;
+import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
@@ -17,10 +17,10 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Slf4j
 public class MyWebSocketHandler extends TextWebSocketHandler {
 
-    private final EventHandler eventHandler;
+    private final WSRequestHandler WSRequestHandler;
 
-    public MyWebSocketHandler(EventHandler eventHandler) {
-        this.eventHandler = eventHandler;
+    public MyWebSocketHandler(WSRequestHandler WSRequestHandler) {
+        this.WSRequestHandler = WSRequestHandler;
     }
 
     /**
@@ -30,14 +30,14 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String userName = (String) session.getAttributes().get("userName");
         // 如果用户已经存在，删除之前的session
-        if (MessageSender.usernameSession.containsKey(userName)) {
-            WebSocketSession webSocketSession = MessageSender.usernameSession.get(userName);
+        if (WSMessageSender.usernameSession.containsKey(userName)) {
+            WebSocketSession webSocketSession = WSMessageSender.usernameSession.get(userName);
             if (webSocketSession.isOpen()) {
                 webSocketSession.close();
             }
         }
         // 保存用户session
-        MessageSender.usernameSession.put(userName, session);
+        WSMessageSender.usernameSession.put(userName, session);
         log.info("call afterConnectionEstablished");
     }
 
@@ -48,10 +48,10 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("call afterConnectionClosed");
         String userName = (String) session.getAttributes().get("userName");
-        MessageSender.usernameSession.remove(userName, session);
+        WSMessageSender.usernameSession.remove(userName, session);
         // 发出下线事件
-        EventDto eventDto = new EventDto(EventEnum.OFFLINE, userName, null);
-        eventHandler.handle(eventDto);
+        EventDto eventDto = new EventDto(WSRequestEnum.OFFLINE, userName, null);
+        WSRequestHandler.handle(eventDto);
         super.afterConnectionClosed(session, status);
     }
 
@@ -68,7 +68,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         EventDto eventDto = JSONObject.parseObject(messagePayload, EventDto.class);
         eventDto.setInitiator((String) session.getAttributes().get("userName"));
         // 交给事件处理器处理
-        eventHandler.handle(eventDto);
+        WSRequestHandler.handle(eventDto);
     }
 
 }

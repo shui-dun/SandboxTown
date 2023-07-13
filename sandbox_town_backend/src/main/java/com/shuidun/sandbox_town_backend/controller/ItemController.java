@@ -2,12 +2,10 @@ package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
-import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
-import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.service.ItemService;
-import com.shuidun.sandbox_town_backend.websocket.MessageSender;
+import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -73,12 +71,10 @@ public class ItemController {
      */
     @PostMapping("/hold")
     public RestResponseVo<?> hold(String itemId) {
-        itemService.hold(StpUtil.getLoginIdAsString(), itemId);
-        // 发送物品栏通知信息
-        MessageSender.sendMessageToUser(StpUtil.getLoginIdAsString(), new WSResponseVo(
-                WSResponseEnum.ITEM_BAR_NOTIFY,
-                itemService.listItemsInItemBarByOwner(StpUtil.getLoginIdAsString())
-        ));
+        // 之所以这里要以websocket而非http的方式发送消息，
+        // 是因为http的方式发送消息，只能发送给当前请求的用户，
+        // 而websocket的方式发送消息，可以发送给需要该消息的所有用户
+        WSMessageSender.sendResponseList(itemService.hold(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 }
