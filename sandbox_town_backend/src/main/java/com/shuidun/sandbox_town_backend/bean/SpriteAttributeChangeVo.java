@@ -55,8 +55,12 @@ public class SpriteAttributeChangeVo {
         this.speed = original.getSpeed();
     }
 
-    /** 设置增量 */
-    public void setChanged(SpriteDo changed) {
+    /**
+     * 设置增量
+     * @param changed 变化后的精灵
+     * @return 是否有变化
+     * */
+    public boolean setChanged(SpriteDo changed) {
         this.id = changed.getId();
         this.moneyInc = changed.getMoney() - this.money;
         this.expInc = changed.getExp() - this.exp;
@@ -66,5 +70,6 @@ public class SpriteAttributeChangeVo {
         this.attackInc = changed.getAttack() - this.attack;
         this.defenseInc = changed.getDefense() - this.defense;
         this.speedInc = changed.getSpeed() - this.speed;
+        return moneyInc != 0 || expInc != 0 || levelInc != 0 || hungerInc != 0 || hpInc != 0 || attackInc != 0 || defenseInc != 0 || speedInc != 0;
     }
 }

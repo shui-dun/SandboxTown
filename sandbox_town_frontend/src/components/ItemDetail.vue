@@ -85,8 +85,7 @@ export default {
         },
         async use() {
             // 使用
-            let spriteChange = await mixin.myPOST("/rest/item/use", new URLSearchParams({ itemId: this.itemId }));
-            emitter.emit('SPRITE_ATTRIBUTE_CHANGE', spriteChange.spriteAttributeChange);
+            await mixin.myPOST("/rest/item/use", new URLSearchParams({ itemId: this.itemId }));
             this.$emit('onConfirm', 'USE');
         },
         cancel() {

@@ -45,8 +45,8 @@ public class ItemService {
     }
 
     @Transactional
-    public SpriteChangeVo use(String owner, String itemId) {
-        SpriteChangeVo spriteChange = new SpriteChangeVo();
+    public List<WSResponseVo> use(String owner, String itemId) {
+        List<WSResponseVo> responseList = new ArrayList<>();
         // 判断物品是否存在
         ItemDo item = itemMapper.selectById(itemId);
         if (item == null) {
@@ -66,7 +66,8 @@ public class ItemService {
         // TODO: 根据物品等级计算属性变化
         // 得到角色原先属性
         SpriteDo sprite = spriteMapper.selectById(owner);
-        spriteChange.getSpriteAttributeChange().setOriginal(sprite);
+        SpriteAttributeChangeVo spriteAttributeChange = new SpriteAttributeChangeVo();
+        spriteAttributeChange.setOriginal(sprite);
         // 更新角色属性
         sprite.setMoney(sprite.getMoney() + itemTypeAttribute.getMoneyInc());
         sprite.setExp(sprite.getExp() + itemTypeAttribute.getExpInc());
@@ -77,7 +78,9 @@ public class ItemService {
         sprite.setSpeed(sprite.getSpeed() + itemTypeAttribute.getSpeedInc());
         // 判断新属性是否在合理范围内（包含升级操作），随后写入数据库
         sprite = spriteService.normalizeAndUpdatePlayer(sprite);
-        spriteChange.getSpriteAttributeChange().setChanged(sprite);
+        if (spriteAttributeChange.setChanged(sprite)) {
+            responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
+        }
         // TODO: 向角色施加效果
         // 判断是否是最后一个物品
         if (item.getItemCount() <= 1) {
@@ -88,7 +91,7 @@ public class ItemService {
             item.setItemCount(item.getItemCount() - 1);
             itemMapper.updateById(item);
         }
-        return spriteChange;
+        return responseList;
     }
 
     /** 给玩家添加物品 */

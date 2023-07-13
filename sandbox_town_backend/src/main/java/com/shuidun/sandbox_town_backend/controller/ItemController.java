@@ -51,7 +51,11 @@ public class ItemController {
     /** 使用物品 */
     @PostMapping("/use")
     public RestResponseVo<?> use(String itemId) {
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, itemService.use(StpUtil.getLoginIdAsString(), itemId));
+        // 之所以这里要以websocket而非http的方式发送消息，
+        // 是因为http的方式发送消息，只能发送给当前请求的用户，
+        // 而websocket的方式发送消息，可以发送给需要该消息的所有用户
+        WSMessageSender.sendResponseList(itemService.use(StpUtil.getLoginIdAsString(), itemId));
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
     /** 显示某个物品的详细信息 */
@@ -71,9 +75,6 @@ public class ItemController {
      */
     @PostMapping("/hold")
     public RestResponseVo<?> hold(String itemId) {
-        // 之所以这里要以websocket而非http的方式发送消息，
-        // 是因为http的方式发送消息，只能发送给当前请求的用户，
-        // 而websocket的方式发送消息，可以发送给需要该消息的所有用户
         WSMessageSender.sendResponseList(itemService.hold(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }

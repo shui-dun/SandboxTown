@@ -85,7 +85,8 @@ public class WSMessageSender {
             entry(WSResponseEnum.ONLINE, WSMessageSender::sendMessageToAllUsers),
             entry(WSResponseEnum.OFFLINE, WSMessageSender::sendMessageToAllUsers),
             entry(WSResponseEnum.TIME_FRAME_NOTIFY, WSMessageSender::sendMessageToAllUsers),
-            entry(WSResponseEnum.ITEM_BAR_NOTIFY, WSMessageSender::sendMessageToCurrentUser)
+            entry(WSResponseEnum.ITEM_BAR_NOTIFY, WSMessageSender::sendMessageToCurrentUser),
+            entry(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, WSMessageSender::sendMessageToCurrentUser)
     );
 
     /**

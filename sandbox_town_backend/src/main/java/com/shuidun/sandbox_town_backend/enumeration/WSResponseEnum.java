@@ -19,4 +19,6 @@ public enum WSResponseEnum {
     TIME_FRAME_NOTIFY,
     /** 物品栏通知 */
     ITEM_BAR_NOTIFY,
+    /** 精灵属性变化通知 */
+    SPRITE_ATTRIBUTE_CHANGE,
 }
