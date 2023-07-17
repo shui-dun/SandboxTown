@@ -346,4 +346,37 @@ public class ItemService {
         responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, listItemsInItemBarByOwner(spriteId)));
         return responses;
     }
+
+    /**
+     * 放入物品栏
+     */
+    @Transactional
+    public Iterable<WSResponseVo> putInItemBar(String spriteId, String itemId) {
+        List<WSResponseVo> responses = new ArrayList<>();
+        // 查询该物品
+        ItemDo item = itemMapper.selectById(itemId);
+        // 判断该物品是否存在
+        if (item == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
+        // 判断该物品是否属于该精灵
+        if (!item.getOwner().equals(spriteId)) {
+            throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
+        }
+        // 判断该物品是否已经在物品栏
+        if (item.getPosition() == ItemPositionEnum.ITEMBAR) {
+            return responses;
+        }
+        // 判断物品栏是否已满
+        List<ItemDo> itemInItemBar = listItemsInItemBarByOwner(spriteId);
+        if (itemInItemBar.size() >= Constants.ITEM_BAR_SIZE && item.getPosition() != ItemPositionEnum.HANDHELD) {
+            throw new BusinessException(StatusCodeEnum.ITEMBAR_FULL);
+        }
+        // 将该物品放入物品栏
+        item.setPosition(ItemPositionEnum.ITEMBAR);
+        itemMapper.updateById(item);
+
+        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, listItemsInItemBarByOwner(spriteId)));
+        return responses;
+    }
 }

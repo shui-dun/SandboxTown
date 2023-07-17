@@ -66,7 +66,16 @@ export default {
             this.$emit('onConfirm', 'BACKPACK');
         },
         async moveToItembar() {
-            this.$emit('onConfirm', 'ITEMBAR');
+            // 向后端发送请求，设置物品栏物品
+            mixin.myPOST(
+                '/rest/item/putInItemBar',
+                new URLSearchParams({
+                    itemId: this.itemId,
+                }),
+                () => {
+                    this.$emit('onConfirm', 'ITEMBAR');
+                }
+            );
         },
         async hold() {
             // 向后端发送请求，设置手持物品

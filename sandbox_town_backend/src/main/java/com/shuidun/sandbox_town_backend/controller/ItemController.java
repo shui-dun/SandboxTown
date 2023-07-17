@@ -78,4 +78,13 @@ public class ItemController {
         WSMessageSender.sendResponseList(itemService.hold(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
+
+    /**
+     * 放入物品栏
+     */
+    @PostMapping("/putInItemBar")
+    public RestResponseVo<?> putInItemBar(String itemId) {
+        WSMessageSender.sendResponseList(itemService.putInItemBar(StpUtil.getLoginIdAsString(), itemId));
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
+    }
 }
