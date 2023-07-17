@@ -89,8 +89,16 @@ export default {
                 }
             );
         },
+        // 装备
         async equip() {
-            this.$emit('onConfirm', 'EQUIP');
+            // 向后端发送请求，设置装备
+            await mixin.myPOST(
+                "/rest/item/equip",
+                new URLSearchParams({ itemId: this.itemId }),
+                () => {
+                    this.$emit('onConfirm', 'EQUIP');
+                }
+            );
         },
         async use() {
             // 使用

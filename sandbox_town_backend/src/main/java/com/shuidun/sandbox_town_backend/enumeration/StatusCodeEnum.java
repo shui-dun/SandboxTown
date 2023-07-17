@@ -26,7 +26,8 @@ public enum StatusCodeEnum {
     ITEM_NOT_ENOUGH(17, "物品数量不足"),
     MONEY_NOT_ENOUGH(18, "金钱不足"),
     PRICE_NOT_MATCH(19, "价格不匹配"),
-    ITEMBAR_FULL(20, "物品栏已满");
+    ITEMBAR_FULL(20, "物品栏已满"),
+    ITEM_NOT_EQUIPMENT(21, "物品不是装备");
 
     private final int code;
     private final String msg;

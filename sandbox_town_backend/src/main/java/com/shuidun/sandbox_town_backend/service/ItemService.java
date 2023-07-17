@@ -379,4 +379,54 @@ public class ItemService {
         responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, listItemsInItemBarByOwner(spriteId)));
         return responses;
     }
+
+    /** 装备物品 */
+    @Transactional
+    public Iterable<WSResponseVo> equip(String spriteId, String itemId) {
+        List<WSResponseVo> responses = new ArrayList<>();
+        // 查询该物品详细信息
+        ItemDo item = getItemDetailById(itemId);
+        // 判断该物品是否存在
+        if (item == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
+        // 判断该物品是否属于该精灵
+        if (!item.getOwner().equals(spriteId)) {
+            throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
+        }
+        // 装备的所有可能位置
+        List<ItemPositionEnum> equipmentPositions = Arrays.asList(
+                ItemPositionEnum.HELMET, ItemPositionEnum.CHEST,
+                ItemPositionEnum.LEG, ItemPositionEnum.BOOTS);
+        // 装备的所有可能标签
+        List<ItemLabelEnum> equipmentLabels = Arrays.asList(
+                ItemLabelEnum.HELMET, ItemLabelEnum.CHEST,
+                ItemLabelEnum.LEG, ItemLabelEnum.BOOTS);
+        // 判断该物品是否已经装备
+        if (equipmentPositions.contains(item.getPosition())) {
+            return responses;
+        }
+        // 判断该物品是否是装备（判断labels是否包含数组equipmentLabels的任一元素）
+        ItemLabelEnum itemLabel = item.getItemTypeObj().getLabels().stream()
+                .filter(equipmentLabels::contains)
+                .findFirst()
+                .orElse(null);
+        if (itemLabel == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_EQUIPMENT);
+        }
+        // 找到该物品的装备位置
+        ItemPositionEnum itemPosition = ItemPositionEnum.valueOf(itemLabel.name());
+        // 将之前的装备放入背包
+        List<ItemDo> equippedItems = itemMapper.selectByOwnerAndPosition(spriteId, itemPosition);
+        if (equippedItems != null && !equippedItems.isEmpty()) {
+            ItemDo equippedItem = equippedItems.get(0);
+            equippedItem.setPosition(ItemPositionEnum.BACKPACK);
+            itemMapper.updateById(equippedItem);
+        }
+        // 将该物品装备
+        item.setPosition(itemPosition);
+        itemMapper.updateById(item);
+
+        return responses;
+    }
 }

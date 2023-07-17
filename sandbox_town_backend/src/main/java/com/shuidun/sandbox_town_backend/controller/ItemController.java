@@ -87,4 +87,11 @@ public class ItemController {
         WSMessageSender.sendResponseList(itemService.putInItemBar(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
+
+    /** 装备物品 */
+    @PostMapping("/equip")
+    public RestResponseVo<?> equip(String itemId) {
+        WSMessageSender.sendResponseList(itemService.equip(StpUtil.getLoginIdAsString(), itemId));
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
+    }
 }
