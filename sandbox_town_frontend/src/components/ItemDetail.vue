@@ -63,7 +63,16 @@ export default {
     },
     methods: {
         async moveToBackpack() {
-            this.$emit('onConfirm', 'BACKPACK');
+            // 向后端发送请求，设置背包物品
+            await mixin.myPOST(
+                '/rest/item/putInBackpack',
+                new URLSearchParams({
+                    itemId: this.itemId,
+                }),
+                () => {
+                    this.$emit('onConfirm', 'BACKPACK');
+                }
+            );
         },
         async moveToItembar() {
             // 向后端发送请求，设置物品栏物品

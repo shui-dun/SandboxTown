@@ -429,4 +429,34 @@ public class ItemService {
 
         return responses;
     }
+
+    /** 放入背包 */
+    @Transactional
+    public Iterable<WSResponseVo> putInBackpack(String spriteId, String itemId) {
+        List<WSResponseVo> responses = new ArrayList<>();
+        // 查询该物品
+        ItemDo item = itemMapper.selectById(itemId);
+        // 判断该物品是否存在
+        if (item == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
+        // 判断该物品是否属于该精灵
+        if (!item.getOwner().equals(spriteId)) {
+            throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
+        }
+        ItemPositionEnum originalPosition = item.getPosition();
+        // 判断该物品是否已经在背包
+        if (originalPosition == ItemPositionEnum.BACKPACK) {
+            return responses;
+        }
+        // 将该物品放入背包
+        item.setPosition(ItemPositionEnum.BACKPACK);
+        itemMapper.updateById(item);
+
+        // 如果原先在物品栏，发射物品栏通知
+        if (originalPosition == ItemPositionEnum.ITEMBAR || originalPosition == ItemPositionEnum.HANDHELD) {
+            responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, listItemsInItemBarByOwner(spriteId)));
+        }
+        return responses;
+    }
 }

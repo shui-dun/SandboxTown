@@ -94,4 +94,11 @@ public class ItemController {
         WSMessageSender.sendResponseList(itemService.equip(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
+
+    /** 放入背包 */
+    @PostMapping("/putInBackpack")
+    public RestResponseVo<?> putInBackpack(String itemId) {
+        WSMessageSender.sendResponseList(itemService.putInBackpack(StpUtil.getLoginIdAsString(), itemId));
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
+    }
 }
