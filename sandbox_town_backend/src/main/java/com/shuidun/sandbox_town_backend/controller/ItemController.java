@@ -5,6 +5,7 @@ import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.ItemService;
+import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +20,11 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    public ItemController(ItemService itemService) {
+    private final SpriteService spriteService;
+
+    public ItemController(ItemService itemService, SpriteService spriteService) {
         this.itemService = itemService;
+        this.spriteService = spriteService;
     }
 
     /** 获取当前登陆玩家的所有物品信息 */
@@ -54,7 +58,7 @@ public class ItemController {
         // 之所以这里要以websocket而非http的方式发送消息，
         // 是因为http的方式发送消息，只能发送给当前请求的用户，
         // 而websocket的方式发送消息，可以发送给需要该消息的所有用户
-        WSMessageSender.sendResponseList(itemService.use(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.sendResponseList(spriteService.use(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
@@ -75,7 +79,7 @@ public class ItemController {
      */
     @PostMapping("/hold")
     public RestResponseVo<?> hold(String itemId) {
-        WSMessageSender.sendResponseList(itemService.hold(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.sendResponseList(spriteService.hold(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
@@ -84,21 +88,21 @@ public class ItemController {
      */
     @PostMapping("/putInItemBar")
     public RestResponseVo<?> putInItemBar(String itemId) {
-        WSMessageSender.sendResponseList(itemService.putInItemBar(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.sendResponseList(spriteService.putInItemBar(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
     /** 装备物品 */
     @PostMapping("/equip")
     public RestResponseVo<?> equip(String itemId) {
-        WSMessageSender.sendResponseList(itemService.equip(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.sendResponseList(spriteService.equip(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
     /** 放入背包 */
     @PostMapping("/putInBackpack")
     public RestResponseVo<?> putInBackpack(String itemId) {
-        WSMessageSender.sendResponseList(itemService.putInBackpack(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.sendResponseList(spriteService.putInBackpack(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 }

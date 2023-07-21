@@ -21,17 +21,17 @@ public class SpriteController {
         this.spriteService = spriteService;
     }
 
-    /** 获取角色属性信息 */
+    /** 获取角色详细信息 */
     @GetMapping("/list/{id}")
     public RestResponseVo<?> getSpriteById(@PathVariable("id") String id) {
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, spriteService.selectById(id));
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, spriteService.selectByIdWithTypeAndEquipmentsAndIncAndEffect(id));
     }
 
-    /** 获取当前登陆玩家的属性信息 */
+    /** 获取当前登陆玩家的详细信息 */
     @GetMapping("/listMine")
     public RestResponseVo<?> getMyPlayerInfo() {
         String username = StpUtil.getLoginIdAsString();
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, spriteService.selectById(username));
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, spriteService.selectByIdWithTypeAndEquipmentsAndIncAndEffect(username));
     }
 
     /** 获取整个地图上的所有角色信息 */

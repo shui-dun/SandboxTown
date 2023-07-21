@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 public class TimeFrameVo {
     private TimeFrameEnum timeFrame;
 
-    /** 当前时间段的持续时间 */
+    /** 当前时间段的总持续时间 */
     private long timeFrameDuration;
 
     /** 当前时间段的结束时刻 */
