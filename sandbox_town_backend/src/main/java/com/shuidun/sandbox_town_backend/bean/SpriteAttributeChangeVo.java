@@ -12,6 +12,7 @@ public class SpriteAttributeChangeVo {
 
     private Integer money;
 
+    /** 这些增量表示的是变化后的值减去变化前的值 */
     private Integer moneyInc;
 
     private Integer exp;
@@ -57,9 +58,10 @@ public class SpriteAttributeChangeVo {
 
     /**
      * 设置增量
+     *
      * @param changed 变化后的精灵
      * @return 是否有变化
-     * */
+     */
     public boolean setChanged(SpriteDo changed) {
         this.id = changed.getId();
         this.moneyInc = changed.getMoney() - this.money;

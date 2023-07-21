@@ -91,7 +91,7 @@ public class SpriteScheduler {
         // 遍历所有角色
         for (String id : GameCache.spriteCacheMap.keySet()) {
             // 得到其角色
-            SpriteDo sprite = spriteService.selectById(id);
+            SpriteDo sprite = spriteService.selectByIdWithEquipmentsAndIncAndEffect(id);
             // 调用对应的处理函数
             var func = typeToFunction.get(sprite.getType());
             if (func != null) {

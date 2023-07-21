@@ -1,5 +1,6 @@
-package com.shuidun.sandbox_town_backend.bean ;
+package com.shuidun.sandbox_town_backend.bean;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import lombok.AllArgsConstructor;
@@ -16,5 +17,5 @@ public class SpriteEffectDo {
 
     private EffectEnum effect;
 
-    private Integer duration;
+    private Integer expire;
 }

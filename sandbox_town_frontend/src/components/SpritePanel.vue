@@ -64,11 +64,15 @@ export default {
         // 如果主人是用户，删掉前缀
         if (this.info.owner != null && this.info.owner.startsWith("USER_")) {
             this.info.owner = this.info.owner.split("_", 2)[1];
-        } 
+        }
         // 将信息添加到userInfo中
         this.itemInfo.forEach((item) => {
             if (this.info[item.id] !== null) {
                 item.value = this.info[item.id];
+                // 如果有增量属性值，则显示增量属性值
+                if (this.info[`${item.id}Inc`]) {
+                    item.value += `+${this.info[`${item.id}Inc`]}`;
+                }
             }
         });
     },

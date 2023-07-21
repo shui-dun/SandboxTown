@@ -84,7 +84,12 @@ export default {
                 this.player = data;
                 // 将用户信息添加到userInfo中
                 this.userInfo.forEach((item) => {
+                    // 显示基础属性值
                     item.value = this.player[item.label];
+                    // 如果有增量属性值，则显示增量属性值
+                    if (this.player[item.label + 'Inc']) {
+                        item.value += '+' + this.player[item.label + 'Inc'];
+                    }
                 });
             });
         },

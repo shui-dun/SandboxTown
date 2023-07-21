@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @TableName("sprite")
 @Data
 @AllArgsConstructor
@@ -48,11 +50,40 @@ public class SpriteDo {
 
     private String map;
 
-    // 描述信息
+    /** 描述信息 */
     @TableField(exist = false)
     private String description;
 
-    // 以下是一些只放在缓存不放在数据库的字段
+    /**
+     * 玩家最后的属性值等于原先的属性值加上增量（装备或手持装备导致的属性变化）
+     * 但注意: 没有moneyInc、expInc、levelInc
+     */
+    @TableField(exist = false)
+    private Integer hungerInc;
+
+    @TableField(exist = false)
+    private Integer hpInc;
+
+    @TableField(exist = false)
+    private Integer attackInc;
+
+    @TableField(exist = false)
+    private Integer defenseInc;
+
+    @TableField(exist = false)
+    private Integer speedInc;
+
+    /** 效果列表 */
+    @TableField(exist = false)
+    private List<SpriteEffectDo> effects;
+
+    /** 装备列表 */
+    @TableField(exist = false)
+    private List<ItemDo> equipments;
+
+    /**
+     * 以下是一些只放在缓存不放在数据库的字段
+     */
     @TableField(exist = false)
     private double vx;
 
