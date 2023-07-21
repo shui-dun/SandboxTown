@@ -39,13 +39,14 @@ export default {
             willingNumber: 0,
         };
     },
-    async mounted() {
+    mounted() {
         // 获得商品列表
-        await mixin.myGET('/rest/store/listByStore',
+        mixin.myGET('/rest/store/listByStore',
             new URLSearchParams({
                 store: this.storeId,
             }),
         ).then((goods) => {
+            let itemLst = [];
             goods.forEach((element) => {
                 let item = {};
                 item.id = element.itemType;
@@ -66,8 +67,10 @@ export default {
                 }
                 item.description = element.itemTypeObj.description;
                 item.content = element;                
-                this.items.push(item);
+                itemLst.push(item);
             });
+            // 好像只有通过为this.items赋值才能触发GridPanel的更新（this.$watch），而通过this.items.push()不行
+            this.items = itemLst;
         });
     },
     methods: {

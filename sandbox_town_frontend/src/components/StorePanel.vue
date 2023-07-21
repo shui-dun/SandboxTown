@@ -5,7 +5,7 @@
                 <StoreBuy :storeId="storeId" />
             </template>
             <template v-slot:1>
-                <StoreSold :storeId="storeId" />
+                <StoreSell :storeId="storeId" />
             </template>
         </NavGroup>
 
@@ -15,7 +15,7 @@
 <script>
 import NavGroup from './NavGroup.vue';
 import StoreBuy from './StoreBuy.vue';
-import StoreSold from './StoreSold.vue';
+import StoreSell from './StoreSell.vue';
 
 export default {
     props: {
@@ -27,7 +27,7 @@ export default {
     components: {
         NavGroup,
         StoreBuy,
-        StoreSold,
+        StoreSell,
     },
     data() {
         return {

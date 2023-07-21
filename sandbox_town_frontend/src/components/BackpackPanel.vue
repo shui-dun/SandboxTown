@@ -53,7 +53,7 @@ export default {
         flush() {
             // 从后端获取玩家物品信息
             mixin.myGET('/rest/item/listMyItemsInBackpack', null, (data) => {
-                this.items = [];
+                let itemLst = [];
                 // 重命名物品的属性名
                 data.forEach((element) => {
                     let item = {};
@@ -76,8 +76,9 @@ export default {
                     item.description = element.itemTypeObj.description;
                     item.content = element;
                     // 将用户物品信息添加到items
-                    this.items.push(item);
+                    itemLst.push(item);
                 });
+                this.items = itemLst;
             });
         },
     },

@@ -43,6 +43,7 @@ export default {
         // 获得商品列表
         await mixin.myGET('/rest/item/listMyItemsInBackpack',
         ).then((itemsInBackpack) => {
+            let itemLst = [];
             itemsInBackpack.forEach((element) => {
                 let item = {};
                 item.id = element.id;
@@ -64,8 +65,9 @@ export default {
                 item.description = element.itemTypeObj.description;
                 item.content = element;
                 // 将用户物品信息添加到items
-                this.items.push(item);
+                itemLst.push(item);
             });
+            this.items = itemLst;
         });
     },
     methods: {
