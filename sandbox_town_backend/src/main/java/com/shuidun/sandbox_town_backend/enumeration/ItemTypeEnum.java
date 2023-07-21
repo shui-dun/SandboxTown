@@ -10,5 +10,6 @@ public enum ItemTypeEnum {
     INVISIBLE_CAP,
     LEATHER_CHEST_ARMOR,
     SAW,
-    STICK;
+    STICK,
+    BONE;
 }

@@ -165,7 +165,8 @@ VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
        ('INVISIBLE_CAP', '隐身帽', '藏匿无影', 280, 3, 50),
        ('LEATHER_CHEST_ARMOR', '皮质盔甲', '提供基础的防御', 40, 16, 25),
        ('SAW', '锯子', '伐木的好帮手', 30, 40, 30),
-       ('STICK', '木棍', '基础的攻击武器', 22, 40, 40);
+       ('STICK', '木棍', '基础的攻击武器', 22, 40, 40),
+       ('BONE', '骨头', '狗狗的最爱', 20, 10, -1);
 
 # 物品标签表
 create table item_type_label
@@ -250,7 +251,8 @@ values ('BREAD', 'USE', 0, 0, 0, 10, 0, 0, 0, 0),
        ('APPLE', 'USE', 0, 4, 0, 4, 0, 0, 0, 0),
        ('LEATHER_CHEST_ARMOR', 'EQUIP', 0, 0, 0, 0, 0, 0, 5, 0),
        ('SAW', 'HANDHELD', 0, 0, 0, 0, 0, 10, 0, 0),
-       ('STICK', 'HANDHELD', 0, 0, 0, 0, 0, 5, 0, 0);
+       ('STICK', 'HANDHELD', 0, 0, 0, 0, 0, 5, 0, 0),
+       ('BONE', 'HANDHELD', 0, 0, 0, 0, 0, 7, 0, 0);
 
 
 # 装备物品后对对角色带来的特殊效果
@@ -297,17 +299,18 @@ values ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('APPLE_hdjfdjeio', 'USER_xixi', 'APPLE', 5, 100, 1, 'BACKPACK'),
        ('TREASURE_CHEST_ixdiue', 'USER_xixi', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK'),
        ('SAW_jhdfiu', 'USER_xixi', 'SAW', 1, 100, 1, 'BACKPACK'),
-       ('APPLE_deiedk', 'USER_xixi', 'APPLE', 5, 100, 1, 'ITEMBAR'),
        ('SAW_sdaajhdfiu', 'USER_xixi', 'SAW', 1, 100, 1, 'HANDHELD'),
        ('LEATHER_CHEST_ARMOR_saeeiffkdlf', 'USER_xixi', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'BACKPACK'),
        ('LEATHER_CHEST_ARMOR_dkfjeiffkdlf', 'USER_xixi', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST'),
+       ('BONE_djkfisefksldfldifdj', 'USER_xixi', 'BONE', 4, 100, 1, 'BACKPACK'),
        ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('APPLE_hdjfdjedfio', 'USER_haha', 'APPLE', 5, 100, 1, 'BACKPACK'),
        ('TREASURE_CHEST_ixdiudfdfde', 'USER_haha', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK'),
        ('SAW_jhdfdfddffiu', 'USER_haha', 'SAW', 1, 100, 1, 'BACKPACK'),
        ('SAW_sdaajhdfdfddffiu', 'USER_haha', 'SAW', 1, 100, 1, 'HANDHELD'),
        ('LEATHER_CHEST_ARMOR_saeeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'BACKPACK'),
-       ('LEATHER_CHEST_ARMOR_dkfjeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST');
+       ('LEATHER_CHEST_ARMOR_dkfjeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST'),
+       ('BONE_djkfisefkeddgsldfldifdj', 'USER_haha', 'BONE', 4, 100, 1, 'BACKPACK');
 
 
 # 创建建筑类型表
