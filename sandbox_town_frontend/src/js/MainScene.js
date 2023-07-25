@@ -477,23 +477,6 @@ class MainScene extends Phaser.Scene {
         for (let id in this.id2gameObject) {
             this.setDepth(this.id2gameObject[id]);
         }
-        // 根据方向键输入更新角色速度
-        let me = this.id2gameObject[this.myUsername];
-        let speed = this.id2spriteInfo[this.myUsername].speed;
-        if (this.cursors.left.isDown) {
-            me.setVelocityX(-speed);
-        } else if (this.cursors.right.isDown) {
-            me.setVelocityX(speed);
-        } else {
-            me.setVelocityX(0);
-        }
-        if (this.cursors.up.isDown) {
-            me.setVelocityY(-speed);
-        } else if (this.cursors.down.isDown) {
-            me.setVelocityY(speed);
-        } else {
-            me.setVelocityY(0);
-        }
     }
 }
 
