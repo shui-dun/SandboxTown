@@ -415,7 +415,8 @@ public class SpriteService {
                 ItemLabelEnum.HELMET, ItemLabelEnum.CHEST,
                 ItemLabelEnum.LEG, ItemLabelEnum.BOOTS);
         // 判断该物品是否已经装备
-        if (equipmentPositions.contains(item.getPosition())) {
+        ItemPositionEnum originalPosition = item.getPosition();
+        if (equipmentPositions.contains(originalPosition)) {
             return responses;
         }
         // 判断该物品是否是装备（判断labels是否包含数组equipmentLabels的任一元素）
@@ -438,6 +439,11 @@ public class SpriteService {
         // 将该物品装备
         item.setPosition(itemPosition);
         itemMapper.updateById(item);
+
+        // 如果原先在物品栏，发射物品栏通知
+        if (originalPosition == ItemPositionEnum.ITEMBAR || originalPosition == ItemPositionEnum.HANDHELD) {
+            responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
+        }
 
         return responses;
     }

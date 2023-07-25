@@ -37,8 +37,8 @@ public class SpriteScheduler {
                 if (GameCache.random.nextDouble() < 0.5) {
                     return null;
                 }
-                double randomVx = sprite.getSpeed() * (Math.random() - 0.5);
-                double randomVy = sprite.getSpeed() * (Math.random() - 0.5);
+                double randomVx = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
+                double randomVy = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
                 WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
                         sprite.getId(),
                         sprite.getX(),
@@ -76,7 +76,7 @@ public class SpriteScheduler {
                 // 发送移动消息
                 WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
                         sprite.getId(),
-                        sprite.getSpeed(),
+                        sprite.getSpeed() + sprite.getSpeedInc(),
                         DataCompressor.compressPath(path),
                         null
                 )));

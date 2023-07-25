@@ -252,7 +252,8 @@ values ('BREAD', 'USE', 0, 0, 0, 10, 0, 0, 0, 0),
        ('LEATHER_CHEST_ARMOR', 'EQUIP', 0, 0, 0, 0, 0, 0, 5, 0),
        ('SAW', 'HANDHELD', 0, 0, 0, 0, 0, 10, 0, 0),
        ('STICK', 'HANDHELD', 0, 0, 0, 0, 0, 5, 0, 0),
-       ('BONE', 'HANDHELD', 0, 0, 0, 0, 0, 7, 0, 0);
+       ('BONE', 'HANDHELD', 0, 0, 0, 0, 0, 7, 0, 0),
+       ('FLYING_BOOTS', 'EQUIP', 0, 0, 0, 0, 0, 0, 0, 10);
 
 
 # 装备物品后对对角色带来的特殊效果
@@ -302,6 +303,7 @@ values ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('SAW_sdaajhdfiu', 'USER_xixi', 'SAW', 1, 100, 1, 'HANDHELD'),
        ('LEATHER_CHEST_ARMOR_saeeiffkdlf', 'USER_xixi', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'BACKPACK'),
        ('LEATHER_CHEST_ARMOR_dkfjeiffkdlf', 'USER_xixi', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST'),
+       ('FLYING_BOOTS_dkfjeiffkdlf', 'USER_xixi', 'FLYING_BOOTS', 1, 100, 1, 'BOOTS'),
        ('BONE_djkfisefksldfldifdj', 'USER_xixi', 'BONE', 4, 100, 1, 'BACKPACK'),
        ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('APPLE_hdjfdjedfio', 'USER_haha', 'APPLE', 5, 100, 1, 'BACKPACK'),
@@ -310,6 +312,7 @@ values ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('SAW_sdaajhdfdfddffiu', 'USER_haha', 'SAW', 1, 100, 1, 'HANDHELD'),
        ('LEATHER_CHEST_ARMOR_saeeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'BACKPACK'),
        ('LEATHER_CHEST_ARMOR_dkfjeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST'),
+       ('FLYING_BOOTS_dkfjeidfeffkdlf', 'USER_haha', 'FLYING_BOOTS', 1, 100, 1, 'BOOTS'),
        ('BONE_djkfisefkeddgsldfldifdj', 'USER_haha', 'BONE', 4, 100, 1, 'BACKPACK');
 
 

@@ -103,6 +103,7 @@ public class WSRequestHandler {
             spriteCache.setVx(0);
             spriteCache.setVy(0);
             // 更新玩家的找到的路径
+            var sprite = spriteService.selectByIdWithEquipmentsAndIncAndEffect(initiator);
             // TODO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
             List<Point> path = gameMapService.findPath(
                     data.getX0(), data.getY0(), data.getX1(), data.getY1(), (int) (150 * 0.65), (int) (150 * 0.75),
@@ -120,7 +121,7 @@ public class WSRequestHandler {
             // 通知玩家移动
             WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
                     initiator,
-                    spriteService.selectById(initiator).getSpeed(),
+                    sprite.getSpeed() + sprite.getSpeedInc(),
                     DataCompressor.compressPath(path),
                     data.getDestId()
             )));
