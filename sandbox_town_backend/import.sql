@@ -167,7 +167,10 @@ VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
        ('SAW', '锯子', '伐木的好帮手', 30, 40, 30),
        ('STICK', '木棍', '基础的攻击武器', 22, 40, 40),
        ('BONE', '骨头', '狗狗的最爱', 20, 10, -1),
-       ('IRON_HELMET', '铁质头盔', '坚固耐用,能够抵挡强力击打', 70, 10, 40);
+       ('IRON_HELMET', '铁质头盔', '坚固耐用,能够抵挡强力击打', 70, 10, 40),
+       ('PHOENIX_FEATHER', '凤凰之羽', '凤凰的羽毛具有无比强大的治愈作用', 100, 4, -1),
+       ('HOLY_GRAIL', '圣杯', '使疲惫的肉体重获新生, 伤痕累累的灵魂也得到洗涤与救赎', 240, 2, 100),
+       ('FLAME_LEGGINGS', '火焰护腿', '每一步都踏着烈焰,将敌人化为灰烬', 70, 12, 40);
 
 # 物品标签表
 create table item_type_label
@@ -188,7 +191,9 @@ values ('BREAD', 'FOOD'),
        ('LEATHER_CHEST_ARMOR', 'CHEST'),
        ('SAW', 'WEAPON'),
        ('STICK', 'WEAPON'),
-       ('IRON_HELMET', 'HELMET');
+       ('IRON_HELMET', 'HELMET'),
+       ('PHOENIX_FEATHER', 'USABLE'),
+       ('FLAME_LEGGINGS', 'LEG');
 
 # 创建效果表
 create table effect
@@ -201,7 +206,9 @@ create table effect
 
 INSERT INTO effect (id, name, description)
 VALUES ('NOTHINGNESS', '虚无', '虚无的存在，难以被攻击'),
-       ('LIFE', '生命', '生命，能够治愈伤口');
+       ('LIFE', '生命', '丰盛的生命，持续治愈伤口'),
+       ('BURN', '烧伤', '烧伤，收到持续性的伤害'),
+       ('FLAME_BODY', '火焰护体', '以熊熊烈火包裹自身,烧尽一切邪恶');
 
 # 角色的效果列表
 # 只包含使用物品带来的效果以及其过期时间，装备的效果自己去查
@@ -256,7 +263,9 @@ values ('BREAD', 'USE', 0, 0, 0, 10, 0, 0, 0, 0),
        ('STICK', 'HANDHELD', 0, 0, 0, 0, 0, 5, 0, 0),
        ('BONE', 'HANDHELD', 0, 0, 0, 0, 0, 7, 0, 0),
        ('FLYING_BOOTS', 'EQUIP', 0, 0, 0, 0, 0, 0, 0, 10),
-       ('IRON_HELMET', 'EQUIP', 0, 0, 0, 0, 0, 0, 12, 0);
+       ('IRON_HELMET', 'EQUIP', 0, 0, 0, 0, 0, 0, 12, 0),
+       ('HOLY_GRAIL', 'HANDHELD', 0, 0, 0, 5, 0, 5, 5, 5),
+       ('FLAME_LEGGINGS', 'EQUIP', 0, 0, 0, 0, 0, 3, 7, 0);
 
 
 # 装备物品后对对角色带来的特殊效果
@@ -264,7 +273,7 @@ values ('BREAD', 'USE', 0, 0, 0, 10, 0, 0, 0, 0),
 create table item_type_effect
 (
     item_type varchar(255) not null,
-    # 进行什么操作，例如装备、使用等
+    # 进行什么操作，装备（EQUIP）、使用（USE）、或手持（HANDHELD）
     operation varchar(255) not null,
     effect    varchar(255) not null,
     # 持续时间（秒）
@@ -276,9 +285,9 @@ create table item_type_effect
 );
 
 insert into item_type_effect(item_type, operation, effect, duration)
-values ('BREAD', 'USE', 'LIFE', 10),
-       ('APPLE', 'USE', 'LIFE', 10),
-       ('APPLE', 'HANDHELD', 'LIFE', 1);
+values ('PHOENIX_FEATHER', 'USE', 'LIFE', 90),
+       ('HOLY_GRAIL', 'HANDHELD', 'LIFE', -1),
+       ('FLAME_LEGGINGS', 'EQUIP', 'FLAME_BODY', -1);
 
 
 # 创建物品表
@@ -299,7 +308,16 @@ create table item
 );
 
 insert into item(id, owner, item_type, item_count, life, level, position)
-values ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
+values ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
+       ('APPLE_hdjfdjedfio', 'USER_haha', 'APPLE', 5, 100, 1, 'BACKPACK'),
+       ('TREASURE_CHEST_ixdiudfdfde', 'USER_haha', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK'),
+       ('SAW_jhdfdfddffiu', 'USER_haha', 'SAW', 1, 100, 1, 'BACKPACK'),
+       ('SAW_sdaajhdfdfddffiu', 'USER_haha', 'SAW', 1, 100, 1, 'HANDHELD'),
+       ('LEATHER_CHEST_ARMOR_saeeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'BACKPACK'),
+       ('LEATHER_CHEST_ARMOR_dkfjeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST'),
+       ('FLYING_BOOTS_dkfjeidfeffkdlf', 'USER_haha', 'FLYING_BOOTS', 1, 100, 1, 'BOOTS'),
+       ('BONE_djkfisefkeddgsldfldifdj', 'USER_haha', 'BONE', 4, 100, 1, 'BACKPACK'),
+       ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('APPLE_hdjfdjeio', 'USER_xixi', 'APPLE', 5, 100, 1, 'BACKPACK'),
        ('TREASURE_CHEST_ixdiue', 'USER_xixi', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK'),
        ('SAW_jhdfiu', 'USER_xixi', 'SAW', 1, 100, 1, 'BACKPACK'),
@@ -309,19 +327,13 @@ values ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('FLYING_BOOTS_dkfjeiffkdlf', 'USER_xixi', 'FLYING_BOOTS', 1, 100, 1, 'BOOTS'),
        ('BONE_djkfisefksldfldifdj', 'USER_xixi', 'BONE', 4, 100, 1, 'BACKPACK'),
        ('IRON_HELMET_dkdcclkdfded', 'USER_xixi', 'IRON_HELMET', 1, 100, 1, 'BACKPACK'),
-       ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
-       ('APPLE_hdjfdjedfio', 'USER_haha', 'APPLE', 5, 100, 1, 'BACKPACK'),
-       ('TREASURE_CHEST_ixdiudfdfde', 'USER_haha', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK'),
-       ('SAW_jhdfdfddffiu', 'USER_haha', 'SAW', 1, 100, 1, 'BACKPACK'),
-       ('SAW_sdaajhdfdfddffiu', 'USER_haha', 'SAW', 1, 100, 1, 'HANDHELD'),
-       ('LEATHER_CHEST_ARMOR_saeeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'BACKPACK'),
-       ('LEATHER_CHEST_ARMOR_dkfjeiffkdfdlf', 'USER_haha', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST'),
-       ('FLYING_BOOTS_dkfjeidfeffkdlf', 'USER_haha', 'FLYING_BOOTS', 1, 100, 1, 'BOOTS'),
-       ('BONE_djkfisefkeddgsldfldifdj', 'USER_haha', 'BONE', 4, 100, 1, 'BACKPACK');
+       ('PHOENIX_FEATHER_dkdcclkdfded', 'USER_xixi', 'PHOENIX_FEATHER', 1, 100, 1, 'BACKPACK'),
+       ('FLAME_LEGGINGS_dkdcclkdfded', 'USER_xixi', 'FLAME_LEGGINGS', 1, 100, 1, 'BACKPACK'),
+       ('HOLY_GRAIL_dkdcclkdfded', 'USER_xixi', 'HOLY_GRAIL', 1, 100, 1, 'BACKPACK');
 
 
 # 创建建筑类型表
-CREATE TABLE building_type
+    CREATE TABLE building_type
 (
     # 建筑的类型，例如store
     id           VARCHAR(255) NOT NULL PRIMARY KEY,

@@ -12,5 +12,8 @@ public enum ItemTypeEnum {
     SAW,
     STICK,
     BONE,
-    IRON_HELMET;
+    IRON_HELMET,
+    PHOENIX_FEATHER,
+    HOLY_GRAIL,
+    FLAME_LEGGINGS;
 }
