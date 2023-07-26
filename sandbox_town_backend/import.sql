@@ -166,7 +166,8 @@ VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
        ('LEATHER_CHEST_ARMOR', '皮质盔甲', '提供基础的防御', 40, 16, 25),
        ('SAW', '锯子', '伐木的好帮手', 30, 40, 30),
        ('STICK', '木棍', '基础的攻击武器', 22, 40, 40),
-       ('BONE', '骨头', '狗狗的最爱', 20, 10, -1);
+       ('BONE', '骨头', '狗狗的最爱', 20, 10, -1),
+       ('IRON_HELMET', '铁质头盔', '坚固耐用,能够抵挡强力击打', 70, 10, 40);
 
 # 物品标签表
 create table item_type_label
@@ -186,7 +187,8 @@ values ('BREAD', 'FOOD'),
        ('INVISIBLE_CAP', 'HELMET'),
        ('LEATHER_CHEST_ARMOR', 'CHEST'),
        ('SAW', 'WEAPON'),
-       ('STICK', 'WEAPON');
+       ('STICK', 'WEAPON'),
+       ('IRON_HELMET', 'HELMET');
 
 # 创建效果表
 create table effect
@@ -253,7 +255,8 @@ values ('BREAD', 'USE', 0, 0, 0, 10, 0, 0, 0, 0),
        ('SAW', 'HANDHELD', 0, 0, 0, 0, 0, 10, 0, 0),
        ('STICK', 'HANDHELD', 0, 0, 0, 0, 0, 5, 0, 0),
        ('BONE', 'HANDHELD', 0, 0, 0, 0, 0, 7, 0, 0),
-       ('FLYING_BOOTS', 'EQUIP', 0, 0, 0, 0, 0, 0, 0, 10);
+       ('FLYING_BOOTS', 'EQUIP', 0, 0, 0, 0, 0, 0, 0, 10),
+       ('IRON_HELMET', 'EQUIP', 0, 0, 0, 0, 0, 0, 12, 0);
 
 
 # 装备物品后对对角色带来的特殊效果
@@ -305,6 +308,7 @@ values ('BREAD_jhdfiu', 'USER_xixi', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('LEATHER_CHEST_ARMOR_dkfjeiffkdlf', 'USER_xixi', 'LEATHER_CHEST_ARMOR', 1, 100, 1, 'CHEST'),
        ('FLYING_BOOTS_dkfjeiffkdlf', 'USER_xixi', 'FLYING_BOOTS', 1, 100, 1, 'BOOTS'),
        ('BONE_djkfisefksldfldifdj', 'USER_xixi', 'BONE', 4, 100, 1, 'BACKPACK'),
+       ('IRON_HELMET_dkdcclkdfded', 'USER_xixi', 'IRON_HELMET', 1, 100, 1, 'BACKPACK'),
        ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('APPLE_hdjfdjedfio', 'USER_haha', 'APPLE', 5, 100, 1, 'BACKPACK'),
        ('TREASURE_CHEST_ixdiudfdfde', 'USER_haha', 'TREASURE_CHEST', 1, 100, 1, 'BACKPACK'),

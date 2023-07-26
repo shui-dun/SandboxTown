@@ -11,5 +11,6 @@ public enum ItemTypeEnum {
     LEATHER_CHEST_ARMOR,
     SAW,
     STICK,
-    BONE;
+    BONE,
+    IRON_HELMET;
 }
