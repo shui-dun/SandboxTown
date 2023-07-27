@@ -17,5 +17,9 @@ public class SpriteEffectDo {
 
     private EffectEnum effect;
 
-    private Integer expire;
+    private Integer duration;
+
+    private Long expire;
+
+    private EffectDo effectObj;
 }

@@ -214,10 +214,12 @@ VALUES ('NOTHINGNESS', '虚无', '虚无的存在，难以被攻击'),
 # 只包含使用物品带来的效果以及其过期时间，装备的效果自己去查
 create table sprite_effect
 (
-    sprite VARCHAR(255) NOT NULL,
-    effect VARCHAR(255) NOT NULL,
-    # 效果的过期时间（1970年1月1日至今的毫秒数）
-    expire BIGINT       NOT NULL,
+    sprite   VARCHAR(255) NOT NULL,
+    effect   VARCHAR(255) NOT NULL,
+    # 效果的总持续时间（单位是秒，而不是毫秒，-1表示永久）
+    duration INT       NOT NULL DEFAULT 0,
+    # 效果的过期时间（1970年1月1日至今的毫秒数，-1表示永久）
+    expire   BIGINT       NOT NULL,
     primary key (sprite, effect),
     CONSTRAINT fk_sprite_effect_sprite FOREIGN KEY (sprite) REFERENCES sprite (id),
     CONSTRAINT fk_sprite_effect_effect FOREIGN KEY (effect) REFERENCES effect (id)

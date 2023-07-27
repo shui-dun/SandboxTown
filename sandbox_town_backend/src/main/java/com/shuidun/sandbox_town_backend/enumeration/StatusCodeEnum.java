@@ -3,8 +3,8 @@ package com.shuidun.sandbox_town_backend.enumeration;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
 @AllArgsConstructor
+@Getter
 public enum StatusCodeEnum {
     SUCCESS(0, "成功"),
     USER_NOT_EXIST(1, "用户不存在"),

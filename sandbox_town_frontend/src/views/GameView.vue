@@ -6,6 +6,7 @@
     </SpritePanel>
     <ItemBar />
     <TimePhase />
+    <EffectList />
     <StorePanel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation" :storeId="currentStoreID"></StorePanel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
     <ProcessBar v-if="showProcessBar" :duration="processBarDuration" :text="processBarText"
@@ -21,6 +22,7 @@ import StorePanel from '@/components/StorePanel.vue';
 import ProcessBar from '@/components/ProcessBar.vue';
 import ItemBar from '@/components/ItemBar.vue';
 import TimePhase from '@/components/TimePhase.vue';
+import EffectList from '@/components/EffectList.vue';
 import mixin from "@/js/mixin.js";
 
 
@@ -34,6 +36,7 @@ export default {
         ProcessBar,
         ItemBar,
         TimePhase,
+        EffectList,
     },
     props: {
     },

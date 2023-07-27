@@ -10,7 +10,7 @@
         </svg>
         <div class="my-tip">
             <h5>{{ title }}</h5>
-            <p v-if="durationMills != -1">{{ remainTime }}/{{ durationMills / 1000 }}s</p>
+            <p v-if="endTimeMills != -1">{{ remainTime }}/{{ durationMills / 1000 }}s</p>
             <p v-if="description.length > 0"> {{ description }} </p>
         </div>
     </div>
@@ -50,7 +50,7 @@ export default {
         };
     },
     mounted() {
-        if (this.durationMills != -1) {
+        if (this.endTimeMills != -1) {
             // 更新剩余时间
             this.calcRemain();
             // 更新进度条比例

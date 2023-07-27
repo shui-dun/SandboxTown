@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /** 客户端向服务器发送的事件类型 */
-@AllArgsConstructor
-@Getter
 public enum WSRequestEnum {
     /** 下线 */
     OFFLINE,

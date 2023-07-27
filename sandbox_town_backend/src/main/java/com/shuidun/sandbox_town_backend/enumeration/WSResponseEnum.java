@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /** 服务器向客户端发送的事件类型 */
-@Getter
-@AllArgsConstructor
 public enum WSResponseEnum {
     /** 更新坐标 */
     COORDINATE,
@@ -21,4 +19,6 @@ public enum WSResponseEnum {
     ITEM_BAR_NOTIFY,
     /** 精灵属性变化通知 */
     SPRITE_ATTRIBUTE_CHANGE,
+    /** 精灵效果变化通知 */
+    SPRITE_EFFECT_CHANGE,
 }
