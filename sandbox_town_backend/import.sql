@@ -64,9 +64,9 @@ VALUES ('1', 'Ⅰ', 4000, 3000, 32784924),
 # 创建角色类型表
 CREATE TABLE sprite_type
 (
-    # 角色类型，比如 user, dog, cat, spider
+    # 角色类型
     type          VARCHAR(255) NOT NULL PRIMARY KEY,
-    # 角色名称，比如 玩家，狗狗，猫咪，蜘蛛
+    # 角色名称
     name          VARCHAR(255) NOT NULL,
     description   VARCHAR(255) NOT NULL,
     # 注意这个价格只是参考价格，各个商店会有上下波动
@@ -169,7 +169,7 @@ VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
        ('BONE', '骨头', '狗狗的最爱', 20, 10, -1),
        ('IRON_HELMET', '铁质头盔', '坚固耐用,能够抵挡强力击打', 70, 10, 40),
        ('PHOENIX_FEATHER', '凤凰之羽', '凤凰的羽毛具有无比强大的治愈作用', 100, 4, -1),
-       ('HOLY_GRAIL', '圣杯', '使疲惫的肉体重获新生, 伤痕累累的灵魂也得到洗涤与救赎', 240, 2, 100),
+       ('HOLY_GRAIL', '圣杯', '使疲惫的灵魂和肉体重获新生', 240, 2, 100),
        ('FLAME_LEGGINGS', '火焰护腿', '每一步都踏着烈焰,将敌人化为灰烬', 70, 12, 40);
 
 # 物品标签表
@@ -333,7 +333,7 @@ values ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
 
 
 # 创建建筑类型表
-    CREATE TABLE building_type
+CREATE TABLE building_type
 (
     # 建筑的类型，例如store
     id           VARCHAR(255) NOT NULL PRIMARY KEY,
