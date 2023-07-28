@@ -1,11 +1,18 @@
 <template>
     <div class="grey-bg">
         <div class="popup-panel">
-            <div class="popup-panel-header">
-                <!-- 物品名称 -->
-                <p>{{ (item == null) ? '' : item.itemTypeObj.name }}</p>
+            <div class="popup-panel-main">
+                <div>
+                    <div class="popup-panel-header">
+                        <!-- 物品名称 -->
+                        <p>{{ (item == null) ? '' : item.itemTypeObj.name }}</p>
+                    </div>
+                    <div class="popup-panel-content">{{ (item == null) ? '' : item.itemTypeObj.description }}</div>
+                </div>
+                <div>
+                    <img width="150" :src="(item == null) ? '' : item.image" />
+                </div>
             </div>
-            <div class="popup-panel-content">{{ (item == null) ? '' : item.itemTypeObj.description }}</div>
             <h4 v-if="basicInfo.length > 0">基本信息</h4>
             <ListPanel v-if="basicInfo.length > 0" :items="basicInfo" />
             <h4 v-if="useInfo.length > 0">使用效果</h4>
@@ -120,6 +127,8 @@ export default {
     },
     async created() { // created比mounted先执行
         this.item = await mixin.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
+        // 设置图片
+        this.item.image = require(`@/assets/img/${this.item.itemType}.png`);
         let equipList = ['HELMET', 'CHEST', 'LEG', 'BOOTS'];
         // 判断位置是否在背包
         if (this.item.position == 'BACKPACK') {
@@ -143,7 +152,7 @@ export default {
         this.canUse = this.item.itemTypeObj.labels.includes('FOOD') || this.item.itemTypeObj.labels.includes('USABLE');
         this.basicInfo = [
             { key: '🔢 数目', value: this.item.itemCount },
-            { key: '⭐ 等级', value: this.item.level },
+            { key: '🚀 等级', value: this.item.level },
         ]
         // 如果耐久度不为-1，说明有寿命，需要显示耐久度以及寿命
         if (this.item.itemTypeObj.durability != -1) {
@@ -219,6 +228,18 @@ export default {
     max-width: 600px;
 }
 
+.popup-panel-main {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .popup-panel-header {
     font-size: 28px;
     font-weight: bold;
@@ -229,6 +250,7 @@ export default {
     font-size: 18px;
     color: #333;
     margin-bottom: 20px;
+    min-width: 200px;
 }
 
 .button-group {
@@ -237,7 +259,7 @@ export default {
 }
 
 .button-group button {
-    margin-top: 20px;
+    margin-top: 5px;
     padding-left: 15px;
     padding-right: 15px;
     padding-top: 7px;

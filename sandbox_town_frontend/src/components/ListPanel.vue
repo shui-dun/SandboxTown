@@ -1,13 +1,14 @@
 <template>
-    <div>
-        <table class="custom-table">
-            <tbody>
-                <tr v-for="item in items" :key='item.key' :id="'tr-' + item.key">
-                    <td v-if="item.value !== undefined">{{ item.key }}</td>
-                    <td v-if="item.value !== undefined">{{ item.value }}</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="row custom-table">
+        <div :class="{ 'col-6': item.value.toString().length < 10, 'col-12': item.value.toString().length >= 10 }"
+            v-for="item in filteredItems" :key='item.key' :id="'tr-' + item.key">
+            <div class="row">
+                <div style="display: flex;">
+                    <div style="margin-right: 0px; width: 100px;">{{ item.key }}</div>
+                    <div>{{ item.value }}</div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 <script>
@@ -18,29 +19,23 @@ export default {
             required: true,
         },
     },
+    computed: {
+        // computed定义的方法，只有相关依赖发生改变时才会去调用
+        filteredItems() {
+            // 过滤掉value不存在的项
+            return this.items.filter((item) => item.value != null);
+        },
+    },
 };
 </script>
 <style scoped>
 .custom-table {
     margin-top: 5px;
     margin-bottom: 5px;
-    table-layout: fixed;
 }
 
-.custom-table th,
-.custom-table td {
-    padding-bottom: 10px;
-    padding-right: 30px;
-    text-align: left;
+.custom-table div {
     word-wrap: break-word;
-}
-
-.custom-table td:first-child  {
-    min-width: 120px;
-}
-
-.custom-table td:last-child  {
-    min-width: 120px;
-    padding-right: 30px;
+    margin-bottom: 3px;
 }
 </style>

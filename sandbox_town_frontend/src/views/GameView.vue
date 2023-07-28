@@ -4,10 +4,10 @@
     <SpritePanel v-if="attributeListOpened" :itemName="itemNameOfSpritePanel" @close="closeSpritePanel"
         @mousedown="preventMousedownPropagation">
     </SpritePanel>
-    <ItemBar />
+    <ItemBar @mousedown="preventMousedownPropagation" />
     <TimePhase />
     <EffectList />
-    <ApplePicking />
+    <ApplePicking @mousedown="preventMousedownPropagation" />
     <StorePanel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation" :storeId="currentStoreID"></StorePanel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
 </template>
