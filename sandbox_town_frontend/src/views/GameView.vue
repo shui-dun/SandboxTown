@@ -1,5 +1,5 @@
 <template>
-    <GameCanvas @showSpritePanel="attributeListShow" @showStore="storeShow" @processBarShow="onProcessBarShow($event)" />
+    <GameCanvas @showSpritePanel="attributeListShow" @showStore="storeShow" />
     <MyInfoPanel v-if="myInfoPanelOpened" @close="closeMyInfoPanel" @mousedown="preventMousedownPropagation" />
     <SpritePanel v-if="attributeListOpened" :itemName="itemNameOfSpritePanel" @close="closeSpritePanel"
         @mousedown="preventMousedownPropagation">
@@ -7,10 +7,9 @@
     <ItemBar />
     <TimePhase />
     <EffectList />
+    <ApplePicking />
     <StorePanel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation" :storeId="currentStoreID"></StorePanel>
     <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
-    <ProcessBar v-if="showProcessBar" :duration="processBarDuration" :text="processBarText"
-        :progressCompleteEvent="EventOfProgressComplete" @progressComplete="onProgressComplete" />
 </template>
 
 <script>
@@ -19,10 +18,10 @@ import FloatingButton from '@/components/FloatingButton.vue';
 import MyInfoPanel from '@/components/MyInfoPanel.vue';
 import SpritePanel from '@/components/SpritePanel.vue';
 import StorePanel from '@/components/StorePanel.vue';
-import ProcessBar from '@/components/ProcessBar.vue';
 import ItemBar from '@/components/ItemBar.vue';
 import TimePhase from '@/components/TimePhase.vue';
 import EffectList from '@/components/EffectList.vue';
+import ApplePicking from '@/components/ApplePicking.vue';
 import mixin from "@/js/mixin.js";
 
 
@@ -33,10 +32,10 @@ export default {
         MyInfoPanel,
         SpritePanel,
         StorePanel,
-        ProcessBar,
         ItemBar,
         TimePhase,
         EffectList,
+        ApplePicking,
     },
     props: {
     },
@@ -45,11 +44,6 @@ export default {
             myInfoPanelOpened: false,
             attributeListOpened: false,
             storeOpened: false,
-            // 进度条相关设置
-            showProcessBar: false,
-            processBarDuration: 5,
-            processBarText: '加载中...',
-            EventOfProgressComplete: () => { },
             itemNameOfSpritePanel: '',
             currentStoreID: '',
         };
@@ -81,15 +75,7 @@ export default {
         preventMousedownPropagation(event) {
             event.stopPropagation();
         },
-        onProgressComplete() {
-            this.showProcessBar = false;
-        },
-        onProcessBarShow(event) {
-            this.processBarDuration = event.duration;
-            this.processBarText = event.text;
-            this.EventOfProgressComplete = event.progressCompleteEvent;
-            this.showProcessBar = true;
-        }
+        
     },
     computed: {
     },

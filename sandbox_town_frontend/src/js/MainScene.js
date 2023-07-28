@@ -353,31 +353,7 @@ class MainScene extends Phaser.Scene {
                     let type = destId.split("_", 2)[0];
                     let targetID = destId;
                     if (type === 'TREE') {
-                        // 首先询问后端，检查是否可以摘苹果
-                        mixin.myGET('/rest/tree/canPickApple',
-                            new URLSearchParams({
-                                treeId: targetID,
-                            }),
-                            () => {
-                                // 如果可以摘苹果，就触发摘苹果事件
-                                let msg = {
-                                    duration: 5,
-                                    text: '正在摘苹果...',
-                                    progressCompleteEvent: () => {
-                                        // 向后端发送摘苹果请求
-                                        mixin.myPOST('/rest/tree/pickApple',
-                                            new URLSearchParams({
-                                                treeId: targetID,
-                                            }),
-                                            () => {
-                                                mixin.fadeInfoShow('摘苹果成功');
-                                            },
-                                        );
-                                    },
-                                }
-                                this.game.events.emit('forward', { name: 'processBarShow', data: msg });
-                            }
-                        );
+                        emitter.emit('TREE_ARRIVE', { "initator": this.myUsername, "target": targetID });
                     } else if (type == 'STORE') {
                         this.game.events.emit('forward', { name: 'showStore', data: targetID });
                     }

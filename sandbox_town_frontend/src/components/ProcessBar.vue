@@ -21,14 +21,9 @@ export default {
             type: Number,
             default: 1000
         },
-        progressCompleteEvent: {
-            type: Function,
-            required: true
-        }
     },
     mounted() {
         setTimeout(() => {
-            this.progressCompleteEvent();
             this.$emit('progressComplete');
         }, this.duration * 1000);
     }
