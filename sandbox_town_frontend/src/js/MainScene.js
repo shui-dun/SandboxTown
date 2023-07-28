@@ -397,6 +397,7 @@ class MainScene extends Phaser.Scene {
                     }
                 },
                 onComplete: () => {
+                    this.id2tween[data.id] = null;
                     if (tween.isStopped) {
                         return;
                     }
@@ -453,22 +454,12 @@ class MainScene extends Phaser.Scene {
         for (let id in this.id2gameObject) {
             this.setDepth(this.id2gameObject[id]);
         }
-        // 根据方向键输入更新角色速度
-        let me = this.id2gameObject[this.myUsername];
-        let speed = this.id2spriteInfo[this.myUsername].speed;
-        if (this.cursors.left.isDown) {
-            me.setVelocityX(-speed);
-        } else if (this.cursors.right.isDown) {
-            me.setVelocityX(speed);
-        } else {
-            me.setVelocityX(0);
-        }
-        if (this.cursors.up.isDown) {
-            me.setVelocityY(-speed);
-        } else if (this.cursors.down.isDown) {
-            me.setVelocityY(speed);
-        } else {
-            me.setVelocityY(0);
+        // 对于所有进行补间动画的精灵，设置其速度为0，以避免补间动画的精灵碰撞到带有速度的精灵，补间动画的精灵会再也无法正常运动的bug
+        for (let id in this.id2gameObject) {
+            if (this.id2tween[id] != null) {
+                this.id2gameObject[id].setVelocityX(0);
+                this.id2gameObject[id].setVelocityY(0);
+            }
         }
     }
 }
