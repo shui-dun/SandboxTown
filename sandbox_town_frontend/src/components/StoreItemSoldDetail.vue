@@ -1,11 +1,8 @@
 <template>
     <div class="grey-bg">
         <div class="popup-panel">
-            <div class="popup-panel-header">
-                <!-- 物品名称 -->
-                <p>{{ (item == null) ? '' : item.itemTypeObj.name }}</p>
-            </div>
-            <div class="popup-panel-content">{{ (item == null) ? '' : item.itemTypeObj.description }}</div>
+            <BasicIntroduction v-if="item" :name="item.itemTypeObj.name" :description="item.itemTypeObj.description"
+                :image="item.image" />
             <h4 v-if="basicInfo.length > 0">基本信息</h4>
             <ListPanel v-if="basicInfo.length > 0" :items="basicInfo" />
             <h4 v-if="useInfo.length > 0">使用效果</h4>
@@ -36,11 +33,13 @@
 <script>
 import mixin from '@/js/mixin';
 import ListPanel from './ListPanel.vue';
+import BasicIntroduction from './BasicIntroduction.vue';
 
 
 export default {
     components: {
         ListPanel,
+        BasicIntroduction,
     },
     props: {
         storeId: {
@@ -102,6 +101,7 @@ export default {
     },
     async created() {
         this.item = await mixin.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
+        this.item.image = require(`@/assets/img/${this.item.itemType}.png`);
         // 评估能买多少钱
         this.soldPrice = await mixin.myGET("/rest/store/soldPrice", new URLSearchParams({ store: this.storeId, itemId: this.itemId }));
         this.basicInfo = [
@@ -182,18 +182,6 @@ export default {
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     max-width: 600px;
-}
-
-.popup-panel-header {
-    font-size: 28px;
-    font-weight: bold;
-    color: #333;
-}
-
-.popup-panel-content {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 20px;
 }
 
 .button-group {

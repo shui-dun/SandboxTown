@@ -1,21 +1,19 @@
 <template>
-    <div>
-        <NavGroup @close="$emit('close')">
-            <template v-slot:0>
-                <div style="max-width: 250px;">
-                    <h4>{{ id }}</h4>
-                    <div style="margin-bottom: 15px;">{{ description }}</div>
-                    <ListPanel :items="itemInfo" />
-                </div>
-            </template>
-        </NavGroup>
-    </div>
+    <NavGroup @close="$emit('close')">
+        <template v-slot:0>
+            <div style="max-width: 500px;">
+                <BasicIntroduction :name="id" :description="description" :image="image" />
+                <ListPanel :items="itemInfo" />
+            </div>
+        </template>
+    </NavGroup>
 </template>
 
 <script>
 import NavGroup from './NavGroup.vue';
 import ListPanel from './ListPanel.vue';
 import mixin from "@/js/mixin.js";
+import BasicIntroduction from './BasicIntroduction.vue';
 
 export default {
     props: {
@@ -27,6 +25,7 @@ export default {
     components: {
         NavGroup,
         ListPanel,
+        BasicIntroduction,
     },
     data() {
         return {
@@ -47,6 +46,7 @@ export default {
             id: '',
             // 介绍
             description: '',
+            image: '',
         };
     },
     async mounted() {
@@ -61,6 +61,7 @@ export default {
         }
         this.id = this.info.id;
         this.description = this.info.description;
+        this.image = require(`@/assets/img/${this.info.type}.png`);
         // 如果主人是用户，删掉前缀
         if (this.info.owner != null && this.info.owner.startsWith("USER_")) {
             this.info.owner = this.info.owner.split("_", 2)[1];

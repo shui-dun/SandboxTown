@@ -1,12 +1,8 @@
 <template>
     <div class="grey-bg">
         <div class="popup-panel">
-            <div class="popup-panel-header">
-                <!-- 物品名称 -->
-                <p>{{ (storeItemType == null) ? '' : storeItemType.itemTypeObj.name }}</p>
-            </div>
-            <div class="popup-panel-content">{{ (storeItemType == null) ? '' : storeItemType.itemTypeObj.description }}
-            </div>
+            <BasicIntroduction v-if="storeItemType" :name="storeItemType.itemTypeObj.name"
+                :description="storeItemType.itemTypeObj.description" :image="storeItemType.image" />
             <h4 v-if="basicInfo.length > 0">基本信息</h4>
             <ListPanel v-if="basicInfo.length > 0" :items="basicInfo" />
             <h4 v-if="useInfo.length > 0">使用效果</h4>
@@ -37,11 +33,13 @@
 <script>
 import mixin from '@/js/mixin';
 import ListPanel from './ListPanel.vue';
+import BasicIntroduction from './BasicIntroduction.vue';
 
 
 export default {
     components: {
         ListPanel,
+        BasicIntroduction
     },
     props: {
         storeId: {
@@ -100,6 +98,7 @@ export default {
     },
     async created() {
         this.storeItemType = await mixin.myGET("/rest/store/getByStoreAndItemType", new URLSearchParams({ store: this.storeId, itemType: this.itemType }));
+        this.storeItemType.image = require(`@/assets/img/${this.storeItemType.itemTypeObj.id}.png`);
         // 添加数目
         this.maxNumber = this.storeItemType.count;
         this.basicInfo.push({ key: '🔢 数目', value: this.maxNumber });
@@ -178,18 +177,6 @@ export default {
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     max-width: 600px;
-}
-
-.popup-panel-header {
-    font-size: 28px;
-    font-weight: bold;
-    color: #333;
-}
-
-.popup-panel-content {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 20px;
 }
 
 .button-group {

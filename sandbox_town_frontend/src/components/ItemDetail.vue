@@ -1,18 +1,8 @@
 <template>
     <div class="grey-bg">
         <div class="popup-panel">
-            <div class="popup-panel-main">
-                <div>
-                    <div class="popup-panel-header">
-                        <!-- 物品名称 -->
-                        <p>{{ (item == null) ? '' : item.itemTypeObj.name }}</p>
-                    </div>
-                    <div class="popup-panel-content">{{ (item == null) ? '' : item.itemTypeObj.description }}</div>
-                </div>
-                <div>
-                    <img width="150" :src="(item == null) ? '' : item.image" />
-                </div>
-            </div>
+            <BasicIntroduction v-if="item" :name="item.itemTypeObj.name" :description="item.itemTypeObj.description"
+                :image="item.image" />
             <h4 v-if="basicInfo.length > 0">基本信息</h4>
             <ListPanel v-if="basicInfo.length > 0" :items="basicInfo" />
             <h4 v-if="useInfo.length > 0">使用效果</h4>
@@ -36,12 +26,14 @@
 <script>
 import mixin from '@/js/mixin';
 import emitter from '@/js/mitt';
+import BasicIntroduction from './BasicIntroduction.vue';
 import ListPanel from './ListPanel.vue';
 
 
 export default {
     components: {
         ListPanel,
+        BasicIntroduction,
     },
     props: {
         itemId: {
@@ -226,31 +218,6 @@ export default {
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     max-width: 600px;
-}
-
-.popup-panel-main {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.popup-panel-header {
-    font-size: 28px;
-    font-weight: bold;
-    color: #333;
-}
-
-.popup-panel-content {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 20px;
-    min-width: 200px;
 }
 
 .button-group {
