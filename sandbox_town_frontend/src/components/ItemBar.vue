@@ -1,12 +1,14 @@
 <template>
-    <div class="item-bar">
-        <div v-for="(item, index) in items" :key="index" class="item" :class="{ selected: handheldItemIndex === index }"
-            @click="selectItem(index, item)" @contextmenu.prevent="emitClickEvent(index, item)">
-            <img :src="item.image" alt="item" />
+    <div>
+        <div class="item-bar">
+            <div v-for="(item, index) in items" :key="index" class="item" :class="{ selected: handheldItemIndex === index }"
+                @click="selectItem(index, item)" @contextmenu.prevent="emitClickEvent(index, item)">
+                <img :src="item.image" alt="item" />
+            </div>
         </div>
+        <ItemDetail v-if="selectedItemIndex !== null" :itemId="items[selectedItemIndex].id" @onConfirm="confirm"
+            @onCancel="cancel" />
     </div>
-    <ItemDetail v-if="selectedItemIndex !== null" :itemId="items[selectedItemIndex].id" @onConfirm="confirm"
-        @onCancel="cancel" />
 </template>
   
 <script>
@@ -48,7 +50,6 @@ export default {
                 return;
             }
             this.selectedItemIndex = index;
-            console.log(this.items[this.selectedItemIndex])
         },
         confirm() {
             this.selectedItemIndex = null;

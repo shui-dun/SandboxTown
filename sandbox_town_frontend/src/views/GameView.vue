@@ -1,15 +1,15 @@
 <template>
     <GameCanvas @showSpritePanel="attributeListShow" @showStore="storeShow" />
-    <MyInfoPanel v-if="myInfoPanelOpened" @close="closeMyInfoPanel" @mousedown="preventMousedownPropagation" />
+    <MyInfoPanel v-if="myInfoPanelOpened" @close="closeMyInfoPanel" @mousedown.stop />
     <SpritePanel v-if="attributeListOpened" :itemName="itemNameOfSpritePanel" @close="closeSpritePanel"
-        @mousedown="preventMousedownPropagation">
+        @mousedown.stop>
     </SpritePanel>
-    <ItemBar @mousedown="preventMousedownPropagation" />
+    <ItemBar @mousedown.stop />
     <TimePhase />
     <EffectList />
-    <ApplePicking @mousedown="preventMousedownPropagation" />
-    <StorePanel v-if="storeOpened" @close="closeStore" @mousedown="preventMousedownPropagation" :storeId="currentStoreID"></StorePanel>
-    <FloatingButton @click="clickBackpack" @mousedown="preventMousedownPropagation" />
+    <ApplePicking @mousedown.stop />
+    <StorePanel v-if="storeOpened" @close="closeStore" @mousedown.stop :storeId="currentStoreID"></StorePanel>
+    <FloatingButton @click="clickBackpack" @mousedown.stop />
 </template>
 
 <script>
@@ -70,10 +70,6 @@ export default {
         },
         closeStore() {
             this.storeOpened = false;
-        },
-
-        preventMousedownPropagation(event) {
-            event.stopPropagation();
         },
         
     },
