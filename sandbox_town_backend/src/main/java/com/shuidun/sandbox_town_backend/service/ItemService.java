@@ -168,7 +168,7 @@ public class ItemService {
     /**
      * 根据主人查询装备栏中的物品（带有物品类型信息、标签信息、属性增益信息、特殊效果信息）
      * 之所以需要查询属性增益信息和特殊效果信息，是因为装备栏中的物品经常需要计算属性增益和特殊效果
-     * 这里的装备栏还包括手持
+     * 注意：这里的装备栏还包括手持
      */
     public List<ItemDo> listItemsInEquipmentByOwnerWithDetail(String owner) {
         // 获得所有装备（包括手持）

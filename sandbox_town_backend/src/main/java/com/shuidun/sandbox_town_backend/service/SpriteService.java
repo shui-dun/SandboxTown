@@ -12,10 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.shuidun.sandbox_town_backend.mixin.Constants.EXP_PER_LEVEL;
 
@@ -34,17 +33,23 @@ public class SpriteService {
 
     private final ItemMapper itemMapper;
 
+    private final SpriteEffectMapper spriteEffectMapper;
+
+    private final EffectMapper effectMapper;
+
 
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemTypeAttributeMapper itemTypeAttributeMapper, ItemTypeLabelMapper itemTypeLabelMapper, ItemMapper itemMapper) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemTypeAttributeMapper itemTypeAttributeMapper, ItemTypeLabelMapper itemTypeLabelMapper, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
         this.itemService = itemService;
         this.itemTypeAttributeMapper = itemTypeAttributeMapper;
         this.itemTypeLabelMapper = itemTypeLabelMapper;
         this.itemMapper = itemMapper;
+        this.spriteEffectMapper = spriteEffectMapper;
+        this.effectMapper = effectMapper;
     }
 
     /** 将cache中的信息赋值给sprite */
@@ -97,8 +102,59 @@ public class SpriteService {
      */
     private void assignEffectToSprite(SpriteDo sprite) {
         sprite.setEffects(new ArrayList<>());
-        // TODO: 从数据库中获取精灵的效果列表 （但注意这不包含装备的效果）
-        // TODO: 获得装备的效果列表
+        // 从数据库中获取精灵的效果列表 （但注意这不包含装备的效果）
+        Map<EffectEnum, SpriteEffectDo> spriteEffectMap = spriteEffectMapper.selectBySprite(sprite.getId()).stream().collect(Collectors.toMap(SpriteEffectDo::getEffect, Function.identity()));
+        // 获得装备的效果列表
+        List<ItemTypeEffectDo> equipmentEffectList = new ArrayList<>();
+        for (ItemDo item : sprite.getEquipments()) {
+            // 判断物品的位置
+            ItemPositionEnum position = item.getPosition();
+            // 如果是手持
+            if (position == ItemPositionEnum.HANDHELD) {
+                // equipmentEffectList.addAll(item.getItemTypeObj().getEffects().get(ItemOperationEnum.HANDHELD).values());
+                // 使用Optional来避免空指针异常
+                // map()函数会对存在的值进行计算，返回一个新的Optional。如果源Optional为空，它将直接返回一个空的Optional
+                // ifPresent()函数在Optional值存在时会执行给定的lambda表达式
+                Optional.ofNullable(item.getItemTypeObj().getEffects())
+                        .map(e -> e.get(ItemOperationEnum.HANDHELD))
+                        .ifPresent(v -> equipmentEffectList.addAll(v.values()));
+            } else { // 如果是装备栏
+                // equipmentEffectList.addAll(item.getItemTypeObj().getEffects().get(ItemOperationEnum.EQUIP).values());
+                Optional.ofNullable(item.getItemTypeObj().getEffects())
+                        .map(e -> e.get(ItemOperationEnum.EQUIP))
+                        .ifPresent(v -> equipmentEffectList.addAll(v.values()));
+            }
+        }
+        // 将装备的效果列表和精灵的效果列表合并
+        for (ItemTypeEffectDo equipmentEffect : equipmentEffectList) {
+            // 如果精灵的效果列表中没有这个效果
+            if (!spriteEffectMap.containsKey(equipmentEffect.getEffect())) {
+                // 直接加入
+                SpriteEffectDo spriteEffectDo = new SpriteEffectDo();
+                spriteEffectDo.setSprite(sprite.getId());
+                spriteEffectDo.setEffect(equipmentEffect.getEffect());
+                // 装备的效果时效显然是永久
+                spriteEffectDo.setDuration(-1);
+                spriteEffectDo.setExpire(-1L);
+                spriteEffectMap.put(equipmentEffect.getEffect(), spriteEffectDo);
+            } else { // 如果精灵的效果列表中有这个效果
+                SpriteEffectDo spriteEffectDo = spriteEffectMap.get(equipmentEffect.getEffect());
+                // 装备的效果时效显然是永久
+                spriteEffectDo.setDuration(-1);
+                spriteEffectDo.setExpire(-1L);
+            }
+        }
+        // 添加效果详细信息到spriteEffectMap
+        if (spriteEffectMap.size() > 0) {
+            List<EffectDo> effectList = effectMapper.selectBatchIds(spriteEffectMap.keySet());
+            // 按照效果名组织效果列表
+            Map<EffectEnum, EffectDo> effectMap = effectList.stream().collect(Collectors.toMap(EffectDo::getId, Function.identity()));
+            // 将效果详细信息添加到spriteEffectMap
+            for (SpriteEffectDo spriteEffectDo : spriteEffectMap.values()) {
+                spriteEffectDo.setEffectObj(effectMap.get(spriteEffectDo.getEffect()));
+            }
+        }
+        sprite.setEffects(new ArrayList<>(spriteEffectMap.values()));
     }
 
     /** 为精灵设置装备、属性增量信息和效果列表 */
@@ -269,8 +325,11 @@ public class SpriteService {
         return spriteMapper.selectUnownedSprites();
     }
 
+    /**
+     * 使用物品
+     */
     @Transactional
-    public List<WSResponseVo> use(String owner, String itemId) {
+    public List<WSResponseVo> useItem(String owner, String itemId) {
         List<WSResponseVo> responseList = new ArrayList<>();
         // 判断物品是否存在
         ItemDo item = itemMapper.selectById(itemId);

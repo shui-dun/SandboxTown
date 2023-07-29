@@ -27,25 +27,22 @@ export default {
         };
     },
     mounted() {
-        // this.effects = [
-        //     {
-        //         "sprite": "USER",
-        //         "effect": "FLAME_BODY",
-        //         "effectObj": {
-        //             "id": "FLAME_BODY",
-        //             "name": "火焰之躯",
-        //             "description": "你的身体被火焰包围",
-        //         },
-        //         "img": require("@/assets/img/FLAME_BODY.png"),
-        //         "duration": 60,
-        //         "expire": new Date().getTime() + 1000 * 60,
-        //     },
-        // ]
-        // mixin.myGET("/rest/sprite/listMyEffects", null, (data) => {
-        //     this.effects = data;
-        // });
+        // 每隔一段时间刷新一下效果列表
+        setInterval(() => {
+            mixin.myGET("/rest/sprite/listMine", null, (data) => {
+                this.effects = data.effects;
+                // 添加图片
+                this.effects.forEach((effect) => {
+                    effect.img = require("@/assets/img/" + effect.effect + ".png");
+                });
+            });
+        }, 10000);
         emitter.on("SPRITE_EFFECT_CHANGE", (data) => {
             this.effects = data;
+            // 添加图片
+            this.effects.forEach((effect) => {
+                effect.img = require("@/assets/img/" + effect.effect + ".png");
+            });
         });
     },
 };
@@ -56,7 +53,7 @@ export default {
     position: fixed;
     top: 2%;
     left: 1%;
-    display:flex;
+    display: flex;
 }
 
 /* 中间的空隙 */
