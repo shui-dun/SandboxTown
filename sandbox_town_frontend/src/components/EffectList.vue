@@ -1,7 +1,7 @@
 <template>
     <div class="effect-list">
         <CircleTimer class="effect-item" v-for="(effect, id) in effects" :key="id" :title="effect.effectObj.name"
-            :id="id" :durationMills="effect.duration * 1000" :endTimeMills="effect.expire" :image="effect.img"
+            :id="id" :durationMills="effect.duration * 1000" :endTimeMills="effect.expire" :image="effect.img" :strokeWidth="4"
             @onComplete="onComplete" @onClick="onClick" :size="60" :description="effect.effectObj.description" />
     </div>
 </template>
