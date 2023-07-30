@@ -19,6 +19,10 @@
 <script>
 export default {
     props: {
+        id: {
+            type: String,
+            default: "",
+        },
         durationMills: Number,
         endTimeMills: Number,
         image: String,
@@ -69,7 +73,7 @@ export default {
     },
     methods: {
         onComplete() {
-            this.$emit("onComplete");
+            this.$emit("onComplete", this.id);
         },
         onClick() {
             this.$emit("onClick");

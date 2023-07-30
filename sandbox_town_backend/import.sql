@@ -168,7 +168,7 @@ VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
        ('STICK', '木棍', '基础的攻击武器', 22, 40, 40),
        ('BONE', '骨头', '狗狗的最爱', 20, 10, -1),
        ('IRON_HELMET', '铁质头盔', '坚固耐用,能够抵挡强力击打', 70, 10, 40),
-       ('PHOENIX_FEATHER', '凤凰之羽', '凤凰的羽毛具有无比强大的治愈作用', 100, 4, -1),
+       ('PHOENIX_FEATHER', '凤凰之羽', '凤凰的羽毛具有无比强大的火焰和治愈效果', 100, 4, -1),
        ('HOLY_GRAIL', '圣杯', '使疲惫的灵魂和肉体重获新生', 240, 2, 100),
        ('FLAME_LEGGINGS', '火焰护腿', '每一步都踏着烈焰,将敌人化为灰烬', 70, 12, 40);
 
@@ -287,7 +287,8 @@ create table item_type_effect
 );
 
 insert into item_type_effect(item_type, operation, effect, duration)
-values ('PHOENIX_FEATHER', 'USE', 'LIFE', 90),
+values ('PHOENIX_FEATHER', 'USE', 'LIFE', 9),
+       ('PHOENIX_FEATHER', 'USE', 'FLAME_BODY', 6),
        ('HOLY_GRAIL', 'HANDHELD', 'LIFE', -1),
        ('FLAME_LEGGINGS', 'EQUIP', 'FLAME_BODY', -1);
 
@@ -329,7 +330,7 @@ values ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('FLYING_BOOTS_dkfjeiffkdlf', 'USER_xixi', 'FLYING_BOOTS', 1, 100, 1, 'BOOTS'),
        ('BONE_djkfisefksldfldifdj', 'USER_xixi', 'BONE', 4, 100, 1, 'BACKPACK'),
        ('IRON_HELMET_dkdcclkdfded', 'USER_xixi', 'IRON_HELMET', 1, 100, 1, 'BACKPACK'),
-       ('PHOENIX_FEATHER_dkdcclkdfded', 'USER_xixi', 'PHOENIX_FEATHER', 1, 100, 1, 'BACKPACK'),
+       ('PHOENIX_FEATHER_dkdcclkdfded', 'USER_xixi', 'PHOENIX_FEATHER', 10, 100, 1, 'BACKPACK'),
        ('FLAME_LEGGINGS_dkdcclkdfded', 'USER_xixi', 'FLAME_LEGGINGS', 1, 100, 1, 'BACKPACK'),
        ('HOLY_GRAIL_dkdcclkdfded', 'USER_xixi', 'HOLY_GRAIL', 1, 100, 1, 'BACKPACK');
 

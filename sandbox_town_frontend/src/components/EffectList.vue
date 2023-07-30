@@ -1,8 +1,8 @@
 <template>
     <div class="effect-list">
-        <CircleTimer class="effect-item" v-for="effect in effects" :key="effect.effect" :title="effect.effectObj.name"
+        <CircleTimer class="effect-item" v-for="(effect, id) in effects" :key="effect.effect" :title="effect.effectObj.name" :id="id"
             :durationMills="effect.duration * 1000" :endTimeMills="effect.expire" :image="effect.img"
-            :onComplete="onComplete" :onClick="onClick" :size="60" :description="effect.effectObj.description" />
+            @onComplete="onComplete" @onClick="onClick" :size="60" :description="effect.effectObj.description" />
     </div>
 </template>
 
@@ -16,33 +16,40 @@ export default {
         CircleTimer,
     },
     methods: {
-        onComplete() {
+        onComplete(id) {
+            delete this.effects[id];
         },
         onClick() {
         },
+        refresh(newEffects) {
+            this.effects = {};
+            for (let i = 0; i < newEffects.length; i++) {
+                let effect = newEffects[i];
+                effect.img = require("@/assets/img/" + effect.effect + ".png");
+                this.effects[effect.effect] = effect;
+            }
+        }
     },
     data() {
         return {
-            effects: [],
+            // 效果ID和效果对象的映射
+            effects: {}
         };
     },
     mounted() {
+        const refreshFromBackend = () => {
+            mixin.myGET("/rest/sprite/listMine", null, (data) => {
+                this.refresh(data.effects);
+            });
+        };
+        refreshFromBackend();
         // 每隔一段时间刷新一下效果列表
         setInterval(() => {
-            mixin.myGET("/rest/sprite/listMine", null, (data) => {
-                this.effects = data.effects;
-                // 添加图片
-                this.effects.forEach((effect) => {
-                    effect.img = require("@/assets/img/" + effect.effect + ".png");
-                });
-            });
+            refreshFromBackend();
         }, 10000);
+        // 监听效果变化
         emitter.on("SPRITE_EFFECT_CHANGE", (data) => {
-            this.effects = data;
-            // 添加图片
-            this.effects.forEach((effect) => {
-                effect.img = require("@/assets/img/" + effect.effect + ".png");
-            });
+            this.refresh(data);
         });
     },
 };

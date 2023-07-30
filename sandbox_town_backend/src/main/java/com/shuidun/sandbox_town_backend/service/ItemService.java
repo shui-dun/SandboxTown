@@ -253,6 +253,9 @@ public class ItemService {
     public ItemDo getItemDetailById(String itemId) {
         // 找到物品
         ItemDo item = itemMapper.selectById(itemId);
+        if (item == null) {
+            return null;
+        }
         // 找到物品类型
         ItemTypeDo itemType = getItemTypeDetailById(item.getItemType());
         // 设置物品类型

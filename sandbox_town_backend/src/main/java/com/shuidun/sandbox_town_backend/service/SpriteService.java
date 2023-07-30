@@ -27,10 +27,6 @@ public class SpriteService {
 
     private final ItemService itemService;
 
-    private final ItemTypeAttributeMapper itemTypeAttributeMapper;
-
-    private final ItemTypeLabelMapper itemTypeLabelMapper;
-
     private final ItemMapper itemMapper;
 
     private final SpriteEffectMapper spriteEffectMapper;
@@ -41,12 +37,10 @@ public class SpriteService {
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemTypeAttributeMapper itemTypeAttributeMapper, ItemTypeLabelMapper itemTypeLabelMapper, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
         this.itemService = itemService;
-        this.itemTypeAttributeMapper = itemTypeAttributeMapper;
-        this.itemTypeLabelMapper = itemTypeLabelMapper;
         this.itemMapper = itemMapper;
         this.spriteEffectMapper = spriteEffectMapper;
         this.effectMapper = effectMapper;
@@ -103,7 +97,7 @@ public class SpriteService {
     private void assignEffectToSprite(SpriteDo sprite) {
         sprite.setEffects(new ArrayList<>());
         // 从数据库中获取精灵的效果列表 （但注意这不包含装备的效果）
-        Map<EffectEnum, SpriteEffectDo> spriteEffectMap = spriteEffectMapper.selectBySprite(sprite.getId()).stream().collect(Collectors.toMap(SpriteEffectDo::getEffect, Function.identity()));
+        Map<EffectEnum, SpriteEffectDo> spriteEffectMap = selectEffectsAndDeleteExpiredEffects(sprite.getId()).stream().collect(Collectors.toMap(SpriteEffectDo::getEffect, Function.identity()));
         // 获得装备的效果列表
         List<ItemTypeEffectDo> equipmentEffectList = new ArrayList<>();
         for (ItemDo item : sprite.getEquipments()) {
@@ -325,6 +319,20 @@ public class SpriteService {
         return spriteMapper.selectUnownedSprites();
     }
 
+    /** 删除精灵过期的效果并返回所有未过期的效果 */
+    public List<SpriteEffectDo> selectEffectsAndDeleteExpiredEffects(String spriteId) {
+        List<SpriteEffectDo> effects = spriteEffectMapper.selectBySprite(spriteId);
+        List<SpriteEffectDo> unexpiredEffects = new ArrayList<>();
+        for (var effect : effects) {
+            if (effect.getExpire() != -1 && effect.getExpire() < System.currentTimeMillis()) {
+                spriteEffectMapper.deleteBySpriteAndEffect(spriteId, effect.getEffect());
+            } else {
+                unexpiredEffects.add(effect);
+            }
+        }
+        return unexpiredEffects;
+    }
+
     /**
      * 使用物品
      */
@@ -332,7 +340,7 @@ public class SpriteService {
     public List<WSResponseVo> useItem(String owner, String itemId) {
         List<WSResponseVo> responseList = new ArrayList<>();
         // 判断物品是否存在
-        ItemDo item = itemMapper.selectById(itemId);
+        ItemDo item = itemService.getItemDetailById(itemId);
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
@@ -341,31 +349,62 @@ public class SpriteService {
             throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
         }
         // 判断物品是否可用
-        Set<ItemLabelEnum> labels = itemTypeLabelMapper.selectByItemType(item.getItemType());
+        Set<ItemLabelEnum> labels = item.getItemTypeObj().getLabels();
         if (!labels.contains(ItemLabelEnum.FOOD) && !labels.contains(ItemLabelEnum.USABLE)) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_USABLE);
         }
         // 得到物品带来的属性变化
-        ItemTypeAttributeDo itemTypeAttribute = itemTypeAttributeMapper.selectByItemTypeAndOperation(item.getItemType(), ItemOperationEnum.USE);
-        // TODO: 根据物品等级计算属性变化
-        // 得到角色原先属性
-        SpriteDo sprite = spriteMapper.selectById(owner);
-        SpriteAttributeChangeVo spriteAttributeChange = new SpriteAttributeChangeVo();
-        spriteAttributeChange.setOriginal(sprite);
-        // 更新角色属性
-        sprite.setMoney(sprite.getMoney() + itemTypeAttribute.getMoneyInc());
-        sprite.setExp(sprite.getExp() + itemTypeAttribute.getExpInc());
-        sprite.setHunger(sprite.getHunger() + itemTypeAttribute.getHungerInc());
-        sprite.setHp(sprite.getHp() + itemTypeAttribute.getHpInc());
-        sprite.setAttack(sprite.getAttack() + itemTypeAttribute.getAttackInc());
-        sprite.setDefense(sprite.getDefense() + itemTypeAttribute.getDefenseInc());
-        sprite.setSpeed(sprite.getSpeed() + itemTypeAttribute.getSpeedInc());
-        // 判断新属性是否在合理范围内（包含升级操作），随后写入数据库
-        sprite = normalizeAndUpdateSprite(sprite);
-        if (spriteAttributeChange.setChanged(sprite)) {
-            responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
+        ItemTypeAttributeDo itemTypeAttribute = item.getItemTypeObj().getAttributes().get(ItemOperationEnum.USE);
+        if (itemTypeAttribute != null) {
+            // TODO: 根据物品等级计算属性变化
+            // 得到角色原先属性
+            SpriteDo sprite = spriteMapper.selectById(owner);
+            SpriteAttributeChangeVo spriteAttributeChange = new SpriteAttributeChangeVo();
+            spriteAttributeChange.setOriginal(sprite);
+            // 更新角色属性
+            sprite.setMoney(sprite.getMoney() + itemTypeAttribute.getMoneyInc());
+            sprite.setExp(sprite.getExp() + itemTypeAttribute.getExpInc());
+            sprite.setHunger(sprite.getHunger() + itemTypeAttribute.getHungerInc());
+            sprite.setHp(sprite.getHp() + itemTypeAttribute.getHpInc());
+            sprite.setAttack(sprite.getAttack() + itemTypeAttribute.getAttackInc());
+            sprite.setDefense(sprite.getDefense() + itemTypeAttribute.getDefenseInc());
+            sprite.setSpeed(sprite.getSpeed() + itemTypeAttribute.getSpeedInc());
+            // 判断新属性是否在合理范围内（包含升级操作），随后写入数据库
+            sprite = normalizeAndUpdateSprite(sprite);
+            if (spriteAttributeChange.setChanged(sprite)) {
+                responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
+            }
         }
-        // TODO: 向角色施加效果
+        // 查询精灵原有效果
+        List<SpriteEffectDo> effects = selectEffectsAndDeleteExpiredEffects(owner);
+        Map<EffectEnum, SpriteEffectDo> effectMap = effects.stream().collect(Collectors.toMap(SpriteEffectDo::getEffect, effect -> effect));
+        // 向角色施加效果
+        var newEffects = item.getItemTypeObj().getEffects().get(ItemOperationEnum.USE).values();
+        for (ItemTypeEffectDo effect : newEffects) {
+            // 判断是否已经有该效果
+            if (effectMap.containsKey(effect.getEffect())) {
+                // 更新效果
+                SpriteEffectDo spriteEffect = effectMap.get(effect.getEffect());
+                // 如果效果是永久的
+                if (effect.getDuration() == -1 || spriteEffect.getDuration() == -1) {
+                    spriteEffect.setDuration(-1);
+                    spriteEffect.setExpire(-1L);
+                } else {
+                    spriteEffect.setDuration(spriteEffect.getDuration() + effect.getDuration());
+                    spriteEffect.setExpire(spriteEffect.getExpire() + effect.getDuration() * 1000);
+                }
+                spriteEffectMapper.update(spriteEffect);
+            } else {
+                // 添加效果
+                SpriteEffectDo spriteEffect = new SpriteEffectDo();
+                spriteEffect.setSprite(owner);
+                spriteEffect.setEffect(effect.getEffect());
+                spriteEffect.setDuration(effect.getDuration());
+                spriteEffect.setExpire(effect.getDuration() == -1 ? -1L : System.currentTimeMillis() + effect.getDuration() * 1000);
+                spriteEffectMapper.insert(spriteEffect);
+            }
+        }
+
         // 判断是否是最后一个物品
         if (item.getItemCount() <= 1) {
             // 删除物品

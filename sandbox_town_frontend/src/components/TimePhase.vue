@@ -1,6 +1,6 @@
 <template>
     <CircleTimer :title="title" :size="70" class="circle-timer" :durationMills="durationMills" :endTimeMills="endTimeMills"
-        :image="image" :onComplete="onComplete" :onClick="onClick" />
+        :image="image" @onComplete="onComplete" @onClick="onClick" />
 </template>
 
 <script>
