@@ -287,8 +287,8 @@ create table item_type_effect
 );
 
 insert into item_type_effect(item_type, operation, effect, duration)
-values ('PHOENIX_FEATHER', 'USE', 'LIFE', 9),
-       ('PHOENIX_FEATHER', 'USE', 'FLAME_BODY', 6),
+values ('PHOENIX_FEATHER', 'USE', 'LIFE', 90),
+       ('PHOENIX_FEATHER', 'USE', 'FLAME_BODY', 60),
        ('HOLY_GRAIL', 'HANDHELD', 'LIFE', -1),
        ('FLAME_LEGGINGS', 'EQUIP', 'FLAME_BODY', -1);
 

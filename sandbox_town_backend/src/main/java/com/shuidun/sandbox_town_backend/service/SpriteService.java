@@ -414,6 +414,10 @@ public class SpriteService {
             item.setItemCount(item.getItemCount() - 1);
             itemMapper.updateById(item);
         }
+
+        // 可能有精灵效果变化
+        responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, null));
+
         return responseList;
     }
 
@@ -454,6 +458,9 @@ public class SpriteService {
         itemMapper.updateById(item);
 
         responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
+        // 可能有精灵效果变化
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, null));
+
         return responses;
     }
 
@@ -487,6 +494,9 @@ public class SpriteService {
         itemMapper.updateById(item);
 
         responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
+        // 可能有精灵效果变化
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, null));
+
         return responses;
     }
 
@@ -542,6 +552,8 @@ public class SpriteService {
         if (originalPosition == ItemPositionEnum.ITEMBAR || originalPosition == ItemPositionEnum.HANDHELD) {
             responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
         }
+        // 可能有精灵效果变化
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, null));
 
         return responses;
     }
@@ -573,6 +585,9 @@ public class SpriteService {
         if (originalPosition == ItemPositionEnum.ITEMBAR || originalPosition == ItemPositionEnum.HANDHELD) {
             responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
         }
+        // 可能有精灵效果变化
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, null));
+
         return responses;
     }
 }

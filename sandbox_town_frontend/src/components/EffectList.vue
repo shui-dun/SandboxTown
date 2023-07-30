@@ -1,7 +1,7 @@
 <template>
     <div class="effect-list">
-        <CircleTimer class="effect-item" v-for="(effect, id) in effects" :key="effect.effect" :title="effect.effectObj.name" :id="id"
-            :durationMills="effect.duration * 1000" :endTimeMills="effect.expire" :image="effect.img"
+        <CircleTimer class="effect-item" v-for="(effect, id) in effects" :key="id" :title="effect.effectObj.name"
+            :id="id" :durationMills="effect.duration * 1000" :endTimeMills="effect.expire" :image="effect.img"
             @onComplete="onComplete" @onClick="onClick" :size="60" :description="effect.effectObj.description" />
     </div>
 </template>
@@ -10,6 +10,7 @@
 import CircleTimer from "./CircleTimer.vue";
 import mixin from "@/js/mixin";
 import emitter from "@/js/mitt";
+import uniqueId from "lodash.uniqueid";
 
 export default {
     components: {
@@ -21,13 +22,15 @@ export default {
         },
         onClick() {
         },
-        refresh(newEffects) {
-            this.effects = {};
-            for (let i = 0; i < newEffects.length; i++) {
-                let effect = newEffects[i];
-                effect.img = require("@/assets/img/" + effect.effect + ".png");
-                this.effects[effect.effect] = effect;
-            }
+        refresh() {
+            mixin.myGET("/rest/sprite/listMine", null, (data) => {
+                this.effects = {};
+                for (let i = 0; i < data.effects.length; i++) {
+                    let effect = data.effects[i];
+                    effect.img = require("@/assets/img/" + effect.effect + ".png");
+                    this.effects[uniqueId("")] = effect;
+                }
+            });
         }
     },
     data() {
@@ -37,19 +40,14 @@ export default {
         };
     },
     mounted() {
-        const refreshFromBackend = () => {
-            mixin.myGET("/rest/sprite/listMine", null, (data) => {
-                this.refresh(data.effects);
-            });
-        };
-        refreshFromBackend();
+        this.refresh();
         // 每隔一段时间刷新一下效果列表
         setInterval(() => {
-            refreshFromBackend();
+            this.refresh();
         }, 10000);
         // 监听效果变化
-        emitter.on("SPRITE_EFFECT_CHANGE", (data) => {
-            this.refresh(data);
+        emitter.on("SPRITE_EFFECT_CHANGE", () => {
+            this.refresh();
         });
     },
 };
