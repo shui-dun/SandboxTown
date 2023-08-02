@@ -40,15 +40,8 @@ def parseSql(tableName, columnOfImgName=None):
     # 添加图片路径
     if columnOfImgName:
         for item in dict_list:
-            
             item['img'] = '<img src="../sandbox_town_frontend/src/assets/img/{}.png" width="120" />'.format(item[columnOfImgName])
 
-    return dict_list
-
-
-def addImgPath(dict_list):
-    for item in dict_list:
-        item['img'] = 'https://sandbox-town.com/images/effect/' + item['name'] + '.png'
     return dict_list
 
 
