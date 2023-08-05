@@ -93,12 +93,13 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <!-- 修改jdk版本只需改这里就行了，IDEA会读取这里的配置自动设置，无需手动维护IDEA的配置 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>16</source>
-                    <target>16</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
         </plugins>

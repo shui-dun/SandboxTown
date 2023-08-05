@@ -43,6 +43,9 @@ public class RedisConfig extends CachingConfigurerSupport {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        // 根据GPT4的建议，使用BasicPolymorphicTypeValidator来防止反序列化漏洞
+        // PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder().allowIfBaseType(Object.class).build();
+        // mapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL);
         serializer.setObjectMapper(mapper);
 
         // 设置key和value的序列化方式
