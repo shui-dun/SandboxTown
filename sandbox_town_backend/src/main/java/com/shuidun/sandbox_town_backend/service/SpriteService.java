@@ -379,7 +379,9 @@ public class SpriteService {
         List<SpriteEffectDo> effects = selectEffectsAndDeleteExpiredEffects(owner);
         Map<EffectEnum, SpriteEffectDo> effectMap = effects.stream().collect(Collectors.toMap(SpriteEffectDo::getEffect, effect -> effect));
         // 向角色施加效果
-        var newEffects = item.getItemTypeObj().getEffects().get(ItemOperationEnum.USE).values();
+        // var newEffects = item.getItemTypeObj().getEffects().get(ItemOperationEnum.USE).values();
+        // 为避免空指针异常，改为：
+        var newEffects = item.getItemTypeObj().getEffects().getOrDefault(ItemOperationEnum.USE, new HashMap<>()).values();
         for (ItemTypeEffectDo effect : newEffects) {
             // 判断是否已经有该效果
             if (effectMap.containsKey(effect.getEffect())) {
