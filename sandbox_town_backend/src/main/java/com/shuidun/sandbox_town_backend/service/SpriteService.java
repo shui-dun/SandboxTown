@@ -592,4 +592,16 @@ public class SpriteService {
 
         return responses;
     }
+
+    /**
+     * 减少精灵饱腹值
+     * @param spriteIds 精灵id集合
+     * @param val 减少值
+     */
+    public void reduceSpritesHunger(Collection<String> spriteIds, int val) {
+        if (spriteIds == null || spriteIds.isEmpty()) {
+            return;
+        }
+        spriteMapper.reduceSpritesHunger(spriteIds, val);
+    }
 }

@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.Collection;
 import java.util.List;
 
 @Mapper
@@ -34,4 +35,32 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
     /** 得到没有主人的角色 */
     @Select("SELECT * FROM sprite where owner IS NULL and type != 'user'")
     List<SpriteDo> selectUnownedSprites();
+
+    /**
+     * 对精灵列表spriteIds中的每个精灵，减少val的饥饿值（如果原先饥饿值小于val则减到0）
+     * UPDATE sprite
+     * SET hunger = CASE
+     *     WHEN hunger - val < 0 THEN 0
+     *     ELSE hunger - val
+     * END
+     * WHERE id IN (1, 2, 3);
+     * <p>
+     * 注意，在<script>标签中，<和>需要转义为&lt;和&gt;
+     * */
+
+    @Update("""
+            <script>
+                UPDATE sprite
+                SET hunger = 
+                CASE
+                    WHEN hunger - #{val} &lt; 0 THEN 0
+                    ELSE hunger - #{val}
+                END
+                WHERE id IN
+                <foreach collection="spriteIds" item="spriteId" open="(" separator="," close=")">
+                    #{spriteId}
+                </foreach>
+            </script>
+            """)
+    void reduceSpritesHunger(Collection<String> spriteIds, int val);
 }

@@ -57,6 +57,7 @@ public class SpriteScheduler {
                 }
                 double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), ownerSprite.getX(), ownerSprite.getY());
                 // 如果距离过远，那就不跟随
+                // TODO: 这里的距离应该是狗的视野
                 if (distance > 1000) {
                     return null;
                 }
@@ -98,5 +99,14 @@ public class SpriteScheduler {
                 func.apply(sprite);
             }
         }
+    }
+
+    @Scheduled(initialDelay = 500, fixedDelay = 1000)
+    public void mixinSchedule() {
+        // 减少饱腹值
+        if (GameCache.random.nextDouble() < 0.05) {
+            spriteService.reduceSpritesHunger(GameCache.spriteCacheMap.keySet(), 1);
+        }
+
     }
 }
