@@ -101,12 +101,17 @@ public class SpriteScheduler {
         }
     }
 
+    private int counter = 0;
+
     @Scheduled(initialDelay = 500, fixedDelay = 1000)
     public void mixinSchedule() {
+        counter++;
         // 减少饱腹值
-        if (GameCache.random.nextDouble() < 0.05) {
+        if (counter % 20 == 0) {
             spriteService.reduceSpritesHunger(GameCache.spriteCacheMap.keySet(), 1);
         }
-
+        if (counter == Integer.MAX_VALUE) {
+            counter = 0;
+        }
     }
 }
