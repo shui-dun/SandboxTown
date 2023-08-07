@@ -40,13 +40,13 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
      * 对精灵列表spriteIds中的每个精灵，减少val的饥饿值（如果原先饥饿值小于val则减到0）
      * UPDATE sprite
      * SET hunger = CASE
-     *     WHEN hunger - val < 0 THEN 0
-     *     ELSE hunger - val
+     * WHEN hunger - val < 0 THEN 0
+     * ELSE hunger - val
      * END
      * WHERE id IN (1, 2, 3);
      * <p>
      * 注意，在<script>标签中，<和>需要转义为&lt;和&gt;
-     * */
+     */
 
     @Update("""
             <script>
@@ -63,4 +63,27 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
             </script>
             """)
     void reduceSpritesHunger(Collection<String> spriteIds, int val);
+
+    /**
+     * 对精灵列表spriteIds中的每个精灵，如果其饥饿值大于等于minHunger，则增加incVal的生命值，如果更新后的生命值大于最大生命值（100），则生命值等于最大生命值
+     */
+    @Update("""
+            <script>
+                UPDATE sprite
+                SET hp = 
+                CASE
+                    WHEN hunger &gt;= #{minHunger} THEN
+                        CASE
+                            WHEN hp + #{incVal} &gt; 100 THEN 100
+                            ELSE hp + #{incVal}
+                        END
+                    ELSE hp
+                END
+                WHERE id IN
+                <foreach collection="spriteIds" item="spriteId" open="(" separator="," close=")">
+                    #{spriteId}
+                </foreach>
+            </script>
+            """)
+    void recoverSpritesLife(Collection<String> spriteIds, int minHunger, int incVal);
 }

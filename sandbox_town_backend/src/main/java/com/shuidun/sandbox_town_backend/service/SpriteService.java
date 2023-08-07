@@ -595,13 +595,28 @@ public class SpriteService {
 
     /**
      * 减少精灵饱腹值
+     *
      * @param spriteIds 精灵id集合
-     * @param val 减少值
+     * @param val       减少值
      */
     public void reduceSpritesHunger(Collection<String> spriteIds, int val) {
         if (spriteIds == null || spriteIds.isEmpty()) {
             return;
         }
         spriteMapper.reduceSpritesHunger(spriteIds, val);
+    }
+
+    /**
+     * 恢复精灵生命
+     *
+     * @param spriteIds 精灵id集合
+     * @param minHunger 最小饱腹值，即饱腹值低于该值时不恢复生命
+     * @param incVal 恢复值
+     */
+    public void recoverSpritesLife(Collection<String> spriteIds, int minHunger, int incVal) {
+        if (spriteIds == null || spriteIds.isEmpty()) {
+            return;
+        }
+        spriteMapper.recoverSpritesLife(spriteIds, minHunger, incVal);
     }
 }

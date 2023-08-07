@@ -33,9 +33,13 @@ spring:
       # 连接池的最小空闲连接数
       minimum-idle: 10
 
-mybatis:
+mybatis-plus:
   configuration:
     # 将数据库的下划线命令转换为Java的驼峰命名
+    map-underscore-to-camel-case: true
+    # 配置打印sql语句
+    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 
 logging:
   level:
