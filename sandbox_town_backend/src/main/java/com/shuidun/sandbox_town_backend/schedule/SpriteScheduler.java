@@ -101,16 +101,19 @@ public class SpriteScheduler {
         }
     }
 
-    private int counter = 0;
+    private long counter = 0;
 
     @Scheduled(initialDelay = 500, fixedDelay = 1000)
     public void mixinSchedule() {
         counter++;
         // 减少饱腹值
         if (counter % 20 == 0) {
+            log.info("减少饱腹值");
             spriteService.reduceSpritesHunger(GameCache.spriteCacheMap.keySet(), 1);
         }
-        if (counter == Integer.MAX_VALUE) {
+        // 其实当计数器重置时，会导致所有这些定时任务的执行时间都会不准确
+        // 但是这个问题不大，因为Long.MAX_VALUE是一个很大的数，在有限的时间内不会重置
+        if (counter == Long.MAX_VALUE) {
             counter = 0;
         }
     }
