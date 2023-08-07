@@ -32,4 +32,8 @@ public class ItemTypeAttributeDo {
     private Integer defenseInc;
 
     private Integer speedInc;
+
+    private Integer visionRangeInc;
+
+    private Integer attackRangeInc;
 }

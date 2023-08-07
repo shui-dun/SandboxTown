@@ -103,10 +103,11 @@ public class WSRequestHandler {
             spriteCache.setVx(0);
             spriteCache.setVy(0);
             // 更新玩家的找到的路径
-            var sprite = spriteService.selectByIdWithEquipmentsAndIncAndEffect(initiator);
-            // TODO: 每种角色的宽度和高度不一样，需要根据角色类型来获取
+            var sprite = spriteService.selectByIdWithDetail(initiator);
+            // 每种角色的宽度和高度不一样，需要根据角色类型来获取相应路径
             List<Point> path = gameMapService.findPath(
-                    data.getX0(), data.getY0(), data.getX1(), data.getY1(), (int) (150 * 0.65), (int) (150 * 0.75),
+                    data.getX0(), data.getY0(), data.getX1(), data.getY1(),
+                    (int) (sprite.getWidth() * sprite.getWidthRatio()), (int) (sprite.getHeight() * sprite.getHeightRatio()),
                     data.getDestId() != null ? data.getDestId().hashCode() : null);
             // 如果找不到路径，直接返回
             if (path == null) {

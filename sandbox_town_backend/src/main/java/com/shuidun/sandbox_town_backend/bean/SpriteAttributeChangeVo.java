@@ -43,6 +43,14 @@ public class SpriteAttributeChangeVo {
 
     private Integer speedInc;
 
+    private Integer visionRange;
+
+    private Integer visionRangeInc;
+
+    private Integer attackRange;
+
+    private Integer attackRangeInc;
+
     /** 设置原先的属性值 */
     public void setOriginal(SpriteDo original) {
         this.id = original.getId();
@@ -54,6 +62,8 @@ public class SpriteAttributeChangeVo {
         this.attack = original.getAttack();
         this.defense = original.getDefense();
         this.speed = original.getSpeed();
+        this.visionRange = original.getVisionRange();
+        this.attackRange = original.getAttackRange();
     }
 
     /**
@@ -72,6 +82,8 @@ public class SpriteAttributeChangeVo {
         this.attackInc = changed.getAttack() - this.attack;
         this.defenseInc = changed.getDefense() - this.defense;
         this.speedInc = changed.getSpeed() - this.speed;
-        return moneyInc != 0 || expInc != 0 || levelInc != 0 || hungerInc != 0 || hpInc != 0 || attackInc != 0 || defenseInc != 0 || speedInc != 0;
+        this.visionRangeInc = changed.getVisionRange() - this.visionRange;
+        this.attackRangeInc = changed.getAttackRange() - this.attackRange;
+        return moneyInc != 0 || expInc != 0 || levelInc != 0 || hungerInc != 0 || hpInc != 0 || attackInc != 0 || defenseInc != 0 || speedInc != 0 || visionRangeInc != 0 || attackRangeInc != 0;
     }
 }

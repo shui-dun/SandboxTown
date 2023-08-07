@@ -135,6 +135,8 @@ export default {
                 'attackInc': '攻击',
                 'defenseInc': '防御',
                 'speedInc': '速度',
+                'visionRangeInc': '视野',
+                'attackRangeInc': '攻击范围',
             }
             for (let key in attributeMap) {
                 if (attribute[key] != 0) {

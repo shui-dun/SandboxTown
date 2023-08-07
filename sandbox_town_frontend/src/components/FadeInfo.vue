@@ -33,6 +33,8 @@ export default {
                 "attackInc": "⚔️ 攻击力",
                 "defenseInc": "🛡️ 防御力",
                 "speedInc": "🏃 速度",
+                "visionRangeInc": "👀 视野",
+                "attackRangeInc": "🎯 攻击范围",
             };
             let showMsg = (attr) => {
                 if (msg[attr] > 0) {

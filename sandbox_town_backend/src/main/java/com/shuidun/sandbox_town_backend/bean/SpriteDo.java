@@ -40,6 +40,10 @@ public class SpriteDo {
 
     private Integer speed;
 
+    private Integer visionRange;
+
+    private Integer attackRange;
+
     private Integer X;
 
     private Integer Y;
@@ -50,9 +54,18 @@ public class SpriteDo {
 
     private String map;
 
-    /** 描述信息 */
+    /** 以下是一些放在sprite_type表中的字段 */
+    @TableField(exist = false)
+    private String name;
+
     @TableField(exist = false)
     private String description;
+
+    @TableField(exist = false)
+    private Double widthRatio;
+
+    @TableField(exist = false)
+    private Double heightRatio;
 
     /**
      * 玩家最后的属性值等于原先的属性值加上增量（装备或手持装备导致的属性变化）
@@ -72,6 +85,12 @@ public class SpriteDo {
 
     @TableField(exist = false)
     private Integer speedInc;
+
+    @TableField(exist = false)
+    private Integer visionRangeInc;
+
+    @TableField(exist = false)
+    private Integer attackRangeInc;
 
     /** 效果列表 */
     @TableField(exist = false)

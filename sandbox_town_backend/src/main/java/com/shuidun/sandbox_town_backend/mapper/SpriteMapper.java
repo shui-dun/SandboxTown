@@ -12,7 +12,7 @@ import java.util.List;
 
 @Mapper
 public interface SpriteMapper extends BaseMapper<SpriteDo> {
-    /** 根据角色id获取角色信息（包含sprite_type表中的角色描述信息） */
+    /** 根据角色id获取角色信息（包含sprite_type表中的信息） */
     @Select("""
             SELECT * FROM sprite
             INNER JOIN sprite_type

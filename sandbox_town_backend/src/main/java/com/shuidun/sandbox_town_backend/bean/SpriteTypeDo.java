@@ -41,4 +41,12 @@ public class SpriteTypeDo {
     private Integer basicWidth;
 
     private Integer basicHeight;
+
+    private Integer basicVisionRange;
+
+    private Integer basicAttackRange;
+
+    private Double widthRatio;
+
+    private Double heightRatio;
 }

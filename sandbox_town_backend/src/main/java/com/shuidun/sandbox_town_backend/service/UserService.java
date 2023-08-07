@@ -32,13 +32,16 @@ public class UserService {
 
     private final SpriteMapper spriteMapper;
 
+    private final SpriteService spriteService;
+
     @Value("${mapId}")
     private String mapId;
 
-    public UserService(UserMapper userMapper, UserRoleMapper userRoleMapper, SpriteMapper spriteMapper) {
+    public UserService(UserMapper userMapper, UserRoleMapper userRoleMapper, SpriteMapper spriteMapper, SpriteService spriteService) {
         this.userMapper = userMapper;
         this.userRoleMapper = userRoleMapper;
         this.spriteMapper = spriteMapper;
+        this.spriteService = spriteService;
     }
 
     public UserDo findUserByName(String username) {
@@ -66,23 +69,7 @@ public class UserService {
                     currentDate, null);
             userMapper.insert(user);
             userRoleMapper.insert(user.getUsername(), "NORMAL");
-            SpriteDo sprite = new SpriteDo();
-            sprite.setId(user.getUsername());
-            sprite.setType(SpriteTypeEnum.USER);
-            sprite.setMoney(10);
-            sprite.setExp(0);
-            sprite.setLevel(1);
-            sprite.setHunger(100);
-            sprite.setHp(100);
-            sprite.setAttack(10);
-            sprite.setDefense(10);
-            sprite.setSpeed(5);
-            sprite.setX(0);
-            sprite.setY(0);
-            sprite.setWidth(150);
-            sprite.setHeight(150);
-            sprite.setMap(mapId);
-            spriteMapper.insert(sprite);
+            spriteService.generateFixedSprite(SpriteTypeEnum.USER, user.getUsername(), null, 0, 0);
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException(StatusCodeEnum.USER_ALREADY_EXIST);
         }

@@ -56,9 +56,8 @@ public class SpriteScheduler {
                     return null;
                 }
                 double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), ownerSprite.getX(), ownerSprite.getY());
-                // 如果距离过远，那就不跟随
-                // TODO: 这里的距离应该是狗的视野
-                if (distance > 1000) {
+                // 如果距离过远（视野之外），那就不跟随
+                if (distance > sprite.getVisionRange() + sprite.getVisionRangeInc()) {
                     return null;
                 }
                 // 寻找路径
@@ -92,7 +91,7 @@ public class SpriteScheduler {
         // 遍历所有角色
         for (String id : GameCache.spriteCacheMap.keySet()) {
             // 得到其角色
-            SpriteDo sprite = spriteService.selectByIdWithEquipmentsAndIncAndEffect(id);
+            SpriteDo sprite = spriteService.selectByIdWithDetail(id);
             // 调用对应的处理函数
             var func = typeToFunction.get(sprite.getType());
             if (func != null) {

@@ -41,6 +41,8 @@ export default {
                 { 'id': 'defense', 'key': '🛡️ 防御力' },
                 { 'id': 'speed', 'key': '🏃 速度' },
                 { 'id': 'hp', 'key': '🩸 血量' },
+                { 'id': 'visionRange', 'key': '👀 视野' },
+                { 'id': 'attackRange', 'key': '🎯 攻击范围' },
             ],
             // 名称
             id: '',

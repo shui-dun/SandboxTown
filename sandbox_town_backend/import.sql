@@ -65,79 +65,98 @@ VALUES ('1', 'Ⅰ', 4000, 3000, 32784924),
 CREATE TABLE sprite_type
 (
     # 角色类型
-    type          VARCHAR(255) NOT NULL PRIMARY KEY,
+    type               VARCHAR(255) NOT NULL PRIMARY KEY,
     # 角色名称
-    name          VARCHAR(255) NOT NULL,
-    description   VARCHAR(255) NOT NULL,
+    name               VARCHAR(255) NOT NULL,
+    description        VARCHAR(255) NOT NULL,
     # 注意这个价格只是参考价格，各个商店会有上下波动
-    basic_price   INT          NOT NULL DEFAULT 0,
+    basic_price        INT          NOT NULL DEFAULT 0,
     # 基础金钱
-    basic_money   INT          NOT NULL DEFAULT 0,
+    basic_money        INT          NOT NULL DEFAULT 0,
     # 基础经验值
-    basic_exp     INT          NOT NULL DEFAULT 0,
+    basic_exp          INT          NOT NULL DEFAULT 0,
     # 基础等级
-    basic_level   INT          NOT NULL DEFAULT 1,
+    basic_level        INT          NOT NULL DEFAULT 1,
     # 基础饱腹值
-    basic_hunger  INT          NOT NULL DEFAULT 100,
+    basic_hunger       INT          NOT NULL DEFAULT 100,
     # 基础生命值
-    basic_hp      INT          NOT NULL DEFAULT 100,
+    basic_hp           INT          NOT NULL DEFAULT 100,
     # 基础攻击力
-    basic_attack  INT          NOT NULL DEFAULT 10,
+    basic_attack       INT          NOT NULL DEFAULT 10,
     # 基础防御力
-    basic_defense INT          NOT NULL DEFAULT 10,
+    basic_defense      INT          NOT NULL DEFAULT 10,
     # 基础速度
-    basic_speed   INT          NOT NULL DEFAULT 10,
+    basic_speed        INT          NOT NULL DEFAULT 10,
     # 基础宽度
-    basic_width   INT          NOT NULL DEFAULT 120,
+    basic_width        INT          NOT NULL DEFAULT 120,
     # 基础高度
-    basic_height  INT          NOT NULL DEFAULT 120
+    basic_height       INT          NOT NULL DEFAULT 120,
+    # 基础视觉范围
+    basic_vision_range INT          NOT NULL DEFAULT 1000,
+    # 基础攻击范围
+    basic_attack_range INT          NOT NULL DEFAULT 100,
+    # 精灵宽度占图像宽度的比例
+    width_ratio        DOUBLE       NOT NULL DEFAULT 1,
+    # 精灵高度占图像高度的比例
+    height_ratio       DOUBLE       NOT NULL DEFAULT 1
 );
 
 INSERT INTO sprite_type (type, name, description, basic_price, basic_money,
                          basic_exp, basic_level, basic_hunger, basic_hp,
-                         basic_attack, basic_defense, basic_speed, basic_width, basic_height)
-VALUES ('USER', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
-       ('DOG', '狗狗', '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120),
-       ('CAT', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120,
-        120),
-       ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120);
+                         basic_attack, basic_defense, basic_speed, basic_width, basic_height, basic_vision_range,
+                         basic_attack_range, width_ratio, height_ratio)
+VALUES ('USER', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120, 1000, 100, 0.5, 0.8),
+       ('DOG', '狗狗', '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120,
+        1000, 100, 0.35, 0.5),
+       ('CAT', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120,
+        1000, 100, 0.35, 0.5),
+       ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120, 1000, 100,
+        0.9, 0.85);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
 CREATE TABLE sprite
 (
-    id      VARCHAR(255) NOT NULL PRIMARY KEY,
+    id           VARCHAR(255) NOT NULL PRIMARY KEY,
     # 类型
-    type    VARCHAR(255) NOT NULL,
+    type         VARCHAR(255) NOT NULL,
     # 主人
-    owner   VARCHAR(255),
+    owner        VARCHAR(255),
     # 角色的各个属性都是基础值，不包括装备、效果等加成
-    money   INT                   DEFAULT 0,
-    exp     INT          NOT NULL DEFAULT 0,
-    level   INT          NOT NULL DEFAULT 1,
-    hunger  INT          NOT NULL DEFAULT 100,
-    hp      INT          NOT NULL DEFAULT 100,
-    attack  INT          NOT NULL DEFAULT 10,
-    defense INT          NOT NULL DEFAULT 10,
-    speed   INT          NOT NULL DEFAULT 10,
-    x       INT          NOT NULL DEFAULT 0,
-    y       INT          NOT NULL DEFAULT 0,
-    width   INT          NOT NULL DEFAULT 120,
-    height  INT          NOT NULL DEFAULT 120,
+    money        INT                   DEFAULT 0,
+    exp          INT          NOT NULL DEFAULT 0,
+    level        INT          NOT NULL DEFAULT 1,
+    hunger       INT          NOT NULL DEFAULT 100,
+    hp           INT          NOT NULL DEFAULT 100,
+    attack       INT          NOT NULL DEFAULT 10,
+    defense      INT          NOT NULL DEFAULT 10,
+    speed        INT          NOT NULL DEFAULT 10,
+    # 视觉范围
+    vision_range INT          NOT NULL DEFAULT 1000,
+    # 攻击范围
+    attack_range INT          NOT NULL DEFAULT 100,
+    x            INT          NOT NULL DEFAULT 0,
+    y            INT          NOT NULL DEFAULT 0,
+    width        INT          NOT NULL DEFAULT 120,
+    height       INT          NOT NULL DEFAULT 120,
     # 所在地图名称
-    map     VARCHAR(255) NOT NULL,
+    map          VARCHAR(255) NOT NULL,
     CONSTRAINT fk_sprite_type FOREIGN KEY (type) REFERENCES sprite_type (type),
     CONSTRAINT fk_sprite_map FOREIGN KEY (map) REFERENCES game_map (id),
     CONSTRAINT fk_sprite_owner FOREIGN KEY (owner) REFERENCES sprite (id)
 );
 
-INSERT INTO sprite (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, x, y, map, width,
+INSERT INTO sprite (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, vision_range, attack_range,
+                    x, y, map, width,
                     height)
-VALUES ('USER_xixi', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 10, 300, 300, '1', 150, 150),
-       ('USER_haha', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 20, 100, 100, '1', 150, 150),
-       ('USER_heihei', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 20, 200, 200, '1', 150, 150),
-       ('DOG_Vz5n_o-CQk-okcK5vQFRsA', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 400, 300, '1', 150, 150),
-       ('DOG_q83jrKyCTtGm1QvywN48pw', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 13, 6, 8, 400, 400, '1', 250, 250),
-       ('CAT_iZUc8IiRTCOQXNjLNbQUFQ', 'CAT', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 400, 500, '1', 150, 150);
+VALUES ('USER_xixi', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 10, 1000, 100, 300, 300, '1', 150, 150),
+       ('USER_haha', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 20, 1000, 100, 100, 100, '1', 150, 150),
+       ('USER_heihei', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 20, 1000, 100, 200, 200, '1', 150, 150),
+       ('DOG_Vz5n_o-CQk-okcK5vQFRsA', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 1000, 100, 400, 300, '1', 150,
+        150),
+       ('DOG_q83jrKyCTtGm1QvywN48pw', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 13, 6, 8, 1000, 100, 400, 400, '1', 250,
+        250),
+       ('CAT_iZUc8IiRTCOQXNjLNbQUFQ', 'CAT', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 1000, 100, 400, 500, '1', 150,
+        150);
 
 # 创建物品表
 CREATE TABLE item_type
@@ -217,7 +236,7 @@ create table sprite_effect
     sprite   VARCHAR(255) NOT NULL,
     effect   VARCHAR(255) NOT NULL,
     # 效果的总持续时间（单位是秒，而不是毫秒，-1表示永久）
-    duration INT       NOT NULL DEFAULT 0,
+    duration INT          NOT NULL DEFAULT 0,
     # 效果的过期时间（1970年1月1日至今的毫秒数，-1表示永久）
     expire   BIGINT       NOT NULL,
     primary key (sprite, effect),
@@ -251,23 +270,26 @@ create table item_type_attribute
     defense_inc INT          NOT NULL DEFAULT 0,
     # 增加速度
     speed_inc   INT          NOT NULL DEFAULT 0,
+    # 增加视觉范围
+    vision_range_inc INT          NOT NULL DEFAULT 0,
+    # 增加攻击范围
+    attack_range_inc INT          NOT NULL DEFAULT 0,
     primary key (item_type, operation),
     foreign key (item_type) references item_type (id)
 );
 
 insert into item_type_attribute(item_type, operation, money_inc, exp_inc, level_inc, hunger_inc, hp_inc, attack_inc,
-                                defense_inc,
-                                speed_inc)
-values ('BREAD', 'USE', 0, 0, 0, 10, 0, 0, 0, 0),
-       ('APPLE', 'USE', 0, 4, 0, 4, 0, 0, 0, 0),
-       ('LEATHER_CHEST_ARMOR', 'EQUIP', 0, 0, 0, 0, 0, 0, 5, 0),
-       ('SAW', 'HANDHELD', 0, 0, 0, 0, 0, 10, 0, 0),
-       ('STICK', 'HANDHELD', 0, 0, 0, 0, 0, 5, 0, 0),
-       ('BONE', 'HANDHELD', 0, 0, 0, 0, 0, 7, 0, 0),
-       ('FLYING_BOOTS', 'EQUIP', 0, 0, 0, 0, 0, 0, 0, 10),
-       ('IRON_HELMET', 'EQUIP', 0, 0, 0, 0, 0, 0, 12, 0),
-       ('HOLY_GRAIL', 'HANDHELD', 0, 0, 0, 5, 0, 5, 5, 5),
-       ('FLAME_LEGGINGS', 'EQUIP', 0, 0, 0, 0, 0, 3, 7, 0);
+                                defense_inc, speed_inc, vision_range_inc, attack_range_inc)
+values ('BREAD', 'USE', 0, 0, 0, 10, 0, 0, 0, 0, 0, 0),
+       ('APPLE', 'USE', 0, 4, 0, 4, 0, 0, 0, 0, 0, 0),
+       ('LEATHER_CHEST_ARMOR', 'EQUIP', 0, 0, 0, 0, 0, 0, 5, 0, 0, 0),
+       ('SAW', 'HANDHELD', 0, 0, 0, 0, 0, 10, 0, 0, 0, 0),
+       ('STICK', 'HANDHELD', 0, 0, 0, 0, 0, 5, 0, 0, 0, 0),
+       ('BONE', 'HANDHELD', 0, 0, 0, 0, 0, 7, 0, 0, 0, 0),
+       ('FLYING_BOOTS', 'EQUIP', 0, 0, 0, 0, 0, 0, 0, 10, 0, 0),
+       ('IRON_HELMET', 'EQUIP', 0, 0, 0, 0, 0, 0, 12, 0, 0, 0),
+       ('HOLY_GRAIL', 'HANDHELD', 0, 0, 0, 5, 0, 5, 5, 5, 100, 5),
+       ('FLAME_LEGGINGS', 'EQUIP', 0, 0, 0, 0, 0, 3, 7, 0, 0, 0);
 
 
 # 装备物品后对对角色带来的特殊效果

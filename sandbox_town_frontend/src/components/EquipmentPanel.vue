@@ -77,6 +77,8 @@ export default {
                 { 'label': 'defense', 'show': '🛡️ 防御力' },
                 { 'label': 'speed', 'show': '🏃 速度' },
                 { 'label': 'hp', 'show': '🩸 血量' },
+                { 'label': 'visionRange', 'show': '👀 视野范围' },
+                { 'label': 'attackRange', 'show': '🎯 攻击范围' },
             ];
             // 从后端获取玩家信息
             mixin.myGET('/rest/sprite/listMine', null, (data) => {
@@ -135,7 +137,7 @@ export default {
 
 .custom-table th,
 .custom-table td {
-    padding-bottom: 10px;
+    padding-bottom: 0px;
     padding-right: 30px;
     text-align: left;
 }
@@ -143,7 +145,7 @@ export default {
 
 .item {
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 5px;
     cursor: pointer;
     position: relative;
 }
@@ -176,7 +178,7 @@ export default {
     background-color: #ddd;
     border-radius: 5px;
     margin-top: 5px;
-    margin-bottom: 3px;
+    margin-bottom: 30px;
     font-size: 14px;
 }
 

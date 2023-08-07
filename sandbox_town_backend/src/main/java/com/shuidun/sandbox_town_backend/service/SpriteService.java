@@ -68,6 +68,8 @@ public class SpriteService {
         sprite.setAttackInc(0);
         sprite.setDefenseInc(0);
         sprite.setSpeedInc(0);
+        sprite.setVisionRangeInc(0);
+        sprite.setAttackRangeInc(0);
         // 对于所有装备，计算属性增量
         for (ItemDo item : sprite.getEquipments()) {
             // 判断物品的位置
@@ -88,6 +90,8 @@ public class SpriteService {
             sprite.setAttackInc(sprite.getAttackInc() + attributesInc.getAttackInc());
             sprite.setDefenseInc(sprite.getDefenseInc() + attributesInc.getDefenseInc());
             sprite.setSpeedInc(sprite.getSpeedInc() + attributesInc.getSpeedInc());
+            sprite.setVisionRangeInc(sprite.getVisionRangeInc() + attributesInc.getVisionRangeInc());
+            sprite.setAttackRangeInc(sprite.getAttackRangeInc() + attributesInc.getAttackRangeInc());
         }
     }
 
@@ -174,23 +178,10 @@ public class SpriteService {
         return sprite;
     }
 
-    /** 根据id获取角色详细信息（带有缓存信息、类型信息、装备信息、属性增量信息、效果列表信息），用于向前端展示 */
-    public SpriteDo selectByIdWithTypeAndEquipmentsAndIncAndEffect(String id) {
+    /** 根据id获取角色详细信息（带有缓存信息、类型信息、装备信息、属性增量信息、效果列表信息） */
+    public SpriteDo selectByIdWithDetail(String id) {
         // 获得带有类型信息的sprite
         SpriteDo sprite = spriteMapper.selectByIdWithType(id);
-        if (sprite == null) {
-            throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
-        }
-        // 看看有没有cached信息
-        assignCacheToSprite(sprite);
-        // 获取装备信息、属性增量信息、效果列表
-        assignEquipmentsAndAttributeIncAndEffectToSprite(sprite);
-        return sprite;
-    }
-
-    /** 根据id获取角色信息（带有缓存信息、装备信息、属性增量信息、效果列表信息），用于后端计算 */
-    public SpriteDo selectByIdWithEquipmentsAndIncAndEffect(String id) {
-        SpriteDo sprite = spriteMapper.selectById(id);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
@@ -215,6 +206,8 @@ public class SpriteService {
             sprite.setAttack(sprite.getAttack() + 2);
             sprite.setDefense(sprite.getDefense() + 2);
             sprite.setSpeed(sprite.getSpeed() + 2);
+            sprite.setVisionRange(sprite.getVisionRange() + 50);
+            sprite.setAttackRange(sprite.getAttackRange() + 1);
         }
         // 判断属性是否在合理范围内
         if (sprite.getHunger() > 100) {
@@ -239,6 +232,12 @@ public class SpriteService {
         if (sprite.getSpeed() < 0) {
             sprite.setSpeed(0);
         }
+        if (sprite.getVisionRange() < 0) {
+            sprite.setVisionRange(0);
+        }
+        if (sprite.getAttackRange() < 0) {
+            sprite.setAttackRange(0);
+        }
         spriteMapper.updateById(sprite);
         return sprite;
     }
@@ -248,11 +247,37 @@ public class SpriteService {
         return spriteMapper.selectByMapId(map);
     }
 
-    /** 生成随机的指定类型的角色，并写入数据库 */
-    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String owner, int x, int y) {
+    /** 生成固定的（即各属性值严格等于其精灵类型的基础属性值）指定类型的角色，并写入数据库 */
+    public SpriteDo generateFixedSprite(SpriteTypeEnum type, String id, String owner, int x, int y) {
         SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
-        sprite.setId(NameGenerator.generateItemName(type.name()));
+        sprite.setId(id);
+        sprite.setType(type);
+        sprite.setOwner(owner);
+        sprite.setMoney(spriteType.getBasicMoney());
+        sprite.setExp(spriteType.getBasicExp());
+        sprite.setLevel(spriteType.getBasicLevel());
+        sprite.setHunger(spriteType.getBasicHunger());
+        sprite.setHp(spriteType.getBasicHp());
+        sprite.setAttack(spriteType.getBasicAttack());
+        sprite.setDefense(spriteType.getBasicDefense());
+        sprite.setSpeed(spriteType.getBasicSpeed());
+        sprite.setVisionRange(spriteType.getBasicVisionRange());
+        sprite.setAttackRange(spriteType.getBasicAttackRange());
+        sprite.setX(x);
+        sprite.setY(y);
+        sprite.setWidth(spriteType.getBasicWidth());
+        sprite.setHeight(spriteType.getBasicHeight());
+        sprite.setMap(mapId);
+        spriteMapper.insert(sprite);
+        return sprite;
+    }
+
+    /** 生成随机的指定类型的角色，并写入数据库 */
+    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String id, String owner, int x, int y) {
+        SpriteDo sprite = new SpriteDo();
+        SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
+        sprite.setId(id);
         sprite.setType(type);
         sprite.setOwner(owner);
         // 根据基础属性值和随机数随机生成角色的属性
@@ -278,6 +303,10 @@ public class SpriteService {
         sprite.setDefense((int) (spriteType.getBasicDefense() * scale));
         scale = 0.8 + Math.random() * 0.4;
         sprite.setSpeed((int) (spriteType.getBasicSpeed() * scale));
+        scale = 0.8 + Math.random() * 0.4;
+        sprite.setVisionRange((int) (spriteType.getBasicVisionRange() * scale));
+        scale = 0.8 + Math.random() * 0.4;
+        sprite.setAttackRange((int) (spriteType.getBasicAttackRange() * scale));
         sprite.setX(x);
         sprite.setY(y);
         // 宽度和高度使用相同的scale
@@ -287,6 +316,11 @@ public class SpriteService {
         sprite.setMap(mapId);
         spriteMapper.insert(sprite);
         return sprite;
+    }
+
+    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String owner, int x, int y) {
+        String id = NameGenerator.generateItemName(type.name());
+        return generateRandomSprite(type, id, owner, x, y);
     }
 
     public List<SpriteDo> getOnlineSprites() {
@@ -369,6 +403,8 @@ public class SpriteService {
             sprite.setAttack(sprite.getAttack() + itemTypeAttribute.getAttackInc());
             sprite.setDefense(sprite.getDefense() + itemTypeAttribute.getDefenseInc());
             sprite.setSpeed(sprite.getSpeed() + itemTypeAttribute.getSpeedInc());
+            sprite.setVisionRange(sprite.getVisionRange() + itemTypeAttribute.getVisionRangeInc());
+            sprite.setAttackRange(sprite.getAttackRange() + itemTypeAttribute.getAttackRangeInc());
             // 判断新属性是否在合理范围内（包含升级操作），随后写入数据库
             sprite = normalizeAndUpdateSprite(sprite);
             if (spriteAttributeChange.setChanged(sprite)) {
