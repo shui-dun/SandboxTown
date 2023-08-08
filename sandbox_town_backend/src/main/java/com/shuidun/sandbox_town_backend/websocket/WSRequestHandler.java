@@ -124,6 +124,17 @@ public class WSRequestHandler {
             return null;
         });
 
+        // 交互事件
+        eventMap.put(WSRequestEnum.INTERACT, (initiator, mapData) -> {
+            var data = mapData.toJavaObject(InteractDto.class);
+            var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
+            var targetSprite = spriteService.selectByIdWithDetail(data.getTarget());
+            // 目前只添加了攻击事件
+            List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
+            WSMessageSender.sendResponseList(responses);
+            return null;
+        });
+
     }
 
 }

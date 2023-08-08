@@ -11,4 +11,6 @@ public enum WSRequestEnum {
     COORDINATE,
     /** 想要移动到某个位置 */
     MOVE,
+    /** 精灵交互 */
+    INTERACT,
 }

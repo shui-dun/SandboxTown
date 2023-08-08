@@ -36,6 +36,18 @@ class MainScene extends Phaser.Scene {
         // 角色->补间动画
         this.id2tween = {};
 
+        // 文本信息->精灵
+        this.hpMsg2sprite = new Map();
+
+    }
+
+    // 更新文本信息的位置
+    updateTextMsgPosition() {
+        for (let [textMsg, sprite] of this.hpMsg2sprite.entries()) {
+            textMsg.x = sprite.x;
+            textMsg.y = sprite.y - sprite.displayHeight / 2;
+            textMsg.setDepth(textMsg.y + 1000);
+        }
     }
 
     // 设置物体的层数，层数越高，显示越靠前
@@ -43,6 +55,9 @@ class MainScene extends Phaser.Scene {
         // shape中心的y坐标
         gameObject.setDepth(gameObject.y);
     }
+
+
+
 
     // 将图像左上角坐标转化为物体质心坐标
     convertToCenter(gameObject, x, y) {
@@ -360,15 +375,27 @@ class MainScene extends Phaser.Scene {
             let speed = data.speed;
             // 路径
             let originPath = data.path;
-            // 终点id
+            // 终点建筑id
             let destBuildingId = data.destBuildingId;
+            // 终点精灵
             let destSpriteId = data.destSpriteId;
+            let destSprite = null;
+            if (destSpriteId != null) {
+                destSprite = await this.getSpriteInfoById(destSpriteId);
+            }
             // 目的地的到达事件
             let arriveEvent = () => {
-                // 如果是其他玩家或者其他玩家的宠物，就不触发到达事件
+                // 如果发起者是其他玩家或者其他玩家的宠物，就不触发到达事件
                 if ((initatorSprite.id.startsWith("USER") && initatorSprite.id != this.myUsername) ||
                     (initatorSprite.owner != null && initatorSprite.owner != this.myUsername)) {
                     return;
+                }
+                // 如果目标是精灵，并且目标精灵是其他玩家或者其他玩家的宠物，就不触发到达事件
+                if (destSprite != null) {
+                    if ((destSprite.id.startsWith("USER") && destSprite.id != this.myUsername) ||
+                        (destSprite.owner != null && destSprite.owner != this.myUsername)) {
+                        return;
+                    }
                 }
                 if (destBuildingId != null) {
                     let type = destBuildingId.split("_", 2)[0];
@@ -378,8 +405,15 @@ class MainScene extends Phaser.Scene {
                     } else if (type == 'STORE') {
                         this.game.events.emit('forward', { name: 'showStore', data: targetID });
                     }
-                } else if (destSpriteId != null) {
-                    // TODO：交互事件
+                } else if (destSprite != null) {
+                    // 发起交互事件
+                    ws.send(JSON.stringify({
+                        "type": "INTERACT",
+                        "data": {
+                            "source": initatorSprite.id,
+                            "target": destSprite.id,
+                        }
+                    }));
                 }
             };
             // 如果不存在路径，就直接到达终点
@@ -465,6 +499,37 @@ class MainScene extends Phaser.Scene {
             }
         });
 
+        // 精灵HP变化通知事件
+        emitter.on('SPRITE_HP_CHANGE', async (data) => {
+            let id = data.id;
+            let originHp = data.originHp;
+            let hpChange = data.hpChange;
+            // 在精灵上方显示伤害数字图像
+            let sprite = await this.getGameObjectById(id);
+            // 信息文本（originHp-hpChange）
+            let text = `${originHp}-${-hpChange}`;
+            // 显示信息文本
+            let textObject = this.add.text(0, 0, text, {
+                // 粗体
+                font: "bold 26px Consolas",
+                fill: '#550000',
+            });
+            // 设置文本的原点为中心
+            textObject.setOrigin(0.5, 0);
+            // 放置在map中
+            this.hpMsg2sprite.set(textObject, sprite);
+            // 精灵也变成红色
+            sprite.setTint(0xff0000);
+            // 持续时间，在指定的时间后销毁文本
+            let duration = 300;
+            this.time.delayedCall(duration, () => {
+                this.hpMsg2sprite.delete(textObject);
+                textObject.destroy();
+                // 精灵恢复原来的颜色
+                sprite.clearTint();
+            });
+        });
+
         // 加载完成
         this.isLoaded = true;
     }
@@ -484,6 +549,9 @@ class MainScene extends Phaser.Scene {
                 this.id2gameObject[id].setVelocityY(0);
             }
         }
+
+        // 更新文本的位置
+        this.updateTextMsgPosition();
     }
 }
 

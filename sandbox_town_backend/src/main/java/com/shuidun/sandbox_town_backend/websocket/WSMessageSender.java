@@ -9,6 +9,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -87,7 +88,8 @@ public class WSMessageSender {
             entry(WSResponseEnum.TIME_FRAME_NOTIFY, WSMessageSender::sendMessageToAllUsers),
             entry(WSResponseEnum.ITEM_BAR_NOTIFY, WSMessageSender::sendMessageToCurrentUser),
             entry(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, WSMessageSender::sendMessageToCurrentUser),
-            entry(WSResponseEnum.SPRITE_EFFECT_CHANGE, WSMessageSender::sendMessageToCurrentUser)
+            entry(WSResponseEnum.SPRITE_EFFECT_CHANGE, WSMessageSender::sendMessageToCurrentUser),
+            entry(WSResponseEnum.SPRITE_HP_CHANGE, WSMessageSender::sendMessageToAllUsers)
     );
 
     /**
@@ -106,7 +108,7 @@ public class WSMessageSender {
     /**
      * 处理响应列表，发送给应该接收到该事件的用户
      */
-    public static void sendResponseList(Iterable<WSResponseVo> responseList) {
+    public static void sendResponseList(List<WSResponseVo> responseList) {
         for (var response : responseList) {
             sendResponse(response);
         }
