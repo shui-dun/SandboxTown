@@ -36,28 +36,19 @@ class MainScene extends Phaser.Scene {
         // 角色->补间动画
         this.id2tween = {};
 
-        // HP变化信息->精灵
+        // 精灵对象->HP变化信息
         // 之所以这里要用Map，是因为{}中只能用String作为key
-        this.hpMsg2sprite = new Map();
-
-        // 精灵名称文本对象->精灵对象
-        // this.nameMsg2sprite = new Map();
+        this.sprite2hpMsg = new Map();
 
     }
 
     // 更新文本信息的位置
     updateTextMsgPosition() {
-        for (let [textMsg, sprite] of this.hpMsg2sprite.entries()) {
+        for (let [sprite, textMsg] of this.sprite2hpMsg.entries()) {
             textMsg.x = sprite.x;
             textMsg.y = sprite.y - sprite.displayHeight / 2;
             textMsg.setDepth(textMsg.y + 1000);
         }
-
-        // for (let [textMsg, sprite] of this.nameMsg2sprite.entries()) {
-        //     textMsg.x = sprite.x;
-        //     textMsg.y = sprite.y + sprite.displayHeight / 2 + 10;
-        //     textMsg.setDepth(textMsg.y + 1000);
-        // }
     }
 
     // 设置物体的层数，层数越高，显示越靠前
@@ -92,18 +83,6 @@ class MainScene extends Phaser.Scene {
         this.setDepth(spriteSprite);
         // 禁止旋转
         spriteSprite.setFixedRotation();
-        // 显示名称
-        // let name = sprite.id;
-        // // 如果是用户，删掉前缀
-        // if (name.startsWith("USER_")) {
-        //     name = name.split("_", 2)[1];
-        // } else {
-        //     // 否则对名字进行哈希
-        //     name = mixin.hashName(name);
-        // }
-        // let nameMsg = this.add.text(0, 0, name, { fontFamily: 'Arial', fontSize: 22, color: '#000000' });
-        // nameMsg.setOrigin(0.5, 1);
-        // this.nameMsg2sprite.set(nameMsg, spriteSprite);
         // 设置点击角色的事件
         spriteSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(this.clickShapes[sprite.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         spriteSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
@@ -536,13 +515,13 @@ class MainScene extends Phaser.Scene {
             // 设置文本的原点为中心
             textObject.setOrigin(0.5, 0);
             // 放置在map中
-            this.hpMsg2sprite.set(textObject, sprite);
+            this.sprite2hpMsg.set(sprite, textObject);
             // 精灵也变成红色
             sprite.setTint(0xff0000);
             // 持续时间，在指定的时间后销毁文本
             let duration = 300;
             this.time.delayedCall(duration, () => {
-                this.hpMsg2sprite.delete(textObject);
+                this.sprite2hpMsg.delete(sprite);
                 textObject.destroy();
                 // 精灵恢复原来的颜色
                 sprite.clearTint();
