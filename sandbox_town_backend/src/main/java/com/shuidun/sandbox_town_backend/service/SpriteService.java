@@ -178,6 +178,17 @@ public class SpriteService {
         return sprite;
     }
 
+    /** 根据id获取角色信息（只带有缓存信息和类型信息） */
+    public SpriteDo selectByIdWithType(String id) {
+        SpriteDo sprite = spriteMapper.selectByIdWithType(id);
+        if (sprite == null) {
+            throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
+        }
+        // 看看有没有cached信息
+        assignCacheToSprite(sprite);
+        return sprite;
+    }
+
     /** 根据id获取角色详细信息（带有缓存信息、类型信息、装备信息、属性增量信息、效果列表信息） */
     public SpriteDo selectByIdWithDetail(String id) {
         // 获得带有类型信息的sprite

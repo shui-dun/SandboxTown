@@ -73,11 +73,29 @@ class MainScene extends Phaser.Scene {
         // 设置点击角色的事件
         spriteSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(this.clickShapes[sprite.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         spriteSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
-            // 鼠标左键点击
+            // 鼠标左键点击，与精灵进行交互
             if (pointer.button === 0) {
-                this.game.events.emit('forward', { name: 'showSpritePanel', data: sprite.id });
+                // 如果是自己，则不进行交互
+                if (sprite.id === this.myUsername) {
+                    return;
+                }
+                const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+                const x = worldPoint.x;
+                const y = worldPoint.y;
+                // 发送移动请求
+                ws.send(JSON.stringify({
+                    "type": "MOVE",
+                    "data": {
+                        "x0": this.id2gameObject[this.myUsername].x,
+                        "y0": this.id2gameObject[this.myUsername].y,
+                        "x1": x,
+                        "y1": y,
+                        "destBuildingId": null,
+                        "destSpriteId": sprite.id,
+                    }
+                }));
             } else if (pointer.button === 2) { // 鼠标右键点击
-                // TO-DO: 发送攻击请求
+                this.game.events.emit('forward', { name: 'showSpritePanel', data: sprite.id });
             }
             // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
             this.input.mouse.disableContextMenu();
@@ -182,7 +200,8 @@ class MainScene extends Phaser.Scene {
                         "y0": this.id2gameObject[this.myUsername].y,
                         "x1": x,
                         "y1": y,
-                        "destId": building.id,
+                        "destBuildingId": building.id,
+                        "destSpriteId": null,
                     }
                 }));
                 // 阻止事件冒泡
@@ -318,7 +337,8 @@ class MainScene extends Phaser.Scene {
                     "y0": this.id2gameObject[this.myUsername].y,
                     "x1": x,
                     "y1": y,
-                    "destId": null,
+                    "destBuildingId": null,
+                    "destSpriteId": null,
                 }
             }));
             // 防止右键点击时浏览器的默认行为（例如显示上下文菜单）
@@ -341,7 +361,8 @@ class MainScene extends Phaser.Scene {
             // 路径
             let originPath = data.path;
             // 终点id
-            let destId = data.destId;
+            let destBuildingId = data.destBuildingId;
+            let destSpriteId = data.destSpriteId;
             // 目的地的到达事件
             let arriveEvent = () => {
                 // 如果是其他玩家或者其他玩家的宠物，就不触发到达事件
@@ -349,14 +370,16 @@ class MainScene extends Phaser.Scene {
                     (initatorSprite.owner != null && initatorSprite.owner != this.myUsername)) {
                     return;
                 }
-                if (destId != null) {
-                    let type = destId.split("_", 2)[0];
-                    let targetID = destId;
+                if (destBuildingId != null) {
+                    let type = destBuildingId.split("_", 2)[0];
+                    let targetID = destBuildingId;
                     if (type === 'TREE') {
                         emitter.emit('TREE_ARRIVE', { "initator": this.myUsername, "target": targetID });
                     } else if (type == 'STORE') {
                         this.game.events.emit('forward', { name: 'showStore', data: targetID });
                     }
+                } else if (destSpriteId != null) {
+                    // TODO：交互事件
                 }
             };
             // 如果不存在路径，就直接到达终点

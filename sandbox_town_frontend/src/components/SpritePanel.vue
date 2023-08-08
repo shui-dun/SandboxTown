@@ -1,5 +1,5 @@
 <template>
-    <NavGroup @close="$emit('close')">
+    <NavGroup @close="$emit('close')" @contextmenu.prevent>
         <template v-slot:0>
             <div style="max-width: 500px;">
                 <BasicIntroduction :name="id" :description="description" :image="image" />

@@ -64,7 +64,9 @@ public class PathUtils {
     }
 
     /** 判断给定的坐标是否不能容下物体 */
-    private static boolean cannotHold(int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight, int startX, int startY, int endX, int endY, Integer destinationHashCode) {
+    private static boolean obstacle(
+            int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight,
+            int startX, int startY, int endX, int endY, Integer destinationHashCode) {
 
         // 如果坐标在目标点附近（距离小于物体大小），并且该点本身并非障碍物，那么直接认为可以容下物体
         if (Math.abs(x - endX) <= itemHalfWidth && Math.abs(y - endY) <= itemHalfHeight
@@ -88,8 +90,10 @@ public class PathUtils {
             points.add(new Point(x, i));
         }
 
-
+        // 判断这些点是否有障碍物
         for (Point point : points) {
+            // 如果该点不在地图范围内，或者该点是障碍物，那么就不能容下物体
+            // 如果是建筑，但是该建筑是目标建筑，则不视作障碍物
             if (!isValid(map, point.getX(), point.getY()) ||
                     (destinationHashCode == null ? map[point.getX()][point.getY()] != 0 : map[point.getX()][point.getY()] != 0
                             && map[point.getX()][point.getY()] != destinationHashCode)
@@ -101,8 +105,59 @@ public class PathUtils {
 
     }
 
-    /** 寻找路径 */
-    public static List<Point> findPath(int[][] map, int startX, int startY, int endX, int endY, int itemHalfWidth, int itemHalfHeight, Integer destinationHashCode) {
+    /** 判断是否是终点 */
+    private static boolean isDestination(
+            int[][] map, int x, int y, int endX, int endY,
+            int initiatorHalfWidth, int initiatorHalfHeight,
+            Integer destinationHashCode,
+            Integer destSpriteHalfWidth, Integer destSpriteHalfHeight) {
+        // 如果精确地到达了终点，那么就是终点
+        if (x == endX && y == endY) {
+            return true;
+        }
+
+        // 如果终点是建筑
+        if (destinationHashCode != null) {
+            // 如果当前坐标是建筑内部，那么就是终点
+            if (map[x][y] == destinationHashCode) {
+                return true;
+            }
+        }
+
+        // 如果终点是精灵
+        if (destSpriteHalfWidth != null && destSpriteHalfHeight != null) {
+            // 如果发起者精灵和目标精灵稍稍碰撞，则视作到达终点
+            if (Math.abs(x - endX) <= (initiatorHalfWidth + destSpriteHalfWidth) - 1
+                    && Math.abs(y - endY) <= (initiatorHalfHeight + destSpriteHalfHeight) - 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 寻找路径
+     * 以下坐标全都是指逻辑坐标，而非像素坐标
+     *
+     * @param map                  地图
+     * @param startX               起点x坐标
+     * @param startY               起点y坐标
+     * @param endX                 终点x坐标
+     * @param endY                 终点y坐标
+     * @param initiatorHalfWidth   发起者的宽度的一半
+     * @param initiatorHalfHeight  发起者的高度的一半
+     * @param destinationHashCode  目标点的hashcode，如果为null，则表示终点不是建筑物
+     * @param destSpriteHalfWidth  目标精灵的宽度的一半，如果为null，则表示终点不是精灵
+     * @param destSpriteHalfHeight 目标精灵的高度的一半，如果为null，则表示终点不是精灵
+     * @return 路径
+     */
+    public static List<Point> findPath(
+            int[][] map, int startX, int startY,
+            int endX, int endY,
+            int initiatorHalfWidth, int initiatorHalfHeight,
+            Integer destinationHashCode,
+            Integer destSpriteHalfWidth, Integer destSpriteHalfHeight
+    ) {
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
 
@@ -118,14 +173,22 @@ public class PathUtils {
             }
 
             // 如果到达了目标点，或者当前点的hashcode与终点的hashcode相同，就返回路径
-            if (currentNode.x == endX && currentNode.y == endY ||
-                    (destinationHashCode != null && map[currentNode.x][currentNode.y] == destinationHashCode)) {
+            if (isDestination(map, currentNode.x, currentNode.y, endX, endY,
+                    initiatorHalfWidth, initiatorHalfHeight,
+                    destinationHashCode, destSpriteHalfWidth, destSpriteHalfHeight)) {
                 List<Point> path = new ArrayList<>();
                 while (currentNode != null) {
                     path.add(new Point(currentNode.x, currentNode.y));
                     currentNode = currentNode.parent;
                 }
                 Collections.reverse(path);
+
+                // 如果终点是建筑物，那么提前几步终止，防止到达终点后因为卡进建筑而抖动
+                int removeLen = Math.max(initiatorHalfWidth, initiatorHalfHeight);
+                if (destinationHashCode != null) {
+                    path = path.subList(0, Math.max(0, path.size() - removeLen));
+                }
+
                 return path;
             }
 
@@ -135,7 +198,7 @@ public class PathUtils {
                 int newX = currentNode.x + direction[0];
                 int newY = currentNode.y + direction[1];
 
-                if (!isValid(map, newX, newY) || cannotHold(map, newX, newY, itemHalfWidth, itemHalfHeight, startX, startY, endX, endY, destinationHashCode)) {
+                if (!isValid(map, newX, newY) || obstacle(map, newX, newY, initiatorHalfWidth, initiatorHalfHeight, startX, startY, endX, endY, destinationHashCode)) {
                     continue;
                 }
 

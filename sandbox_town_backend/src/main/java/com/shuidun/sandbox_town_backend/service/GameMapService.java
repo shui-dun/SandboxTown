@@ -1,8 +1,6 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.BuildingDo;
-import com.shuidun.sandbox_town_backend.bean.BuildingTypeDo;
-import com.shuidun.sandbox_town_backend.bean.GameMapDo;
+import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
@@ -159,19 +157,46 @@ public class GameMapService {
 
     /**
      * 寻路算法
-     * 如果没有终点物体，那么destinationHashCode为null
-     * */
-    public List<Point> findPath(int x0, int y0, int x1, int y1, int itemWidth, int itemHeight, Integer destinationHashCode) {
+     *
+     * @param initiator      发起者
+     * @param x1             终点x坐标
+     * @param y1             终点y坐标
+     * @param destBuildingId 目标建筑物id，如果终点是建筑物，则传入建筑物id，否则传入null
+     * @param destSpriteId   目标精灵id，如果终点是精灵，则传入精灵id，否则传入null
+     */
+    public List<Point> findPath(SpriteDo initiator, int x1, int y1,
+                                String destBuildingId, String destSpriteId) {
+        int x0 = initiator.getX();
+        int y0 = initiator.getY();
         // 将物理坐标转换为地图坐标
         int startX = x0 / Constants.PIXELS_PER_GRID;
         int startY = y0 / Constants.PIXELS_PER_GRID;
         int endX = x1 / Constants.PIXELS_PER_GRID;
         int endY = y1 / Constants.PIXELS_PER_GRID;
+        int spriteWidth = (int) (initiator.getWidth() * initiator.getWidthRatio());
+        int spriteHeight = (int) (initiator.getHeight() * initiator.getHeightRatio());
         // 将物品宽高的像素转换为地图坐标
-        int itemHalfWidth = (int) Math.ceil((double) itemWidth / Constants.PIXELS_PER_GRID) / 2;
-        int itemHalfHeight = (int) Math.ceil((double) itemHeight / Constants.PIXELS_PER_GRID) / 2;
+        int spriteHalfWidth = (int) Math.ceil((double) spriteWidth / Constants.PIXELS_PER_GRID) / 2;
+        int spriteHalfHeight = (int) Math.ceil((double) spriteHeight / Constants.PIXELS_PER_GRID) / 2;
+        // 如果目标是建筑物
+        Integer destBuildingHashCode = destBuildingId == null ? null : destBuildingId.hashCode();
+        // 如果目标是精灵
+        Integer destSpriteHalfWidth = null;
+        Integer destSpriteHalfHeight = null;
+        if (destSpriteId != null) {
+            // 此时重点被修正为精灵中心点
+            endX = (int) (GameCache.spriteCacheMap.get(destSpriteId).getX() / Constants.PIXELS_PER_GRID);
+            endY = (int) (GameCache.spriteCacheMap.get(destSpriteId).getY() / Constants.PIXELS_PER_GRID);
+            // 获取精灵的宽高
+            SpriteDo destSprite = spriteService.selectByIdWithType(destSpriteId);
+            int destSpriteWidth = (int) (destSprite.getWidth() * destSprite.getWidthRatio());
+            int destSpriteHeight = (int) (destSprite.getHeight() * destSprite.getHeightRatio());
+            // 将物品宽高的像素转换为地图坐标
+            destSpriteHalfWidth = (int) Math.ceil((double) destSpriteWidth / Constants.PIXELS_PER_GRID) / 2;
+            destSpriteHalfHeight = (int) Math.ceil((double) destSpriteHeight / Constants.PIXELS_PER_GRID) / 2;
+        }
         // 调用寻路算法
-        List<Point> path = PathUtils.findPath(GameCache.map, startX, startY, endX, endY, itemHalfWidth, itemHalfHeight, destinationHashCode);
+        List<Point> path = PathUtils.findPath(GameCache.map, startX, startY, endX, endY, spriteHalfWidth, spriteHalfHeight, destBuildingHashCode, destSpriteHalfWidth, destSpriteHalfHeight);
         // 判断是否为空
         if (path == null) {
             return null;

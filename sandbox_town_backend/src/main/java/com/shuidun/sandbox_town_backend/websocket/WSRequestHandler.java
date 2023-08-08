@@ -106,17 +106,11 @@ public class WSRequestHandler {
             var sprite = spriteService.selectByIdWithDetail(initiator);
             // 每种角色的宽度和高度不一样，需要根据角色类型来获取相应路径
             List<Point> path = gameMapService.findPath(
-                    data.getX0(), data.getY0(), data.getX1(), data.getY1(),
-                    (int) (sprite.getWidth() * sprite.getWidthRatio()), (int) (sprite.getHeight() * sprite.getHeightRatio()),
-                    data.getDestId() != null ? data.getDestId().hashCode() : null);
+                    sprite, data.getX1(), data.getY1(),
+                    data.getDestBuildingId(), data.getDestSpriteId());
             // 如果找不到路径，直接返回
             if (path == null) {
                 return null;
-            }
-            // 如果有终点，那么提前几步终止，防止到达终点后因为卡进建筑而抖动
-            int removeLen = 3;
-            if (data.getDestId() != null) {
-                path = path.subList(0, Math.max(0, path.size() - removeLen));
             }
             // TODO: 更新玩家的状态
             // 通知玩家移动
@@ -124,7 +118,8 @@ public class WSRequestHandler {
                     initiator,
                     sprite.getSpeed() + sprite.getSpeedInc(),
                     DataCompressor.compressPath(path),
-                    data.getDestId()
+                    data.getDestBuildingId(),
+                    data.getDestSpriteId()
             )));
             return null;
         });

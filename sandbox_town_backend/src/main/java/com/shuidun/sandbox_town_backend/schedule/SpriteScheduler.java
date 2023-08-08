@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.schedule;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
+import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
@@ -61,13 +62,13 @@ public class SpriteScheduler {
                     return null;
                 }
                 // 寻找路径
-                var path = gameMapService.findPath(sprite.getX(), sprite.getY(), (int) ownerSprite.getX(), (int) ownerSprite.getY(), (int) (sprite.getWidth() * 0.65), (int) (sprite.getHeight() * 0.75), null);
+                var path = gameMapService.findPath(sprite, (int) ownerSprite.getX(), (int) ownerSprite.getY(), null, null);
                 // 如果找不到路径，那就不跟随
                 if (path == null) {
                     return null;
                 }
-                // 如果距离过近，那就不跟随
-                int minLen = 7;
+                // 如果距离过近，那就不跟随，狗与主人不要离得太近
+                int minLen = (int) (sprite.getWidth() * sprite.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
                 if (path.size() < minLen) {
                     return null;
                 }
@@ -78,6 +79,7 @@ public class SpriteScheduler {
                         sprite.getId(),
                         sprite.getSpeed() + sprite.getSpeedInc(),
                         DataCompressor.compressPath(path),
+                        null,
                         null
                 )));
             }

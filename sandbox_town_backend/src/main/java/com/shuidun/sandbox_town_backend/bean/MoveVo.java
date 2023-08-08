@@ -13,5 +13,6 @@ public class MoveVo {
     private String id;
     private int speed;
     private List<Integer> path;
-    private String destId;
+    private String destBuildingId;
+    private String destSpriteId;
 }

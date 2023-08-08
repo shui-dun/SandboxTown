@@ -8,9 +8,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MoveDto {
+    // 出发点x坐标
     private Integer x0;
+    // 出发点y坐标
     private Integer y0;
+    // 终点x坐标
     private Integer x1;
+    // 终点y坐标
     private Integer y1;
-    private String destId;
+    // 终点建筑ID（如果有）
+    private String destBuildingId;
+    // 终点精灵ID（如果有）
+    private String destSpriteId;
 }
