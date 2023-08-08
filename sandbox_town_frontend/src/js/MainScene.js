@@ -36,8 +36,12 @@ class MainScene extends Phaser.Scene {
         // 角色->补间动画
         this.id2tween = {};
 
-        // 文本信息->精灵
+        // HP变化信息->精灵
+        // 之所以这里要用Map，是因为{}中只能用String作为key
         this.hpMsg2sprite = new Map();
+
+        // 精灵名称文本对象->精灵对象
+        // this.nameMsg2sprite = new Map();
 
     }
 
@@ -48,6 +52,12 @@ class MainScene extends Phaser.Scene {
             textMsg.y = sprite.y - sprite.displayHeight / 2;
             textMsg.setDepth(textMsg.y + 1000);
         }
+
+        // for (let [textMsg, sprite] of this.nameMsg2sprite.entries()) {
+        //     textMsg.x = sprite.x;
+        //     textMsg.y = sprite.y + sprite.displayHeight / 2 + 10;
+        //     textMsg.setDepth(textMsg.y + 1000);
+        // }
     }
 
     // 设置物体的层数，层数越高，显示越靠前
@@ -55,9 +65,6 @@ class MainScene extends Phaser.Scene {
         // shape中心的y坐标
         gameObject.setDepth(gameObject.y);
     }
-
-
-
 
     // 将图像左上角坐标转化为物体质心坐标
     convertToCenter(gameObject, x, y) {
@@ -85,6 +92,18 @@ class MainScene extends Phaser.Scene {
         this.setDepth(spriteSprite);
         // 禁止旋转
         spriteSprite.setFixedRotation();
+        // 显示名称
+        // let name = sprite.id;
+        // // 如果是用户，删掉前缀
+        // if (name.startsWith("USER_")) {
+        //     name = name.split("_", 2)[1];
+        // } else {
+        //     // 否则对名字进行哈希
+        //     name = mixin.hashName(name);
+        // }
+        // let nameMsg = this.add.text(0, 0, name, { fontFamily: 'Arial', fontSize: 22, color: '#000000' });
+        // nameMsg.setOrigin(0.5, 1);
+        // this.nameMsg2sprite.set(nameMsg, spriteSprite);
         // 设置点击角色的事件
         spriteSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(this.clickShapes[sprite.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         spriteSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
