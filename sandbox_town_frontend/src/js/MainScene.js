@@ -407,17 +407,23 @@ class MainScene extends Phaser.Scene {
             }
             // 目的地的到达事件
             let arriveEvent = () => {
+                // 判断精灵是否是指定精灵或者其宠物
+                let isOrIsOwneredby = (sprite, id) => {
+                    return sprite.id == id || sprite.owner == id;
+                }
+                // 判断精灵是否是玩家或者玩家的宠物
+                let isOrIsOwneredbyUser = (sprite) => {
+                    return sprite.id.startsWith("USER") || (sprite.owner != null && sprite.owner.startsWith("USER"));
+                }
+                if (destBuildingId != null) {
+                    // 当目标是建筑时，只有当发起者是自己或自己的宠物，才会触发到达事件
+                    if (!isOrIsOwneredby(initatorSprite, this.myUsername)) {
+                        return;
+                    }
+                }
                 // 当目标是精灵时，只有当目标精灵是自己或自己的宠物，
                 // 或者发起者是自己或自己的宠物同时目标精灵不是玩家并且主人也不是玩家，才会触发到达事件
-                if (destSprite != null) {
-                    // 判断精灵是否是指定精灵或者其宠物
-                    let isOrIsOwneredby = (sprite, id) => {
-                        return sprite.id == id || sprite.owner == id;
-                    }
-                    // 判断精灵是否是玩家或者玩家的宠物
-                    let isOrIsOwneredbyUser = (sprite) => {
-                        return sprite.id.startsWith("USER") || (sprite.owner != null && sprite.owner.startsWith("USER"));
-                    }
+                if (destSprite != null) {   
                     if (!(
                         isOrIsOwneredby(destSprite, this.myUsername)
                         || (isOrIsOwneredby(initatorSprite, this.myUsername) && !isOrIsOwneredbyUser(destSprite))
