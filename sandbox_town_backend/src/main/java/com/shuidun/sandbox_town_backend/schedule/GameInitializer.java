@@ -40,6 +40,7 @@ public class GameInitializer {
                 GameCache.spriteCacheMap.put(sprite.getId(), new SpriteCache(
                         sprite.getX(),
                         sprite.getY(),
+                        System.currentTimeMillis(),
                         0,
                         0,
                         SpriteStatus.STOPPED

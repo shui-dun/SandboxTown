@@ -54,14 +54,21 @@ public class WSRequestHandler {
             // TODO: 只能控制自己或者是自己的宠物或者公共npc，如果是其他玩家或者是其他玩家的宠物，直接返回
             // 更新坐标信息
             var spriteCache = GameCache.spriteCacheMap.get(data.getId());
+            // 如果传入的时间戳小于上次更新的时间戳，直接返回
+            if (spriteCache != null && spriteCache.getLastUpdateTime() > data.getTime()) {
+                return null;
+            }
+
             if (spriteCache == null) {
                 spriteCache = new SpriteCache();
                 GameCache.spriteCacheMap.put(data.getId(), spriteCache);
             }
             spriteCache.setX(data.getX());
             spriteCache.setY(data.getY());
+            spriteCache.setLastUpdateTime(data.getTime());
             spriteCache.setVx(data.getVx());
             spriteCache.setVy(data.getVy());
+
             // 广播给其他玩家
             WSMessageSender.sendResponse(
                     new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(

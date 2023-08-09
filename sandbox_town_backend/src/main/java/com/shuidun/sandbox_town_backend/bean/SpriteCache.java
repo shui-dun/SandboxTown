@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class SpriteCache {
     private double x;
     private double y;
+    private long lastUpdateTime;
     private double vx;
     private double vy;
     SpriteStatus status;

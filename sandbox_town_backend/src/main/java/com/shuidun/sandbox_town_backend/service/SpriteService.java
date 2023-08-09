@@ -262,8 +262,11 @@ public class SpriteService {
                 sprite.setX(0);
                 sprite.setY(0);
                 spriteMapper.updateById(sprite);
-                GameCache.spriteCacheMap.get(sprite.getId()).setX(0);
-                GameCache.spriteCacheMap.get(sprite.getId()).setY(0);
+                var spriteCache = GameCache.spriteCacheMap.get(sprite.getId());
+                spriteCache.setX(0);
+                spriteCache.setY(0);
+                // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
+                spriteCache.setLastUpdateTime(System.currentTimeMillis() + 300);
                 responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
                         sprite.getId(),
                         sprite.getX(),

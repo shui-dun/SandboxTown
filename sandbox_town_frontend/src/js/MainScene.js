@@ -305,6 +305,7 @@ class MainScene extends Phaser.Scene {
             //     ws.close();
             //     return;
             // }
+            let timestamp = new Date().getTime();
             // 遍历所有角色
             for (let id in this.id2spriteInfo) {
                 // 如果角色是自己、主人是自己、公共NPC（例如蜘蛛）
@@ -322,6 +323,7 @@ class MainScene extends Phaser.Scene {
                                 "id": id,
                                 "x": this.id2gameObject[id].x,
                                 "y": this.id2gameObject[id].y,
+                                "time": timestamp,
                                 "vx": this.id2gameObject[id].body.velocity.x,
                                 "vy": this.id2gameObject[id].body.velocity.y,
                             }
