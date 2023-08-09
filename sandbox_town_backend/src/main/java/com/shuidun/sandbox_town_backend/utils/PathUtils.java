@@ -74,6 +74,11 @@ public class PathUtils {
             return false;
         }
 
+        // 如果坐标是起点附近
+        if (Math.abs(x - startX) <= 1 && Math.abs(y - startY) <= 1) {
+            return false;
+        }
+
         // 由于物体本身占据一定长宽，因此在这里需要判断物体所占据的空间内是否有障碍物
         // 为方便起见，这里只判断了物体中央的十字架和左上角、左下角、右上角、右下角四个点
         List<Point> points = new ArrayList<>();
