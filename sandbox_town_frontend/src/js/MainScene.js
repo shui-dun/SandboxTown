@@ -40,6 +40,9 @@ class MainScene extends Phaser.Scene {
         // 之所以这里要用Map，是因为{}中只能用String作为key
         this.sprite2hpMsg = new Map();
 
+        // 精灵对象->精灵名称文本对象
+        this.nameMsg2sprite = new Map();
+
     }
 
     // 更新文本信息的位置
@@ -48,6 +51,12 @@ class MainScene extends Phaser.Scene {
             textMsg.x = sprite.x;
             textMsg.y = sprite.y - sprite.displayHeight / 2;
             textMsg.setDepth(textMsg.y + 1000);
+        }
+
+        for (let [sprite, textMsg] of this.nameMsg2sprite.entries()) {
+            textMsg.x = sprite.x;
+            textMsg.y = sprite.y + sprite.displayHeight / 2 + 15;
+            textMsg.setDepth(textMsg.y);
         }
     }
 
@@ -83,6 +92,14 @@ class MainScene extends Phaser.Scene {
         this.setDepth(spriteSprite);
         // 禁止旋转
         spriteSprite.setFixedRotation();
+        // 显示玩家的名称
+        let name = sprite.id;
+        if (name.startsWith("USER_")) {
+            name = name.split("_", 2)[1];
+            let nameMsg = this.add.text(0, 0, name, { fontFamily: 'Consolas', fontSize: 22, color: '#000000' });
+            nameMsg.setOrigin(0.5, 1);
+            this.nameMsg2sprite.set(spriteSprite, nameMsg);
+        }
         // 设置点击角色的事件
         spriteSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(this.clickShapes[sprite.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
         spriteSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
@@ -490,8 +507,15 @@ class MainScene extends Phaser.Scene {
             for (let spriteId in this.id2gameObject) {
                 // 如果是该角色的宠物或者是该角色，就删除
                 if (this.id2spriteInfo[spriteId].owner === data.id || spriteId === data.id) {
-                    this.id2gameObject[spriteId].destroy();
+                    let gameObject = this.id2gameObject[spriteId];
+                    let nameMsg = this.nameMsg2sprite.get(gameObject);
+                    if (nameMsg) {
+                        this.nameMsg2sprite.delete(gameObject);
+                        nameMsg.destroy();
+                    }
+
                     delete this.id2gameObject[spriteId];
+                    gameObject.destroy();
                     delete this.id2spriteInfo[spriteId];
                 }
             }
