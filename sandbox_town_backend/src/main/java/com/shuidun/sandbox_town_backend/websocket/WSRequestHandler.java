@@ -50,11 +50,8 @@ public class WSRequestHandler {
                     && spriteService.selectById(data.getId()) == null) {
                 return null;
             }
-            // 如果是第一次通报坐标信息，说明刚上线
-            boolean isFirstTime = !GameCache.spriteCacheMap.containsKey(data.getId());
 
-            // TODO: 只能控制自己或者是自己的宠物或者公共npc
-            // 如果是其他玩家或者是其他玩家的宠物，直接返回
+            // TODO: 只能控制自己或者是自己的宠物或者公共npc，如果是其他玩家或者是其他玩家的宠物，直接返回
             // 更新坐标信息
             var spriteCache = GameCache.spriteCacheMap.get(data.getId());
             if (spriteCache == null) {
@@ -66,18 +63,10 @@ public class WSRequestHandler {
             spriteCache.setVx(data.getVx());
             spriteCache.setVy(data.getVy());
             // 广播给其他玩家
-            // 如果是第一次通报坐标信息，说明刚上线，需要广播上线信息
-            WSResponseVo response;
-            if (isFirstTime) {
-                // 广播上线信息
-                response = new WSResponseVo(WSResponseEnum.ONLINE, spriteService.selectById(data.getId()));
-
-            } else { // 如果不是第一次通报坐标信息，只需广播坐标信息
-                response = new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
-                        data.getId(), data.getX(), data.getY(), data.getVx(), data.getVy()
-                ));
-            }
-            WSMessageSender.sendResponse(response);
+            WSMessageSender.sendResponse(
+                    new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
+                            data.getId(), data.getX(), data.getY(), data.getVx(), data.getVy()
+                    )));
             return null;
         });
 

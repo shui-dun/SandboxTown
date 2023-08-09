@@ -9,8 +9,6 @@ public enum WSResponseEnum {
     COORDINATE,
     /** 移动 */
     MOVE,
-    /** 上线 */
-    ONLINE,
     /** 下线 */
     OFFLINE,
     /** 时间段通知 */

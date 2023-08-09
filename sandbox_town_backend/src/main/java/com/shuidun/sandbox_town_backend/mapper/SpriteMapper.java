@@ -86,4 +86,8 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
             </script>
             """)
     void recoverSpritesLife(Collection<String> spriteIds, int minHunger, int incVal);
+
+    /** 更新坐标 */
+    @Update("UPDATE sprite SET x = #{x}, y = #{y} WHERE id = #{id}")
+    void updatePosition(@Param("id") String id, @Param("x") int x, @Param("y") int y);
 }

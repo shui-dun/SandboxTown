@@ -736,4 +736,10 @@ public class SpriteService {
         return new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(ids));
 
     }
+
+    public void saveSpritesCoordinate() {
+        GameCache.spriteCacheMap.forEach((spriteId, spriteCache) -> {
+            spriteMapper.updatePosition(spriteId, (int) spriteCache.getX(), (int) spriteCache.getY());
+        });
+    }
 }

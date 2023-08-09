@@ -84,15 +84,16 @@ class MainScene extends Phaser.Scene {
     // 创建角色
     createSprite(sprite) {
         // 如果角色已经存在，则不再创建
-        if (this.id2spriteInfo[sprite.id] != null) {
+        if (this.id2spriteInfo[sprite.id]) {
             return;
         }
         // 将其加入id2sprite
         this.id2spriteInfo[sprite.id] = sprite;
         // 创建角色
         let spriteSprite = this.matter.add.sprite(0, 0, sprite.type, null, { shape: this.collapseShapes[sprite.type] });
-        // 设置角色大小和位置
+        // 设置角色位置
         spriteSprite.setDisplaySize(sprite.width, sprite.height);
+        // 设置位置
         spriteSprite.setPosition(sprite.x, sprite.y);
         // 设置角色层级
         this.setDepth(spriteSprite);
@@ -406,10 +407,21 @@ class MainScene extends Phaser.Scene {
             }
             // 目的地的到达事件
             let arriveEvent = () => {
-                // 当目标是精灵时，只有当目标精灵是自己或者自己的宠物，才会触发到达事件
+                // 当目标是精灵时，只有当目标精灵是自己或自己的宠物，
+                // 或者发起者是自己或自己的宠物同时目标精灵不是玩家并且主人也不是玩家，才会触发到达事件
                 if (destSprite != null) {
-                    if (!((destSprite.id.startsWith("USER") && destSprite.id != this.myUsername)
-                        || (destSprite.owner != null && destSprite.owner == this.myUsername))) {
+                    // 判断精灵是否是指定精灵或者其宠物
+                    let isOrIsOwneredby = (sprite, id) => {
+                        return sprite.id == id || sprite.owner == id;
+                    }
+                    // 判断精灵是否是玩家或者玩家的宠物
+                    let isOrIsOwneredbyUser = (sprite) => {
+                        return sprite.id.startsWith("USER") || (sprite.owner != null && sprite.owner.startsWith("USER"));
+                    }
+                    if (!(
+                        isOrIsOwneredby(destSprite, this.myUsername)
+                        || (isOrIsOwneredby(initatorSprite, this.myUsername) && !isOrIsOwneredbyUser(destSprite))
+                    )) {
                         return;
                     }
                 }
@@ -464,7 +476,7 @@ class MainScene extends Phaser.Scene {
                     try {
                         const point = path.getPoint(tweenProgress.value);
                         // 这个地方经常抛出异常，因为在玩家移动的过程中，玩家可能会下线，导致玩家被删除，但是补间动画还在继续，因此报错，因此要用try-catch包裹
-                        this.matter.body.setPosition(initatorGameObject.body, { x: point.x, y: point.y });
+                        initatorGameObject.setPosition(point.x, point.y);
                     } catch (error) {
                         console.log(error);
                     }
@@ -492,14 +504,9 @@ class MainScene extends Phaser.Scene {
             // 游戏对象
             let gameObject = await this.getGameObjectById(data.id);
             // 更新其坐标
-            this.matter.body.setPosition(gameObject.body, { x: data.x, y: data.y });
+            gameObject.setPosition(data.x, data.y);
             // 更新速度
             this.matter.body.setVelocity(gameObject.body, { x: data.vx, y: data.vy });
-        });
-
-        // 上线通知事件
-        emitter.on('ONLINE', async (data) => {
-            this.createSprite(data);
         });
 
         // 下线通知事件

@@ -118,6 +118,9 @@ public class SpriteScheduler {
         if (counter % 13 == 0) {
             spriteService.recoverSpritesLife(GameCache.spriteCacheMap.keySet(), 80, 1);
         }
+        // 保存坐标
+        spriteService.saveSpritesCoordinate();
+
         // 其实当计数器重置时，会导致所有这些定时任务的执行时间都会不准确
         // 但是这个问题不大，因为Long.MAX_VALUE是一个很大的数，在有限的时间内不会重置
         if (counter == Long.MAX_VALUE) {
