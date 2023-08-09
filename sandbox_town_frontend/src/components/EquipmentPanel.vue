@@ -137,7 +137,7 @@ export default {
 
 .custom-table th,
 .custom-table td {
-    padding-bottom: 0px;
+    padding-bottom: 10px;
     padding-right: 30px;
     text-align: left;
 }
