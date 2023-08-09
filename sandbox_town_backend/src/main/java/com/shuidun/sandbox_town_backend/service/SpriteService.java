@@ -10,6 +10,7 @@ import com.shuidun.sandbox_town_backend.utils.NameGenerator;
 import com.shuidun.sandbox_town_backend.websocket.WSRequestHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -206,7 +207,8 @@ public class SpriteService {
 
     /** 判断角色属性值是否在合理范围内（包含升级操作） */
     @Transactional
-    public SpriteDo normalizeAndUpdateSprite(SpriteDo sprite) {
+    public Pair<SpriteDo, List<WSResponseVo>> normalizeAndUpdateSprite(SpriteDo sprite) {
+        List<WSResponseVo> responseList = new ArrayList<>();
         // 如果经验值足够升级，则升级
         if (sprite.getExp() >= EXP_PER_LEVEL) {
             sprite.setLevel(sprite.getLevel() + 1);
@@ -251,27 +253,31 @@ public class SpriteService {
         }
         // 判断是否死亡
         if (sprite.getHp() == 0) {
-            // 如果是玩家，则扣除金钱和清除经验，并设置坐标为原点
+            // 如果是玩家，则扣除金钱和清除经验，恢复饱腹值和生命值，并设置坐标为原点
             if (sprite.getType() == SpriteTypeEnum.USER) {
                 sprite.setMoney(Math.max(0, sprite.getMoney() - 50));
                 sprite.setExp(0);
+                sprite.setHunger(100);
+                sprite.setHp(100);
                 sprite.setX(0);
                 sprite.setY(0);
                 spriteMapper.updateById(sprite);
                 GameCache.spriteCacheMap.get(sprite.getId()).setX(0);
                 GameCache.spriteCacheMap.get(sprite.getId()).setY(0);
-                return sprite;
+                responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
+                        sprite.getId(),
+                        sprite.getX(),
+                        sprite.getY(),
+                        0, 0
+                )));
             } else { // 否则，删除
                 spriteMapper.deleteById(sprite.getId());
-                // 这里认为精灵之间没有所属关系，所属关系只可能出现在玩家和宠物之间
-                // 因此没有理会offline的返回值
-                offline(sprite.getId());
-                return null;
+                responseList.add(offline(sprite.getId()));
             }
         } else {
             spriteMapper.updateById(sprite);
-            return sprite;
         }
+        return Pair.of(sprite, responseList);
     }
 
     /** 得到某个地图上的所有角色 */
@@ -443,7 +449,7 @@ public class SpriteService {
             sprite.setVisionRange(sprite.getVisionRange() + itemTypeAttribute.getVisionRangeInc());
             sprite.setAttackRange(sprite.getAttackRange() + itemTypeAttribute.getAttackRangeInc());
             // 判断新属性是否在合理范围内（包含升级操作），随后写入数据库
-            sprite = normalizeAndUpdateSprite(sprite);
+            sprite = normalizeAndUpdateSprite(sprite).getFirst();
             if (spriteAttributeChange.setChanged(sprite)) {
                 responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
             }
@@ -714,9 +720,7 @@ public class SpriteService {
         hpChangeVo.setHpChange(targetSprite.getHp() - hpChangeVo.getOriginHp());
         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_HP_CHANGE, hpChangeVo));
         // 更新目标精灵
-        if (normalizeAndUpdateSprite(targetSprite) == null) {
-            responses.add(new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(List.of(targetSprite.getId()))));
-        }
+        responses.addAll(normalizeAndUpdateSprite(targetSprite).getSecond());
         return responses;
     }
 

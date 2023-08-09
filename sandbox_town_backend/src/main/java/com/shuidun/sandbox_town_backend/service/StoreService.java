@@ -211,7 +211,7 @@ public class StoreService {
         SpriteDo sprite = spriteMapper.selectById(spriteId);
         // 更新用户金钱
         sprite.setMoney(sprite.getMoney() + perPrice * amount);
-        sprite = spriteService.normalizeAndUpdateSprite(sprite);
+        sprite = spriteService.normalizeAndUpdateSprite(sprite).getFirst();
         // 更新物品数量
         itemService.reduce(spriteId, itemId, amount);
         // 更新商店商品数量（只有全新物品商店才会再次出售）

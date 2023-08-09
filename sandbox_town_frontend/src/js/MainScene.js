@@ -406,15 +406,10 @@ class MainScene extends Phaser.Scene {
             }
             // 目的地的到达事件
             let arriveEvent = () => {
-                // 如果发起者是其他玩家或者其他玩家的宠物，就不触发到达事件
-                if ((initatorSprite.id.startsWith("USER") && initatorSprite.id != this.myUsername) ||
-                    (initatorSprite.owner != null && initatorSprite.owner != this.myUsername)) {
-                    return;
-                }
-                // 如果目标是精灵，并且目标精灵是其他玩家或者其他玩家的宠物，就不触发到达事件
+                // 当目标是精灵时，只有当目标精灵是自己或者自己的宠物，才会触发到达事件
                 if (destSprite != null) {
-                    if ((destSprite.id.startsWith("USER") && destSprite.id != this.myUsername) ||
-                        (destSprite.owner != null && destSprite.owner != this.myUsername)) {
+                    if (!((destSprite.id.startsWith("USER") && destSprite.id != this.myUsername)
+                        || (destSprite.owner != null && destSprite.owner == this.myUsername))) {
                         return;
                     }
                 }
