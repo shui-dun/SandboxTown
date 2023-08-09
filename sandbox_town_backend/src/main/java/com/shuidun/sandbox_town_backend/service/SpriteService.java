@@ -255,7 +255,12 @@ public class SpriteService {
 
     /** 得到某个地图上的所有角色 */
     public List<SpriteDo> getSpritesByMap(String map) {
-        return spriteMapper.selectByMapId(map);
+        var list = spriteMapper.selectByMapId(map);
+        // 得到缓存信息
+        for (SpriteDo sprite : list) {
+            assignCacheToSprite(sprite);
+        }
+        return list;
     }
 
     /** 生成固定的（即各属性值严格等于其精灵类型的基础属性值）指定类型的角色，并写入数据库 */
