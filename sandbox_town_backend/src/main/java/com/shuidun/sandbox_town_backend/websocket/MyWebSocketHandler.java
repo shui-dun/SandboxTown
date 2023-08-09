@@ -2,7 +2,7 @@ package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.EventDto;
-import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
+import com.shuidun.sandbox_town_backend.service.SpriteService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
@@ -17,10 +17,13 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Slf4j
 public class MyWebSocketHandler extends TextWebSocketHandler {
 
-    private final WSRequestHandler WSRequestHandler;
+    private final WSRequestHandler wsRequestHandler;
 
-    public MyWebSocketHandler(WSRequestHandler WSRequestHandler) {
-        this.WSRequestHandler = WSRequestHandler;
+    private final SpriteService spriteService;
+
+    public MyWebSocketHandler(WSRequestHandler wsRequestHandler, SpriteService spriteService) {
+        this.wsRequestHandler = wsRequestHandler;
+        this.spriteService = spriteService;
     }
 
     /**
@@ -50,8 +53,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         String userName = (String) session.getAttributes().get("userName");
         WSMessageSender.usernameSession.remove(userName, session);
         // 发出下线事件
-        EventDto eventDto = new EventDto(WSRequestEnum.OFFLINE, userName, null);
-        WSRequestHandler.handle(eventDto);
+        WSMessageSender.sendResponse(spriteService.offline(userName));
         super.afterConnectionClosed(session, status);
     }
 
@@ -68,7 +70,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         EventDto eventDto = JSONObject.parseObject(messagePayload, EventDto.class);
         eventDto.setInitiator((String) session.getAttributes().get("userName"));
         // 交给事件处理器处理
-        WSRequestHandler.handle(eventDto);
+        wsRequestHandler.handle(eventDto);
     }
 
 }

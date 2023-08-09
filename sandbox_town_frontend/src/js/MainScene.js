@@ -48,12 +48,18 @@ class MainScene extends Phaser.Scene {
     // 更新文本信息的位置
     updateTextMsgPosition() {
         for (let [sprite, textMsg] of this.sprite2hpMsg.entries()) {
+            if (!sprite || !textMsg || !sprite.body) {
+                continue;
+            }
             textMsg.x = sprite.x;
             textMsg.y = sprite.y - sprite.displayHeight / 2;
             textMsg.setDepth(textMsg.y + 1000);
         }
 
         for (let [sprite, textMsg] of this.nameMsg2sprite.entries()) {
+            if (!sprite || !textMsg || !sprite.body) {
+                continue;
+            }
             textMsg.x = sprite.x;
             textMsg.y = sprite.y + sprite.displayHeight / 2 + 15;
             textMsg.setDepth(textMsg.y);
@@ -503,21 +509,17 @@ class MainScene extends Phaser.Scene {
 
         // 下线通知事件
         emitter.on('OFFLINE', async (data) => {
-            // 删除角色以及角色的宠物
-            for (let spriteId in this.id2gameObject) {
-                // 如果是该角色的宠物或者是该角色，就删除
-                if (this.id2spriteInfo[spriteId].owner === data.id || spriteId === data.id) {
-                    let gameObject = this.id2gameObject[spriteId];
-                    let nameMsg = this.nameMsg2sprite.get(gameObject);
-                    if (nameMsg) {
-                        this.nameMsg2sprite.delete(gameObject);
-                        nameMsg.destroy();
-                    }
-
-                    delete this.id2gameObject[spriteId];
-                    gameObject.destroy();
-                    delete this.id2spriteInfo[spriteId];
+            for (let spriteId of data.ids) {
+                let gameObject = this.id2gameObject[spriteId];
+                let nameMsg = this.nameMsg2sprite.get(gameObject);
+                if (nameMsg) {
+                    this.nameMsg2sprite.delete(gameObject);
+                    nameMsg.destroy();
                 }
+
+                delete this.id2gameObject[spriteId];
+                gameObject.destroy();
+                delete this.id2spriteInfo[spriteId];
             }
         });
 

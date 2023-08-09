@@ -42,22 +42,14 @@ public class WSRequestHandler {
     public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService) {
 
 
-        // 下线事件
-        eventMap.put(WSRequestEnum.OFFLINE, (initiator, mapData) -> {
-            // 读取角色的所有宠物
-            List<SpriteDo> pets = spriteService.selectByOwner(initiator);
-            // 删除角色以及其宠物坐标等信息
-            GameCache.spriteCacheMap.remove(initiator);
-            pets.forEach(pet -> GameCache.spriteCacheMap.remove(pet.getId()));
-            // 通知其他玩家
-            WSResponseVo wsResponse = new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(initiator));
-            WSMessageSender.sendResponse(wsResponse);
-            return null;
-        });
-
         // 告知坐标信息
         eventMap.put(WSRequestEnum.COORDINATE, (initiator, mapData) -> {
             var data = mapData.toJavaObject(CoordinateDto.class);
+            // 如果该角色已被删除，直接返回
+            if (!GameCache.spriteCacheMap.containsKey(data.getId())
+                    && spriteService.selectById(data.getId()) == null) {
+                return null;
+            }
             // 如果是第一次通报坐标信息，说明刚上线
             boolean isFirstTime = !GameCache.spriteCacheMap.containsKey(data.getId());
 

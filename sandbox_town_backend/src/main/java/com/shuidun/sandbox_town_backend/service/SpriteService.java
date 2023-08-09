@@ -7,6 +7,7 @@ import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.NameGenerator;
+import com.shuidun.sandbox_town_backend.websocket.WSRequestHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -171,7 +172,7 @@ public class SpriteService {
     public SpriteDo selectById(String id) {
         SpriteDo sprite = spriteMapper.selectById(id);
         if (sprite == null) {
-            throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
+            return null;
         }
         // 看看有没有cached信息
         assignCacheToSprite(sprite);
@@ -182,7 +183,7 @@ public class SpriteService {
     public SpriteDo selectByIdWithType(String id) {
         SpriteDo sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
-            throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
+            return null;
         }
         // 看看有没有cached信息
         assignCacheToSprite(sprite);
@@ -194,7 +195,7 @@ public class SpriteService {
         // 获得带有类型信息的sprite
         SpriteDo sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
-            throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
+            return null;
         }
         // 看看有没有cached信息
         assignCacheToSprite(sprite);
@@ -231,8 +232,7 @@ public class SpriteService {
             sprite.setHp(100);
         }
         if (sprite.getHp() < 0) {
-            // 不能设置为0，因为0代表死亡
-            sprite.setHp(1);
+            sprite.setHp(0);
         }
         if (sprite.getAttack() < 0) {
             sprite.setAttack(0);
@@ -249,8 +249,29 @@ public class SpriteService {
         if (sprite.getAttackRange() < 0) {
             sprite.setAttackRange(0);
         }
-        spriteMapper.updateById(sprite);
-        return sprite;
+        // 判断是否死亡
+        if (sprite.getHp() == 0) {
+            // 如果是玩家，则扣除金钱和清除经验，并设置坐标为原点
+            if (sprite.getType() == SpriteTypeEnum.USER) {
+                sprite.setMoney(Math.max(0, sprite.getMoney() - 50));
+                sprite.setExp(0);
+                sprite.setX(0);
+                sprite.setY(0);
+                spriteMapper.updateById(sprite);
+                GameCache.spriteCacheMap.get(sprite.getId()).setX(0);
+                GameCache.spriteCacheMap.get(sprite.getId()).setY(0);
+                return sprite;
+            } else { // 否则，删除
+                spriteMapper.deleteById(sprite.getId());
+                // 这里认为精灵之间没有所属关系，所属关系只可能出现在玩家和宠物之间
+                // 因此没有理会offline的返回值
+                offline(sprite.getId());
+                return null;
+            }
+        } else {
+            spriteMapper.updateById(sprite);
+            return sprite;
+        }
     }
 
     /** 得到某个地图上的所有角色 */
@@ -689,12 +710,26 @@ public class SpriteService {
         // 判断目标精灵是否死亡
         if (targetSprite.getHp() <= 0) {
             targetSprite.setHp(0);
-            // TODO: 目标精灵死亡
         }
         hpChangeVo.setHpChange(targetSprite.getHp() - hpChangeVo.getOriginHp());
         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_HP_CHANGE, hpChangeVo));
         // 更新目标精灵
-        normalizeAndUpdateSprite(targetSprite);
+        if (normalizeAndUpdateSprite(targetSprite) == null) {
+            responses.add(new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(List.of(targetSprite.getId()))));
+        }
         return responses;
+    }
+
+    public WSResponseVo offline(String spriteId) {
+        List<String> ids = new ArrayList<>();
+        ids.add(spriteId);
+        // 读取精灵的所有宠物
+        List<SpriteDo> pets = selectByOwner(spriteId);
+        pets.forEach(pet -> ids.add(pet.getId()));
+        // 删除精灵以及其宠物坐标等信息
+        GameCache.spriteCacheMap.remove(spriteId);
+        pets.forEach(pet -> GameCache.spriteCacheMap.remove(pet.getId()));
+        return new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(ids));
+
     }
 }
