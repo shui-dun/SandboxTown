@@ -526,9 +526,14 @@ class MainScene extends Phaser.Scene {
             for (let spriteId of data.ids) {
                 let gameObject = this.id2gameObject[spriteId];
                 let nameMsg = this.nameMsg2sprite.get(gameObject);
+                let tween = this.id2tween[spriteId];
                 if (nameMsg) {
                     this.nameMsg2sprite.delete(gameObject);
                     nameMsg.destroy();
+                }
+                if (tween) {
+                    tween.stop();
+                    delete this.id2tween[spriteId];
                 }
 
                 delete this.id2gameObject[spriteId];
@@ -583,8 +588,10 @@ class MainScene extends Phaser.Scene {
         // 之所以加上这句话，是为了解决phaser.js的上游bug
         // 在补间动画执行之前，以及执行补间动画期间，一定要在scene.update()中一直使精灵的速度为0，否则补间动画将不会进行
         for (let id in this.id2tween) {
-            this.id2gameObject[id].setVelocityX(0);
-            this.id2gameObject[id].setVelocityY(0);
+            if (this.id2tween[id] != null) {
+                this.id2gameObject[id].setVelocityX(0);
+                this.id2gameObject[id].setVelocityY(0);
+            }
         }
 
         // 更新文本的位置
