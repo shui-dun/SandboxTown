@@ -425,7 +425,7 @@ class MainScene extends Phaser.Scene {
                 }
                 // 当目标是精灵时，只有当目标精灵是自己或自己的宠物，
                 // 或者发起者是自己或自己的宠物同时目标精灵不是玩家并且主人也不是玩家，才会触发到达事件
-                if (destSprite != null) {   
+                if (destSprite != null) {
                     if (!(
                         isOrIsOwneredby(destSprite, this.myUsername)
                         || (isOrIsOwneredby(initatorSprite, this.myUsername) && !isOrIsOwneredbyUser(destSprite))
@@ -473,12 +473,7 @@ class MainScene extends Phaser.Scene {
                 // 如果上一个补间动画还没结束，就停止上一个补间动画
                 this.id2tween[data.id].stop();
             }
-            let tween = null;
-            // 这是为了修复phaser.js的上游bug
-            // 在补间动画执行之前，就要把该精灵加入id2tween中
-            // 这样在scene.update()中精灵在执行补间动画之前速度就变为0，否则补间动画将不会进行
-            this.id2tween[data.id] = "";
-            tween = this.tweens.add({
+            let tween = this.tweens.add({
                 targets: tweenProgress,
                 value: 1,
                 duration: 18 * path.getLength() / speed,
@@ -585,12 +580,18 @@ class MainScene extends Phaser.Scene {
         for (let id in this.id2gameObject) {
             this.setDepth(this.id2gameObject[id]);
         }
-        // 之所以加上这句话，是为了解决phaser.js的上游bug
-        // 在补间动画执行之前，以及执行补间动画期间，一定要在scene.update()中一直使精灵的速度为0，否则补间动画将不会进行
-        for (let id in this.id2tween) {
-            if (this.id2tween[id] != null) {
-                this.id2gameObject[id].setVelocityX(0);
-                this.id2gameObject[id].setVelocityY(0);
+        // 来自phaser.js的上游bug：
+        // 一个精灵a被一个带速度的精灵b碰撞后
+        // a的速度最后会一直徘徊在一个极小的值，永远不会变成0（原因未知）
+        // 如果此时a尝试进行补间动画，补间动画将无法进行（原因未知）
+        // 因此，这里要手动将速度过小的精灵的速度设置为0
+        for (let id in this.id2gameObject) {
+            let gameObject = this.id2gameObject[id];
+            // 如果速度过小，就设置为0
+            if (Math.abs(gameObject.body.velocity.x) < 0.1
+                && Math.abs(gameObject.body.velocity.y) < 0.1) {
+                gameObject.setVelocityX(0);
+                gameObject.setVelocityY(0);
             }
         }
 
