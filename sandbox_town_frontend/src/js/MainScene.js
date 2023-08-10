@@ -474,6 +474,10 @@ class MainScene extends Phaser.Scene {
                 this.id2tween[data.id].stop();
             }
             let tween = null;
+            // 这是为了修复phaser.js的上游bug
+            // 在补间动画执行之前，就要把该精灵加入id2tween中
+            // 这样在scene.update()中精灵在执行补间动画之前速度就变为0，否则补间动画将不会进行
+            this.id2tween[data.id] = "";
             tween = this.tweens.add({
                 targets: tweenProgress,
                 value: 1,
@@ -576,12 +580,11 @@ class MainScene extends Phaser.Scene {
         for (let id in this.id2gameObject) {
             this.setDepth(this.id2gameObject[id]);
         }
-        // 对于所有进行补间动画的精灵，设置其速度为0，以避免补间动画的精灵碰撞到带有速度的精灵，补间动画的精灵会再也无法正常运动的bug
-        for (let id in this.id2gameObject) {
-            if (this.id2tween[id] != null) {
-                this.id2gameObject[id].setVelocityX(0);
-                this.id2gameObject[id].setVelocityY(0);
-            }
+        // 之所以加上这句话，是为了解决phaser.js的上游bug
+        // 在补间动画执行之前，以及执行补间动画期间，一定要在scene.update()中一直使精灵的速度为0，否则补间动画将不会进行
+        for (let id in this.id2tween) {
+            this.id2gameObject[id].setVelocityX(0);
+            this.id2gameObject[id].setVelocityY(0);
         }
 
         // 更新文本的位置
