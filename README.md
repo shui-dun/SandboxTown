@@ -72,3 +72,6 @@
 - https://cupnooble.itch.io/sprout-lands-asset-pack 背景纹理和围墙
 - https://remixicon.com/ 箭头、搜索等图标
 
+## License
+
+[MIT](./LICENSE)
