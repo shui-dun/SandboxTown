@@ -56,6 +56,8 @@ public class SpriteService {
             sprite.setY((int) Math.round(spriteCache.getY()));
             sprite.setVx(spriteCache.getVx());
             sprite.setVy(spriteCache.getVy());
+            sprite.setLastUpdateTime(spriteCache.getLastUpdateTime());
+            sprite.setLastInteractTime(spriteCache.getLastInteractTime());
             sprite.setStatus(spriteCache.getStatus());
         }
     }

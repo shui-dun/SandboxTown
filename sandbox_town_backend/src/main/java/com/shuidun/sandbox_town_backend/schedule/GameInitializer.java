@@ -43,7 +43,8 @@ public class GameInitializer {
                         System.currentTimeMillis(),
                         0,
                         0,
-                        SpriteStatus.STOPPED
+                        0,
+                        new SpriteStatus()
                 ))
         );
     }

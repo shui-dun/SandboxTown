@@ -45,6 +45,10 @@ public class WSRequestHandler {
         // 告知坐标信息
         eventMap.put(WSRequestEnum.COORDINATE, (initiator, mapData) -> {
             var data = mapData.toJavaObject(CoordinateDto.class);
+            // 如果时间戳不对，直接返回
+            if (data.getTime() == null || data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
+                return null;
+            }
             // 如果该角色已被删除，直接返回
             if (!GameCache.spriteCacheMap.containsKey(data.getId())
                     && spriteService.selectById(data.getId()) == null) {
@@ -115,6 +119,12 @@ public class WSRequestHandler {
         // 交互事件
         eventMap.put(WSRequestEnum.INTERACT, (initiator, mapData) -> {
             var data = mapData.toJavaObject(InteractDto.class);
+            // 判断上次交互的时间是否过去了300m秒
+            var spriteCache = GameCache.spriteCacheMap.get(initiator);
+            if (spriteCache == null || spriteCache.getLastInteractTime() > System.currentTimeMillis() - 300) {
+                return null;
+            }
+            spriteCache.setLastInteractTime(System.currentTimeMillis());
             var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
             var targetSprite = spriteService.selectByIdWithDetail(data.getTarget());
             // 目前只添加了攻击事件

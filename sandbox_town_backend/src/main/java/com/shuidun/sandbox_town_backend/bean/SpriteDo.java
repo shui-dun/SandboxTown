@@ -110,5 +110,11 @@ public class SpriteDo {
     private double vy;
 
     @TableField(exist = false)
+    private long lastUpdateTime;
+
+    @TableField(exist = false)
+    private long lastInteractTime;
+
+    @TableField(exist = false)
     private SpriteStatus status;
 }
