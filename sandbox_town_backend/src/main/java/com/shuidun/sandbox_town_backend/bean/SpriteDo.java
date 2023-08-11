@@ -54,7 +54,7 @@ public class SpriteDo {
 
     private String map;
 
-    /** 以下是一些放在sprite_type表中的字段 */
+    /** 以下是Join sprite_type表的字段 */
     @TableField(exist = false)
     private String name;
 
@@ -68,6 +68,7 @@ public class SpriteDo {
     private Double heightRatio;
 
     /**
+     * 以下是查询精灵的装备和效果等信息后得到的字段
      * 玩家最后的属性值等于原先的属性值加上增量（装备或手持装备导致的属性变化）
      * 但注意: 没有moneyInc、expInc、levelInc
      */
@@ -101,20 +102,8 @@ public class SpriteDo {
     private List<ItemDo> equipments;
 
     /**
-     * 以下是一些只放在缓存不放在数据库的字段
+     * 以下是一些只放在Java缓存不放在数据库的字段
      */
     @TableField(exist = false)
-    private double vx;
-
-    @TableField(exist = false)
-    private double vy;
-
-    @TableField(exist = false)
-    private long lastUpdateTime;
-
-    @TableField(exist = false)
-    private long lastInteractTime;
-
-    @TableField(exist = false)
-    private SpriteStatus status;
+    private SpriteCache cache;
 }
