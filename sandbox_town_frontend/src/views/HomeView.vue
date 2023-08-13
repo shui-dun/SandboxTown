@@ -1,6 +1,6 @@
 <template>
     <!-- 如果是移动端，显示提示信息 -->
-    <div class="simple-bg" v-if="isMobile">
+    <!-- <div class="simple-bg" v-if="isMobile">
         <div class="simple-prompt">
             <h1>沙盒小镇 🏠</h1>
             <p class="simple-p">使用电脑或平板等大屏设备访问</p>
@@ -9,9 +9,9 @@
                     关于
                 </a></button>
         </div>
-    </div>
+    </div> -->
     <!-- 如果是竖屏，显示提示信息 -->
-    <div class="simple-bg" v-else-if="isVertical">
+    <!-- <div class="simple-bg" v-else-if="isVertical">
         <div class="simple-prompt">
             <h1>沙盒小镇 🏠</h1>
             <p class="simple-p">请切换到横屏模式</p>
@@ -20,9 +20,9 @@
                     关于
                 </a></button>
         </div>
-    </div>
+    </div> -->
     <!-- 否则，显示主面板 -->
-    <div v-else>
+    <!-- <div v-else> -->
         <CircleBackground />
         <div id="home-page-bg">
             <div class="container" id="home-page">
@@ -56,7 +56,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    <!-- </div> -->
 </template>
     
     

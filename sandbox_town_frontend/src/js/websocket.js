@@ -18,7 +18,7 @@ function createWebSocket() {
         return;
     }
     console.log("createWebSocket");
-    ws = new WebSocket("ws://localhost:9090/event");
+    ws = new WebSocket((window.location.protocol === 'https:' ? 'wss:' : 'ws:') + "//" + window.location.host + "/websocket");
     ws.onmessage = websocketOnMessage;
     ws.onclose = createWebSocket;
     ws.onerror = createWebSocket;

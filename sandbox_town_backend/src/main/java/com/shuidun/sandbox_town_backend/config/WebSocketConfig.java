@@ -28,7 +28,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         // 配置handle
         // 配置websocket的监听url
         // 配置拦截器
-        registry.addHandler(myWebSocketHandler, "/event").addInterceptors(myWebSocketInterceptor).setAllowedOrigins("*");
+        registry.addHandler(myWebSocketHandler, "/websocket").addInterceptors(myWebSocketInterceptor).setAllowedOrigins("*");
         registry.addHandler(myWebSocketHandler, "/sockjs").addInterceptors(myWebSocketInterceptor).setAllowedOrigins("*").withSockJS();
     }
 
