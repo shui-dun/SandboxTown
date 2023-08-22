@@ -22,6 +22,8 @@ services:
       # 但其实这里不写也可以，只是为了更清晰
       - "9090" 
     restart: unless-stopped
+    # 限制内存，JVM 可以自动识别 Docker 容器的内存限制，并据此设置默认的内存使用
+    mem_limit: 300m
 
   sandboxtownmysql:
     image: mysql:8.1
