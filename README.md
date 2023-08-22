@@ -14,6 +14,14 @@
 
 ## 构建方法
 
+```bash
+cp sandbox_town_backend/src/main/resources/application.yml.template sandbox_town_backend/src/main/resources/application.yml
+cp deploy/docker-compose.yml.template deploy/docker-compose.yml
+# 按需修改上述两个配置文件
+cd deploy
+docker-compose up -d
+```
+
 ## 游戏截图
 
 请参见[游戏截图](doc/screenshot.md)
