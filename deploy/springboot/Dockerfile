@@ -22,8 +22,10 @@ WORKDIR /app
 # 从构建阶段复制构建的 jar 文件到当前工作目录
 COPY --from=build /app/target/*.jar app.jar
 
-# 暴露 8080 端口
-EXPOSE 8080
+# 暴露 9090 端口
+# 其实也不用写，EXPOSE 指令主要是为了文档化的目的，它告诉使用该镜像的人这个容器内部监听的端口
+# 但是，EXPOSE 并不会自动在宿主主机上打开对应的端口，所以在运行时需要使用 -p 参数来指定端口映射
+EXPOSE 9090
 
 # 运行 Spring Boot 应用
 CMD ["java", "-jar", "app.jar"]

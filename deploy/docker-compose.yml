@@ -1,33 +1,34 @@
 version: '3'
 
 services:
-  vue-app:
+  sandboxtownfront:
     build:
-      context: ./path-to-vue-project
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: ./deploy/vue/Dockerfile
     ports:
-      - "80:80"
+      - "445:443"
 
-  springboot-app:
-    build:
-      context: ./path-to-springboot-project
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/yourdbname
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=rootpassword
-      - SPRING_REDIS_HOST=redis
+  # sandboxtownback:
+  #   build:
+  #     context: ..
+  #     dockerfile: ./deploy/springboot/Dockerfile
+  #   expose:
+  #     # Spring Boot 服务在 Docker 内部网络上暴露 9090 端口，但不暴露到宿主机
+  #     - "9090" 
+  #   environment:
+  #     - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/yourdbname
+  #     - SPRING_DATASOURCE_USERNAME=root
+  #     - SPRING_DATASOURCE_PASSWORD=rootpassword
+  #     - SPRING_REDIS_HOST=redis
 
-  mysql:
-    image: mysql:5.7
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: yourdbname
-    volumes:
-      - ./path-to-import.sql:/docker-entrypoint-initdb.d/import.sql
+  # sandboxtownmysql:
+  #   image: mysql:8.1
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: rootpassword
+  #     MYSQL_DATABASE: yourdbname
+  #   volumes:
+  #     - ./path-to-import.sql:/docker-entrypoint-initdb.d/import.sql
 
-  redis:
-    image: redis:alpine
+  # sandboxtownredis:
+  #   image: redis:7.2-alpine
 
