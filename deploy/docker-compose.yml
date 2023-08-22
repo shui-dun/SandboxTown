@@ -4,31 +4,40 @@ services:
   sandboxtownfront:
     build:
       context: ..
+      # dockerfile的路径相对于context，而非docker-compose.yml
       dockerfile: ./deploy/vue/Dockerfile
     ports:
       - "445:443"
+    volumes:
+      - /etc/letsencrypt/cert.pem:/etc/nginx/ssl/cert.pem
+      - /etc/letsencrypt/key.pem:/etc/nginx/ssl/key.pem
+    restart: unless-stopped
 
-  # sandboxtownback:
-  #   build:
-  #     context: ..
-  #     dockerfile: ./deploy/springboot/Dockerfile
-  #   expose:
-  #     # Spring Boot 服务在 Docker 内部网络上暴露 9090 端口，但不暴露到宿主机
-  #     - "9090" 
-  #   environment:
-  #     - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/yourdbname
-  #     - SPRING_DATASOURCE_USERNAME=root
-  #     - SPRING_DATASOURCE_PASSWORD=rootpassword
-  #     - SPRING_REDIS_HOST=redis
+  sandboxtownback:
+    build:
+      context: ..
+      dockerfile: ./deploy/springboot/Dockerfile
+    expose:
+      # Spring Boot 服务在 Docker 内部网络上暴露 9090 端口，但不暴露到宿主机
+      # 但其实这里不写也可以，只是为了更清晰
+      - "9090" 
+    restart: unless-stopped
 
-  # sandboxtownmysql:
-  #   image: mysql:8.1
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: rootpassword
-  #     MYSQL_DATABASE: yourdbname
-  #   volumes:
-  #     - ./path-to-import.sql:/docker-entrypoint-initdb.d/import.sql
-
-  # sandboxtownredis:
-  #   image: redis:7.2-alpine
+  sandboxtownmysql:
+    image: mysql:8.1
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sandbox_town
+    volumes:
+      - ../sandbox_town_backend/import.sql:/docker-entrypoint-initdb.d/import.sql
+      - ./mysql/customer.cnf:/etc/mysql/conf.d/customer.cnf
+    restart: unless-stopped
+    # 解决中文编码问题
+    command: ["--default-authentication-plugin=mysql_native_password",  "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci",  "--skip-character-set-client-handshake"]
+    
+  sandboxtownredis:
+    image: redis:7.2-alpine
+    environment:
+      REDIS_PASSWORD: 123456
+    restart: unless-stopped
 

@@ -1,0 +1,3 @@
+[mysqld]
+# 禁用用于监控MySQL服务器的运行时性能信息的performance_schema存储引擎，以节省内存
+performance_schema = 0
