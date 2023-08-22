@@ -15,8 +15,9 @@
 ## 构建方法
 
 ```bash
-cp sandbox_town_backend/src/main/resources/application.yml.template sandbox_town_backend/src/main/resources/application.yml
-cp deploy/docker-compose.yml.template deploy/docker-compose.yml
+cp sandbox_town_backend/src/main/resources/application.template.yml \
+   sandbox_town_backend/src/main/resources/application.yml
+cp deploy/docker-compose.template.yml deploy/docker-compose.yml
 # 按需修改上述两个配置文件
 cd deploy
 docker-compose up -d
