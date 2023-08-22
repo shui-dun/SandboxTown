@@ -1,3 +1,14 @@
 [mysqld]
 # 禁用用于监控MySQL服务器的运行时性能信息的performance_schema存储引擎，以节省内存
 performance_schema = 0
+# 设置服务器字符集为utf8mb4
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+[client]
+# 客户端默认字符集
+default-character-set = utf8mb4
+
+[mysql]
+# mysql客户端工具使用的字符集
+default-character-set = utf8mb4
