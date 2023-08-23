@@ -2,37 +2,28 @@
 # 禁用用于监控MySQL服务器的运行时性能信息的performance_schema存储引擎，以节省内存（这个效果非常明显）
 performance_schema = OFF
 
-# 以下是节约内存的额外配置，但是效果不明显，并且配置后导致CPU占用率大大增加，不建议使用
-# # 设置最大可以打开的表数量的缓存。用于性能优化，减少打开表的次数。
-# table_open_cache=32
-# # 设置缓存表定义的数量，例如列的定义和索引结构。用于提高性能，减少磁盘I/O。
-# table_definition_cache=200
-# # 设置MySQL服务器可以处理的最大并发连接数。
-# max_connections=10
-# # 设置线程缓存的大小。当线程结束时，MySQL会将其放入缓存中，以便于再次使用，从而提高性能。
-# thread_cache_size=2
-# # 设置InnoDB存储引擎的缓冲池大小。该缓冲池存储了数据和索引，是最主要的内存消耗。
-# innodb_buffer_pool_size=8M
-# # 设置InnoDB缓冲池的实例数量。多个实例可以提高并发性能。
-# innodb_buffer_pool_instances=1
-# # 设置InnoDB存储引擎的日志缓冲区大小。该缓冲区暂存了对数据库的修改，在事务提交时才写入日志文件。
-# innodb_log_buffer_size=256K
-# # 设置内存中的临时表的最大大小。超过这个值，临时表会被转移到磁盘。
-# tmp_table_size=1M
-# # 设置内存中的HEAP表（或MEMORY表）的最大大小。
-# max_heap_table_size=1M
-# # 设置为每个连接分配的连接缓冲区大小。该缓冲区用于联接操作。
-# join_buffer_size=128K
-# # 设置为每个连接分配的排序缓冲区大小。该缓冲区用于排序操作。
-# sort_buffer_size=128K
-# # 设置为每个连接分配的读缓冲区大小。该缓冲区用于顺序扫描操作。
-# read_buffer_size=128K
-# # 设置为每个连接分配的随机读缓冲区大小。该缓冲区用于随机读取操作。
-# read_rnd_buffer_size=128K
-# # 设置MyISAM存储引擎的排序缓冲区大小。当进行REPAIR、CREATE INDEX等操作时使用。
-# myisam_sort_buffer_size=1M
-# # 设置InnoDB存储引擎的日志文件大小。该值太小可能会导致频繁的日志切换，但过大可能会增加恢复时间。
-# innodb_log_file_size=4M
+# 以下是节约内存的额外配置，如果你的服务器内存足够大，可以不用配置
+innodb_buffer_pool_size=5M
+innodb_log_buffer_size=256K
+query_cache_size=0
+max_connections=10
+key_buffer_size=8
+thread_cache_size=0
+host_cache_size=0
+innodb_ft_cache_size=1600000
+innodb_ft_total_cache_size=32000000
+thread_stack=131072
+sort_buffer_size=32K
+read_buffer_size=8200
+read_rnd_buffer_size=8200
+max_heap_table_size=16K
+tmp_table_size=1K
+bulk_insert_buffer_size=0
+join_buffer_size=128
+net_buffer_length=1K
+innodb_sort_buffer_size=64K
+binlog_cache_size=4K
+binlog_stmt_cache_size=4K
 
 # 以下是防止中文乱码的配置，但是对于mariaDB来说，这些配置已经是默认的，不需要再配置
 # # 设置服务器字符集为utf8mb4
