@@ -17,8 +17,9 @@
 ```bash
 cp sandbox_town_backend/src/main/resources/application.template.yml \
    sandbox_town_backend/src/main/resources/application.yml
+cp mysql/customer.template.cnf mysql/customer.cnf
 cp deploy/docker-compose.template.yml deploy/docker-compose.yml
-# 按需修改上述两个配置文件
+# 按需修改上述几个配置文件
 cd deploy
 docker-compose up -d
 ```
