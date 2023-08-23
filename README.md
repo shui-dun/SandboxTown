@@ -8,7 +8,7 @@
 - 游戏引擎：Phaser.js
 - 通信协议：WebSocket & HTTP
 - 后端框架：SpringBoot
-- 持久层：Mysql & Mybatis
+- 持久层：MariaDB & MyBatis
 - 缓存：Redis
 - 安全框架：Sa-Token
 

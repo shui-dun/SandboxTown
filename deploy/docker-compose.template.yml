@@ -26,7 +26,9 @@ services:
     mem_limit: 300m
 
   sandboxtownmysql:
-    image: mysql:8.1
+    # image: mysql:8.1
+    # mariadb相比mysql更节约内存，并且兼容mysql，并且默认使用utf8mb4
+    image: mariadb:10.5
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: sandbox_town
@@ -34,6 +36,8 @@ services:
       - ../sandbox_town_backend/import.sql:/docker-entrypoint-initdb.d/import.sql
       - ./mysql/customer.cnf:/etc/mysql/conf.d/customer.cnf
     restart: unless-stopped
+    # 限制内存，MySQL/MariaDB 的某些配置项会根据内存大小自动调整
+    mem_limit: 150m
     
   sandboxtownredis:
     image: redis:7.2-alpine
