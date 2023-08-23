@@ -37,7 +37,7 @@ services:
       - ./mysql/customer.cnf:/etc/mysql/conf.d/customer.cnf
     restart: unless-stopped
     # 限制内存，MySQL/MariaDB 的某些配置项会根据内存大小自动调整
-    mem_limit: 150m
+    mem_limit: 70m
     
   sandboxtownredis:
     image: redis:7.2-alpine
