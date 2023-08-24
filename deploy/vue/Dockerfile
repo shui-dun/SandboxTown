@@ -19,6 +19,8 @@ COPY sandbox_town_frontend/ .
 RUN npm run build
 
 # 使用 nginx 镜像作为基础镜像
+# 使用了多阶段构建：第一阶段构建项目，第二阶段使用 nginx 镜像作为基础镜像
+# 这样可以减少最终镜像的大小，因为第二阶段构建的镜像中不包含 node_modules
 FROM nginx:1.25-alpine
 
 # 将构建的文件从上一阶段复制到 nginx 的默认目录
