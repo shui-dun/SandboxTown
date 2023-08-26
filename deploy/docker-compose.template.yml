@@ -8,11 +8,12 @@ services:
       dockerfile: ./deploy/vue/Dockerfile
     ports:
       - "443:443"
-    volumes:
-      # 本地的证书文件挂载到容器内部
-      # 你需要将路径替换为你自己的证书路径
-      - /path/to/your/cert.pem:/etc/nginx/ssl/cert.pem
-      - /path/to/your/key.pem:/etc/nginx/ssl/key.pem
+    # 如果你需要使用HTTPS，那么你需要将下面的注释取消掉
+    # volumes:
+    #   # 本地的证书文件挂载到容器内部
+    #   # 你需要将路径替换为你自己的证书路径
+    #   - /path/to/your/cert.pem:/etc/nginx/ssl/cert.pem
+    #   - /path/to/your/key.pem:/etc/nginx/ssl/key.pem
     restart: unless-stopped
 
   sandboxtownback:

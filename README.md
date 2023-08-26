@@ -17,7 +17,8 @@
 ```bash
 cp sandbox_town_backend/src/main/resources/application.template.yml \
    sandbox_town_backend/src/main/resources/application.yml
-cp mysql/customer.template.cnf mysql/customer.cnf
+cp deploy/mysql/customer.template.cnf deploy/mysql/customer.cnf
+cp deploy/vue/nginx.template.conf deploy/vue/nginx.conf
 cp deploy/docker-compose.template.yml deploy/docker-compose.yml
 # 按需修改上述几个配置文件
 cd deploy
