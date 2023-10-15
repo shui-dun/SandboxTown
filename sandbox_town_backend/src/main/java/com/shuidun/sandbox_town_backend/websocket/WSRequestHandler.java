@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.BiConsumer;
 
 /**
  * 事件处理器
@@ -25,7 +25,7 @@ import java.util.function.BiFunction;
 @Component
 public class WSRequestHandler {
     /** 事件类型 -> 处理函数 */
-    private final Map<WSRequestEnum, BiFunction<String, JSONObject, Void>> eventMap = new HashMap<>();
+    private final Map<WSRequestEnum, BiConsumer<String, JSONObject>> eventMap = new HashMap<>();
 
     public void handle(EventDto eventDto) {
         try {
@@ -33,7 +33,7 @@ public class WSRequestHandler {
             if (eventDto.getType() == null) {
                 return;
             }
-            eventMap.get(eventDto.getType()).apply(eventDto.getInitiator(), eventDto.getData());
+            eventMap.get(eventDto.getType()).accept(eventDto.getInitiator(), eventDto.getData());
         } catch (Exception e) {
             log.error("handle {} event error", eventDto, e);
         }
@@ -47,12 +47,12 @@ public class WSRequestHandler {
             var data = mapData.toJavaObject(CoordinateDto.class);
             // 如果时间戳不对，直接返回
             if (data.getTime() == null || data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
-                return null;
+                return;
             }
             // 如果该角色已被删除，直接返回
             if (!GameCache.spriteCacheMap.containsKey(data.getId())
                     && spriteService.selectById(data.getId()) == null) {
-                return null;
+                return;
             }
 
             // TODO: 只能控制自己或者是自己的宠物或者公共npc，如果是其他玩家或者是其他玩家的宠物，直接返回
@@ -60,7 +60,7 @@ public class WSRequestHandler {
             var spriteCache = GameCache.spriteCacheMap.get(data.getId());
             // 如果传入的时间戳小于上次更新的时间戳，直接返回
             if (spriteCache != null && spriteCache.getLastUpdateTime() > data.getTime()) {
-                return null;
+                return;
             }
 
             if (spriteCache == null) {
@@ -78,7 +78,6 @@ public class WSRequestHandler {
                     new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
                             data.getId(), data.getX(), data.getY(), data.getVx(), data.getVy()
                     )));
-            return null;
         });
 
         // 想要移动
@@ -102,7 +101,7 @@ public class WSRequestHandler {
                     data.getDestBuildingId(), data.getDestSpriteId());
             // 如果找不到路径，直接返回
             if (path == null) {
-                return null;
+                return;
             }
             // TODO: 更新玩家的状态
             // 通知玩家移动
@@ -113,7 +112,6 @@ public class WSRequestHandler {
                     data.getDestBuildingId(),
                     data.getDestSpriteId()
             )));
-            return null;
         });
 
         // 交互事件
@@ -122,7 +120,7 @@ public class WSRequestHandler {
             // 判断上次交互的时间是否过去了300m秒
             var spriteCache = GameCache.spriteCacheMap.get(initiator);
             if (spriteCache == null || spriteCache.getLastInteractTime() > System.currentTimeMillis() - 300) {
-                return null;
+                return;
             }
             spriteCache.setLastInteractTime(System.currentTimeMillis());
             var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
@@ -130,7 +128,6 @@ public class WSRequestHandler {
             // 目前只添加了攻击事件
             List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
             WSMessageSender.sendResponseList(responses);
-            return null;
         });
 
     }

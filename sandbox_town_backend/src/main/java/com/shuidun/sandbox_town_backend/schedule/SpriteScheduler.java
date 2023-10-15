@@ -15,14 +15,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 @Component
 @Slf4j
 public class SpriteScheduler {
 
     /** 类型到函数的映射 */
-    private final Map<SpriteTypeEnum, Function<SpriteDo, Void>> typeToFunction = new HashMap<>();
+    private final Map<SpriteTypeEnum, Consumer<SpriteDo>> typeToFunction = new HashMap<>();
 
     private final SpriteService spriteService;
 
@@ -36,54 +36,41 @@ public class SpriteScheduler {
             if (owner == null) {
                 // 随机移动
                 if (GameCache.random.nextDouble() < 0.5) {
-                    return null;
+                    return;
                 }
                 double randomVx = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
                 double randomVy = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
-                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
-                        sprite.getId(),
-                        sprite.getX(),
-                        sprite.getY(),
-                        randomVx,
-                        randomVy
-                )));
+                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVx, randomVy)));
             } else {
                 // 如果狗有主人，那么狗一定概率就跟着主人走
                 if (GameCache.random.nextDouble() < 0.6) {
-                    return null;
+                    return;
                 }
                 SpriteCache ownerSprite = GameCache.spriteCacheMap.get(owner);
                 if (ownerSprite == null) {
-                    return null;
+                    return;
                 }
                 double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), ownerSprite.getX(), ownerSprite.getY());
                 // 如果距离过远（视野之外），那就不跟随
                 if (distance > sprite.getVisionRange() + sprite.getVisionRangeInc()) {
-                    return null;
+                    return;
                 }
                 // 寻找路径
                 var path = gameMapService.findPath(sprite, (int) ownerSprite.getX(), (int) ownerSprite.getY(), null, null);
                 // 如果找不到路径，那就不跟随
                 if (path == null) {
-                    return null;
+                    return;
                 }
                 // 如果距离过近，那就不跟随，狗与主人不要离得太近
                 int minLen = (int) (sprite.getWidth() * sprite.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
                 if (path.size() < minLen) {
-                    return null;
+                    return;
                 }
                 // 去掉后面一段
                 path = path.subList(0, path.size() - minLen);
                 // 发送移动消息
-                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
-                        sprite.getId(),
-                        sprite.getSpeed() + sprite.getSpeedInc(),
-                        DataCompressor.compressPath(path),
-                        null,
-                        null
-                )));
+                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(sprite.getId(), sprite.getSpeed() + sprite.getSpeedInc(), DataCompressor.compressPath(path), null, null)));
             }
-            return null;
         });
 
     }
@@ -100,7 +87,7 @@ public class SpriteScheduler {
             // 调用对应的处理函数
             var func = typeToFunction.get(sprite.getType());
             if (func != null) {
-                func.apply(sprite);
+                func.accept(sprite);
             }
         }
     }
