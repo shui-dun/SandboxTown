@@ -1,6 +1,7 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
 import com.shuidun.sandbox_town_backend.bean.*;
+import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
@@ -75,8 +76,11 @@ public class SpriteScheduler {
 
     }
 
+    private long counterOfSchedule = 0;
+
     @Scheduled(initialDelay = 0, fixedDelay = 1000)
     public void schedule() {
+        counterOfSchedule++;
         // 遍历所有角色
         for (String id : GameCache.spriteCacheMap.keySet()) {
             // 得到其角色
@@ -84,34 +88,44 @@ public class SpriteScheduler {
             if (sprite == null) {
                 continue;
             }
+            // 生命效果
+            if (counterOfSchedule % 17 == 0) {
+                if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE))) {
+                    spriteService.addSpriteLife(sprite.getId(), 1);
+                }
+            }
             // 调用对应的处理函数
             var func = typeToFunction.get(sprite.getType());
             if (func != null) {
                 func.accept(sprite);
             }
+            // 保存坐标
+            spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());
         }
-    }
-
-    private long counter = 0;
-
-    @Scheduled(initialDelay = 500, fixedDelay = 1000)
-    public void mixinSchedule() {
-        counter++;
-        // 减少饱腹值
-        if (counter % 20 == 0) {
-            spriteService.reduceSpritesHunger(GameCache.spriteCacheMap.keySet(), 1);
-        }
-        // 恢复体力
-        if (counter % 13 == 0) {
-            spriteService.recoverSpritesLife(GameCache.spriteCacheMap.keySet(), 80, 1);
-        }
-        // 保存坐标
-        spriteService.saveSpritesCoordinate();
 
         // 其实当计数器重置时，会导致所有这些定时任务的执行时间都会不准确
         // 但是这个问题不大，因为Long.MAX_VALUE是一个很大的数，在有限的时间内不会重置
-        if (counter == Long.MAX_VALUE) {
-            counter = 0;
+        if (counterOfSchedule == Long.MAX_VALUE) {
+            counterOfSchedule = 0;
+        }
+    }
+
+    private long counterOfBatchSchedule = 0;
+
+    @Scheduled(initialDelay = 500, fixedDelay = 1000)
+    public void batchSchedule() {
+        counterOfBatchSchedule++;
+        // 减少饱腹值
+        if (counterOfBatchSchedule % 20 == 0) {
+            spriteService.reduceSpritesHunger(GameCache.spriteCacheMap.keySet(), 1);
+        }
+        // 恢复体力
+        if (counterOfBatchSchedule % 13 == 0) {
+            spriteService.recoverSpritesLife(GameCache.spriteCacheMap.keySet(), 80, 1);
+        }
+
+        if (counterOfBatchSchedule == Long.MAX_VALUE) {
+            counterOfBatchSchedule = 0;
         }
     }
 }

@@ -7,7 +7,6 @@ import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.NameGenerator;
-import com.shuidun.sandbox_town_backend.websocket.WSRequestHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
@@ -700,6 +699,10 @@ public class SpriteService {
         spriteMapper.recoverSpritesLife(spriteIds, minHunger, incVal);
     }
 
+    public void addSpriteLife(String spriteId, int incVal) {
+        spriteMapper.addSpriteLife(spriteId, incVal);
+    }
+
     @Transactional
     public List<WSResponseVo> attack(SpriteDo sourceSprite, SpriteDo targetSprite) {
         List<WSResponseVo> responses = new ArrayList<>();
@@ -738,9 +741,7 @@ public class SpriteService {
 
     }
 
-    public void saveSpritesCoordinate() {
-        GameCache.spriteCacheMap.forEach((spriteId, spriteCache) -> {
-            spriteMapper.updatePosition(spriteId, (int) spriteCache.getX(), (int) spriteCache.getY());
-        });
+    public void updatePosition(String id, int x, int y) {
+        spriteMapper.updatePosition(id, x, y);
     }
 }

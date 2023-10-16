@@ -90,4 +90,8 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
     /** 更新坐标 */
     @Update("UPDATE sprite SET x = #{x}, y = #{y} WHERE id = #{id}")
     void updatePosition(@Param("id") String id, @Param("x") int x, @Param("y") int y);
+
+    /** 更新精灵体力（最大为100） */
+    @Update("UPDATE sprite SET hp = CASE WHEN hp + #{incVal} > 100 THEN 100 ELSE hp + #{incVal} END WHERE id = #{spriteId}")
+    void addSpriteLife(String spriteId, int incVal);
 }
