@@ -97,7 +97,7 @@ public class SpriteScheduler {
             // 烧伤效果
             if (counterOfSchedule % 5 == 0) {
                 if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN))) {
-                    spriteService.modifyLife(sprite.getId(), -1);
+                    WSMessageSender.sendResponseList(spriteService.modifyLife(sprite.getId(), -1));
                 }
             }
             // 调用对应的处理函数

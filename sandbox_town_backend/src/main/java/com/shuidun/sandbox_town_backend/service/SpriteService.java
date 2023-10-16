@@ -497,7 +497,7 @@ public class SpriteService {
         }
 
         // 可能有精灵效果变化
-        responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, null));
+        responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(owner)));
 
         return responseList;
     }
@@ -540,7 +540,7 @@ public class SpriteService {
 
         responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
         // 可能有精灵效果变化
-        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, null));
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
 
         return responses;
     }
@@ -576,7 +576,7 @@ public class SpriteService {
 
         responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
         // 可能有精灵效果变化
-        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, null));
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
 
         return responses;
     }
@@ -634,7 +634,7 @@ public class SpriteService {
             responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
         }
         // 可能有精灵效果变化
-        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, null));
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
 
         return responses;
     }
@@ -667,7 +667,7 @@ public class SpriteService {
             responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
         }
         // 可能有精灵效果变化
-        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, null));
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
 
         return responses;
     }
@@ -701,14 +701,35 @@ public class SpriteService {
 
     @Transactional
     public List<WSResponseVo> attack(SpriteDo sourceSprite, SpriteDo targetSprite) {
+        List<WSResponseVo> responses = new ArrayList<>();
+        // 如果被攻击者有火焰护体效果，则攻击者烧伤
+        if (targetSprite.getEffects().stream().anyMatch(effect -> effect.getEffect() == EffectEnum.FLAME_BODY)) {
+            // 攻击者原先是否有烧伤效果
+            SpriteEffectDo spriteEffectDo = spriteEffectMapper.selectBySpriteAndEffect(sourceSprite.getId(), EffectEnum.BURN);
+            int burnTime = 8;
+            if (spriteEffectDo != null && spriteEffectDo.getExpire() > System.currentTimeMillis()) {
+                // 如果有未过期的效果，则更新效果
+                spriteEffectDo.setDuration(spriteEffectDo.getDuration() + burnTime);
+                spriteEffectDo.setExpire(spriteEffectDo.getExpire() + burnTime * 1000);
+                spriteEffectMapper.update(spriteEffectDo);
+            } else {
+                // 如果没有，则添加效果
+                spriteEffectDo = new SpriteEffectDo();
+                spriteEffectDo.setSprite(sourceSprite.getId());
+                spriteEffectDo.setEffect(EffectEnum.BURN);
+                spriteEffectDo.setDuration(burnTime);
+                spriteEffectDo.setExpire(System.currentTimeMillis() + burnTime * 1000);
+                spriteEffectMapper.insertOrUpdate(spriteEffectDo);
+            }
+            responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sourceSprite.getId())));
+        }
         // 计算伤害
         int damage = sourceSprite.getAttack() + sourceSprite.getAttackInc() -
                 (targetSprite.getDefense() + targetSprite.getDefenseInc());
-        if (damage <= 0) {
-            return new ArrayList<>();
-        } else {
-            return modifyLife(targetSprite.getId(), -damage);
+        if (damage > 0) {
+            responses.addAll(modifyLife(targetSprite.getId(), -damage));
         }
+        return responses;
     }
 
     public WSResponseVo offline(String spriteId) {

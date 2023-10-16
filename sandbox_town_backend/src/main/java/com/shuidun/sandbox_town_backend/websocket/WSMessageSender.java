@@ -9,6 +9,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,6 +82,24 @@ public class WSMessageSender {
 
     }
 
+    /**
+     * 发送消息给目标用户（即消息中id字段指定的用户）
+     */
+    private static void sendMessageToTargetUser(WSResponseVo response) {
+        try {
+            // 使用反射获取getId()的值
+            Method getIdMethod = response.getData().getClass().getDeclaredMethod("getId");
+            String targetUserId = (String) getIdMethod.invoke(response.getData());
+            if (!targetUserId.startsWith("USER_")) {
+                return;
+            }
+            sendMessageToUser(targetUserId, response);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     private static Map<WSResponseEnum, Consumer<WSResponseVo>> responseSendFunctionMap = Map.ofEntries(
             entry(WSResponseEnum.COORDINATE, WSMessageSender::sendMessageToAllUsers),
             entry(WSResponseEnum.MOVE, WSMessageSender::sendMessageToAllUsers),
@@ -87,7 +107,7 @@ public class WSMessageSender {
             entry(WSResponseEnum.TIME_FRAME_NOTIFY, WSMessageSender::sendMessageToAllUsers),
             entry(WSResponseEnum.ITEM_BAR_NOTIFY, WSMessageSender::sendMessageToCurrentUser),
             entry(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, WSMessageSender::sendMessageToCurrentUser),
-            entry(WSResponseEnum.SPRITE_EFFECT_CHANGE, WSMessageSender::sendMessageToCurrentUser),
+            entry(WSResponseEnum.SPRITE_EFFECT_CHANGE, WSMessageSender::sendMessageToTargetUser),
             entry(WSResponseEnum.SPRITE_HP_CHANGE, WSMessageSender::sendMessageToAllUsers)
     );
 
