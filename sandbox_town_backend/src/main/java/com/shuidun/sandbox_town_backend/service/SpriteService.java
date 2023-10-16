@@ -749,9 +749,11 @@ public class SpriteService {
             sprite.setHp(100);
         }
         hpChangeVo.setHpChange(sprite.getHp() - hpChangeVo.getOriginHp());
-        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_HP_CHANGE, hpChangeVo));
-        // 更新目标精灵
-        responses.addAll(normalizeAndUpdateSprite(sprite).getSecond());
+        if (hpChangeVo.getHpChange() != 0) {
+            responses.add(new WSResponseVo(WSResponseEnum.SPRITE_HP_CHANGE, hpChangeVo));
+            // 更新目标精灵
+            responses.addAll(normalizeAndUpdateSprite(sprite).getSecond());
+        }
         return responses;
     }
 }
