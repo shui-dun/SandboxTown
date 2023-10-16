@@ -699,33 +699,16 @@ public class SpriteService {
         spriteMapper.recoverSpritesLife(spriteIds, minHunger, incVal);
     }
 
-    public void addSpriteLife(String spriteId, int incVal) {
-        spriteMapper.addSpriteLife(spriteId, incVal);
-    }
-
     @Transactional
     public List<WSResponseVo> attack(SpriteDo sourceSprite, SpriteDo targetSprite) {
-        List<WSResponseVo> responses = new ArrayList<>();
-        HpChangeVo hpChangeVo = new HpChangeVo();
-        hpChangeVo.setId(targetSprite.getId());
-        hpChangeVo.setOriginHp(targetSprite.getHp());
         // 计算伤害
         int damage = sourceSprite.getAttack() + sourceSprite.getAttackInc() -
                 (targetSprite.getDefense() + targetSprite.getDefenseInc());
         if (damage <= 0) {
-            damage = 0;
+            return new ArrayList<>();
+        } else {
+            return modifyLife(targetSprite.getId(), -damage);
         }
-        // 扣除目标精灵生命
-        targetSprite.setHp(targetSprite.getHp() - damage);
-        // 判断目标精灵是否死亡
-        if (targetSprite.getHp() <= 0) {
-            targetSprite.setHp(0);
-        }
-        hpChangeVo.setHpChange(targetSprite.getHp() - hpChangeVo.getOriginHp());
-        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_HP_CHANGE, hpChangeVo));
-        // 更新目标精灵
-        responses.addAll(normalizeAndUpdateSprite(targetSprite).getSecond());
-        return responses;
     }
 
     public WSResponseVo offline(String spriteId) {
@@ -743,5 +726,32 @@ public class SpriteService {
 
     public void updatePosition(String id, int x, int y) {
         spriteMapper.updatePosition(id, x, y);
+    }
+
+    /**
+     * 修改精灵生命
+     */
+    @Transactional
+    public List<WSResponseVo> modifyLife(String spriteId, int val) {
+        SpriteDo sprite = spriteMapper.selectById(spriteId);
+        List<WSResponseVo> responses = new ArrayList<>();
+        HpChangeVo hpChangeVo = new HpChangeVo();
+        hpChangeVo.setId(sprite.getId());
+        hpChangeVo.setOriginHp(sprite.getHp());
+        // 扣除目标精灵生命
+        sprite.setHp(sprite.getHp() + val);
+        // 判断目标精灵是否死亡
+        if (sprite.getHp() <= 0) {
+            sprite.setHp(0);
+        }
+        // 如果满血
+        if (sprite.getHp() > 100) {
+            sprite.setHp(100);
+        }
+        hpChangeVo.setHpChange(sprite.getHp() - hpChangeVo.getOriginHp());
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_HP_CHANGE, hpChangeVo));
+        // 更新目标精灵
+        responses.addAll(normalizeAndUpdateSprite(sprite).getSecond());
+        return responses;
     }
 }

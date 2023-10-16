@@ -545,7 +545,12 @@ class MainScene extends Phaser.Scene {
             // 在精灵上方显示伤害数字图像
             let sprite = await this.getGameObjectById(id);
             // 信息文本（originHp-hpChange）
+            // 如果hpChange为负数，说明是减血
             let text = `${originHp}-${-hpChange}`;
+            // 否则是加血
+            if (hpChange > 0) {
+                text = `${originHp}+${hpChange}`;
+            }
             // 显示信息文本
             let textObject = this.add.text(0, 0, text, {
                 // 粗体
