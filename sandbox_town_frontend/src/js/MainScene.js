@@ -545,24 +545,33 @@ class MainScene extends Phaser.Scene {
             // 在精灵上方显示伤害数字图像
             let sprite = await this.getGameObjectById(id);
             // 信息文本（originHp-hpChange）
-            // 如果hpChange为负数，说明是减血
-            let text = `${originHp}-${-hpChange}`;
-            // 否则是加血
-            if (hpChange > 0) {
+            let text = null;
+            // 文本对象
+            let textObject = null;
+            // 如果是减血
+            if (hpChange < 0) {
+                text = `${originHp}-${-hpChange}`;
+                textObject = this.add.text(0, 0, text, {
+                    // 粗体
+                    font: "bold 26px Consolas",
+                    fill: '#550000',
+                });
+                // 精灵也变成红色
+                sprite.setTint(0xff0000);
+            } else {
                 text = `${originHp}+${hpChange}`;
+                textObject = this.add.text(0, 0, text, {
+                    font: "bold 26px Consolas",
+                    // 颜色为绿色
+                    fill: '#005500',
+                });
+                // 精灵也变成绿色
+                sprite.setTint(0x00ff00);
             }
-            // 显示信息文本
-            let textObject = this.add.text(0, 0, text, {
-                // 粗体
-                font: "bold 26px Consolas",
-                fill: '#550000',
-            });
             // 设置文本的原点为中心
             textObject.setOrigin(0.5, 0);
             // 放置在map中
             this.sprite2hpMsg.set(sprite, textObject);
-            // 精灵也变成红色
-            sprite.setTint(0xff0000);
             // 持续时间，在指定的时间后销毁文本
             let duration = 300;
             this.time.delayedCall(duration, () => {
