@@ -120,7 +120,7 @@ class MainScene extends Phaser.Scene {
                 const x = worldPoint.x;
                 const y = worldPoint.y;
                 // 发送移动请求
-                ws.send(JSON.stringify({
+                ws().send(JSON.stringify({
                     "type": "MOVE",
                     "data": {
                         "x0": this.id2gameObject[this.myUsername].x,
@@ -230,7 +230,7 @@ class MainScene extends Phaser.Scene {
                 const x = worldPoint.x;
                 const y = worldPoint.y;
                 // 发送移动请求
-                ws.send(JSON.stringify({
+                ws().send(JSON.stringify({
                     "type": "MOVE",
                     "data": {
                         "x0": this.id2gameObject[this.myUsername].x,
@@ -296,13 +296,13 @@ class MainScene extends Phaser.Scene {
         let lastAxisMap = {}
         this.timerList.push(setInterval(() => {
             // 如果连接未建立，就不发送
-            if (ws.readyState !== 1) {
+            if (ws().readyState !== 1) {
                 return;
             }
             // 以一定概率切断链接（用于测试）
             // if (Math.random() > 0.98) {
             //     console.log("active Connection closed.");
-            //     ws.close();
+            //     ws().close();
             //     return;
             // }
             let timestamp = new Date().getTime();
@@ -317,7 +317,7 @@ class MainScene extends Phaser.Scene {
                         lastAxisMap[id].x !== this.id2gameObject[id].x ||
                         lastAxisMap[id].y !== this.id2gameObject[id].y) {
                         // 发送坐标信息
-                        ws.send(JSON.stringify({
+                        ws().send(JSON.stringify({
                             "type": "COORDINATE",
                             "data": {
                                 "id": id,
@@ -369,7 +369,7 @@ class MainScene extends Phaser.Scene {
             const x = worldPoint.x;
             const y = worldPoint.y;
             // 发送移动请求
-            ws.send(JSON.stringify({
+            ws().send(JSON.stringify({
                 "type": "MOVE",
                 "data": {
                     "x0": this.id2gameObject[this.myUsername].x,
@@ -443,7 +443,7 @@ class MainScene extends Phaser.Scene {
                     }
                 } else if (destSprite != null) {
                     // 发起交互事件
-                    ws.send(JSON.stringify({
+                    ws().send(JSON.stringify({
                         "type": "INTERACT",
                         "data": {
                             "source": initatorSprite.id,
