@@ -263,7 +263,7 @@ public class SpriteService {
                 spriteCache.setX(0);
                 spriteCache.setY(0);
                 // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
-                spriteCache.setLastMoveTime(System.currentTimeMillis() + 300);
+                spriteCache.setLastMoveTime(System.currentTimeMillis() + 500);
                 responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
                         sprite.getId(),
                         sprite.getX(),
