@@ -29,6 +29,13 @@ public class SpriteScheduler {
 
     public SpriteScheduler(SpriteService spriteService, GameMapService gameMapService) {
         this.spriteService = spriteService;
+        // 玩家的处理函数
+        typeToFunction.put(SpriteTypeEnum.USER, sprite -> {
+            // 一定概率忘记目标（否则玩家的狗会一直追着攻击玩家的目标）
+            if (GameCache.random.nextDouble() > 0.8) {
+                sprite.getCache().setTargetSpriteId(null);
+            }
+        });
         // 狗的处理函数
         typeToFunction.put(SpriteTypeEnum.DOG, sprite -> {
             // 获得狗的主人
@@ -76,34 +83,48 @@ public class SpriteScheduler {
                     double randomVy = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
                     WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVx, randomVy)));
                 } else {
-                    // 如果狗有主人，那么狗一定概率就跟着主人走
-                    if (GameCache.random.nextDouble() < 0.6) {
-                        return;
-                    }
+                    // 如果狗有主人
                     SpriteCache ownerSprite = GameCache.spriteCacheMap.get(owner);
                     if (ownerSprite == null) {
                         return;
                     }
-                    double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), ownerSprite.getX(), ownerSprite.getY());
-                    // 如果距离过远（视野之外），那就不跟随
-                    if (distance > sprite.getVisionRange() + sprite.getVisionRangeInc()) {
-                        return;
+                    // 如果主人有攻击目标，那么狗也以主人的攻击目标为攻击目标
+                    // 这里有一个有趣的特例：如果主人的攻击目标是狗，那么狗可能会自残
+                    // 具体触发条件如下：
+                    // 1. 主人攻击它养的狗a
+                    // 2. 于是狗a会攻击主人
+                    // 3. 主人的另一只狗狗b会攻击狗a
+                    // 4. 于是狗a和狗b相互攻击
+                    // 5. 如果狗a杀死了狗b，那么狗a接着可能会攻击自己
+                    String ownerTargetId = ownerSprite.getTargetSpriteId();
+                    if (ownerTargetId != null && GameCache.spriteCacheMap.get(ownerTargetId) != null) {
+                        sprite.getCache().setTargetSpriteId(ownerTargetId);
+                    } else {
+                        // 否则狗一定概率就跟着主人走
+                        if (GameCache.random.nextDouble() < 0.6) {
+                            return;
+                        }
+                        double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), ownerSprite.getX(), ownerSprite.getY());
+                        // 如果距离过远（视野之外），那就不跟随
+                        if (distance > sprite.getVisionRange() + sprite.getVisionRangeInc()) {
+                            return;
+                        }
+                        // 寻找路径
+                        var path = gameMapService.findPath(sprite, ownerSprite.getX(), ownerSprite.getY(), null, null);
+                        // 如果找不到路径，那就不跟随
+                        if (path == null) {
+                            return;
+                        }
+                        // 如果距离过近，那就不跟随，狗与主人不要离得太近
+                        int minLen = (int) (sprite.getWidth() * sprite.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
+                        if (path.size() < minLen) {
+                            return;
+                        }
+                        // 去掉后面一段
+                        path = path.subList(0, path.size() - minLen);
+                        // 发送移动消息
+                        WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(sprite.getId(), sprite.getSpeed() + sprite.getSpeedInc(), DataCompressor.compressPath(path), null, null)));
                     }
-                    // 寻找路径
-                    var path = gameMapService.findPath(sprite, ownerSprite.getX(), ownerSprite.getY(), null, null);
-                    // 如果找不到路径，那就不跟随
-                    if (path == null) {
-                        return;
-                    }
-                    // 如果距离过近，那就不跟随，狗与主人不要离得太近
-                    int minLen = (int) (sprite.getWidth() * sprite.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
-                    if (path.size() < minLen) {
-                        return;
-                    }
-                    // 去掉后面一段
-                    path = path.subList(0, path.size() - minLen);
-                    // 发送移动消息
-                    WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(sprite.getId(), sprite.getSpeed() + sprite.getSpeedInc(), DataCompressor.compressPath(path), null, null)));
                 }
             }
         });

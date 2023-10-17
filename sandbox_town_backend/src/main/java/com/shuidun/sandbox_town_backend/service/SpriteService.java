@@ -742,8 +742,7 @@ public class SpriteService {
         List<SpriteDo> pets = selectByOwner(spriteId);
         pets.forEach(pet -> ids.add(pet.getId()));
         // 删除精灵以及其宠物坐标等信息
-        GameCache.spriteCacheMap.remove(spriteId);
-        pets.forEach(pet -> GameCache.spriteCacheMap.remove(pet.getId()));
+        ids.forEach(id -> GameCache.spriteCacheMap.remove(id));
         return new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(ids));
 
     }
