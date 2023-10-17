@@ -29,9 +29,15 @@ public class SpriteCache {
 
     SpriteStatus status;
 
-    private String targetId;
+    // 目标精灵id
+    private String targetSpriteId;
 
+    // 目标建筑id
+    private String targetBuildingId;
+
+    // 目标（既非精灵也非建筑）的x坐标
     private Double targetX;
 
+    // 目标（既非精灵也非建筑）的y坐标
     private Double targetY;
 }

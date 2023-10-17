@@ -425,6 +425,7 @@ class MainScene extends Phaser.Scene {
                 }
                 // 当目标是精灵时，只有当目标精灵是自己或自己的宠物，
                 // 或者发起者是自己或自己的宠物同时目标精灵不是玩家并且主人也不是玩家，才会触发到达事件
+                // 这是为了避免重复触发到达事件
                 if (destSprite != null) {
                     if (!(
                         isOrIsOwneredby(destSprite, this.myUsername)

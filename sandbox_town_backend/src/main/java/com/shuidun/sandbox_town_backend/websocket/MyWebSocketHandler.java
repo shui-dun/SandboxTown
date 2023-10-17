@@ -64,7 +64,6 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
         String messagePayload = message.getPayload();
-        log.info("收到消息：{}", messagePayload);
         if ("".equals(messagePayload)) {
             return;
         }

@@ -148,9 +148,9 @@ CREATE TABLE sprite
 INSERT INTO sprite (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, vision_range, attack_range,
                     x, y, map, width,
                     height)
-VALUES ('USER_xixi', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 10, 1000, 100, 300, 300, '1', 150, 150),
-       ('USER_haha', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 20, 1000, 100, 100, 100, '1', 150, 150),
-       ('USER_heihei', 'USER', null, 10, 0, 1, 100, 100, 10, 10, 20, 1000, 100, 200, 200, '1', 150, 150),
+VALUES ('USER_xixi', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 10, 1000, 100, 300, 300, '1', 150, 150),
+       ('USER_haha', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 20, 1000, 100, 100, 100, '1', 150, 150),
+       ('USER_heihei', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 20, 1000, 100, 200, 200, '1', 150, 150),
        ('DOG_Vz5n_o-CQk-okcK5vQFRsA', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 1000, 100, 400, 300, '1', 150,
         150),
        ('DOG_q83jrKyCTtGm1QvywN48pw', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 13, 6, 8, 1000, 100, 400, 400, '1', 250,

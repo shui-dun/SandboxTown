@@ -3,7 +3,6 @@
 ## feature
 
 - 完成狗：
-  - 狗会反击攻击者
   - 人手持骨头与狗交互有一定概率驯服狗
   - 狗会攻击攻击其主人的精灵
 - 完成虚无的效果
@@ -14,6 +13,7 @@
 - 优化自动生成各个说明文档（可借助rest api），这些生成脚本不应该删除已有的介绍内容，例如对狗狗行为规则的介绍，同时应该展示物品的详细信息（例如给精灵带来的效果）
 - 使用spring cloud, k8s替代docker-compose
 - 添加修炼场：一个修炼场所，精灵呆在里面一定时间可以获得特殊效果，例如“一定概率秒杀对方”或者“经验球”，或者直接获得经验值更方便
+- 使用ai p图，生成各个精灵的各种动作的图片，例如行走（各个方向）、攻击、受伤、死亡等
 - 设计以下武器（prompt：cute cartoon dog, white background, Illustration, Graphic Design, Minimalism, simple, color, front view）：
   - 埃阿斯之盾：体力上限+7，受到伤害时50%概率将伤害值+1后反弹给攻击者
   - 雷霆之杖（LightningBolts）：无视对方防具，并对对方造成30s烧伤效果
@@ -64,8 +64,8 @@
 
 ## bug
 
-- 前端和后端有时有空指针异常，如何空安全？是否/如何加锁？
-  - 例如，对cache的读写（不管是通过GameCache.spriteCacheMap还是通过sprite.getCache()）都应该加锁。（虽然GameCache.spriteCacheMap是ConcurrentHashMap，但是这只能保证其 put, remove, get 的正常，但它并没有提供对其存储的值的读写锁）
+- 前端和后端有时有空指针异常（例如对spriteCache修改过程中另一个线程使这个精灵下线），如何空安全？是否/如何加锁？例如，对cache的读写（不管是通过GameCache.spriteCacheMap还是通过sprite.getCache()）都应该加锁。（虽然GameCache.spriteCacheMap是ConcurrentHashMap，但是这只能保证其 put, remove, get 的正常，但它并没有提供对其存储的值的读写锁）
+- 有时候玩家死亡没有回到出生地（应该是坐标同步的问题）（出现的频率不高）
 - 补间动画的精灵碰撞到带有速度的精灵，补间动画的精灵会再也无法正常运动，尝试在补间动画之前将速度设为0，这样的效果稍微好点，在碰到移动的物体后会像撞到一堵墙一样停止，但之后尝试运动还是可以正常运动，但目前能想到的最好的方法是在update中一直将补间动画的精灵的速度设为0
 - 切换账号后，操纵的还是旧的玩家（旧的ws没有断开），需要刷新网页才能避免这个问题
 - 服务器部署在海外时延迟高，精灵运动卡顿

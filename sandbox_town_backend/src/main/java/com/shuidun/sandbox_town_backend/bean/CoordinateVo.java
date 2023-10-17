@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CoordinateVo {
     private String id;
-    @JSONField(format = "#.00")
+    @JSONField(format = "0.00")
     private double x;
-    @JSONField(format = "#.00")
+    @JSONField(format = "0.00")
     private double y;
-    @JSONField(format = "#.00")
+    @JSONField(format = "0.00")
     private double vx;
-    @JSONField(format = "#.00")
+    @JSONField(format = "0.00")
     private double vy;
 }

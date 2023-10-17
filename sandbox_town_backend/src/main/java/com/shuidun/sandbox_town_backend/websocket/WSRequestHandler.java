@@ -118,13 +118,17 @@ public class WSRequestHandler {
         eventMap.put(WSRequestEnum.INTERACT, (initiator, mapData) -> {
             var data = mapData.toJavaObject(InteractDto.class);
             // 判断上次交互的时间是否过去了300m秒
-            var spriteCache = GameCache.spriteCacheMap.get(initiator);
+            var spriteCache = GameCache.spriteCacheMap.get(data.getSource());
             if (spriteCache == null || spriteCache.getLastInteractTime() > System.currentTimeMillis() - 300) {
                 return;
             }
-            spriteCache.setLastInteractTime(System.currentTimeMillis());
             var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
             var targetSprite = spriteService.selectByIdWithDetail(data.getTarget());
+            // 如果两者距离较远，直接返回
+            if (!spriteService.isNear(sourceSprite, targetSprite)) {
+                return;
+            }
+            spriteCache.setLastInteractTime(System.currentTimeMillis());
             // 目前只添加了攻击事件
             List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
             WSMessageSender.sendResponseList(responses);

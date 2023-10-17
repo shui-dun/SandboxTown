@@ -47,6 +47,7 @@ public class GameInitializer {
                         SpriteStatus.IDLE,
                         null,
                         null,
+                        null,
                         null
                 ))
         );

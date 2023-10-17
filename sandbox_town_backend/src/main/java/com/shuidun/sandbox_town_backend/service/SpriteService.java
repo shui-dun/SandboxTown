@@ -723,6 +723,9 @@ public class SpriteService {
             }
             responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sourceSprite.getId())));
         }
+        // 被攻击者以攻击者为目标
+        SpriteCache cache = targetSprite.getCache();
+        cache.setTargetSpriteId(sourceSprite.getId());
         // 计算伤害
         int damage = sourceSprite.getAttack() + sourceSprite.getAttackInc() -
                 (targetSprite.getDefense() + targetSprite.getDefenseInc());
@@ -776,5 +779,12 @@ public class SpriteService {
             responses.addAll(normalizeAndUpdateSprite(sprite).getSecond());
         }
         return responses;
+    }
+
+    /** 判断两个精灵是否接近 */
+    public boolean isNear(SpriteDo sprite1, SpriteDo sprite2) {
+        // 之所以这里不乘以widthRatio和heightRatio，是因为这里是检测是否接近而不是检测是否碰撞，因此放宽一点要求
+        return Math.abs(sprite1.getX() - sprite2.getX()) < (sprite1.getWidth() + sprite2.getWidth()) / 2 &&
+                Math.abs(sprite1.getY() - sprite2.getY()) < (sprite1.getHeight() + sprite2.getHeight()) / 2;
     }
 }
