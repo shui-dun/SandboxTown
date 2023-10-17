@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 精灵缓存信息（只存放在Java内存，而不在数据库&Redis中）
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +22,7 @@ public class SpriteCache {
     private double vy;
 
     // 上次更新坐标时间
-    private long lastUpdateTime;
+    private long lastMoveTime;
 
     // 上次与其他精灵交互时间
     private long lastInteractTime;

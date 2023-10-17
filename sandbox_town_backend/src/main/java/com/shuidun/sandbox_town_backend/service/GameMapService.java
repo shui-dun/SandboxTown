@@ -164,20 +164,20 @@ public class GameMapService {
      * @param destBuildingId 目标建筑物id，如果终点是建筑物，则传入建筑物id，否则传入null
      * @param destSpriteId   目标精灵id，如果终点是精灵，则传入精灵id，否则传入null
      */
-    public List<Point> findPath(SpriteDo initiator, int x1, int y1,
+    public List<Point> findPath(SpriteDo initiator, double x1, double y1,
                                 String destBuildingId, String destSpriteId) {
-        int x0 = initiator.getX();
-        int y0 = initiator.getY();
+        double x0 = initiator.getX();
+        double y0 = initiator.getY();
         // 将物理坐标转换为地图坐标
-        int startX = x0 / Constants.PIXELS_PER_GRID;
-        int startY = y0 / Constants.PIXELS_PER_GRID;
-        int endX = x1 / Constants.PIXELS_PER_GRID;
-        int endY = y1 / Constants.PIXELS_PER_GRID;
-        int spriteWidth = (int) (initiator.getWidth() * initiator.getWidthRatio());
-        int spriteHeight = (int) (initiator.getHeight() * initiator.getHeightRatio());
+        int startX = (int) Math.round(x0) / Constants.PIXELS_PER_GRID;
+        int startY = (int) Math.round(y0) / Constants.PIXELS_PER_GRID;
+        int endX = (int) Math.round(x1) / Constants.PIXELS_PER_GRID;
+        int endY = (int) Math.round(y1) / Constants.PIXELS_PER_GRID;
+        double spriteWidth = initiator.getWidth() * initiator.getWidthRatio();
+        double spriteHeight = initiator.getHeight() * initiator.getHeightRatio();
         // 将物品宽高的像素转换为地图坐标
-        int spriteHalfWidth = (int) Math.ceil((double) spriteWidth / Constants.PIXELS_PER_GRID) / 2;
-        int spriteHalfHeight = (int) Math.ceil((double) spriteHeight / Constants.PIXELS_PER_GRID) / 2;
+        int spriteHalfWidth = (int) Math.ceil(spriteWidth / Constants.PIXELS_PER_GRID) / 2;
+        int spriteHalfHeight = (int) Math.ceil(spriteHeight / Constants.PIXELS_PER_GRID) / 2;
         // 如果目标是建筑物
         Integer destBuildingHashCode = destBuildingId == null ? null : destBuildingId.hashCode();
         // 如果目标是精灵
@@ -189,11 +189,11 @@ public class GameMapService {
             endY = (int) (GameCache.spriteCacheMap.get(destSpriteId).getY() / Constants.PIXELS_PER_GRID);
             // 获取精灵的宽高
             SpriteDo destSprite = spriteService.selectByIdWithType(destSpriteId);
-            int destSpriteWidth = (int) (destSprite.getWidth() * destSprite.getWidthRatio());
-            int destSpriteHeight = (int) (destSprite.getHeight() * destSprite.getHeightRatio());
+            double destSpriteWidth = destSprite.getWidth() * destSprite.getWidthRatio();
+            double destSpriteHeight = destSprite.getHeight() * destSprite.getHeightRatio();
             // 将物品宽高的像素转换为地图坐标
-            destSpriteHalfWidth = (int) Math.ceil((double) destSpriteWidth / Constants.PIXELS_PER_GRID) / 2;
-            destSpriteHalfHeight = (int) Math.ceil((double) destSpriteHeight / Constants.PIXELS_PER_GRID) / 2;
+            destSpriteHalfWidth = (int) Math.ceil(destSpriteWidth / Constants.PIXELS_PER_GRID) / 2;
+            destSpriteHalfHeight = (int) Math.ceil(destSpriteHeight / Constants.PIXELS_PER_GRID) / 2;
         }
         // 调用寻路算法
         List<Point> path = PathUtils.findPath(GameCache.map, startX, startY, endX, endY, spriteHalfWidth, spriteHalfHeight, destBuildingHashCode, destSpriteHalfWidth, destSpriteHalfHeight);
@@ -202,6 +202,8 @@ public class GameMapService {
             return null;
         }
         // 将地图坐标转换为物理坐标
+        // 一般来说，地图坐标是整数，而物理坐标是浮点数
+        // 但是显然在这里计算得到的物理坐标也是整数
         for (Point point : path) {
             point.setX(point.getX() * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2);
             point.setY(point.getY() * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2);
@@ -212,17 +214,17 @@ public class GameMapService {
     /** 查看某建筑是否与其他建筑有重叠，或者超出边界 */
     private boolean isBuildingOverlap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
-        int buildingX = building.getOriginX();
-        int buildingY = building.getOriginY();
+        double buildingX = building.getOriginX();
+        double buildingY = building.getOriginY();
         // 获取建筑物的宽高（暂时不知道宽和高写反了没有，因为现在的图片都是正方形的）
-        int buildingWidth = building.getWidth();
-        int buildingHeight = building.getHeight();
+        double buildingWidth = building.getWidth();
+        double buildingHeight = building.getHeight();
         // 获取建筑的左上角的逻辑坐标
-        int buildingLogicalX = buildingX / Constants.PIXELS_PER_GRID;
-        int buildingLogicalY = buildingY / Constants.PIXELS_PER_GRID;
+        int buildingLogicalX = (int) Math.round(buildingX) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalY = (int) Math.round(buildingY) / Constants.PIXELS_PER_GRID;
         // 获取建筑的宽高的逻辑坐标
-        int buildingLogicalWidth = buildingWidth / Constants.PIXELS_PER_GRID;
-        int buildingLogicalHeight = buildingHeight / Constants.PIXELS_PER_GRID;
+        int buildingLogicalWidth = (int) Math.round(buildingWidth) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalHeight = (int) Math.round(buildingHeight) / Constants.PIXELS_PER_GRID;
         // 判断是否超出边界
         if (buildingLogicalX < 0 || buildingLogicalY < 0 ||
                 buildingLogicalX + buildingLogicalWidth > GameCache.map.length || buildingLogicalY + buildingLogicalHeight > GameCache.map[0].length) {
@@ -262,17 +264,17 @@ public class GameMapService {
     /** 放置建筑 */
     private void placeBuildingOnMap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
-        int buildingX = building.getOriginX();
-        int buildingY = building.getOriginY();
+        double buildingX = building.getOriginX();
+        double buildingY = building.getOriginY();
         // 获取建筑物的宽高（暂时不知道宽和高写反了没有，因为现在的图片都是正方形的）
-        int buildingWidth = building.getWidth();
-        int buildingHeight = building.getHeight();
+        double buildingWidth = building.getWidth();
+        double buildingHeight = building.getHeight();
         // 获取建筑的左上角的逻辑坐标
-        int buildingLogicalX = buildingX / Constants.PIXELS_PER_GRID;
-        int buildingLogicalY = buildingY / Constants.PIXELS_PER_GRID;
+        int buildingLogicalX = (int) Math.round(buildingX) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalY = (int) Math.round(buildingY) / Constants.PIXELS_PER_GRID;
         // 获取建筑的宽高的逻辑坐标
-        int buildingLogicalWidth = buildingWidth / Constants.PIXELS_PER_GRID;
-        int buildingLogicalHeight = buildingHeight / Constants.PIXELS_PER_GRID;
+        int buildingLogicalWidth = (int) Math.round(buildingWidth) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalHeight = (int) Math.round(buildingHeight) / Constants.PIXELS_PER_GRID;
         // 遍历建筑的每一个格子
         for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
             for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
@@ -340,8 +342,8 @@ public class GameMapService {
             // 建筑类型
             BuildingTypeDo buildingType = buildingTypesToBePlaced.get(i);
             // 随机生成建筑的左上角
-            int x = (int) (Math.random() * (GameCache.map.length - 8)) * Constants.PIXELS_PER_GRID;
-            int y = (int) (Math.random() * (GameCache.map[0].length - 8)) * Constants.PIXELS_PER_GRID;
+            double x = Math.random() * (GameCache.map.length - 8) * Constants.PIXELS_PER_GRID;
+            double y = Math.random() * (GameCache.map[0].length - 8) * Constants.PIXELS_PER_GRID;
             // 随机生成建筑的宽高，在基础宽高的基础上波动（0.8倍到1.2倍）
             double scale = Math.random() * 0.4 + 0.8;
             // 创建建筑对象
@@ -352,8 +354,8 @@ public class GameMapService {
             building.setLevel(1);
             building.setOriginX(x);
             building.setOriginY(y);
-            building.setWidth((int) (buildingType.getBasicWidth() * scale));
-            building.setHeight((int) (buildingType.getBasicHeight() * scale));
+            building.setWidth(buildingType.getBasicWidth() * scale);
+            building.setHeight(buildingType.getBasicHeight() * scale);
             // 判断是否与其他建筑重叠
             if (!isBuildingOverlap(building)) {
                 // 如果不重叠，添加建筑到数据库
@@ -369,8 +371,8 @@ public class GameMapService {
                         // 随机生成狗的位置
                         for (int j = 0; j < nDogs; ++j) {
                             // 随机生成狗的左上角
-                            int dogX = building.getOriginX() + (int) (Math.random() * building.getWidth());
-                            int dogY = building.getOriginY() + (int) (Math.random() * building.getHeight());
+                            double dogX = building.getOriginX() + Math.random() * building.getWidth();
+                            double dogY = building.getOriginY() + Math.random() * building.getHeight();
                             // 创建狗
                             spriteService.generateRandomSprite(SpriteTypeEnum.DOG, null, dogX, dogY);
                         }

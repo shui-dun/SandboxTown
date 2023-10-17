@@ -22,9 +22,9 @@ public class BuildingTypeDo {
 
     private String imagePath;
 
-    private Integer basicWidth;
+    private Double basicWidth;
 
-    private Integer basicHeight;
+    private Double basicHeight;
 
     private Integer rarity;
 }

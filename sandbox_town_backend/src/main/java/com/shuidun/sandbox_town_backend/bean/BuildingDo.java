@@ -25,11 +25,11 @@ public class BuildingDo {
 
     private SpriteTypeEnum owner;
 
-    private Integer originX;
+    private Double originX;
 
-    private Integer originY;
+    private Double originY;
 
-    private Integer width;
+    private Double width;
 
-    private Integer height;
+    private Double height;
 }

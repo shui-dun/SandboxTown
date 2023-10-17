@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 
+/**
+ * 这个东西目前没有用上，没有进行维护
+ */
 public enum SpriteStatus {
     // 空闲状态
     IDLE,

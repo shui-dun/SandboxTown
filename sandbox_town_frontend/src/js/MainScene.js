@@ -123,10 +123,10 @@ class MainScene extends Phaser.Scene {
                 ws().send(JSON.stringify({
                     "type": "MOVE",
                     "data": {
-                        "x0": this.id2gameObject[this.myUsername].x,
-                        "y0": this.id2gameObject[this.myUsername].y,
-                        "x1": x,
-                        "y1": y,
+                        "x0": this.id2gameObject[this.myUsername].x.toFixed(2),
+                        "y0": this.id2gameObject[this.myUsername].y.toFixed(2),
+                        "x1": x.toFixed(2),
+                        "y1": y.toFixed(2),
                         "destBuildingId": null,
                         "destSpriteId": sprite.id,
                     }
@@ -233,10 +233,10 @@ class MainScene extends Phaser.Scene {
                 ws().send(JSON.stringify({
                     "type": "MOVE",
                     "data": {
-                        "x0": this.id2gameObject[this.myUsername].x,
-                        "y0": this.id2gameObject[this.myUsername].y,
-                        "x1": x,
-                        "y1": y,
+                        "x0": this.id2gameObject[this.myUsername].x.toFixed(2),
+                        "y0": this.id2gameObject[this.myUsername].y.toFixed(2),
+                        "x1": x.toFixed(2),
+                        "y1": y.toFixed(2),
                         "destBuildingId": building.id,
                         "destSpriteId": null,
                     }
@@ -321,11 +321,11 @@ class MainScene extends Phaser.Scene {
                             "type": "COORDINATE",
                             "data": {
                                 "id": id,
-                                "x": this.id2gameObject[id].x,
-                                "y": this.id2gameObject[id].y,
+                                "x": this.id2gameObject[id].x.toFixed(2),
+                                "y": this.id2gameObject[id].y.toFixed(2),
                                 "time": timestamp,
-                                "vx": this.id2gameObject[id].body.velocity.x,
-                                "vy": this.id2gameObject[id].body.velocity.y,
+                                "vx": this.id2gameObject[id].body.velocity.x.toFixed(2),
+                                "vy": this.id2gameObject[id].body.velocity.y.toFixed(2),
                             }
                         }));
                         // 更新上一次发送的位置
@@ -372,10 +372,10 @@ class MainScene extends Phaser.Scene {
             ws().send(JSON.stringify({
                 "type": "MOVE",
                 "data": {
-                    "x0": this.id2gameObject[this.myUsername].x,
-                    "y0": this.id2gameObject[this.myUsername].y,
-                    "x1": x,
-                    "y1": y,
+                    "x0": this.id2gameObject[this.myUsername].x.toFixed(2),
+                    "y0": this.id2gameObject[this.myUsername].y.toFixed(2),
+                    "x1": x.toFixed(2),
+                    "y1": y.toFixed(2),
                     "destBuildingId": null,
                     "destSpriteId": null,
                 }

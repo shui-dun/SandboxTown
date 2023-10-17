@@ -88,9 +88,9 @@ CREATE TABLE sprite_type
     # 基础速度
     basic_speed        INT          NOT NULL DEFAULT 10,
     # 基础宽度
-    basic_width        INT          NOT NULL DEFAULT 120,
+    basic_width        DOUBLE       NOT NULL DEFAULT 120,
     # 基础高度
-    basic_height       INT          NOT NULL DEFAULT 120,
+    basic_height       DOUBLE       NOT NULL DEFAULT 120,
     # 基础视觉范围
     basic_vision_range INT          NOT NULL DEFAULT 1000,
     # 基础攻击范围
@@ -134,10 +134,10 @@ CREATE TABLE sprite
     vision_range INT          NOT NULL DEFAULT 1000,
     # 攻击范围
     attack_range INT          NOT NULL DEFAULT 100,
-    x            INT          NOT NULL DEFAULT 0,
-    y            INT          NOT NULL DEFAULT 0,
-    width        INT          NOT NULL DEFAULT 120,
-    height       INT          NOT NULL DEFAULT 120,
+    x            DOUBLE       NOT NULL DEFAULT 0,
+    y            DOUBLE       NOT NULL DEFAULT 0,
+    width        DOUBLE       NOT NULL DEFAULT 120,
+    height       DOUBLE       NOT NULL DEFAULT 120,
     # 所在地图名称
     map          VARCHAR(255) NOT NULL,
     CONSTRAINT fk_sprite_type FOREIGN KEY (type) REFERENCES sprite_type (type),
@@ -248,28 +248,28 @@ create table sprite_effect
 # 注意：这些增益值指的是等级为1的物品带来的增益值，等级越高，增益值越高
 create table item_type_attribute
 (
-    item_type   varchar(255) not null,
+    item_type        varchar(255) not null,
     # 装备（EQUIP）、使用（USE）、或手持（HANDHELD）
     # 装备指在装备栏放置HELMET（头盔）, CHEST（胸甲）, LEG（腿甲）, BOOTS（鞋）
     # 使用指使用FOOD（食品）、USABLE（用品）
     # 手持指手持物品
-    operation   varchar(255) not null,
+    operation        varchar(255) not null,
     # 增加金钱
-    money_inc   INT          NOT NULL DEFAULT 0,
+    money_inc        INT          NOT NULL DEFAULT 0,
     # 增加经验值
-    exp_inc     INT          NOT NULL DEFAULT 0,
+    exp_inc          INT          NOT NULL DEFAULT 0,
     # 增加等级
-    level_inc   INT          NOT NULL DEFAULT 0,
+    level_inc        INT          NOT NULL DEFAULT 0,
     # 增加饱腹值
-    hunger_inc  INT          NOT NULL DEFAULT 0,
+    hunger_inc       INT          NOT NULL DEFAULT 0,
     # 增加生命值
-    hp_inc      INT          NOT NULL DEFAULT 0,
+    hp_inc           INT          NOT NULL DEFAULT 0,
     # 增加攻击力
-    attack_inc  INT          NOT NULL DEFAULT 0,
+    attack_inc       INT          NOT NULL DEFAULT 0,
     # 增加防御力
-    defense_inc INT          NOT NULL DEFAULT 0,
+    defense_inc      INT          NOT NULL DEFAULT 0,
     # 增加速度
-    speed_inc   INT          NOT NULL DEFAULT 0,
+    speed_inc        INT          NOT NULL DEFAULT 0,
     # 增加视觉范围
     vision_range_inc INT          NOT NULL DEFAULT 0,
     # 增加攻击范围
@@ -369,9 +369,9 @@ CREATE TABLE building_type
     # 黑白图的路径
     image_path   VARCHAR(255) NOT NULL,
     # 基础宽度（真实宽度会在此基础上波动）
-    basic_width  INT          NOT NULL DEFAULT 0,
+    basic_width  DOUBLE       NOT NULL DEFAULT 0,
     # 基础高度（真实高度会在此基础上波动）
-    basic_height INT          NOT NULL DEFAULT 0,
+    basic_height DOUBLE       NOT NULL DEFAULT 0,
     # 稀有度 (0-100)，越低越稀有
     rarity       INT          NOT NULL DEFAULT 0
 );
@@ -395,13 +395,13 @@ CREATE TABLE building
     # 建筑的拥有者
     owner    VARCHAR(255),
     # 建筑左上角的x坐标（对于建筑，我们使用图像左上角的坐标，以方便寻路算法，但是对于玩家等，我们使用质心的坐标）
-    origin_x INT          NOT NULL,
+    origin_x DOUBLE       NOT NULL,
     # 建筑左上角的y坐标
-    origin_y INT          NOT NULL,
+    origin_y DOUBLE       NOT NULL,
     # 建筑的宽度
-    width    INT          NOT NULL,
+    width    DOUBLE       NOT NULL,
     # 建筑的高度
-    height   INT          NOT NULL,
+    height   DOUBLE       NOT NULL,
     CONSTRAINT fk_building_type FOREIGN KEY (type) REFERENCES building_type (id),
     CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES sprite (id),
     CONSTRAINT fk_building_map FOREIGN KEY (map) REFERENCES game_map (id)

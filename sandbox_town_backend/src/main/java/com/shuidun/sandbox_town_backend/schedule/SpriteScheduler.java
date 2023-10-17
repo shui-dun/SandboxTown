@@ -57,7 +57,7 @@ public class SpriteScheduler {
                     return;
                 }
                 // 寻找路径
-                var path = gameMapService.findPath(sprite, (int) ownerSprite.getX(), (int) ownerSprite.getY(), null, null);
+                var path = gameMapService.findPath(sprite, ownerSprite.getX(), ownerSprite.getY(), null, null);
                 // 如果找不到路径，那就不跟随
                 if (path == null) {
                     return;

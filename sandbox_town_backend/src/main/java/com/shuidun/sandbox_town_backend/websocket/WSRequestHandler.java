@@ -59,7 +59,7 @@ public class WSRequestHandler {
             // 更新坐标信息
             var spriteCache = GameCache.spriteCacheMap.get(data.getId());
             // 如果传入的时间戳小于上次更新的时间戳，直接返回
-            if (spriteCache != null && spriteCache.getLastUpdateTime() > data.getTime()) {
+            if (spriteCache != null && spriteCache.getLastMoveTime() > data.getTime()) {
                 return;
             }
 
@@ -69,7 +69,7 @@ public class WSRequestHandler {
             }
             spriteCache.setX(data.getX());
             spriteCache.setY(data.getY());
-            spriteCache.setLastUpdateTime(data.getTime());
+            spriteCache.setLastMoveTime(data.getTime());
             spriteCache.setVx(data.getVx());
             spriteCache.setVy(data.getVy());
 

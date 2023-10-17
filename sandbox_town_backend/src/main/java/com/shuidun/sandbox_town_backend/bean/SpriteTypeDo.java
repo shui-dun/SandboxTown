@@ -38,9 +38,9 @@ public class SpriteTypeDo {
 
     private Integer basicSpeed;
 
-    private Integer basicWidth;
+    private Double basicWidth;
 
-    private Integer basicHeight;
+    private Double basicHeight;
 
     private Integer basicVisionRange;
 

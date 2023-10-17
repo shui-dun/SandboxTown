@@ -44,13 +44,13 @@ public class SpriteDo {
 
     private Integer attackRange;
 
-    private Integer X;
+    private Double X;
 
-    private Integer Y;
+    private Double Y;
 
-    private Integer width;
+    private Double width;
 
-    private Integer height;
+    private Double height;
 
     private String map;
 

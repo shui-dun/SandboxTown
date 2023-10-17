@@ -51,8 +51,8 @@ public class SpriteService {
     private void assignCacheToSprite(SpriteDo sprite) {
         var spriteCache = GameCache.spriteCacheMap.get(sprite.getId());
         if (spriteCache != null) {
-            sprite.setX((int) Math.round(spriteCache.getX()));
-            sprite.setY((int) Math.round(spriteCache.getY()));
+            sprite.setX(spriteCache.getX());
+            sprite.setY(spriteCache.getY());
             sprite.setCache(spriteCache);
         }
     }
@@ -256,14 +256,14 @@ public class SpriteService {
                 sprite.setExp(0);
                 sprite.setHunger(100);
                 sprite.setHp(100);
-                sprite.setX(0);
-                sprite.setY(0);
+                sprite.setX(0.0);
+                sprite.setY(0.0);
                 spriteMapper.updateById(sprite);
                 var spriteCache = GameCache.spriteCacheMap.get(sprite.getId());
                 spriteCache.setX(0);
                 spriteCache.setY(0);
                 // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
-                spriteCache.setLastUpdateTime(System.currentTimeMillis() + 300);
+                spriteCache.setLastMoveTime(System.currentTimeMillis() + 300);
                 responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
                         sprite.getId(),
                         sprite.getX(),
@@ -291,7 +291,7 @@ public class SpriteService {
     }
 
     /** 生成固定的（即各属性值严格等于其精灵类型的基础属性值）指定类型的角色，并写入数据库 */
-    public SpriteDo generateFixedSprite(SpriteTypeEnum type, String id, String owner, int x, int y) {
+    public SpriteDo generateFixedSprite(SpriteTypeEnum type, String id, String owner, double x, double y) {
         SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
         sprite.setId(id);
@@ -317,7 +317,7 @@ public class SpriteService {
     }
 
     /** 生成随机的指定类型的角色，并写入数据库 */
-    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String id, String owner, int x, int y) {
+    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String id, String owner, double x, double y) {
         SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
         sprite.setId(id);
@@ -354,14 +354,14 @@ public class SpriteService {
         sprite.setY(y);
         // 宽度和高度使用相同的scale
         scale = 0.8 + Math.random() * 0.4;
-        sprite.setWidth((int) (spriteType.getBasicWidth() * scale));
-        sprite.setHeight((int) (spriteType.getBasicHeight() * scale));
+        sprite.setWidth(spriteType.getBasicWidth() * scale);
+        sprite.setHeight(spriteType.getBasicHeight() * scale);
         sprite.setMap(mapId);
         spriteMapper.insert(sprite);
         return sprite;
     }
 
-    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String owner, int x, int y) {
+    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String owner, double x, double y) {
         String id = NameGenerator.generateItemName(type.name());
         return generateRandomSprite(type, id, owner, x, y);
     }
@@ -373,8 +373,8 @@ public class SpriteService {
         List<SpriteDo> sprites = spriteMapper.selectBatchIds(GameCache.spriteCacheMap.keySet());
         // 更新坐标为缓存中的最新坐标
         for (SpriteDo sprite : sprites) {
-            sprite.setX((int) Math.round(GameCache.spriteCacheMap.get(sprite.getId()).getX()));
-            sprite.setY((int) Math.round(GameCache.spriteCacheMap.get(sprite.getId()).getY()));
+            sprite.setX(GameCache.spriteCacheMap.get(sprite.getId()).getX());
+            sprite.setY(GameCache.spriteCacheMap.get(sprite.getId()).getY());
         }
         return sprites;
     }
@@ -745,7 +745,7 @@ public class SpriteService {
 
     }
 
-    public void updatePosition(String id, int x, int y) {
+    public void updatePosition(String id, double x, double y) {
         spriteMapper.updatePosition(id, x, y);
     }
 
