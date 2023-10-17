@@ -51,7 +51,7 @@ async function websocketOnMessage(event) {
 // export default state;
 // // 在其他模块中
 // import wsState from "./websocket";
-// 导出一个获取函数（目前的解决办法）
+// 解决办法2：导出一个获取函数（目前的解决办法）
 function ws() {
     return connection;
 }
