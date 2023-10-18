@@ -274,13 +274,12 @@ public class SpriteService {
                         0, 0
                 )));
             } else { // 否则，删除
-                // 修改精灵的所有宠物的主人设置为null
-                spriteMapper.updateOwnerByOwner(sprite.getId(), null);
                 // 修改精灵的所有建筑的主人设置为null
                 buildingMapper.updateOwnerByOwner(sprite.getId(), null);
-                // 删除精灵
-                spriteMapper.deleteById(sprite.getId());
+                // 使精灵下线（同时递归下线它的宠物）
                 responseList.add(offline(sprite.getId()));
+                // 删除精灵（同时递归删除它的宠物）
+                spriteMapper.deleteById(sprite.getId());
             }
         } else {
             spriteMapper.updateById(sprite);

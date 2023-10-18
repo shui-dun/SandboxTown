@@ -143,7 +143,7 @@ CREATE TABLE sprite
     map          VARCHAR(255) NOT NULL,
     CONSTRAINT fk_sprite_type FOREIGN KEY (type) REFERENCES sprite_type (type),
     CONSTRAINT fk_sprite_map FOREIGN KEY (map) REFERENCES game_map (id) ON DELETE CASCADE,
-    CONSTRAINT fk_sprite_owner FOREIGN KEY (owner) REFERENCES sprite (id)
+    CONSTRAINT fk_sprite_owner FOREIGN KEY (owner) REFERENCES sprite (id) ON DELETE CASCADE
 );
 
 INSERT INTO sprite (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, vision_range, attack_range,
