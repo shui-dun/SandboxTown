@@ -105,12 +105,12 @@ INSERT INTO sprite_type (type, name, description, basic_price, basic_money,
                          basic_exp, basic_level, basic_hunger, basic_hp,
                          basic_attack, basic_defense, basic_speed, basic_width, basic_height, basic_vision_range,
                          basic_attack_range, width_ratio, height_ratio)
-VALUES ('USER', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120, 1000, 100, 0.5, 0.8),
-       ('DOG', '狗狗', '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120,
+VALUES ('USER', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 6, 10, 160, 160, 1000, 100, 0.5, 0.8),
+       ('DOG', '狗狗', '可靠的护卫，忠诚而勇敢，像你的影子一样一直陪伴着你', 0, 0, 0, 1, 100, 100, 10, 5, 10, 180, 180,
         1000, 100, 0.35, 0.5),
-       ('CAT', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120,
+       ('CAT', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 9, 5, 10, 160, 160,
         1000, 100, 0.35, 0.5),
-       ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 10, 10, 10, 120, 120, 1000, 100,
+       ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 11, 5, 10, 170, 170, 1000, 100,
         0.9, 0.85);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
@@ -148,9 +148,9 @@ CREATE TABLE sprite
 INSERT INTO sprite (id, type, owner, money, exp, level, hunger, hp, attack, defense, speed, vision_range, attack_range,
                     x, y, map, width,
                     height)
-VALUES ('USER_xixi', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 10, 1000, 100, 300, 300, '1', 150, 150),
-       ('USER_haha', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 20, 1000, 100, 100, 100, '1', 150, 150),
-       ('USER_heihei', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 20, 1000, 100, 200, 200, '1', 150, 150),
+VALUES ('USER_xixi', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 10, 1000, 100, 300, 300, '1', 160, 160),
+       ('USER_haha', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 20, 1000, 100, 100, 100, '1', 160, 160),
+       ('USER_heihei', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 20, 1000, 100, 200, 200, '1', 160, 160),
        ('DOG_Vz5n_o-CQk-okcK5vQFRsA', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 1000, 100, 400, 300, '1', 150,
         150),
        ('DOG_q83jrKyCTtGm1QvywN48pw', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 13, 6, 8, 1000, 100, 400, 400, '1', 250,

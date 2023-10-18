@@ -2,6 +2,7 @@
 
 ## feature
 
+- 各种精灵（例如狗）在地图上的数目过少时，会重新生成一些
 - java bean继承，例如使用 `new SpriteEffectChangeVo(spriteId)` 替代 `new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId))`，其中 `SpriteEffectChangeVo` 继承自 `WSResponseVo`
 - 完成虚无的效果
 - 只有晚上会生成一些怪（例如蜘蛛） & 黎明时怪开始迅速受伤死亡（烧伤效果）

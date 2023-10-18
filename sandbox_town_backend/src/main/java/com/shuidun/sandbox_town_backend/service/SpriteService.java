@@ -782,7 +782,7 @@ public class SpriteService {
 
     // 可被驯服的动物以及其对应的驯服概率和所需的手持物品
     private final Map<SpriteTypeEnum, Pair<Double, ItemTypeEnum>> tameableSpriteTypeMap = Map.ofEntries(
-            Map.entry(SpriteTypeEnum.DOG, Pair.of(0.35, ItemTypeEnum.BONE))
+            Map.entry(SpriteTypeEnum.DOG, Pair.of(0.28, ItemTypeEnum.BONE))
     );
 
     /**
