@@ -145,7 +145,7 @@ class MainScene extends Phaser.Scene {
 
     // 根据id获得游戏对象（不存在时会自动创建）
     async getGameObjectById(id) {
-        // 如果id2gameObject中不存在该id，说明是网络问题，例如ONLINE消息丢失，需要手动从后端获得
+        // 如果id2gameObject中不存在该id，说明需要手动从后端获得
         if (this.id2gameObject[id] == null) {
             let response = await mixin.myGET(`/rest/sprite/list/${id}`);
             this.createSprite(response);
@@ -155,7 +155,7 @@ class MainScene extends Phaser.Scene {
 
     // 根据id获得精灵信息（不存在时会自动创建）
     async getSpriteInfoById(id) {
-        // 如果id2gameObject中不存在该id，说明是网络问题，例如ONLINE消息丢失，需要手动从后端获得
+        // 如果id2gameObject中不存在该id，说明需要手动从后端获得
         if (this.id2spriteInfo[id] == null) {
             let response = await mixin.myGET(`/rest/sprite/list/${id}`);
             this.createSprite(response);
@@ -518,6 +518,7 @@ class MainScene extends Phaser.Scene {
         });
 
         // 下线通知事件
+        // TODO: 如果下线消息丢失了该怎么办？
         emitter.on('OFFLINE', async (data) => {
             for (let spriteId of data.ids) {
                 let gameObject = this.id2gameObject[spriteId];

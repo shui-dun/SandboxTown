@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.schedule;
 import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
+import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.service.StoreService;
 import com.shuidun.sandbox_town_backend.service.TimeService;
 import com.shuidun.sandbox_town_backend.service.TreeService;
@@ -20,10 +21,13 @@ public class TimeScheduler {
 
     private TimeService timeService;
 
-    public TimeScheduler(TreeService treeService, StoreService storeService, TimeService timeService) {
+    private SpriteService spriteService;
+
+    public TimeScheduler(TreeService treeService, StoreService storeService, TimeService timeService, SpriteService spriteService) {
         this.treeService = treeService;
         this.storeService = storeService;
         this.timeService = timeService;
+        this.spriteService = spriteService;
     }
 
     @Scheduled(initialDelay = Constants.DAY_START, fixedDelay = Constants.DAY_TOTAL_DURATION)
@@ -31,7 +35,7 @@ public class TimeScheduler {
         timeService.enterDay();
         notifyTimeFrame();
         // 刷新苹果数目
-        treeService.refreshTrees();
+        treeService.refreshAll();
         // 刷新商店
         storeService.refreshAll();
     }
@@ -52,6 +56,8 @@ public class TimeScheduler {
     public void enterDawn() {
         timeService.enterDawn();
         notifyTimeFrame();
+        // 刷新日行动物
+        spriteService.refreshDiurnalSprites();
     }
 
     @Scheduled(initialDelay = 30000, fixedDelay = 30000)

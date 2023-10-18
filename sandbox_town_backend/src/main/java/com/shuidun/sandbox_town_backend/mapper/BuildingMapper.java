@@ -22,4 +22,15 @@ public interface BuildingMapper extends BaseMapper<BuildingDo> {
     /** 根据地图名称和建筑物类型获取建筑物列表 */
     @Select("SELECT * FROM building WHERE map = #{mapId} AND type = #{type}")
     List<BuildingDo> selectByMapIdAndType(String mapId, BuildingTypeEnum type);
+
+    /** 根据地图名称和建筑物类型列表获取建筑物列表 */
+    @Select("""
+            <script>
+                SELECT * FROM building WHERE map = #{mapId} AND type in
+                <foreach collection="types" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </script>
+            """)
+    List<BuildingDo> selectByMapIdAndTypes(String mapId, List<BuildingTypeEnum> types);
 }

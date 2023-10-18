@@ -2,7 +2,12 @@
 
 ## feature
 
-- 各种精灵（例如狗）在地图上的数目过少时，会重新生成一些
+- 玩家对怪每造成1点伤害，会增加自己的1点经验值 & 玩家杀死怪时，会增加自己的经验值和金钱。为此，需要添加以下字段：
+  - 每次造成伤害时多大概率提升攻击者经验（不然经验上升太快了）
+  - 被攻击者死亡时攻击者增加多少经验
+  - 被攻击者死亡时攻击者增加多少金钱
+
+- 可以喂养宠物，喂养一次增加其一定饱腹值
 - java bean继承，例如使用 `new SpriteEffectChangeVo(spriteId)` 替代 `new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId))`，其中 `SpriteEffectChangeVo` 继承自 `WSResponseVo`
 - 完成虚无的效果
 - 只有晚上会生成一些怪（例如蜘蛛） & 黎明时怪开始迅速受伤死亡（烧伤效果）
@@ -25,8 +30,6 @@
 - 待定：简化设计，废弃整个物理引擎（因为bug太多了，不仅要解决自己代码的bug，还要解决物理引擎的上游bug），进而，可以简化前后端交互（废弃COORDINATE request，服务器不再需要通过前端获得位置信息）和后端设计（废弃SpriteCache，因为SpriteCache的主要目的就是缓存精灵位置，便于COORDINATE）
 - 各个精灵类型应有各自的basic生命上限和basic饱腹值上限，各个精灵应有hpLimit，hpLimitInc，hungerLimit 和 hungerLimitInc属性，而不应该是简单的100
 - 在游戏启动时,可以使用多线程或异步IO的方式,并行加载地图、精灵、物品数据,减少启动时间。
-- 玩家对怪造成伤害，会增加自己的经验值
-- 玩家杀死怪时，会增加自己的经验值和金钱
 - 竞技场：类似赛尔号
 - 使用柏林噪声生成不同的地形
 - 需要邀请码才能注册，管理员可以查看、添加和删除邀请码
@@ -63,6 +66,7 @@
 
 ## bug
 
+- 狂点鼠标攻击会导致SQLIntegrityConstraintViolationException，此时无法攻击对方，过几秒后才能继续攻击
 - 前端和后端有时有空指针异常（例如对spriteCache修改过程中另一个线程使这个精灵下线），如何空安全？是否/如何加锁？例如，对cache的读写（不管是通过GameCache.spriteCacheMap还是通过sprite.getCache()）都应该加锁。（虽然GameCache.spriteCacheMap是ConcurrentHashMap，但是这只能保证其 put, remove, get 的正常，但它并没有提供对其存储的值的读写锁）
 - 补间动画的精灵碰撞到带有速度的精灵，补间动画的精灵会再也无法正常运动，尝试在补间动画之前将速度设为0，这样的效果稍微好点，在碰到移动的物体后会像撞到一堵墙一样停止，但之后尝试运动还是可以正常运动，但目前能想到的最好的方法是在update中一直将补间动画的精灵的速度设为0
 - 切换账号后，操纵的还是旧的玩家（旧的ws没有断开），需要刷新网页才能避免这个问题

@@ -364,19 +364,6 @@ public class GameMapService {
                 placeBuildingOnMap(building);
                 // 如果是树
                 if (buildingType.getId().equals(BuildingTypeEnum.TREE)) {
-                    // 在树下以一定概率生成几只狗
-                    if (Math.random() < 0.3) {
-                        // 随机生成狗的数量
-                        int nDogs = (int) (Math.random() * 3) + 1;
-                        // 随机生成狗的位置
-                        for (int j = 0; j < nDogs; ++j) {
-                            // 随机生成狗的左上角
-                            double dogX = building.getOriginX() + Math.random() * building.getWidth();
-                            double dogY = building.getOriginY() + Math.random() * building.getHeight();
-                            // 创建狗
-                            spriteService.generateRandomSprite(SpriteTypeEnum.DOG, null, dogX, dogY);
-                        }
-                    }
                     treeService.createRandomTree(building.getId());
                 } else if (buildingType.getId().equals(BuildingTypeEnum.STORE)) { // 如果是商店
                     // 刷新商店商品
@@ -387,8 +374,9 @@ public class GameMapService {
                 // 如果重叠，重新生成建筑
                 --i;
             }
-
         }
+        // 生成日行性精灵
+        spriteService.refreshDiurnalSprites();
     }
 
     /** 计算两点之间的距离 */

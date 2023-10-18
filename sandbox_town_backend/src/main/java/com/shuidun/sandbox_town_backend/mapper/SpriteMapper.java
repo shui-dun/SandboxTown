@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.SpriteDo;
+import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -94,4 +95,8 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
     /** 更新精灵体力（最大为100） */
     @Update("UPDATE sprite SET hp = CASE WHEN hp + #{incVal} > 100 THEN 100 ELSE hp + #{incVal} END WHERE id = #{spriteId}")
     void addSpriteLife(String spriteId, int incVal);
+
+    /** 根据精灵类型和地图id得到精灵数量 */
+    @Select("SELECT COUNT(*) FROM sprite WHERE type = #{type} AND map = #{map}")
+    int countByTypeAndMap(SpriteTypeEnum type, String map);
 }

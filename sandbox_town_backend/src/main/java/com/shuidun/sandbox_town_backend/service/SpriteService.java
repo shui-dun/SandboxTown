@@ -34,17 +34,20 @@ public class SpriteService {
 
     private final EffectMapper effectMapper;
 
+    private final BuildingMapper buildingMapper;
+
 
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, BuildingMapper buildingMapper) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
         this.itemService = itemService;
         this.itemMapper = itemMapper;
         this.spriteEffectMapper = spriteEffectMapper;
         this.effectMapper = effectMapper;
+        this.buildingMapper = buildingMapper;
     }
 
     /** 将cache中的信息赋值给sprite */
@@ -780,7 +783,12 @@ public class SpriteService {
                 Math.abs(sprite1.getY() - sprite2.getY()) < (sprite1.getHeight() + sprite2.getHeight()) / 2;
     }
 
-    // 可被驯服的动物以及其对应的驯服概率和所需的手持物品
+    /**
+     * 可被驯服的动物以及其对应的驯服概率和所需的手持物品
+     * 这里直接将设置硬编码到代码中，因为这些数据不会经常变动
+     * 同时可以提高性能，因为避免了与数据库的交互
+     * 当然，更好的方法是数据库+缓存，这样既有较高的性能，又可以在不修改代码（重启服务）的情况下修改数据
+     */
     private final Map<SpriteTypeEnum, Pair<Double, ItemTypeEnum>> tameableSpriteTypeMap = Map.ofEntries(
             Map.entry(SpriteTypeEnum.DOG, Pair.of(0.28, ItemTypeEnum.BONE))
     );
@@ -818,6 +826,52 @@ public class SpriteService {
         } else {
             // 驯服失败
             return TameResultEnum.FAIL;
+        }
+    }
+
+    /** 精灵类型 -> 地图中的适宜数目 & 生成该种精灵的建筑物类型列表 */
+    private final Map<SpriteTypeEnum, Pair<Integer, List<BuildingTypeEnum>>> spriteTypeMap = Map.ofEntries(
+            Map.entry(SpriteTypeEnum.DOG, Pair.of(30, List.of(BuildingTypeEnum.TREE)))
+    );
+
+    /**
+     * 刷新所有日行动物
+     */
+    public void refreshDiurnalSprites() {
+        // 遍历每一种精灵
+        for (var entry : spriteTypeMap.entrySet()) {
+            // 得到目前的数目
+            int curNum = spriteMapper.countByTypeAndMap(entry.getKey(), mapId);
+            // 得到目标数目
+            int targetNum = entry.getValue().getFirst() - curNum;
+            if (targetNum <= 0) {
+                continue;
+            }
+            // 得到建筑物类型列表
+            List<BuildingTypeEnum> buildingTypes = entry.getValue().getSecond();
+            // 得到建筑物列表
+            List<BuildingDo> buildings = buildingMapper.selectByMapIdAndTypes(mapId, buildingTypes);
+            // 将目标数目分配到每个建筑物
+            targetNum /= buildings.size();
+            if (targetNum < 1) {
+                targetNum = 1;
+            }
+            // 遍历每个建筑物
+            for (BuildingDo building : buildings) {
+                for (int j = 0; j < targetNum; ++j) {
+                    // 随机生成精灵的左上角
+                    double spriteX = building.getOriginX() + Math.random() * building.getWidth();
+                    double spriteY = building.getOriginY() + Math.random() * building.getHeight();
+                    // 创建精灵
+                    SpriteDo sprite = generateRandomSprite(entry.getKey(), null, spriteX, spriteY);
+                    // 使精灵上线
+                    SpriteCache cache = new SpriteCache();
+                    cache.setX(spriteX);
+                    cache.setY(spriteY);
+                    cache.setLastMoveTime(System.currentTimeMillis());
+                    GameCache.spriteCacheMap.put(sprite.getId(), cache);
+                }
+            }
         }
     }
 }
