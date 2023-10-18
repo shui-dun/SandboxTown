@@ -13,6 +13,7 @@
 <script>
 
 import emitter from "@/js/mitt";
+import mixin from "@/js/mixin";
 const { v4: uuidv4 } = require('uuid');
 
 export default {
@@ -23,6 +24,7 @@ export default {
         };
     },
     mounted() {
+        // 监听精灵属性变化
         emitter.on("SPRITE_ATTRIBUTE_CHANGE", msg => {
             let showMap = {
                 "moneyInc": "💰 金钱",
@@ -49,6 +51,34 @@ export default {
                     continue;
                 }
                 showMsg(key);
+            }
+        });
+        // 监听驯服结果通知
+        emitter.on("TAME_RESULT", msg => {
+            // 驯服者
+            let id = msg.id;
+            if (id.startsWith("USER_")) {
+                id = id.split("_", 2)[1];
+            }
+            // 被驯服者
+            let targetId = msg.targetId;
+            if (targetId.startsWith("USER_")) {
+                targetId = targetId.split("_", 2)[1];
+            } else {
+                targetId = mixin.hashName(targetId);
+            }
+            let result = msg.result;
+            // 按理来说，只可能出现前三种情况，后两者是为了防止出现意外
+            if (result == "SUCCESS") {
+                this.showInfo(`${id}成功驯服了${targetId}`);
+            } else if (result == "FAIL") {
+                this.showInfo(`${id}驯服${targetId}失败了，请再接再厉`);
+            } else if (result == "ALREADY_TAMED") {
+                this.showInfo(`${targetId}已经被驯服了`);
+            } else if (result == "CANNOT_TAMED") {
+                this.showInfo(`${targetId}无法被驯服`);
+            } else if (result == "NO_ITEM") {
+                this.showInfo(`${id}没有驯服${targetId}所需的物品`);
             }
         });
     },

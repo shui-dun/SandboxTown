@@ -2,7 +2,7 @@
 
 ## feature
 
-- 人手持骨头与狗交互有一定概率驯服狗
+- java bean继承，例如使用 `new SpriteEffectChangeVo(spriteId)` 替代 `new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId))`，其中 `SpriteEffectChangeVo` 继承自 `WSResponseVo`
 - 完成虚无的效果
 - 只有晚上会生成一些怪（例如蜘蛛） & 黎明时怪开始迅速受伤死亡（烧伤效果）
 - 多地图（一个Java服务器负责一个地图） & rest请求用nginx做负载均衡

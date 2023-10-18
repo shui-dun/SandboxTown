@@ -486,15 +486,8 @@ public class SpriteService {
             }
         }
 
-        // 判断是否是最后一个物品
-        if (item.getItemCount() <= 1) {
-            // 删除物品
-            itemMapper.deleteById(item);
-        } else {
-            // 更新物品数量
-            item.setItemCount(item.getItemCount() - 1);
-            itemMapper.updateById(item);
-        }
+        // 物品数目减1
+        itemService.reduce(owner, itemId, 1);
 
         // 可能有精灵效果变化
         responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(owner)));
@@ -538,7 +531,7 @@ public class SpriteService {
         item.setPosition(ItemPositionEnum.HANDHELD);
         itemMapper.updateById(item);
 
-        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
+        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, new ItemBarNotifyVo(spriteId)));
         // 可能有精灵效果变化
         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
 
@@ -574,7 +567,7 @@ public class SpriteService {
         item.setPosition(ItemPositionEnum.ITEMBAR);
         itemMapper.updateById(item);
 
-        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
+        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, new ItemBarNotifyVo(spriteId)));
         // 可能有精灵效果变化
         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
 
@@ -631,7 +624,7 @@ public class SpriteService {
 
         // 如果原先在物品栏，发射物品栏通知
         if (originalPosition == ItemPositionEnum.ITEMBAR || originalPosition == ItemPositionEnum.HANDHELD) {
-            responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
+            responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, new ItemBarNotifyVo(spriteId)));
         }
         // 可能有精灵效果变化
         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
@@ -664,7 +657,7 @@ public class SpriteService {
 
         // 如果原先在物品栏，发射物品栏通知
         if (originalPosition == ItemPositionEnum.ITEMBAR || originalPosition == ItemPositionEnum.HANDHELD) {
-            responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, itemService.listItemsInItemBarByOwner(spriteId)));
+            responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, new ItemBarNotifyVo(spriteId)));
         }
         // 可能有精灵效果变化
         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
@@ -785,5 +778,46 @@ public class SpriteService {
         // 之所以这里不乘以widthRatio和heightRatio，是因为这里是检测是否接近而不是检测是否碰撞，因此放宽一点要求
         return Math.abs(sprite1.getX() - sprite2.getX()) < (sprite1.getWidth() + sprite2.getWidth()) / 2 &&
                 Math.abs(sprite1.getY() - sprite2.getY()) < (sprite1.getHeight() + sprite2.getHeight()) / 2;
+    }
+
+    // 可被驯服的动物以及其对应的驯服概率和所需的手持物品
+    private final Map<SpriteTypeEnum, Pair<Double, ItemTypeEnum>> tameableSpriteTypeMap = Map.ofEntries(
+            Map.entry(SpriteTypeEnum.DOG, Pair.of(0.35, ItemTypeEnum.BONE))
+    );
+
+    /**
+     * 驯服精灵
+     *
+     * @param sourceSprite 驯服者
+     * @param targetSprite 被驯服者
+     * @return 驯服结果
+     */
+    @Transactional
+    public TameResultEnum tame(SpriteDo sourceSprite, SpriteDo targetSprite) {
+        // 判断是否可驯服
+        if (!tameableSpriteTypeMap.containsKey(targetSprite.getType())) {
+            return TameResultEnum.CANNOT_TAMED;
+        }
+        // 是否手持了驯服所需物品
+        List<ItemDo> handHeldItems = itemMapper.selectByOwnerAndPosition(sourceSprite.getId(), ItemPositionEnum.HANDHELD);
+        if (handHeldItems == null || handHeldItems.isEmpty() || handHeldItems.get(0).getItemType() != tameableSpriteTypeMap.get(targetSprite.getType()).getSecond()) {
+            return TameResultEnum.NO_ITEM;
+        }
+        // 判断是否已经有主人
+        if (targetSprite.getOwner() != null) {
+            return TameResultEnum.ALREADY_TAMED;
+        }
+        // 从手持物品栏减少1个物品（如果是最后一个物品，则删除）
+        itemService.reduce(sourceSprite.getId(), handHeldItems.get(0).getId(), 1);
+        // 以一定概率驯服宠物
+        if (GameCache.random.nextDouble() < tameableSpriteTypeMap.get(targetSprite.getType()).getFirst()) {
+            // 驯服成功
+            targetSprite.setOwner(sourceSprite.getId());
+            spriteMapper.updateById(targetSprite);
+            return TameResultEnum.SUCCESS;
+        } else {
+            // 驯服失败
+            return TameResultEnum.FAIL;
+        }
     }
 }

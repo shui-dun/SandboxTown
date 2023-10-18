@@ -2,10 +2,10 @@ package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.*;
-import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
-import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
+import com.shuidun.sandbox_town_backend.enumeration.*;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
+import com.shuidun.sandbox_town_backend.service.ItemService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class WSRequestHandler {
         }
     }
 
-    public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService) {
+    public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService, ItemService itemService) {
 
 
         // 告知坐标信息
@@ -129,7 +129,22 @@ public class WSRequestHandler {
                 return;
             }
             spriteCache.setLastInteractTime(System.currentTimeMillis());
-            // 目前只添加了攻击事件
+            // 先尝试驯服
+            TameResultEnum tameResult = spriteService.tame(sourceSprite, targetSprite);
+            // 如果驯服结果是“已经有主人”或者“驯服成功”或者“驯服失败”，说明本次交互的目的的确是驯服，而非攻击
+            if (tameResult == TameResultEnum.ALREADY_TAMED || tameResult == TameResultEnum.SUCCESS || tameResult == TameResultEnum.FAIL) {
+                // 发送驯服结果通知
+                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.TAME_RESULT, new TameVo(
+                        sourceSprite.getId(), targetSprite.getId(), tameResult
+                )));
+                // 如果驯服结果不是“已经有主人”，则代表的确尝试去驯服，会消耗物品，因此发送通知栏变化通知
+                if (tameResult != TameResultEnum.ALREADY_TAMED) {
+                    WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
+                            new ItemBarNotifyVo(sourceSprite.getId())));
+                }
+                return;
+            }
+            // 否则本次交互的目的是进行攻击
             List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
             WSMessageSender.sendResponseList(responses);
         });

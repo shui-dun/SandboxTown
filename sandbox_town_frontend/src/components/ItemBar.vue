@@ -78,8 +78,10 @@ export default {
             this.setItems(data);
         });
         // 监听物品栏物品更新事件
-        emitter.on('ITEM_BAR_NOTIFY', (data) => {
-            this.setItems(data);
+        emitter.on('ITEM_BAR_NOTIFY', () => {
+            mixin.myGET('/rest/item/listMyItemsInItemBar', null, (data) => {
+                this.setItems(data);
+            });
         });
     },
 };

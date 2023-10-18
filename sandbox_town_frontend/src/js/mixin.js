@@ -1,6 +1,6 @@
 // 供其他组件调用的公共库
 const mixin = {
-    // 显示提示框
+    // 显示提示信息
     fadeInfoShow: null,
 
     // POST请求

@@ -21,4 +21,6 @@ public enum WSResponseEnum {
     SPRITE_EFFECT_CHANGE,
     /** 精灵HP变化通知 */
     SPRITE_HP_CHANGE,
+    /** 驯服结果通知 */
+    TAME_RESULT,
 }

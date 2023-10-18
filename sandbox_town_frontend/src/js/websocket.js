@@ -38,6 +38,7 @@ function createWebSocket() {
 
 async function websocketOnMessage(event) {
     let response = JSON.parse(event.data);
+    // 发送事件（发布订阅模式）
     emitter.emit(response.type, response.data);
 }
 
