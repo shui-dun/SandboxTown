@@ -274,6 +274,11 @@ public class SpriteService {
                         0, 0
                 )));
             } else { // 否则，删除
+                // 修改精灵的所有宠物的主人设置为null
+                spriteMapper.updateOwnerByOwner(sprite.getId(), null);
+                // 修改精灵的所有建筑的主人设置为null
+                buildingMapper.updateOwnerByOwner(sprite.getId(), null);
+                // 删除精灵
                 spriteMapper.deleteById(sprite.getId());
                 responseList.add(offline(sprite.getId()));
             }
@@ -731,16 +736,28 @@ public class SpriteService {
         return responses;
     }
 
+    /**
+     * 使精灵下线
+     */
     public WSResponseVo offline(String spriteId) {
         List<String> ids = new ArrayList<>();
+        offline(spriteId, ids);
+        // 使精灵下线
+        ids.forEach(id -> GameCache.spriteCacheMap.remove(id));
+        // 发送下线消息
+        return new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(ids));
+    }
+
+    private void offline(String spriteId, List<String> ids) {
         ids.add(spriteId);
         // 读取精灵的所有宠物
         List<SpriteDo> pets = selectByOwner(spriteId);
-        pets.forEach(pet -> ids.add(pet.getId()));
-        // 删除精灵以及其宠物坐标等信息
-        ids.forEach(id -> GameCache.spriteCacheMap.remove(id));
-        return new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(ids));
-
+        for (SpriteDo pet : pets) {
+            if (pet.getType() == SpriteTypeEnum.USER) {
+                continue;
+            }
+            ids.add(pet.getId());
+        }
     }
 
     public void updatePosition(String id, double x, double y) {
@@ -835,6 +852,35 @@ public class SpriteService {
     );
 
     /**
+     * 使精灵上线
+     */
+    public SpriteCache online(String id) {
+        SpriteDo sprite = spriteMapper.selectById(id);
+        // 将精灵的坐标信息写入缓存
+        SpriteCache cache = new SpriteCache();
+        cache.setX(sprite.getX());
+        cache.setY(sprite.getY());
+        cache.setLastMoveTime(System.currentTimeMillis());
+        GameCache.spriteCacheMap.compute(id, (k, v) -> {
+            // 如果已经在线，则不做任何操作
+            if (v != null) {
+                return v;
+            }
+            return cache;
+        });
+        // 使其宠物上线
+        List<SpriteDo> pets = selectByOwner(id);
+        pets.forEach(pet -> {
+            // 如果宠物是玩家，那么不需要上线
+            if (pet.getType() == SpriteTypeEnum.USER) {
+                return;
+            }
+            online(pet.getId());
+        });
+        return cache;
+    }
+
+    /**
      * 刷新所有日行动物
      */
     public void refreshDiurnalSprites() {
@@ -865,11 +911,7 @@ public class SpriteService {
                     // 创建精灵
                     SpriteDo sprite = generateRandomSprite(entry.getKey(), null, spriteX, spriteY);
                     // 使精灵上线
-                    SpriteCache cache = new SpriteCache();
-                    cache.setX(spriteX);
-                    cache.setY(spriteY);
-                    cache.setLastMoveTime(System.currentTimeMillis());
-                    GameCache.spriteCacheMap.put(sprite.getId(), cache);
+                    online(sprite.getId());
                 }
             }
         }

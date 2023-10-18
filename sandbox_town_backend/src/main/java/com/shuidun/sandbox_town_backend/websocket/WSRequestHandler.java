@@ -64,8 +64,7 @@ public class WSRequestHandler {
             }
 
             if (spriteCache == null) {
-                spriteCache = new SpriteCache();
-                GameCache.spriteCacheMap.put(data.getId(), spriteCache);
+                spriteCache = spriteService.online(data.getId());
             }
             spriteCache.setX(data.getX());
             spriteCache.setY(data.getY());
@@ -86,8 +85,7 @@ public class WSRequestHandler {
             // 更新玩家的坐标信息
             var spriteCache = GameCache.spriteCacheMap.get(initiator);
             if (spriteCache == null) {
-                spriteCache = new SpriteCache();
-                GameCache.spriteCacheMap.put(initiator, spriteCache);
+                spriteCache = spriteService.online(initiator);
             }
             spriteCache.setX(data.getX0());
             spriteCache.setY(data.getY0());

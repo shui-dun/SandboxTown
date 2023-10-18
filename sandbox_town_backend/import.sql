@@ -33,7 +33,8 @@ CREATE TABLE user_role
     username VARCHAR(255) NOT NULL,
     role     VARCHAR(255) NOT NULL,
     PRIMARY KEY (username, role),
-    CONSTRAINT fk_user_role_username FOREIGN KEY (username) REFERENCES user (username)
+    # ON DELETE CASCADE 表示级联删除，当删除user表中的一条记录时，user_role表中对应的记录也会被删除
+    CONSTRAINT fk_user_role_username FOREIGN KEY (username) REFERENCES user (username) ON DELETE CASCADE
 );
 
 
@@ -141,7 +142,7 @@ CREATE TABLE sprite
     # 所在地图名称
     map          VARCHAR(255) NOT NULL,
     CONSTRAINT fk_sprite_type FOREIGN KEY (type) REFERENCES sprite_type (type),
-    CONSTRAINT fk_sprite_map FOREIGN KEY (map) REFERENCES game_map (id),
+    CONSTRAINT fk_sprite_map FOREIGN KEY (map) REFERENCES game_map (id) ON DELETE CASCADE,
     CONSTRAINT fk_sprite_owner FOREIGN KEY (owner) REFERENCES sprite (id)
 );
 
@@ -240,7 +241,7 @@ create table sprite_effect
     # 效果的过期时间（1970年1月1日至今的毫秒数，-1表示永久）
     expire   BIGINT       NOT NULL,
     primary key (sprite, effect),
-    CONSTRAINT fk_sprite_effect_sprite FOREIGN KEY (sprite) REFERENCES sprite (id),
+    CONSTRAINT fk_sprite_effect_sprite FOREIGN KEY (sprite) REFERENCES sprite (id) ON DELETE CASCADE,
     CONSTRAINT fk_sprite_effect_effect FOREIGN KEY (effect) REFERENCES effect (id)
 );
 
@@ -328,7 +329,7 @@ create table item
     level      INT          NOT NULL DEFAULT 1,
     # 位置，包括背包等
     position   VARCHAR(255) NOT NULL,
-    FOREIGN KEY (owner) REFERENCES sprite (id),
+    FOREIGN KEY (owner) REFERENCES sprite (id) ON DELETE CASCADE,
     FOREIGN KEY (item_type) REFERENCES item_type (id)
 );
 
@@ -404,7 +405,7 @@ CREATE TABLE building
     height   DOUBLE       NOT NULL,
     CONSTRAINT fk_building_type FOREIGN KEY (type) REFERENCES building_type (id),
     CONSTRAINT fk_building_owner FOREIGN KEY (owner) REFERENCES sprite (id),
-    CONSTRAINT fk_building_map FOREIGN KEY (map) REFERENCES game_map (id)
+    CONSTRAINT fk_building_map FOREIGN KEY (map) REFERENCES game_map (id) ON DELETE CASCADE
 );
 
 # 创建树表
@@ -418,7 +419,7 @@ CREATE TABLE tree
     max_apples_count INT          NOT NULL DEFAULT 10,
     # 每个用户每天可以摘取的苹果数目
     limit_per_sprite INT          NOT NULL DEFAULT 1,
-    constraint fk_tree_building FOREIGN KEY (id) REFERENCES building (id)
+    constraint fk_tree_building FOREIGN KEY (id) REFERENCES building (id) ON DELETE CASCADE
 );
 
 # 限制每个玩家每天只能摘取从每颗树上摘下一定数目苹果
@@ -433,8 +434,8 @@ CREATE TABLE apple_picking
     # 下次可以摘取的时间
     pick_time DATETIME     NOT NULL,
     PRIMARY KEY (sprite, tree),
-    CONSTRAINT fk_apple_picking_owner FOREIGN KEY (sprite) REFERENCES sprite (id),
-    CONSTRAINT fk_apple_picking_tree FOREIGN KEY (tree) REFERENCES tree (id)
+    CONSTRAINT fk_apple_picking_owner FOREIGN KEY (sprite) REFERENCES sprite (id) ON DELETE CASCADE,
+    CONSTRAINT fk_apple_picking_tree FOREIGN KEY (tree) REFERENCES tree (id) ON DELETE CASCADE
 );
 
 # 创建商店商品表
@@ -449,7 +450,7 @@ CREATE TABLE store_item_type
     # 商品价格
     price     INT          NOT NULL DEFAULT 0,
     PRIMARY KEY (item_type, store),
-    CONSTRAINT fk_store_item_store FOREIGN KEY (store) REFERENCES building (id),
+    CONSTRAINT fk_store_item_store FOREIGN KEY (store) REFERENCES building (id) ON DELETE CASCADE,
     CONSTRAINT fk_store_item_item FOREIGN KEY (item_type) REFERENCES item_type (id)
 );
 

@@ -37,19 +37,7 @@ public class GameInitializer {
 
         // 放置没有主人的角色
         spriteService.getUnownedSprites().forEach(sprite ->
-                GameCache.spriteCacheMap.put(sprite.getId(), new SpriteCache(
-                        sprite.getX(),
-                        sprite.getY(),
-                        0,
-                        0,
-                        0,
-                        System.currentTimeMillis(),
-                        SpriteStatus.IDLE,
-                        null,
-                        null,
-                        null,
-                        null
-                ))
+                spriteService.online(sprite.getId())
         );
     }
 }

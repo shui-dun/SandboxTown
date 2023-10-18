@@ -99,4 +99,7 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
     /** 根据精灵类型和地图id得到精灵数量 */
     @Select("SELECT COUNT(*) FROM sprite WHERE type = #{type} AND map = #{map}")
     int countByTypeAndMap(SpriteTypeEnum type, String map);
+
+    @Update("UPDATE sprite SET owner = #{toId} WHERE owner = #{fromId}")
+    void updateOwnerByOwner(String fromId, String toId);
 }

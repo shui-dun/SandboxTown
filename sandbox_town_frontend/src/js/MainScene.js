@@ -309,6 +309,8 @@ class MainScene extends Phaser.Scene {
             // 遍历所有角色
             for (let id in this.id2spriteInfo) {
                 // 如果角色是自己、主人是自己、公共NPC（例如蜘蛛）
+                // TODO：这个逻辑应该被修改以支持级联主仆关系
+                // TODO：owner会变化，但没有同步到前端
                 if (id === this.myUsername ||
                     this.id2spriteInfo[id].owner === this.myUsername ||
                     (this.id2spriteInfo[id].owner == null && this.id2spriteInfo[id].type !== "USER")) {

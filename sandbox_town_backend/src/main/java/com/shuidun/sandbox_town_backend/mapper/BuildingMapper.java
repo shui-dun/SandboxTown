@@ -5,6 +5,7 @@ import com.shuidun.sandbox_town_backend.bean.BuildingDo;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -33,4 +34,7 @@ public interface BuildingMapper extends BaseMapper<BuildingDo> {
             </script>
             """)
     List<BuildingDo> selectByMapIdAndTypes(String mapId, List<BuildingTypeEnum> types);
+
+    @Update("UPDATE building SET owner = #{toId} WHERE owner = #{fromId}")
+    void updateOwnerByOwner(String fromId, String toId);
 }
