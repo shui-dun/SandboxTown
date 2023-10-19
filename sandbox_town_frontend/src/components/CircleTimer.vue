@@ -63,13 +63,16 @@ export default {
             this.timer = setInterval(() => {
                 this.calcRemain();
                 this.offset = this.calcOffset();
-                // 如果时间到了，就停止定时器
+                // 如果时间到了，就触发完成事件
                 if (Date.now() >= this.endTimeMills) {
                     this.onComplete();
-                    clearInterval(this.timer);
                 }
             }, 1000);
         }
+    },
+    // 组件销毁时清除定时器（否则会内存泄漏）
+    beforeUnmount() {
+        clearInterval(this.timer);
     },
     methods: {
         onComplete() {
