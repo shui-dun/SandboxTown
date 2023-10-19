@@ -6,6 +6,24 @@ public class Constants {
     /** 多少经验升一级 */
     public static final int EXP_PER_LEVEL = 100;
 
+    /** 精灵最大体力值 */
+    public static final int MAX_HP = 100;
+
+    /** 玩家死亡时失去的金钱值 */
+    public static final int MONEY_LOST_ON_DEATH = 120;
+
+    /** 精灵升级时得到的金钱值 */
+    public static final int MONEY_GAIN_ON_LEVEL_UP = 50;
+
+    /** 精灵最大饥饿值 */
+    public static final int MAX_HUNGER = 100;
+
+    /** 精灵饥饿值的临界点（低于这个值就不会自动恢复体力） */
+    public static final int HUNGER_THRESHOLD = 80;
+
+    /** 物品的最大生命值 */
+    public static final int MAX_ITEM_LIFE = 100;
+
     /** 地图上一格多少像素 */
     public static final int PIXELS_PER_GRID = 30;
 

@@ -182,7 +182,7 @@ public class SpriteScheduler {
         }
         // 恢复体力
         if (counterOfBatchSchedule % 13 == 0) {
-            spriteService.recoverSpritesLife(GameCache.spriteCacheMap.keySet(), 80, 1);
+            spriteService.recoverSpritesLife(GameCache.spriteCacheMap.keySet(), Constants.HUNGER_THRESHOLD, 1);
         }
 
         if (counterOfBatchSchedule == Long.MAX_VALUE) {

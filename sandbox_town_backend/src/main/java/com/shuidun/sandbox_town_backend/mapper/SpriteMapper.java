@@ -66,7 +66,7 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
     void reduceSpritesHunger(Collection<String> spriteIds, int val);
 
     /**
-     * 对精灵列表spriteIds中的每个精灵，如果其饥饿值大于等于minHunger，则增加incVal的生命值，如果更新后的生命值大于最大生命值（100），则生命值等于最大生命值
+     * 对精灵列表spriteIds中的每个精灵，如果其饥饿值大于等于minHunger，则增加incVal的生命值，如果更新后的生命值大于最大生命值，则生命值等于最大生命值
      */
     @Update("""
             <script>
@@ -75,7 +75,7 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
                 CASE
                     WHEN hunger &gt;= #{minHunger} THEN
                         CASE
-                            WHEN hp + #{incVal} &gt; 100 THEN 100
+                            WHEN hp + #{incVal} &gt; #{maxHp} THEN #{maxHp}
                             ELSE hp + #{incVal}
                         END
                     ELSE hp
@@ -86,15 +86,15 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
                 </foreach>
             </script>
             """)
-    void recoverSpritesLife(Collection<String> spriteIds, int minHunger, int incVal);
+    void recoverSpritesLife(Collection<String> spriteIds, int minHunger, int incVal, int maxHp);
 
     /** 更新坐标 */
     @Update("UPDATE sprite SET x = #{x}, y = #{y} WHERE id = #{id}")
     void updatePosition(@Param("id") String id, @Param("x") double x, @Param("y") double y);
 
-    /** 更新精灵体力（最大为100） */
-    @Update("UPDATE sprite SET hp = CASE WHEN hp + #{incVal} > 100 THEN 100 ELSE hp + #{incVal} END WHERE id = #{spriteId}")
-    void addSpriteLife(String spriteId, int incVal);
+    /** 更新精灵体力 */
+    @Update("UPDATE sprite SET hp = CASE WHEN hp + #{incVal} > #{maxHp} THEN #{maxHp} ELSE hp + #{incVal} END WHERE id = #{spriteId}")
+    void addSpriteLife(String spriteId, int incVal, int maxHp);
 
     /** 根据精灵类型和地图id得到精灵数量 */
     @Select("SELECT COUNT(*) FROM sprite WHERE type = #{type} AND map = #{map}")

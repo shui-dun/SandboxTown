@@ -53,7 +53,7 @@ public class ItemService {
                 item.setOwner(spriteId);
                 item.setItemType(itemTypeId);
                 item.setItemCount(1);
-                item.setLife(100);
+                item.setLife(Constants.MAX_ITEM_LIFE);
                 item.setLevel(1);
                 item.setPosition(ItemPositionEnum.BACKPACK);
                 itemMapper.insert(item);
@@ -68,7 +68,7 @@ public class ItemService {
                 item.setOwner(spriteId);
                 item.setItemType(itemTypeId);
                 item.setItemCount(count);
-                item.setLife(100);
+                item.setLife(Constants.MAX_ITEM_LIFE);
                 item.setLevel(1);
                 item.setPosition(ItemPositionEnum.BACKPACK);
                 itemMapper.insert(item);

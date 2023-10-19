@@ -6,6 +6,7 @@ import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.*;
+import com.shuidun.sandbox_town_backend.mixin.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -179,7 +180,7 @@ public class StoreService {
             price = storeItemType.getPrice() / 2;
         }
         // 乘以寿命比例
-        price = (int) ((double) price * item.getLife() / 100);
+        price = (int) ((double) price * item.getLife() / Constants.MAX_ITEM_LIFE);
         // 价格最低为1
         if (price <= 0) {
             price = 1;
@@ -215,7 +216,7 @@ public class StoreService {
         // 更新物品数量
         itemService.reduce(spriteId, itemId, amount);
         // 更新商店商品数量（只有全新物品商店才会再次出售）
-        if (item.getLife() == 100) {
+        if (item.getLife() == Constants.MAX_ITEM_LIFE) {
             StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());
             if (storeItemType == null) {
                 // 如果商店里面没有这个商品，那么那直接用物品的售卖价格的两倍

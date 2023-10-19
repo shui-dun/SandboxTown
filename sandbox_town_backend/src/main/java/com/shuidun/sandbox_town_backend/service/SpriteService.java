@@ -17,8 +17,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.shuidun.sandbox_town_backend.mixin.Constants.EXP_PER_LEVEL;
-
 @Slf4j
 @Service
 public class SpriteService {
@@ -210,28 +208,35 @@ public class SpriteService {
     public Pair<SpriteDo, List<WSResponseVo>> normalizeAndUpdateSprite(SpriteDo sprite) {
         List<WSResponseVo> responseList = new ArrayList<>();
         // 如果经验值足够升级，则升级
-        if (sprite.getExp() >= EXP_PER_LEVEL) {
-            sprite.setLevel(sprite.getLevel() + 1);
-            sprite.setExp(sprite.getExp() - EXP_PER_LEVEL);
+        if (sprite.getExp() >= Constants.EXP_PER_LEVEL) {
+            // 得到类型信息
+            SpriteTypeDo spriteType = spriteTypeMapper.selectById(sprite.getType());
+            // 升级级数
+            int levelUp = sprite.getExp() / Constants.EXP_PER_LEVEL;
+            // 升级
+            sprite.setLevel(sprite.getLevel() + levelUp);
+            // 减少经验值
+            sprite.setExp(sprite.getExp() - levelUp * Constants.EXP_PER_LEVEL);
             // 更新玩家属性
-            sprite.setMoney(sprite.getMoney() + 15);
-            sprite.setHunger(sprite.getHunger() + 10);
-            sprite.setHp(sprite.getHp() + 10);
-            sprite.setAttack(sprite.getAttack() + 2);
-            sprite.setDefense(sprite.getDefense() + 2);
-            sprite.setSpeed(sprite.getSpeed() + 2);
-            sprite.setVisionRange(sprite.getVisionRange() + 50);
-            sprite.setAttackRange(sprite.getAttackRange() + 1);
+            sprite.setMoney(sprite.getMoney() + levelUp * Constants.MONEY_GAIN_ON_LEVEL_UP);
+            sprite.setHunger(Constants.MAX_HUNGER);
+            sprite.setHp(Constants.MAX_HP);
+            // 每次升级，增加基础属性值的1/4，至少增加1
+            sprite.setAttack(sprite.getAttack() + Math.max(1, spriteType.getBasicAttack() / 4) * levelUp);
+            sprite.setDefense(sprite.getDefense() + Math.max(1, spriteType.getBasicDefense() / 4) * levelUp);
+            sprite.setSpeed(sprite.getSpeed() + Math.max(1, spriteType.getBasicSpeed() / 4) * levelUp);
+            sprite.setVisionRange(sprite.getVisionRange() + Math.max(1, spriteType.getBasicVisionRange() / 4) * levelUp);
+            sprite.setAttackRange(sprite.getAttackRange() + Math.max(1, spriteType.getBasicAttackRange() / 4) * levelUp);
         }
         // 判断属性是否在合理范围内
-        if (sprite.getHunger() > 100) {
-            sprite.setHunger(100);
+        if (sprite.getHunger() > Constants.MAX_HUNGER) {
+            sprite.setHunger(Constants.MAX_HUNGER);
         }
         if (sprite.getHunger() < 0) {
             sprite.setHunger(0);
         }
-        if (sprite.getHp() > 100) {
-            sprite.setHp(100);
+        if (sprite.getHp() > Constants.MAX_HP) {
+            sprite.setHp(Constants.MAX_HP);
         }
         if (sprite.getHp() < 0) {
             sprite.setHp(0);
@@ -255,10 +260,10 @@ public class SpriteService {
         if (sprite.getHp() == 0) {
             // 如果是玩家，则扣除金钱和清除经验，恢复饱腹值和生命值，并设置坐标为原点
             if (sprite.getType() == SpriteTypeEnum.USER) {
-                sprite.setMoney(Math.max(0, sprite.getMoney() - 50));
+                sprite.setMoney(Math.max(0, sprite.getMoney() - Constants.MONEY_LOST_ON_DEATH));
                 sprite.setExp(0);
-                sprite.setHunger(100);
-                sprite.setHp(100);
+                sprite.setHunger(Constants.MAX_HUNGER);
+                sprite.setHp(Constants.MAX_HP);
                 sprite.setX(0.0);
                 sprite.setY(0.0);
                 spriteMapper.updateById(sprite);
@@ -298,6 +303,7 @@ public class SpriteService {
     }
 
     /** 生成固定的（即各属性值严格等于其精灵类型的基础属性值）指定类型的角色，并写入数据库 */
+    @Transactional
     public SpriteDo generateFixedSprite(SpriteTypeEnum type, String id, String owner, double x, double y) {
         SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
@@ -307,6 +313,11 @@ public class SpriteService {
         sprite.setMoney(spriteType.getBasicMoney());
         sprite.setExp(spriteType.getBasicExp());
         sprite.setLevel(spriteType.getBasicLevel());
+        // 将等级降为1，全部赋给经验值
+        if (sprite.getLevel() > 1) {
+            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * Constants.EXP_PER_LEVEL);
+            sprite.setLevel(1);
+        }
         sprite.setHunger(spriteType.getBasicHunger());
         sprite.setHp(spriteType.getBasicHp());
         sprite.setAttack(spriteType.getBasicAttack());
@@ -319,11 +330,12 @@ public class SpriteService {
         sprite.setWidth(spriteType.getBasicWidth());
         sprite.setHeight(spriteType.getBasicHeight());
         sprite.setMap(mapId);
-        spriteMapper.insert(sprite);
+        normalizeAndUpdateSprite(sprite);
         return sprite;
     }
 
     /** 生成随机的指定类型的角色，并写入数据库 */
+    @Transactional
     public SpriteDo generateRandomSprite(SpriteTypeEnum type, String id, String owner, double x, double y) {
         SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
@@ -334,17 +346,19 @@ public class SpriteService {
         double scale = 0.8 + Math.random() * 0.4;
         sprite.setMoney((int) (spriteType.getBasicMoney() * scale));
         scale = 0.8 + Math.random() * 0.4;
-        sprite.setExp((int) (spriteType.getBasicExp() * scale));
-        scale = 0.8 + Math.random() * 0.4;
         sprite.setLevel((int) (spriteType.getBasicLevel() * scale));
         if (sprite.getLevel() < 1) {
             sprite.setLevel(1);
         }
         scale = 0.8 + Math.random() * 0.4;
-        sprite.setHunger((int) (spriteType.getBasicHunger() * scale));
-        if (sprite.getHunger() > 100) {
-            sprite.setHunger(100);
+        sprite.setExp((int) (spriteType.getBasicExp() * scale));
+        // 将等级降为1，全部赋给经验值
+        if (sprite.getLevel() > 1) {
+            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * Constants.EXP_PER_LEVEL);
+            sprite.setLevel(1);
         }
+        scale = 0.8 + Math.random() * 0.4;
+        sprite.setHunger((int) (spriteType.getBasicHunger() * scale));
         scale = 0.8 + Math.random() * 0.4;
         sprite.setHp((int) (spriteType.getBasicHp() * scale));
         scale = 0.8 + Math.random() * 0.4;
@@ -364,7 +378,7 @@ public class SpriteService {
         sprite.setWidth(spriteType.getBasicWidth() * scale);
         sprite.setHeight(spriteType.getBasicHeight() * scale);
         sprite.setMap(mapId);
-        spriteMapper.insert(sprite);
+        normalizeAndUpdateSprite(sprite);
         return sprite;
     }
 
@@ -696,7 +710,7 @@ public class SpriteService {
         if (spriteIds == null || spriteIds.isEmpty()) {
             return;
         }
-        spriteMapper.recoverSpritesLife(spriteIds, minHunger, incVal);
+        spriteMapper.recoverSpritesLife(spriteIds, minHunger, incVal, Constants.MAX_HP);
     }
 
     @Transactional
@@ -780,8 +794,8 @@ public class SpriteService {
             sprite.setHp(0);
         }
         // 如果满血
-        if (sprite.getHp() > 100) {
-            sprite.setHp(100);
+        if (sprite.getHp() > Constants.MAX_HP) {
+            sprite.setHp(Constants.MAX_HP);
         }
         hpChangeVo.setHpChange(sprite.getHp() - hpChangeVo.getOriginHp());
         if (hpChangeVo.getHpChange() != 0) {

@@ -6,7 +6,6 @@
   - 每次造成伤害时多大概率提升攻击者经验（不然经验上升太快了）
   - 被攻击者死亡时攻击者增加多少经验
   - 被攻击者死亡时攻击者增加多少金钱
-
 - 可以喂养宠物，喂养一次增加其一定饱腹值
 - java bean继承，例如使用 `new SpriteEffectChangeVo(spriteId)` 替代 `new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId))`，其中 `SpriteEffectChangeVo` 继承自 `WSResponseVo`
 - 完成虚无的效果
@@ -26,9 +25,9 @@
   - 荷鲁斯之眼：生命和饱腹值恢复到满，并带有30s生命效果
 - 添加额外效果表(item_type_extra_effect)，例如对于埃阿斯之盾的“受到伤害时50%概率将伤害值+1后反弹给攻击者”的效果，后端计算时是直接if(装备名)来触发，而不是通过if(effect)来触发，前端效果列表中也不会显示，只是在前端的物品详细列表中会展示。
 - 添加音频素材（jsfxr）
+- 物品的生命值一直没有变化，应该随着使用而减少
 - 对于效果，设计一个value值和等级值，例如不同等级的“生命”效果回复速度不同
 - 待定：简化设计，废弃整个物理引擎（因为bug太多了，不仅要解决自己代码的bug，还要解决物理引擎的上游bug），进而，可以简化前后端交互（废弃COORDINATE request，服务器不再需要通过前端获得位置信息）和后端设计（废弃SpriteCache，因为SpriteCache的主要目的就是缓存精灵位置，便于COORDINATE）
-- 各个精灵类型应有各自的basic生命上限和basic饱腹值上限，各个精灵应有hpLimit，hpLimitInc，hungerLimit 和 hungerLimitInc属性，而不应该是简单的100
 - 在游戏启动时,可以使用多线程或异步IO的方式,并行加载地图、精灵、物品数据,减少启动时间。
 - 竞技场：类似赛尔号
 - 使用柏林噪声生成不同的地形
@@ -68,6 +67,7 @@
 
 - 前端和后端有时有空指针异常（例如对spriteCache修改过程中另一个线程使这个精灵下线），如何空安全？是否/如何加锁？例如，对cache的读写（不管是通过GameCache.spriteCacheMap还是通过sprite.getCache()）都应该加锁。（虽然GameCache.spriteCacheMap是ConcurrentHashMap，但是这只能保证其 put, remove, get 的正常，但它并没有提供对其存储的值的读写锁）
 - 补间动画的精灵碰撞到带有速度的精灵，补间动画的精灵会再也无法正常运动，尝试在补间动画之前将速度设为0，这样的效果稍微好点，在碰到移动的物体后会像撞到一堵墙一样停止，但之后尝试运动还是可以正常运动，但目前能想到的最好的方法是在update中一直将补间动画的精灵的速度设为0
+- 游戏进行中session正好到期，导致“无权限”的报错
 - 切换账号后，操纵的还是旧的玩家（旧的ws没有断开），需要刷新网页才能避免这个问题
 - 服务器部署在海外时延迟高，精灵运动卡顿
 - 移动端的问题（感觉难以解决，因此移动端可能只能聊天，不能进行游戏）：
