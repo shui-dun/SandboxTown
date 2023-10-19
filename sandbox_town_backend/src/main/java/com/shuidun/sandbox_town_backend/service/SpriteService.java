@@ -287,7 +287,8 @@ public class SpriteService {
                 spriteMapper.deleteById(sprite.getId());
             }
         } else {
-            spriteMapper.updateById(sprite);
+            // 如果精灵存在，则更新精灵，否则添加精灵
+            spriteMapper.insertOrUpdateById(sprite);
         }
         return Pair.of(sprite, responseList);
     }
@@ -343,38 +344,38 @@ public class SpriteService {
         sprite.setType(type);
         sprite.setOwner(owner);
         // 根据基础属性值和随机数随机生成角色的属性
-        double scale = 0.8 + Math.random() * 0.4;
+        double scale = 0.8 + GameCache.random.nextDouble() * 0.4;
         sprite.setMoney((int) (spriteType.getBasicMoney() * scale));
-        scale = 0.8 + Math.random() * 0.4;
-        sprite.setLevel((int) (spriteType.getBasicLevel() * scale));
+        scale = -5 + GameCache.random.nextInt(11);
+        sprite.setLevel((int) (spriteType.getBasicLevel() + scale));
         if (sprite.getLevel() < 1) {
             sprite.setLevel(1);
         }
-        scale = 0.8 + Math.random() * 0.4;
+        scale = 0.8 + GameCache.random.nextDouble() * 0.4;
         sprite.setExp((int) (spriteType.getBasicExp() * scale));
         // 将等级降为1，全部赋给经验值
         if (sprite.getLevel() > 1) {
             sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * Constants.EXP_PER_LEVEL);
             sprite.setLevel(1);
         }
-        scale = 0.8 + Math.random() * 0.4;
+        scale = 0.8 + GameCache.random.nextDouble() * 0.4;
         sprite.setHunger((int) (spriteType.getBasicHunger() * scale));
-        scale = 0.8 + Math.random() * 0.4;
+        scale = 0.8 + GameCache.random.nextDouble() * 0.4;
         sprite.setHp((int) (spriteType.getBasicHp() * scale));
-        scale = 0.8 + Math.random() * 0.4;
+        scale = 0.8 + GameCache.random.nextDouble() * 0.4;
         sprite.setAttack((int) (spriteType.getBasicAttack() * scale));
-        scale = 0.8 + Math.random() * 0.4;
+        scale = 0.8 + GameCache.random.nextDouble() * 0.4;
         sprite.setDefense((int) (spriteType.getBasicDefense() * scale));
-        scale = 0.8 + Math.random() * 0.4;
+        scale = 0.8 + GameCache.random.nextDouble() * 0.4;
         sprite.setSpeed((int) (spriteType.getBasicSpeed() * scale));
-        scale = 0.8 + Math.random() * 0.4;
+        scale = 0.8 + GameCache.random.nextDouble() * 0.4;
         sprite.setVisionRange((int) (spriteType.getBasicVisionRange() * scale));
-        scale = 0.8 + Math.random() * 0.4;
+        scale = 0.8 + GameCache.random.nextDouble() * 0.4;
         sprite.setAttackRange((int) (spriteType.getBasicAttackRange() * scale));
         sprite.setX(x);
         sprite.setY(y);
         // 宽度和高度使用相同的scale
-        scale = 0.8 + Math.random() * 0.4;
+        scale = 0.8 + GameCache.random.nextDouble() * 0.4;
         sprite.setWidth(spriteType.getBasicWidth() * scale);
         sprite.setHeight(spriteType.getBasicHeight() * scale);
         sprite.setMap(mapId);
@@ -382,6 +383,7 @@ public class SpriteService {
         return sprite;
     }
 
+    @Transactional
     public SpriteDo generateRandomSprite(SpriteTypeEnum type, String owner, double x, double y) {
         String id = NameGenerator.generateItemName(type.name());
         return generateRandomSprite(type, id, owner, x, y);

@@ -3,10 +3,7 @@ package com.shuidun.sandbox_town_backend.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -102,4 +99,13 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
 
     @Update("UPDATE sprite SET owner = #{toId} WHERE owner = #{fromId}")
     void updateOwnerByOwner(String fromId, String toId);
+
+    /** 如果精灵存在，则更新精灵，否则添加精灵 */
+    @Insert("""
+            INSERT INTO sprite
+            VALUES (#{id}, #{type}, #{owner}, #{money}, #{exp}, #{level}, #{hunger}, #{hp}, #{attack}, #{defense}, #{speed}, #{visionRange}, #{attackRange}, #{X}, #{Y}, #{width}, #{height}, #{map})
+            ON DUPLICATE KEY UPDATE
+            type = #{type}, owner = #{owner}, money = #{money}, exp = #{exp}, level = #{level}, hunger = #{hunger}, hp = #{hp}, attack = #{attack}, defense = #{defense}, speed = #{speed}, vision_range = #{visionRange}, attack_range = #{attackRange}, x = #{X}, y = #{Y}, width = #{width}, height = #{height}, map = #{map}
+            """)
+    void insertOrUpdateById(SpriteDo sprite);
 }
