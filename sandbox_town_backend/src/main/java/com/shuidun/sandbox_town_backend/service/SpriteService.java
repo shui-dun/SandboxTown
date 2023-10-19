@@ -817,9 +817,6 @@ public class SpriteService {
 
     /**
      * 可被驯服的动物以及其对应的驯服概率和所需的手持物品
-     * 这里直接将设置硬编码到代码中，因为这些数据不会经常变动
-     * 同时可以提高性能，因为避免了与数据库的交互
-     * 当然，更好的方法是数据库+缓存，这样既有较高的性能，又可以在不修改代码（重启服务）的情况下修改数据
      */
     private final Map<SpriteTypeEnum, Pair<Double, ItemTypeEnum>> tameableSpriteTypeMap = Map.ofEntries(
             Map.entry(SpriteTypeEnum.DOG, Pair.of(0.28, ItemTypeEnum.BONE))
@@ -861,7 +858,9 @@ public class SpriteService {
         }
     }
 
-    /** 精灵类型 -> 地图中的适宜数目 & 生成该种精灵的建筑物类型列表 */
+    /**
+     * 精灵类型 -> 地图中的适宜数目 & 生成该种精灵的建筑物类型列表
+     * */
     private final Map<SpriteTypeEnum, Pair<Integer, List<BuildingTypeEnum>>> spriteTypeMap = Map.ofEntries(
             Map.entry(SpriteTypeEnum.DOG, Pair.of(30, List.of(BuildingTypeEnum.TREE)))
     );
