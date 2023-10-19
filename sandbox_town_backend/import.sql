@@ -283,14 +283,14 @@ insert into item_type_attribute(item_type, operation, money_inc, exp_inc, level_
                                 defense_inc, speed_inc, vision_range_inc, attack_range_inc)
 values ('BREAD', 'USE', 0, 0, 0, 10, 0, 0, 0, 0, 0, 0),
        ('APPLE', 'USE', 0, 4, 0, 4, 0, 0, 0, 0, 0, 0),
-       ('LEATHER_CHEST_ARMOR', 'EQUIP', 0, 0, 0, 0, 0, 0, 5, 0, 0, 0),
-       ('SAW', 'HANDHELD', 0, 0, 0, 0, 0, 10, 0, 0, 0, 0),
+       ('LEATHER_CHEST_ARMOR', 'EQUIP', 0, 0, 0, 0, 0, 0, 3, 0, 0, 0),
+       ('SAW', 'HANDHELD', 0, 0, 0, 0, 0, 15, 0, 0, 0, 0),
        ('STICK', 'HANDHELD', 0, 0, 0, 0, 0, 5, 0, 0, 0, 0),
        ('BONE', 'HANDHELD', 0, 0, 0, 0, 0, 7, 0, 0, 0, 0),
        ('FLYING_BOOTS', 'EQUIP', 0, 0, 0, 0, 0, 0, 0, 10, 0, 0),
-       ('IRON_HELMET', 'EQUIP', 0, 0, 0, 0, 0, 0, 12, 0, 0, 0),
+       ('IRON_HELMET', 'EQUIP', 0, 0, 0, 0, 0, 0, 7, 0, 0, 0),
        ('HOLY_GRAIL', 'HANDHELD', 0, 0, 0, 5, 0, 5, 5, 5, 100, 5),
-       ('FLAME_LEGGINGS', 'EQUIP', 0, 0, 0, 0, 0, 3, 7, 0, 0, 0);
+       ('FLAME_LEGGINGS', 'EQUIP', 0, 0, 0, 0, 0, 3, 5, 0, 0, 0);
 
 
 # 装备物品后对对角色带来的特殊效果
