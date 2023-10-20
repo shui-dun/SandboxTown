@@ -34,11 +34,13 @@ public class SpriteService {
 
     private final BuildingMapper buildingMapper;
 
+    private final SpriteRefreshMapper spriteRefreshMapper;
+
 
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, BuildingMapper buildingMapper) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
         this.itemService = itemService;
@@ -46,6 +48,7 @@ public class SpriteService {
         this.spriteEffectMapper = spriteEffectMapper;
         this.effectMapper = effectMapper;
         this.buildingMapper = buildingMapper;
+        this.spriteRefreshMapper = spriteRefreshMapper;
     }
 
     /** 将cache中的信息赋值给sprite */
@@ -859,13 +862,6 @@ public class SpriteService {
     }
 
     /**
-     * 精灵类型 -> 地图中的适宜数目 & 生成该种精灵的建筑物类型列表
-     * */
-    private final Map<SpriteTypeEnum, Pair<Integer, List<BuildingTypeEnum>>> spriteTypeMap = Map.ofEntries(
-            Map.entry(SpriteTypeEnum.DOG, Pair.of(30, List.of(BuildingTypeEnum.TREE)))
-    );
-
-    /**
      * 使精灵上线
      */
     public SpriteCache online(String id) {
@@ -895,33 +891,49 @@ public class SpriteService {
     }
 
     /**
-     * 刷新所有日行动物
+     * 刷新精灵
+     *
+     * @param time 只刷出该时间段的精灵
      */
-    public void refreshDiurnalSprites() {
-        // 遍历每一种精灵
-        for (var entry : spriteTypeMap.entrySet()) {
+    @Transactional
+    public void refreshSprites(TimeFrameEnum time) {
+        // 读取精灵刷新信息
+        List<SpriteRefreshDo> spriteRefreshes = spriteRefreshMapper.selectByTime(time);
+        // 按照精灵类型分组
+        Map<SpriteTypeEnum, List<SpriteRefreshDo>> spriteRefreshMap = spriteRefreshes.stream()
+                .collect(Collectors.groupingBy(SpriteRefreshDo::getSpriteType));
+        // 对于每一种精灵
+        for (var entry : spriteRefreshMap.entrySet()) {
             // 得到目前的数目
             int curNum = spriteMapper.countByTypeAndMap(entry.getKey(), mapId);
-            // 得到目标数目
-            int targetNum = entry.getValue().getFirst() - curNum;
-            if (targetNum <= 0) {
-                continue;
-            }
-            // 得到建筑物类型列表
-            List<BuildingTypeEnum> buildingTypes = entry.getValue().getSecond();
-            // 得到建筑物列表
-            List<BuildingDo> buildings = buildingMapper.selectByMapIdAndTypes(mapId, buildingTypes);
-            // 将目标数目分配到每个建筑物
-            targetNum /= buildings.size();
-            if (targetNum < 1) {
-                targetNum = 1;
-            }
-            // 遍历每个建筑物
+            // 将刷新信息按照建筑物类型分组
+            Map<BuildingTypeEnum, SpriteRefreshDo> buildingTypeMap = entry.getValue().stream()
+                    .collect(Collectors.toMap(SpriteRefreshDo::getBuildingType, Function.identity()));
+            // 得到所有的建筑
+            List<BuildingDo> buildings = buildingMapper.selectByMapIdAndTypes(mapId, entry.getValue().stream()
+                    .map(SpriteRefreshDo::getBuildingType).collect(Collectors.toList()));
+            // 打乱建筑顺序
+            Collections.shuffle(buildings);
+            // 遍历每一个建筑，生成精灵
             for (BuildingDo building : buildings) {
-                for (int j = 0; j < targetNum; ++j) {
+                SpriteRefreshDo spriteRefresh = buildingTypeMap.get(building.getType());
+                // 生成数目
+                int cnt = GameCache.random.nextInt(spriteRefresh.getMinCount(),
+                        spriteRefresh.getMaxCount() + 1);
+                if (cnt <= 0) {
+                    continue;
+                }
+                if (curNum >= cnt) {
+                    curNum -= cnt;
+                    continue;
+                } else if (curNum > 0) {
+                    cnt -= curNum;
+                    curNum = 0;
+                }
+                for (int i = 0; i < cnt; ++i) {
                     // 随机生成精灵的左上角
-                    double spriteX = building.getOriginX() + Math.random() * building.getWidth();
-                    double spriteY = building.getOriginY() + Math.random() * building.getHeight();
+                    double spriteX = building.getOriginX() + GameCache.random.nextDouble() * building.getWidth();
+                    double spriteY = building.getOriginY() + GameCache.random.nextDouble() * building.getHeight();
                     // 创建精灵
                     SpriteDo sprite = generateRandomSprite(entry.getKey(), null, spriteX, spriteY);
                     // 使精灵上线

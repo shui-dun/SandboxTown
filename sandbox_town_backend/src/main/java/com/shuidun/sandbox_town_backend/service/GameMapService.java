@@ -3,7 +3,7 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
-import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
+import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
@@ -375,8 +375,11 @@ public class GameMapService {
                 --i;
             }
         }
-        // 生成日行性精灵
-        spriteService.refreshDiurnalSprites();
+        // 生成精灵
+        spriteService.refreshSprites(TimeFrameEnum.DAY);
+        spriteService.refreshSprites(TimeFrameEnum.DUSK);
+        spriteService.refreshSprites(TimeFrameEnum.NIGHT);
+        spriteService.refreshSprites(TimeFrameEnum.DAWN);
     }
 
     /** 计算两点之间的距离 */

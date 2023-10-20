@@ -1,6 +1,7 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
 import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
+import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
@@ -38,26 +39,32 @@ public class TimeScheduler {
         treeService.refreshAll();
         // 刷新商店
         storeService.refreshAll();
+        // 刷新动物
+        spriteService.refreshSprites(TimeFrameEnum.DAY);
     }
 
     @Scheduled(initialDelay = Constants.DUSK_START, fixedDelay = Constants.DAY_TOTAL_DURATION)
     public void enterDusk() {
         timeService.enterDusk();
         notifyTimeFrame();
+        // 刷新动物
+        spriteService.refreshSprites(TimeFrameEnum.DUSK);
     }
 
     @Scheduled(initialDelay = Constants.NIGHT_START, fixedDelay = Constants.DAY_TOTAL_DURATION)
     public void enterNight() {
         timeService.enterNight();
         notifyTimeFrame();
+        // 刷新动物
+        spriteService.refreshSprites(TimeFrameEnum.NIGHT);
     }
 
     @Scheduled(initialDelay = Constants.DAWN_START, fixedDelay = Constants.DAY_TOTAL_DURATION)
     public void enterDawn() {
         timeService.enterDawn();
         notifyTimeFrame();
-        // 刷新日行动物
-        spriteService.refreshDiurnalSprites();
+        // 刷新动物
+        spriteService.refreshSprites(TimeFrameEnum.DAWN);
     }
 
     @Scheduled(initialDelay = 30000, fixedDelay = 30000)

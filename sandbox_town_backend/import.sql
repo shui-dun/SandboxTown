@@ -408,6 +408,27 @@ CREATE TABLE building
     CONSTRAINT fk_building_map FOREIGN KEY (map) REFERENCES game_map (id) ON DELETE CASCADE
 );
 
+# 精灵刷新表
+create table sprite_refresh
+(
+    sprite_type   varchar(255) not null,
+    # 刷新在哪种建筑附近
+    building_type varchar(255),
+    #  最小刷新数目（这个数可以是负数）
+    min_count     int          not null,
+    # 最大刷新数目
+    max_count     int          not null,
+    # 刷新时间（白天、黄昏、晚上、匿名），其中，晚上被刷新的精灵自动被视为夜行动物
+    refresh_time  varchar(255) not null,
+    primary key (sprite_type, building_type, refresh_time),
+    foreign key (sprite_type) references sprite_type (type),
+    foreign key (building_type) references building_type (id)
+);
+
+insert into sprite_refresh(sprite_type, building_type, min_count, max_count, refresh_time)
+values ('DOG', 'TREE', -6, 4, 'DAWN'),
+       ('DOG', 'TREE', -4, 2, 'DUSK');
+
 # 创建树表
 CREATE TABLE tree
 (
