@@ -2,18 +2,6 @@
 
 ## feature
 
-- victory_item_reward：杀死精灵时的物品奖励
-  - 精灵类型
-  - 物品类型
-  - 最小物品数目（可以为负）
-  - 最大物品数目
-- victory_attribute_reward：杀死精灵时的属性奖励
-  - 精灵类型（主键）
-  - 金钱提升
-  - 经验提升
-  - victory_attribute_reward表按理来说可以直接放在精灵类型表中，但这里我将其和sprite分开：
-    - **性能考虑**：如果"victory_attribute_reward"表中的数据量巨大，且查询频率相对较低，那么将其与"精灵类型"表分开可以减少查询"精灵类型"时的I/O负担。
-    - 将它们分成两个表可以使数据模型更加模块化，更容易理解。
 - java bean继承，例如使用 `new SpriteEffectChangeVo(spriteId)` 替代 `new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId))`，其中 `SpriteEffectChangeVo` 继承自 `WSResponseVo`
 - 完成虚无的效果
 - 只有晚上会生成一些怪（例如蜘蛛） & 黎明时怪开始迅速受伤死亡（烧伤效果）

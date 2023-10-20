@@ -74,6 +74,12 @@ public class ItemController {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, itemService.getItemTypeDetailById(itemType));
     }
 
+    /** 显示某个物品类型的简略信息 */
+    @GetMapping("/itemTypeBrief")
+    public RestResponseVo<?> briefByItemType(ItemTypeEnum itemType) {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, itemService.getItemTypeBriefById(itemType));
+    }
+
     /**
      * 手持物品
      */

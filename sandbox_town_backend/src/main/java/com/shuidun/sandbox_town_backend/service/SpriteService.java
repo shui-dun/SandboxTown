@@ -38,11 +38,15 @@ public class SpriteService {
 
     private final FeedMapper feedMapper;
 
+    private final VictoryAttributeRewardMapper victoryAttributeRewardMapper;
+
+    private final VictoryItemRewardMapper victoryItemRewardMapper;
+
 
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedMapper feedMapper) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedMapper feedMapper, VictoryAttributeRewardMapper victoryAttributeRewardMapper, VictoryItemRewardMapper victoryItemRewardMapper) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
         this.itemService = itemService;
@@ -52,6 +56,8 @@ public class SpriteService {
         this.buildingMapper = buildingMapper;
         this.spriteRefreshMapper = spriteRefreshMapper;
         this.feedMapper = feedMapper;
+        this.victoryAttributeRewardMapper = victoryAttributeRewardMapper;
+        this.victoryItemRewardMapper = victoryItemRewardMapper;
     }
 
     /** 将cache中的信息赋值给sprite */
@@ -752,7 +758,36 @@ public class SpriteService {
         int damage = sourceSprite.getAttack() + sourceSprite.getAttackInc() -
                 (targetSprite.getDefense() + targetSprite.getDefenseInc());
         if (damage > 0) {
-            responses.addAll(modifyLife(targetSprite.getId(), -damage));
+            var modifyLifeResponses = modifyLife(targetSprite.getId(), -damage);
+            responses.addAll(modifyLifeResponses);
+            // 如果包含offline消息，则说明被攻击者死亡
+            if (modifyLifeResponses.stream().anyMatch(response -> response.getType() == WSResponseEnum.OFFLINE)) {
+                // 查询被攻击者死亡后带给攻击者的属性提升
+                VictoryAttributeRewardDo attributeReward = victoryAttributeRewardMapper.selectById(targetSprite.getType());
+                if (attributeReward != null) {
+                    // 更新攻击者属性
+                    SpriteAttributeChangeVo spriteAttributeChange = new SpriteAttributeChangeVo();
+                    spriteAttributeChange.setOriginal(sourceSprite);
+                    sourceSprite.setMoney(sourceSprite.getMoney() + attributeReward.getMoneyInc());
+                    sourceSprite.setExp(sourceSprite.getExp() + attributeReward.getExpInc());
+                    sourceSprite = normalizeAndUpdateSprite(sourceSprite).getFirst();
+                    if (spriteAttributeChange.setChanged(sourceSprite)) {
+                        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
+                    }
+                }
+                // 查询被攻击者死亡后带给攻击者的物品
+                List<VictoryItemRewardDo> itemRewards = victoryItemRewardMapper.selectBySpriteType(targetSprite.getType());
+                for (VictoryItemRewardDo itemReward : itemRewards) {
+                    // 为玩家添加物品
+                    int cnt = GameCache.random.nextInt(itemReward.getMinCount(), itemReward.getMaxCount() + 1);
+                    if (cnt <= 0) {
+                        continue;
+                    }
+                    itemService.add(sourceSprite.getId(), itemReward.getItemType(), cnt);
+                    // 获得物品的通知
+                    responses.add(new WSResponseVo(WSResponseEnum.ITEM_GAIN, new ItemGainVo(sourceSprite.getId(), itemReward.getItemType(), cnt)));
+                }
+            }
         }
         return responses;
     }

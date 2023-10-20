@@ -192,6 +192,37 @@ VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
        ('HOLY_GRAIL', '圣杯', '使疲惫的灵魂和肉体重获新生', 240, 2, 100),
        ('FLAME_LEGGINGS', '火焰护腿', '每一步都踏着烈焰,将敌人化为灰烬', 70, 12, 40);
 
+# 杀死精灵时的属性奖励
+# 该表按理来说可以直接放在精灵类型表中，但这里我将其和sprite_type分开：
+# - 该表只有在杀死精灵后才会被查询，将它们分成两个表可以使数据模型更加模块化，更容易理解。
+# - 该表查询频率相对较低，将其与"精灵类型"表分开可以减少查询"精灵类型"时的I/O负担（但由于该表字段较少，这个优化效果几乎没有）
+create table victory_attribute_reward
+(
+    sprite_type varchar(255) not null primary key,
+    money_inc   int          not null,
+    exp_inc     int          not null,
+    foreign key (sprite_type) references sprite_type (type)
+);
+
+insert into victory_attribute_reward(sprite_type, money_inc, exp_inc)
+values ('DOG', 20, 15);
+
+# 杀死精灵时的物品奖励
+create table victory_item_reward
+(
+    sprite_type varchar(255) not null,
+    item_type   varchar(255) not null,
+    # 最小物品奖励数目（可以为负）
+    min_count   int          not null,
+    max_count   int          not null,
+    primary key (sprite_type, item_type),
+    foreign key (sprite_type) references sprite_type (type),
+    foreign key (item_type) references item_type (id)
+);
+
+insert into victory_item_reward(sprite_type, item_type, min_count, max_count)
+values ('DOG', 'BONE', -7, 3);
+
 # 喂食表
 create table feed
 (

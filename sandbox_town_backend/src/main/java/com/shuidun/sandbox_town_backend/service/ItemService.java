@@ -275,4 +275,7 @@ public class ItemService {
     }
 
 
+    public ItemTypeDo getItemTypeBriefById(ItemTypeEnum itemType) {
+        return itemTypeMapper.selectById(itemType);
+    }
 }

@@ -78,6 +78,24 @@ export default {
                 this.showInfo(`${targetId}很喜欢${id}的食物，饱腹值和经验值都增加了`);
             }
         });
+        // 监听物品获得消息
+        emitter.on("ITEM_GAIN", msg => {
+            let id = msg.id;
+            if (id.startsWith("USER_")) {
+                id = id.split("_", 2)[1];
+            } else {
+                id = mixin.hashName(id);
+            }
+            mixin.myGET('/rest/item/itemTypeBrief',
+                new URLSearchParams({
+                    itemType: msg.item,
+                }),
+                (data) => {
+                    this.showInfo(`${id}获得了${msg.count}个${data.name}`);
+                }
+            );
+
+        });
     },
     methods: {
         showInfo(msg) {
