@@ -192,6 +192,25 @@ VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
        ('HOLY_GRAIL', '圣杯', '使疲惫的灵魂和肉体重获新生', 240, 2, 100),
        ('FLAME_LEGGINGS', '火焰护腿', '每一步都踏着烈焰,将敌人化为灰烬', 70, 12, 40);
 
+# 喂食表
+create table feed
+(
+    sprite_type varchar(255) not null,
+    item_type   varchar(255) not null,
+    # 驯服概率（0-1）
+    tame_prob   double       not null,
+    # 经验提升
+    exp_inc     int          not null,
+    # 饱腹值提升
+    hunger_inc  int          not null,
+    primary key (sprite_type, item_type),
+    foreign key (sprite_type) references sprite_type (type),
+    foreign key (item_type) references item_type (id)
+);
+
+insert into feed(sprite_type, item_type, tame_prob, exp_inc, hunger_inc)
+values ('DOG', 'BONE', 0.28, 15, 50);
+
 # 物品标签表
 create table item_type_label
 (

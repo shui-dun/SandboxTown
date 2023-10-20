@@ -1,6 +1,6 @@
 package com.shuidun.sandbox_town_backend.bean;
 
-import com.shuidun.sandbox_town_backend.enumeration.TameResultEnum;
+import com.shuidun.sandbox_town_backend.enumeration.FeedResultEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TameVo {
+public class FeedVo {
     /** 驯服者id */
     private String id;
 
-    /** 被驯服者id */
+    /** 被驯服/喂食者id */
     private String targetId;
 
-    /** 驯服结果 */
-    TameResultEnum result;
+    /** 驯服/喂食结果 */
+    FeedResultEnum result;
 }

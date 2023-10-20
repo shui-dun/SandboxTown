@@ -54,7 +54,7 @@ export default {
             }
         });
         // 监听驯服结果通知
-        emitter.on("TAME_RESULT", msg => {
+        emitter.on("FEED_RESULT", msg => {
             // 驯服者
             let id = msg.id;
             if (id.startsWith("USER_")) {
@@ -68,17 +68,14 @@ export default {
                 targetId = mixin.hashName(targetId);
             }
             let result = msg.result;
-            // 按理来说，只可能出现前三种情况，后两者是为了防止出现意外
-            if (result == "SUCCESS") {
+            if (result == "TAME_SUCCESS") {
                 this.showInfo(`${id}成功驯服了${targetId}`);
-            } else if (result == "FAIL") {
+            } else if (result == "TAME_FAIL") {
                 this.showInfo(`${id}驯服${targetId}失败了，请再接再厉`);
             } else if (result == "ALREADY_TAMED") {
-                this.showInfo(`${targetId}已经被驯服了`);
-            } else if (result == "CANNOT_TAMED") {
-                this.showInfo(`${targetId}无法被驯服`);
-            } else if (result == "NO_ITEM") {
-                this.showInfo(`${id}没有驯服${targetId}所需的物品`);
+                this.showInfo(`${targetId}已经被其他人驯服了`);
+            } else if (result == "FEED_SUCCESS") {
+                this.showInfo(`${targetId}很喜欢${id}的食物，饱腹值和经验值都增加了`);
             }
         });
     },

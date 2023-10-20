@@ -109,7 +109,7 @@ public class WSMessageSender {
             entry(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, WSMessageSender::sendMessageToCurrentUser),
             entry(WSResponseEnum.SPRITE_EFFECT_CHANGE, WSMessageSender::sendMessageToTargetUser),
             entry(WSResponseEnum.SPRITE_HP_CHANGE, WSMessageSender::sendMessageToAllUsers),
-            entry(WSResponseEnum.TAME_RESULT, WSMessageSender::sendMessageToTargetUser)
+            entry(WSResponseEnum.FEED_RESULT, WSMessageSender::sendMessageToTargetUser)
     );
 
     /**

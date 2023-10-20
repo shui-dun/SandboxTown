@@ -1,8 +1,5 @@
 package com.shuidun.sandbox_town_backend.enumeration;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 /** 服务器向客户端发送的事件类型 */
 public enum WSResponseEnum {
     /** 更新坐标 */
@@ -22,5 +19,5 @@ public enum WSResponseEnum {
     /** 精灵HP变化通知 */
     SPRITE_HP_CHANGE,
     /** 驯服结果通知 */
-    TAME_RESULT,
+    FEED_RESULT,
 }

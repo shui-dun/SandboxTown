@@ -36,11 +36,13 @@ public class SpriteService {
 
     private final SpriteRefreshMapper spriteRefreshMapper;
 
+    private final FeedMapper feedMapper;
+
 
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedMapper feedMapper) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
         this.itemService = itemService;
@@ -49,6 +51,7 @@ public class SpriteService {
         this.effectMapper = effectMapper;
         this.buildingMapper = buildingMapper;
         this.spriteRefreshMapper = spriteRefreshMapper;
+        this.feedMapper = feedMapper;
     }
 
     /** 将cache中的信息赋值给sprite */
@@ -819,45 +822,57 @@ public class SpriteService {
     }
 
     /**
-     * 可被驯服的动物以及其对应的驯服概率和所需的手持物品
-     */
-    private final Map<SpriteTypeEnum, Pair<Double, ItemTypeEnum>> tameableSpriteTypeMap = Map.ofEntries(
-            Map.entry(SpriteTypeEnum.DOG, Pair.of(0.28, ItemTypeEnum.BONE))
-    );
-
-    /**
-     * 驯服精灵
+     * 驯服&喂养精灵
      *
-     * @param sourceSprite 驯服者
-     * @param targetSprite 被驯服者
+     * @param sourceSprite 驯服/喂养者
+     * @param targetSprite 被驯服/喂养者
      * @return 驯服结果
      */
     @Transactional
-    public TameResultEnum tame(SpriteDo sourceSprite, SpriteDo targetSprite) {
+    public FeedResultEnum feed(SpriteDo sourceSprite, SpriteDo targetSprite) {
         // 判断是否可驯服
-        if (!tameableSpriteTypeMap.containsKey(targetSprite.getType())) {
-            return TameResultEnum.CANNOT_TAMED;
+        List<FeedDo> feedList = feedMapper.selectBySpriteType(targetSprite.getType());
+        if (feedList == null || feedList.isEmpty()) {
+            return FeedResultEnum.CANNOT_TAMED;
         }
         // 是否手持了驯服所需物品
         List<ItemDo> handHeldItems = itemMapper.selectByOwnerAndPosition(sourceSprite.getId(), ItemPositionEnum.HANDHELD);
-        if (handHeldItems == null || handHeldItems.isEmpty() || handHeldItems.get(0).getItemType() != tameableSpriteTypeMap.get(targetSprite.getType()).getSecond()) {
-            return TameResultEnum.NO_ITEM;
+        if (handHeldItems == null || handHeldItems.isEmpty()) {
+            return FeedResultEnum.NO_ITEM;
         }
-        // 判断是否已经有主人
-        if (targetSprite.getOwner() != null) {
-            return TameResultEnum.ALREADY_TAMED;
+        // 得到当前手持物品对应的驯服信息
+        FeedDo feed = feedList.stream()
+                .filter(f -> f.getItemType() == handHeldItems.get(0).getItemType())
+                .findFirst()
+                .orElse(null);
+        if (feed == null) {
+            return FeedResultEnum.NO_ITEM;
         }
+        // 喂养目标精灵
+        targetSprite.setHunger(targetSprite.getHunger() + feed.getHungerInc());
+        targetSprite.setExp(targetSprite.getExp() + feed.getExpInc());
         // 从手持物品栏减少1个物品（如果是最后一个物品，则删除）
         itemService.reduce(sourceSprite.getId(), handHeldItems.get(0).getId(), 1);
-        // 以一定概率驯服宠物
-        if (GameCache.random.nextDouble() < tameableSpriteTypeMap.get(targetSprite.getType()).getFirst()) {
+        // 判断是否已经有主人
+        if (targetSprite.getOwner() != null && !targetSprite.getOwner().equals(sourceSprite.getId())) {
+            normalizeAndUpdateSprite(targetSprite);
+            return FeedResultEnum.ALREADY_TAMED;
+        }
+        // 如果已经被自己驯服，那就直接返回喂养成功
+        if (targetSprite.getOwner() != null) {
+            normalizeAndUpdateSprite(targetSprite);
+            return FeedResultEnum.FEED_SUCCESS;
+        }
+        // 否则是野生的，以一定概率驯服宠物
+        if (GameCache.random.nextDouble() < feed.getTameProb()) {
             // 驯服成功
             targetSprite.setOwner(sourceSprite.getId());
-            spriteMapper.updateById(targetSprite);
-            return TameResultEnum.SUCCESS;
+            normalizeAndUpdateSprite(targetSprite);
+            return FeedResultEnum.TAME_SUCCESS;
         } else {
             // 驯服失败
-            return TameResultEnum.FAIL;
+            normalizeAndUpdateSprite(targetSprite);
+            return FeedResultEnum.TAME_FAIL;
         }
     }
 
