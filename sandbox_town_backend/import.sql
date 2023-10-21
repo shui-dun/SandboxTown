@@ -111,7 +111,7 @@ VALUES ('USER', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 6, 10, 160, 
         1000, 100, 0.35, 0.5),
        ('CAT', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 9, 5, 10, 160, 160,
         1000, 100, 0.35, 0.5),
-       ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 12, 4, 10, 170, 170, 1000, 100,
+       ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 12, 4, 8, 170, 170, 300, 100,
         0.5, 0.35);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
@@ -205,7 +205,8 @@ create table victory_attribute_reward
 );
 
 insert into victory_attribute_reward(sprite_type, money_inc, exp_inc)
-values ('DOG', 20, 15);
+values ('DOG', 20, 15),
+       ('SPIDER', 25, 20);
 
 # 杀死精灵时的物品奖励
 create table victory_item_reward
@@ -221,7 +222,9 @@ create table victory_item_reward
 );
 
 insert into victory_item_reward(sprite_type, item_type, min_count, max_count)
-values ('DOG', 'BONE', -7, 3);
+values ('DOG', 'BONE', -7, 3),
+       ('SPIDER', 'BREAD', -7, 2),
+       ('SPIDER', 'STICK', -20, 2);
 
 # 喂食表
 create table feed

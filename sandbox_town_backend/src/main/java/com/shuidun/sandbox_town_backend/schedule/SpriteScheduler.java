@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Component
 @Slf4j
@@ -128,7 +129,60 @@ public class SpriteScheduler {
                 }
             }
         });
-
+        // 蜘蛛的处理逻辑
+        typeToFunction.put(SpriteTypeEnum.SPIDER, sprite -> {
+            // 在视觉范围内寻找一个目标
+            // TODO: 这里要读数据库（未来是读缓存），能不能优化成只读java内存
+            Function<SpriteDo, String> findTarget = (s) -> spriteService.getOnlineSprites().stream()
+                    .filter(x -> x.getType() != SpriteTypeEnum.SPIDER) // 不会攻击蜘蛛
+                    .filter(x -> x.getOwner() != null || x.getType() == SpriteTypeEnum.USER) // 不会攻击没有主人的精灵（因为目前的前端设计不支持）
+                    .filter(x -> gameMapService.calcDistance(s.getX(), s.getY(), x.getX(), x.getY()) <= s.getVisionRange() + s.getVisionRangeInc())
+                    .findAny()
+                    .map(SpriteDo::getId)
+                    .orElse(null);
+            String finalTargetId = null;
+            String originalTargetId = sprite.getCache().getTargetSpriteId();
+            // 如果蜘蛛没有目标
+            if (originalTargetId == null || GameCache.spriteCacheMap.get(originalTargetId) == null) {
+                finalTargetId = findTarget.apply(sprite);
+            } else {
+                // 判断目标是否过远
+                SpriteCache targetCache = GameCache.spriteCacheMap.get(originalTargetId);
+                double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), targetCache.getX(), targetCache.getY());
+                if (distance > sprite.getVisionRange() + sprite.getVisionRangeInc()) {
+                    finalTargetId = findTarget.apply(sprite);
+                } else {
+                    // 有一定概率忘记目标
+                    if (GameCache.random.nextDouble() > 0.9) {
+                        finalTargetId = findTarget.apply(sprite);
+                    } else {
+                        finalTargetId = originalTargetId;
+                    }
+                }
+            }
+            sprite.getCache().setTargetSpriteId(finalTargetId);
+            if (finalTargetId == null) {
+                return;
+            }
+            // 寻找路径
+            SpriteCache targetCache = GameCache.spriteCacheMap.get(finalTargetId);
+            var path = gameMapService.findPath(sprite, targetCache.getX(), targetCache.getY(), null, finalTargetId);
+            // 如果找不到路径，那就不前往
+            if (path == null) {
+                return;
+            }
+            // 发送移动消息
+            WSMessageSender.sendResponse(new WSResponseVo(
+                    WSResponseEnum.MOVE,
+                    new MoveVo(
+                            sprite.getId(),
+                            sprite.getSpeed() + sprite.getSpeedInc(),
+                            DataCompressor.compressPath(path),
+                            null,
+                            finalTargetId
+                    )
+            ));
+        });
     }
 
     private long counterOfSchedule = 0;

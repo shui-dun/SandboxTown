@@ -723,4 +723,15 @@ public class SpriteService {
             effectService.addEffect(sprite.getId(), EffectEnum.BURN, (Constants.DAWN_DURATION + Constants.DAY_DURATION) / 1000);
         }
     }
+
+    /**
+     * 根据精灵名称判断精灵是否属于某种类型
+     * @param spriteName 精灵名称
+     * @param type 精灵类型
+     * @return 是否属于该类型
+     */
+    public boolean isSpriteType(String spriteName, SpriteTypeEnum type) {
+        return spriteName.startsWith(type.name());
+    }
+
 }

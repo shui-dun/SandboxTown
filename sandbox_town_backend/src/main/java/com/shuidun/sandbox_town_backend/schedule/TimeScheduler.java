@@ -65,7 +65,7 @@ public class TimeScheduler {
         notifyTimeFrame();
         // 刷新动物
         spriteService.refreshSprites(TimeFrameEnum.DAWN);
-        // 时所有夜行动物（即在晚上出现的动物）都受到烧伤效果
+        // 使所有夜行动物（即在晚上出现的动物）都受到烧伤效果
         spriteService.burnAllNightSprites();
     }
 
