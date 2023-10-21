@@ -31,9 +31,9 @@
 		"type": "fromPhysicsEditor",
 		"label": "DOG",
 		"isStatic": false,
-		"density": 0.10000000149011612,
+		"density": 0.1,
 		"restitution": -0.1,
-		"friction": 0.10000000149011612,
+		"friction": 0.1,
 		"frictionAir": 0.1,
 		"frictionStatic": 0.5,
 		"collisionFilter": {
@@ -212,9 +212,9 @@
 		"label": "SPIDER",
 		"isStatic": false,
 		"density": 0.1,
-		"restitution": 0,
+		"restitution": -0.1,
 		"friction": 0.1,
-		"frictionAir": 0.01,
+		"frictionAir": 0.1,
 		"frictionStatic": 0.5,
 		"collisionFilter": {
 			"group": 0,

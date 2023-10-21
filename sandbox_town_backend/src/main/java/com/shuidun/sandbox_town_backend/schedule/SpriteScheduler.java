@@ -162,6 +162,13 @@ public class SpriteScheduler {
             }
             sprite.getCache().setTargetSpriteId(finalTargetId);
             if (finalTargetId == null) {
+                // 随机移动
+                if (GameCache.random.nextDouble() < 0.7) {
+                    return;
+                }
+                double randomVx = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.7);
+                double randomVy = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.7);
+                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVx, randomVy)));
                 return;
             }
             // 寻找路径
@@ -204,7 +211,7 @@ public class SpriteScheduler {
                 }
             }
             // 烧伤效果
-            if (counterOfSchedule % 3 == 0) {
+            if (counterOfSchedule % 2 == 0) {
                 if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN))) {
                     WSMessageSender.sendResponseList(spriteService.modifyLife(sprite.getId(), -1));
                 }
