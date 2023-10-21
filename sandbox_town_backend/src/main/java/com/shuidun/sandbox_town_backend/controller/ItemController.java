@@ -85,7 +85,7 @@ public class ItemController {
      */
     @PostMapping("/hold")
     public RestResponseVo<?> hold(String itemId) {
-        WSMessageSender.sendResponseList(spriteService.hold(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.sendResponseList(itemService.hold(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
@@ -94,21 +94,21 @@ public class ItemController {
      */
     @PostMapping("/putInItemBar")
     public RestResponseVo<?> putInItemBar(String itemId) {
-        WSMessageSender.sendResponseList(spriteService.putInItemBar(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.sendResponseList(itemService.putInItemBar(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
     /** 装备物品 */
     @PostMapping("/equip")
     public RestResponseVo<?> equip(String itemId) {
-        WSMessageSender.sendResponseList(spriteService.equip(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.sendResponseList(itemService.equip(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
     /** 放入背包 */
     @PostMapping("/putInBackpack")
     public RestResponseVo<?> putInBackpack(String itemId) {
-        WSMessageSender.sendResponseList(spriteService.putInBackpack(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.sendResponseList(itemService.putInBackpack(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 }
