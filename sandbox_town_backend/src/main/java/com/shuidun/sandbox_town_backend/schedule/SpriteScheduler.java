@@ -144,13 +144,13 @@ public class SpriteScheduler {
                 continue;
             }
             // 生命效果
-            if (counterOfSchedule % 17 == 0) {
+            if (counterOfSchedule % 12 == 0) {
                 if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE))) {
                     WSMessageSender.sendResponseList(spriteService.modifyLife(sprite.getId(), 1));
                 }
             }
             // 烧伤效果
-            if (counterOfSchedule % 5 == 0) {
+            if (counterOfSchedule % 3 == 0) {
                 if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN))) {
                     WSMessageSender.sendResponseList(spriteService.modifyLife(sprite.getId(), -1));
                 }

@@ -112,7 +112,7 @@ VALUES ('USER', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 6, 10, 160, 
        ('CAT', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 9, 5, 10, 160, 160,
         1000, 100, 0.35, 0.5),
        ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 12, 4, 10, 170, 170, 1000, 100,
-        0.9, 0.85);
+        0.5, 0.35);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
 CREATE TABLE sprite
@@ -478,7 +478,7 @@ create table sprite_refresh
 insert into sprite_refresh(sprite_type, building_type, min_count, max_count, refresh_time)
 values ('DOG', 'STORE', -6, 4, 'DAWN'),
        ('DOG', 'STORE', -4, 2, 'DUSK'),
-       ('SPIDER', 'TREE', -8, 3, 'NIGHT');
+       ('SPIDER', 'TREE', -9, 3, 'NIGHT');
 
 # 创建树表
 CREATE TABLE tree
