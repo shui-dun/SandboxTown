@@ -711,4 +711,16 @@ public class SpriteService {
             }
         }
     }
+
+    /** 黎明时，所有夜行动物（即在晚上出现的动物）都会受到烧伤效果，直到黄昏到来 */
+    public void burnAllNightSprites() {
+        // 得到所有夜行动物类型
+        List<SpriteTypeEnum> spriteTypes = spriteRefreshMapper.selectSpriteTypesByTime(TimeFrameEnum.NIGHT);
+        // 得到所有夜行动物
+        List<SpriteDo> sprites = spriteMapper.selectByTypesAndMap(spriteTypes, mapId);
+        // 为所有夜行动物添加烧伤效果
+        for (SpriteDo sprite : sprites) {
+            effectService.addEffect(sprite.getId(), EffectEnum.BURN, (Constants.DAWN_DURATION + Constants.DAY_DURATION) / 1000);
+        }
+    }
 }

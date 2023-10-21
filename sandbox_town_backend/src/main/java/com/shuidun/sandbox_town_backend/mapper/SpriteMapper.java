@@ -97,6 +97,19 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
     @Select("SELECT COUNT(*) FROM sprite WHERE type = #{type} AND map = #{map}")
     int countByTypeAndMap(SpriteTypeEnum type, String map);
 
+    /** 根据精灵类型列表和地图id得到精灵 */
+    @Select("""
+            <script>
+                SELECT * FROM sprite WHERE type IN
+                <foreach collection="types" item="type" open="(" separator="," close=")">
+                    #{type}
+                </foreach>
+                AND map = #{map}
+            </script>
+            """)
+    List<SpriteDo> selectByTypesAndMap(List<SpriteTypeEnum> types, String map);
+
+
     @Update("UPDATE sprite SET owner = #{toId} WHERE owner = #{fromId}")
     void updateOwnerByOwner(String fromId, String toId);
 
