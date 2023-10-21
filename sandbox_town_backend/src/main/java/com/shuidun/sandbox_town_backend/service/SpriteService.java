@@ -28,10 +28,6 @@ public class SpriteService {
 
     private final ItemMapper itemMapper;
 
-    private final SpriteEffectMapper spriteEffectMapper;
-
-    private final EffectMapper effectMapper;
-
     private final BuildingMapper buildingMapper;
 
     private final SpriteRefreshMapper spriteRefreshMapper;
@@ -42,22 +38,23 @@ public class SpriteService {
 
     private final VictoryItemRewardMapper victoryItemRewardMapper;
 
+    private final EffectService effectService;
+
 
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedMapper feedMapper, VictoryAttributeRewardMapper victoryAttributeRewardMapper, VictoryItemRewardMapper victoryItemRewardMapper) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedMapper feedMapper, VictoryAttributeRewardMapper victoryAttributeRewardMapper, VictoryItemRewardMapper victoryItemRewardMapper, EffectService effectService) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
         this.itemService = itemService;
         this.itemMapper = itemMapper;
-        this.spriteEffectMapper = spriteEffectMapper;
-        this.effectMapper = effectMapper;
         this.buildingMapper = buildingMapper;
         this.spriteRefreshMapper = spriteRefreshMapper;
         this.feedMapper = feedMapper;
         this.victoryAttributeRewardMapper = victoryAttributeRewardMapper;
         this.victoryItemRewardMapper = victoryItemRewardMapper;
+        this.effectService = effectService;
     }
 
     /** 将cache中的信息赋值给sprite */
@@ -107,76 +104,17 @@ public class SpriteService {
         }
     }
 
-    /**
-     * 为精灵设置效果列表
-     */
-    private void assignEffectToSprite(SpriteDo sprite) {
-        sprite.setEffects(new ArrayList<>());
-        // 从数据库中获取精灵的效果列表 （但注意这不包含装备的效果）
-        Map<EffectEnum, SpriteEffectDo> spriteEffectMap = selectEffectsAndDeleteExpiredEffects(sprite.getId()).stream().collect(Collectors.toMap(SpriteEffectDo::getEffect, Function.identity()));
-        // 获得装备的效果列表
-        List<ItemTypeEffectDo> equipmentEffectList = new ArrayList<>();
-        for (ItemDo item : sprite.getEquipments()) {
-            // 判断物品的位置
-            ItemPositionEnum position = item.getPosition();
-            // 如果是手持
-            if (position == ItemPositionEnum.HANDHELD) {
-                // equipmentEffectList.addAll(item.getItemTypeObj().getEffects().get(ItemOperationEnum.HANDHELD).values());
-                // 使用Optional来避免空指针异常
-                // map()函数会对存在的值进行计算，返回一个新的Optional。如果源Optional为空，它将直接返回一个空的Optional
-                // ifPresent()函数在Optional值存在时会执行给定的lambda表达式
-                Optional.ofNullable(item.getItemTypeObj().getEffects())
-                        .map(e -> e.get(ItemOperationEnum.HANDHELD))
-                        .ifPresent(v -> equipmentEffectList.addAll(v.values()));
-            } else { // 如果是装备栏
-                // equipmentEffectList.addAll(item.getItemTypeObj().getEffects().get(ItemOperationEnum.EQUIP).values());
-                Optional.ofNullable(item.getItemTypeObj().getEffects())
-                        .map(e -> e.get(ItemOperationEnum.EQUIP))
-                        .ifPresent(v -> equipmentEffectList.addAll(v.values()));
-            }
-        }
-        // 将装备的效果列表和精灵的效果列表合并
-        for (ItemTypeEffectDo equipmentEffect : equipmentEffectList) {
-            // 如果精灵的效果列表中没有这个效果
-            if (!spriteEffectMap.containsKey(equipmentEffect.getEffect())) {
-                // 直接加入
-                SpriteEffectDo spriteEffectDo = new SpriteEffectDo();
-                spriteEffectDo.setSprite(sprite.getId());
-                spriteEffectDo.setEffect(equipmentEffect.getEffect());
-                // 装备的效果时效显然是永久
-                spriteEffectDo.setDuration(-1);
-                spriteEffectDo.setExpire(-1L);
-                spriteEffectMap.put(equipmentEffect.getEffect(), spriteEffectDo);
-            } else { // 如果精灵的效果列表中有这个效果
-                SpriteEffectDo spriteEffectDo = spriteEffectMap.get(equipmentEffect.getEffect());
-                // 装备的效果时效显然是永久
-                spriteEffectDo.setDuration(-1);
-                spriteEffectDo.setExpire(-1L);
-            }
-        }
-        // 添加效果详细信息到spriteEffectMap
-        if (spriteEffectMap.size() > 0) {
-            List<EffectDo> effectList = effectMapper.selectBatchIds(spriteEffectMap.keySet());
-            // 按照效果名组织效果列表
-            Map<EffectEnum, EffectDo> effectMap = effectList.stream().collect(Collectors.toMap(EffectDo::getId, Function.identity()));
-            // 将效果详细信息添加到spriteEffectMap
-            for (SpriteEffectDo spriteEffectDo : spriteEffectMap.values()) {
-                spriteEffectDo.setEffectObj(effectMap.get(spriteEffectDo.getEffect()));
-            }
-        }
-        sprite.setEffects(new ArrayList<>(spriteEffectMap.values()));
-    }
-
     /** 为精灵设置装备、属性增量信息和效果列表 */
     private void assignEquipmentsAndAttributeIncAndEffectToSprite(SpriteDo sprite) {
         // 获取装备列表
-        var detailedItems = itemService.listItemsInEquipmentByOwnerWithDetail(sprite.getId());
+        var equipments = itemService.listItemsInEquipmentByOwnerWithDetail(sprite.getId());
         // 设置装备列表
-        sprite.setEquipments(detailedItems);
+        sprite.setEquipments(equipments);
         // 设置属性增量信息
         assignIncToSprite(sprite);
         // 设置效果列表
-        assignEffectToSprite(sprite);
+        var effects = effectService.listSpriteEffectsBySpriteIdAndEquipments(sprite.getId(), equipments);
+        sprite.setEffects(effects);
     }
 
     /** 根据id获取角色信息（只带有缓存信息） */
@@ -431,20 +369,6 @@ public class SpriteService {
         return spriteMapper.selectUnownedSprites();
     }
 
-    /** 删除精灵过期的效果并返回所有未过期的效果 */
-    public List<SpriteEffectDo> selectEffectsAndDeleteExpiredEffects(String spriteId) {
-        List<SpriteEffectDo> effects = spriteEffectMapper.selectBySprite(spriteId);
-        List<SpriteEffectDo> unexpiredEffects = new ArrayList<>();
-        for (var effect : effects) {
-            if (effect.getExpire() != -1 && effect.getExpire() < System.currentTimeMillis()) {
-                spriteEffectMapper.deleteBySpriteAndEffect(spriteId, effect.getEffect());
-            } else {
-                unexpiredEffects.add(effect);
-            }
-        }
-        return unexpiredEffects;
-    }
-
     /**
      * 使用物品
      * 按理来说，这个函数应该在ItemService中，但是对物品的使用也会对角色（例如精灵的属性）产生影响
@@ -493,36 +417,12 @@ public class SpriteService {
                 responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
             }
         }
-        // 查询精灵原有效果
-        List<SpriteEffectDo> effects = selectEffectsAndDeleteExpiredEffects(owner);
-        Map<EffectEnum, SpriteEffectDo> effectMap = effects.stream().collect(Collectors.toMap(SpriteEffectDo::getEffect, effect -> effect));
         // 向角色施加效果
         // var newEffects = item.getItemTypeObj().getEffects().get(ItemOperationEnum.USE).values();
         // 为避免空指针异常，改为：
         var newEffects = item.getItemTypeObj().getEffects().getOrDefault(ItemOperationEnum.USE, new HashMap<>()).values();
         for (ItemTypeEffectDo effect : newEffects) {
-            // 判断是否已经有该效果
-            if (effectMap.containsKey(effect.getEffect())) {
-                // 更新效果
-                SpriteEffectDo spriteEffect = effectMap.get(effect.getEffect());
-                // 如果效果是永久的
-                if (effect.getDuration() == -1 || spriteEffect.getDuration() == -1) {
-                    spriteEffect.setDuration(-1);
-                    spriteEffect.setExpire(-1L);
-                } else {
-                    spriteEffect.setDuration(spriteEffect.getDuration() + effect.getDuration());
-                    spriteEffect.setExpire(spriteEffect.getExpire() + effect.getDuration() * 1000);
-                }
-                spriteEffectMapper.update(spriteEffect);
-            } else {
-                // 添加效果
-                SpriteEffectDo spriteEffect = new SpriteEffectDo();
-                spriteEffect.setSprite(owner);
-                spriteEffect.setEffect(effect.getEffect());
-                spriteEffect.setDuration(effect.getDuration());
-                spriteEffect.setExpire(effect.getDuration() == -1 ? -1L : System.currentTimeMillis() + effect.getDuration() * 1000);
-                spriteEffectMapper.insert(spriteEffect);
-            }
+            effectService.addEffect(owner, effect.getEffect(), effect.getDuration());
         }
 
         // 物品数目减1
@@ -566,23 +466,8 @@ public class SpriteService {
         List<WSResponseVo> responses = new ArrayList<>();
         // 如果被攻击者有火焰护体效果，则攻击者烧伤
         if (targetSprite.getEffects().stream().anyMatch(effect -> effect.getEffect() == EffectEnum.FLAME_BODY)) {
-            // 攻击者原先是否有烧伤效果
-            SpriteEffectDo spriteEffectDo = spriteEffectMapper.selectBySpriteAndEffect(sourceSprite.getId(), EffectEnum.BURN);
-            int burnTime = 8;
-            if (spriteEffectDo != null && spriteEffectDo.getExpire() > System.currentTimeMillis()) {
-                // 如果有未过期的效果，则更新效果
-                spriteEffectDo.setDuration(spriteEffectDo.getDuration() + burnTime);
-                spriteEffectDo.setExpire(spriteEffectDo.getExpire() + burnTime * 1000);
-                spriteEffectMapper.update(spriteEffectDo);
-            } else {
-                // 如果没有，则添加效果
-                spriteEffectDo = new SpriteEffectDo();
-                spriteEffectDo.setSprite(sourceSprite.getId());
-                spriteEffectDo.setEffect(EffectEnum.BURN);
-                spriteEffectDo.setDuration(burnTime);
-                spriteEffectDo.setExpire(System.currentTimeMillis() + burnTime * 1000);
-                spriteEffectMapper.insertOrUpdate(spriteEffectDo);
-            }
+            // 添加8秒的烧伤效果
+            effectService.addEffect(sourceSprite.getId(), EffectEnum.BURN, 8);
             responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sourceSprite.getId())));
         }
         // 被攻击者以攻击者为目标
