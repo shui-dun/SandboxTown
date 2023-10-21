@@ -476,8 +476,9 @@ create table sprite_refresh
 );
 
 insert into sprite_refresh(sprite_type, building_type, min_count, max_count, refresh_time)
-values ('DOG', 'TREE', -6, 4, 'DAWN'),
-       ('DOG', 'TREE', -4, 2, 'DUSK');
+values ('DOG', 'STORE', -6, 4, 'DAWN'),
+       ('DOG', 'STORE', -4, 2, 'DUSK'),
+       ('SPIDER', 'TREE', -4, 3, 'NIGHT');
 
 # 创建树表
 CREATE TABLE tree

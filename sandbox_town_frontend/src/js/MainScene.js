@@ -166,6 +166,7 @@ class MainScene extends Phaser.Scene {
     preload() {
         this.load.image("USER", require("@/assets/img/USER.png"));
         this.load.image("DOG", require("@/assets/img/DOG.png"));
+        this.load.image("SPIDER", require("@/assets/img/SPIDER.png"));
         this.load.image("CAT", require("@/assets/img/CAT.png"));
         this.load.image("STORE", require("@/assets/img/STORE.png"));
         this.load.image("TREE", require("@/assets/img/TREE.png"));
