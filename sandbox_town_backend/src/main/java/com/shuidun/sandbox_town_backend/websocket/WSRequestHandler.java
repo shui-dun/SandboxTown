@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.BiConsumer;
 
 /**
@@ -27,20 +28,36 @@ public class WSRequestHandler {
     /** 事件类型 -> 处理函数 */
     private final Map<WSRequestEnum, BiConsumer<String, JSONObject>> eventMap = new HashMap<>();
 
-    public void handle(EventDto eventDto) {
-        try {
-            // 如果类型是空，就不处理
-            if (eventDto.getType() == null) {
-                return;
+    /** 消息队列 */
+    private final LinkedBlockingQueue<EventDto> mq = new LinkedBlockingQueue<>();
+
+    /** 向消息队列中添加消息 */
+    public void addMessage(EventDto eventDto) {
+        mq.add(eventDto);
+    }
+
+    /** 处理消息 */
+    private void handleMessages() {
+        new Thread(() -> {
+            // 使用消息队列，避免多线程并发问题
+            while (true) {
+                EventDto eventDto = null;
+                try {
+                    // 从队列的头部检索并删除元素，如果队列为空，则阻塞
+                    eventDto = mq.take();
+                    // 如果类型是空，就不处理
+                    if (eventDto.getType() == null) {
+                        return;
+                    }
+                    eventMap.get(eventDto.getType()).accept(eventDto.getInitiator(), eventDto.getData());
+                } catch (Exception e) {
+                    log.error("handle {} event error", eventDto, e);
+                }
             }
-            eventMap.get(eventDto.getType()).accept(eventDto.getInitiator(), eventDto.getData());
-        } catch (Exception e) {
-            log.error("handle {} event error", eventDto, e);
-        }
+        }).start();
     }
 
     public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService, ItemService itemService) {
-
 
         // 告知坐标信息
         eventMap.put(WSRequestEnum.COORDINATE, (initiator, mapData) -> {
@@ -116,41 +133,38 @@ public class WSRequestHandler {
         eventMap.put(WSRequestEnum.INTERACT, (initiator, mapData) -> {
             var data = mapData.toJavaObject(InteractDto.class);
             // 判断上次交互的时间是否过去了300m秒
-            GameCache.spriteCacheMap.compute(data.getSource(), (k, v) -> {
-                if (v == null || v.getLastInteractTime() > System.currentTimeMillis() - 300) {
-                    return v;
-                }
-                if (v.getLastInteractTime() > System.currentTimeMillis() - 300) {
-                    return v;
-                }
-                var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
-                var targetSprite = spriteService.selectByIdWithDetail(data.getTarget());
-                // 如果两者距离较远，直接返回
-                if (!spriteService.isNear(sourceSprite, targetSprite)) {
-                    return v;
-                }
-                v.setLastInteractTime(System.currentTimeMillis());
-                // 先尝试驯服/喂养
-                FeedResultEnum feedResult = spriteService.feed(sourceSprite, targetSprite);
-                // 如果驯服结果是“已经有主人”或者“驯服成功”或者“驯服失败”或者“喂养成功”，说明本次交互的目的的确是驯服/喂养，而非攻击
-                if (feedResult == FeedResultEnum.ALREADY_TAMED || feedResult == FeedResultEnum.TAME_SUCCESS
-                        || feedResult == FeedResultEnum.TAME_FAIL || feedResult == FeedResultEnum.FEED_SUCCESS) {
-                    // 发送驯服/喂养结果通知
-                    WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
-                            sourceSprite.getId(), targetSprite.getId(), feedResult
-                    )));
-                    // 驯服会消耗物品，因此发送通知栏变化通知
-                    WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
-                            new ItemBarNotifyVo(sourceSprite.getId())));
-                    return v;
-                }
-                // 否则本次交互的目的是进行攻击
-                List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
-                WSMessageSender.sendResponseList(responses);
-                return v;
-            });
+            var spriteCache = GameCache.spriteCacheMap.get(data.getSource());
+            if (spriteCache == null || spriteCache.getLastInteractTime() > System.currentTimeMillis() - 300) {
+                return;
+            }
+            var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
+            var targetSprite = spriteService.selectByIdWithDetail(data.getTarget());
+            // 如果两者距离较远，直接返回
+            if (!spriteService.isNear(sourceSprite, targetSprite)) {
+                return;
+            }
+            spriteCache.setLastInteractTime(System.currentTimeMillis());
+            // 先尝试驯服/喂养
+            FeedResultEnum feedResult = spriteService.feed(sourceSprite, targetSprite);
+            // 如果驯服结果是“已经有主人”或者“驯服成功”或者“驯服失败”或者“喂养成功”，说明本次交互的目的的确是驯服/喂养，而非攻击
+            if (feedResult == FeedResultEnum.ALREADY_TAMED || feedResult == FeedResultEnum.TAME_SUCCESS
+                    || feedResult == FeedResultEnum.TAME_FAIL || feedResult == FeedResultEnum.FEED_SUCCESS) {
+                // 发送驯服/喂养结果通知
+                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
+                        sourceSprite.getId(), targetSprite.getId(), feedResult
+                )));
+                // 驯服会消耗物品，因此发送通知栏变化通知
+                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
+                        new ItemBarNotifyVo(sourceSprite.getId())));
+                return;
+            }
+            // 否则本次交互的目的是进行攻击
+            List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
+            WSMessageSender.sendResponseList(responses);
         });
 
+        // 开始处理消息
+        handleMessages();
     }
 
 }

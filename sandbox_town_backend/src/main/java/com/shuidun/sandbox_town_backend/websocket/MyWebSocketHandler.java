@@ -58,7 +58,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 收到消息时进行的操作（转发给目标用户）
+     * 收到消息时进行的操作
      */
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
@@ -69,8 +69,8 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         }
         EventDto eventDto = JSONObject.parseObject(messagePayload, EventDto.class);
         eventDto.setInitiator((String) session.getAttributes().get("userName"));
-        // 交给事件处理器处理
-        wsRequestHandler.handle(eventDto);
+        // 添加到消息队列
+        wsRequestHandler.addMessage(eventDto);
     }
 
 }

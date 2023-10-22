@@ -59,39 +59,13 @@
     - 法一：弄一个polygon然后检测碰撞？注意不要与建筑之外的东西产生碰撞，也就是，还需要弄mask
     - 法二（简单些）：将建筑的黑白图的白色变成透明，随后，建造建筑时就跟随光标显示这个图，为方便起见，只在服务器检测位置是否合法
   - 目前尚不支持除玩家以外的精灵到达建筑
+- 可以选举主客户端，报告npc的消息，避免重复的消息
 
 ## bug
 
 - 当玩家正在补间动画（移动）时被杀死，不会回到原点
-- 加锁，对cache的读写（不管是通过GameCache.spriteCacheMap还是通过sprite.getCache()）都应该加锁。（虽然GameCache.spriteCacheMap是ConcurrentHashMap，但是这只能保证其 put, remove, get 的正常，但它并没有提供对其存储的值的读写锁）。
-
-  - 不加锁导致：
-
-    - 空指针异常（例如精灵a对spriteCache修改过程中另一个精灵b杀死了精灵a）
-    - 重复交互
-
-  - 一种加锁方案，那就是所有访问都通过spriteCacheMap，（删除sprite的spritecache属性），随后：（但注意compute的嵌套可能导致死锁）
-
-    - 读锁(可以封装成一个方法)：
-      ```
-      Optional<SpriteCache> clonedOptional = Optional.empty();
-      
-      GameCache.spriteCacheMap.compute(id, (key, existingCache) -> {
-          if (existingCache != null) {
-              // 克隆现有的SpriteCache对象，注意：此处假设SpriteCache有clone方法
-              clonedOptional = Optional.of(existingCache.clone());
-              return existingCache; // 返回原始的cache，确保map内的内容没有变化
-          }
-          return null; // 如果不存在对应的cache，则返回null
-      });
-      
-      SpriteCache clonedCache = clonedOptional.orElse(null);
-      // 为什么不直接在compute里面设置clonedCache呢？在Java中，lambda可以访问外部的final或effectively final变量。但是，你不能直接修改一个外部的局部变量。所以直接在lambda中修改clonedCache是会报错的。不过，你可以使用一个对象，Optional（或者一个数组、列表等），来解决这个问题。这允许我们在lambda中修改容器的内容而不是容器本身
-      ```
-
-    - 写锁：那就直接把内容放在compute里面
-
-- 前端是否也应该加锁？
+- 虽然对数据库的并发修改的原子性和隔离性由@Transactional注解保证，但是对于缓存的并发修改，目前还没有保证。之前尝试加锁，但导致死锁、性能下降和编程复杂，为此，计划使用rabbitmq消息队列来实现串行化，客户端向服务端的消息发送消息，当然，服务端的任意模块也可以作为生产者向消息队列发送消息。服务端的各个模块作为消费者消费消息。这些模块高内聚低耦合，使得不需要加锁
+- 前端是否也应该加消息队列实现串行化？
 - 补间动画的精灵碰撞到带有速度的精灵，补间动画的精灵会再也无法正常运动，尝试在补间动画之前将速度设为0，这样的效果稍微好点，在碰到移动的物体后会像撞到一堵墙一样停止，但之后尝试运动还是可以正常运动，但目前能想到的最好的方法是在update中一直将补间动画的精灵的速度设为0
 - 游戏进行中session正好到期，导致“无权限”的报错
 - 切换账号后，操纵的还是旧的玩家（旧的ws没有断开），需要刷新网页才能避免这个问题

@@ -635,17 +635,14 @@ public class SpriteService {
     public SpriteCache online(String id) {
         SpriteDo sprite = spriteMapper.selectById(id);
         // 将精灵的坐标信息写入缓存
-        SpriteCache cache = new SpriteCache();
-        cache.setX(sprite.getX());
-        cache.setY(sprite.getY());
-        cache.setLastMoveTime(System.currentTimeMillis());
-        GameCache.spriteCacheMap.compute(id, (k, v) -> {
-            // 如果已经在线，则不做任何操作
-            if (v != null) {
-                return v;
-            }
-            return cache;
-        });
+        SpriteCache cache = GameCache.spriteCacheMap.get(id);
+        if (cache == null) {
+            cache = new SpriteCache();
+            cache.setX(sprite.getX());
+            cache.setY(sprite.getY());
+            cache.setLastMoveTime(System.currentTimeMillis());
+            GameCache.spriteCacheMap.put(id, cache);
+        }
         // 使其宠物上线
         List<SpriteDo> pets = selectByOwner(id);
         pets.forEach(pet -> {
