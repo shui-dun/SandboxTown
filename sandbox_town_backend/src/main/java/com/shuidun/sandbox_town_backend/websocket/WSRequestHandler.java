@@ -116,35 +116,39 @@ public class WSRequestHandler {
         eventMap.put(WSRequestEnum.INTERACT, (initiator, mapData) -> {
             var data = mapData.toJavaObject(InteractDto.class);
             // 判断上次交互的时间是否过去了300m秒
-            var spriteCache = GameCache.spriteCacheMap.get(data.getSource());
-            // TODO: 这里getLastInteractTime和setLastInteractTime并不是原子操作，因此可能会出现重复交互的情况
-            if (spriteCache == null || spriteCache.getLastInteractTime() > System.currentTimeMillis() - 300) {
-                return;
-            }
-            var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
-            var targetSprite = spriteService.selectByIdWithDetail(data.getTarget());
-            // 如果两者距离较远，直接返回
-            if (!spriteService.isNear(sourceSprite, targetSprite)) {
-                return;
-            }
-            spriteCache.setLastInteractTime(System.currentTimeMillis());
-            // 先尝试驯服/喂养
-            FeedResultEnum feedResult = spriteService.feed(sourceSprite, targetSprite);
-            // 如果驯服结果是“已经有主人”或者“驯服成功”或者“驯服失败”或者“喂养成功”，说明本次交互的目的的确是驯服/喂养，而非攻击
-            if (feedResult == FeedResultEnum.ALREADY_TAMED || feedResult == FeedResultEnum.TAME_SUCCESS
-                    || feedResult == FeedResultEnum.TAME_FAIL || feedResult == FeedResultEnum.FEED_SUCCESS) {
-                // 发送驯服/喂养结果通知
-                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
-                        sourceSprite.getId(), targetSprite.getId(), feedResult
-                )));
-                // 驯服会消耗物品，因此发送通知栏变化通知
-                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
-                        new ItemBarNotifyVo(sourceSprite.getId())));
-                return;
-            }
-            // 否则本次交互的目的是进行攻击
-            List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
-            WSMessageSender.sendResponseList(responses);
+            GameCache.spriteCacheMap.compute(data.getSource(), (k, v) -> {
+                if (v == null || v.getLastInteractTime() > System.currentTimeMillis() - 300) {
+                    return v;
+                }
+                if (v.getLastInteractTime() > System.currentTimeMillis() - 300) {
+                    return v;
+                }
+                var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
+                var targetSprite = spriteService.selectByIdWithDetail(data.getTarget());
+                // 如果两者距离较远，直接返回
+                if (!spriteService.isNear(sourceSprite, targetSprite)) {
+                    return v;
+                }
+                v.setLastInteractTime(System.currentTimeMillis());
+                // 先尝试驯服/喂养
+                FeedResultEnum feedResult = spriteService.feed(sourceSprite, targetSprite);
+                // 如果驯服结果是“已经有主人”或者“驯服成功”或者“驯服失败”或者“喂养成功”，说明本次交互的目的的确是驯服/喂养，而非攻击
+                if (feedResult == FeedResultEnum.ALREADY_TAMED || feedResult == FeedResultEnum.TAME_SUCCESS
+                        || feedResult == FeedResultEnum.TAME_FAIL || feedResult == FeedResultEnum.FEED_SUCCESS) {
+                    // 发送驯服/喂养结果通知
+                    WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
+                            sourceSprite.getId(), targetSprite.getId(), feedResult
+                    )));
+                    // 驯服会消耗物品，因此发送通知栏变化通知
+                    WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
+                            new ItemBarNotifyVo(sourceSprite.getId())));
+                    return v;
+                }
+                // 否则本次交互的目的是进行攻击
+                List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
+                WSMessageSender.sendResponseList(responses);
+                return v;
+            });
         });
 
     }
