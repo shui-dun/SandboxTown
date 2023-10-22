@@ -34,7 +34,7 @@ public class SpriteScheduler {
         typeToFunction.put(SpriteTypeEnum.USER, sprite -> {
             // 一定概率忘记目标（否则玩家的狗会一直追着攻击玩家的目标）
             if (GameCache.random.nextDouble() > 0.8) {
-                sprite.getCache().setTargetSpriteId(null);
+                GameCache.spriteCacheMap.get(sprite.getId()).setTargetSpriteId(null);
             }
         });
         // 狗的处理函数
@@ -42,13 +42,13 @@ public class SpriteScheduler {
             // 获得狗的主人
             String owner = sprite.getOwner();
             // 如果狗有目标精灵
-            String targetId = sprite.getCache().getTargetSpriteId();
+            String targetId = GameCache.spriteCacheMap.get(sprite.getId()).getTargetSpriteId();
             if (targetId != null) {
                 SpriteCache targetCache = GameCache.spriteCacheMap.get(targetId);
                 // 如果目标精灵不存在，那就不跟随
                 // 有一定概率即使目标精灵存在，也取消跟随目标
                 if (targetCache == null || GameCache.random.nextDouble() > 0.8) {
-                    sprite.getCache().setTargetSpriteId(null);
+                    GameCache.spriteCacheMap.get(sprite.getId()).setTargetSpriteId(null);
                     return;
                 }
                 double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), targetCache.getX(), targetCache.getY());
@@ -99,7 +99,7 @@ public class SpriteScheduler {
                     // 5. 如果狗a杀死了狗b，那么狗a接着可能会攻击自己
                     String ownerTargetId = ownerSprite.getTargetSpriteId();
                     if (ownerTargetId != null && GameCache.spriteCacheMap.get(ownerTargetId) != null) {
-                        sprite.getCache().setTargetSpriteId(ownerTargetId);
+                        GameCache.spriteCacheMap.get(sprite.getId()).setTargetSpriteId(ownerTargetId);
                     } else {
                         // 否则狗一定概率就跟着主人走
                         if (GameCache.random.nextDouble() < 0.6) {
@@ -141,7 +141,7 @@ public class SpriteScheduler {
                     .map(SpriteDo::getId)
                     .orElse(null);
             String finalTargetId = null;
-            String originalTargetId = sprite.getCache().getTargetSpriteId();
+            String originalTargetId = GameCache.spriteCacheMap.get(sprite.getId()).getTargetSpriteId();
             // 如果蜘蛛没有目标
             if (originalTargetId == null || GameCache.spriteCacheMap.get(originalTargetId) == null) {
                 finalTargetId = findTarget.apply(sprite);
@@ -160,7 +160,7 @@ public class SpriteScheduler {
                     }
                 }
             }
-            sprite.getCache().setTargetSpriteId(finalTargetId);
+            GameCache.spriteCacheMap.get(sprite.getId()).setTargetSpriteId(finalTargetId);
             if (finalTargetId == null) {
                 // 随机移动
                 if (GameCache.random.nextDouble() < 0.7) {

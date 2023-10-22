@@ -63,7 +63,6 @@ public class SpriteService {
         if (spriteCache != null) {
             sprite.setX(spriteCache.getX());
             sprite.setY(spriteCache.getY());
-            sprite.setCache(spriteCache);
         }
     }
 
@@ -471,7 +470,7 @@ public class SpriteService {
             responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sourceSprite.getId())));
         }
         // 被攻击者以攻击者为目标
-        SpriteCache cache = targetSprite.getCache();
+        SpriteCache cache = GameCache.spriteCacheMap.get(targetSprite.getId());
         cache.setTargetSpriteId(sourceSprite.getId());
         // 计算伤害
         int damage = sourceSprite.getAttack() + sourceSprite.getAttackInc() -
@@ -726,8 +725,9 @@ public class SpriteService {
 
     /**
      * 根据精灵名称判断精灵是否属于某种类型
+     *
      * @param spriteName 精灵名称
-     * @param type 精灵类型
+     * @param type       精灵类型
      * @return 是否属于该类型
      */
     public boolean isSpriteType(String spriteName, SpriteTypeEnum type) {

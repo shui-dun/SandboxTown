@@ -100,10 +100,4 @@ public class SpriteDo {
     /** 装备列表 */
     @TableField(exist = false)
     private List<ItemDo> equipments;
-
-    /**
-     * 以下是一些只放在Java缓存不放在数据库的字段
-     */
-    @TableField(exist = false)
-    private SpriteCache cache;
 }
