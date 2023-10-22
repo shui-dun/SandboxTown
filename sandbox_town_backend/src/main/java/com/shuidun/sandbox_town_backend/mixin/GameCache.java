@@ -25,7 +25,7 @@ public class GameCache {
     /** 地图，用于寻路算法，0表示可以通过，1代表围墙，非0表示障碍物ID的哈希值 */
     public static int[][] map;
 
-    /** 角色缓存信息，保存在内存中，定期写入数据库 */
+    /** 角色缓存信息，保存在内存中，部分信息例如坐标定期写入数据库 */
     public static Map<String, SpriteCache> spriteCacheMap = new ConcurrentHashMap<>();
 
     /** 当前时间段 */
