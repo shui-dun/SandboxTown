@@ -152,11 +152,11 @@ INSERT INTO sprite (id, type, owner, money, exp, level, hunger, hp, attack, defe
 VALUES ('USER_xixi', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 10, 1000, 100, 300, 300, '1', 160, 160),
        ('USER_haha', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 20, 1000, 100, 100, 100, '1', 160, 160),
        ('USER_heihei', 'USER', null, 10, 0, 1, 100, 100, 10, 6, 20, 1000, 100, 200, 200, '1', 160, 160),
-       ('DOG_Vz5n_o-CQk-okcK5vQFRsA', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 1000, 100, 400, 300, '1', 150,
+       ('DOG_Vz5n_o-CQk-okcK5vQFRsA', 'DOG', 'USER_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 1000, 100, 400, 300, '1', 150,
         150),
-       ('DOG_q83jrKyCTtGm1QvywN48pw', 'DOG', 'USER_xixi', null, 10, 2, 70, 40, 13, 6, 8, 1000, 100, 400, 400, '1', 250,
+       ('DOG_q83jrKyCTtGm1QvywN48pw', 'DOG', 'USER_xixi', 0, 10, 2, 70, 40, 13, 6, 8, 1000, 100, 400, 400, '1', 250,
         250),
-       ('CAT_iZUc8IiRTCOQXNjLNbQUFQ', 'CAT', 'USER_xixi', null, 10, 2, 70, 40, 8, 6, 8, 1000, 100, 400, 500, '1', 150,
+       ('CAT_iZUc8IiRTCOQXNjLNbQUFQ', 'CAT', 'USER_xixi', 0, 10, 2, 70, 40, 8, 6, 8, 1000, 100, 400, 500, '1', 150,
         150);
 
 # 创建物品表

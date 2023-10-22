@@ -117,6 +117,7 @@ public class WSRequestHandler {
             var data = mapData.toJavaObject(InteractDto.class);
             // 判断上次交互的时间是否过去了300m秒
             var spriteCache = GameCache.spriteCacheMap.get(data.getSource());
+            // TODO: 这里getLastInteractTime和setLastInteractTime并不是原子操作，因此可能会出现重复交互的情况
             if (spriteCache == null || spriteCache.getLastInteractTime() > System.currentTimeMillis() - 300) {
                 return;
             }

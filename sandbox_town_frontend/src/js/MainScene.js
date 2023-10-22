@@ -309,33 +309,26 @@ class MainScene extends Phaser.Scene {
             let timestamp = new Date().getTime();
             // 遍历所有角色
             for (let id in this.id2spriteInfo) {
-                // 如果角色是自己、主人是自己、公共NPC（例如蜘蛛）
-                // TODO：这个逻辑应该被修改以支持级联主仆关系
-                // TODO：后端owner的变化没有同步到前端
-                if (id === this.myUsername ||
-                    this.id2spriteInfo[id].owner === this.myUsername ||
-                    (this.id2spriteInfo[id].owner == null && this.id2spriteInfo[id].type !== "USER")) {
-                    // 如果上一次发送的位置和当前位置不同
-                    if (lastAxisMap[id] == null ||
-                        lastAxisMap[id].x !== this.id2gameObject[id].x ||
-                        lastAxisMap[id].y !== this.id2gameObject[id].y) {
-                        // 发送坐标信息
-                        ws().send(JSON.stringify({
-                            "type": "COORDINATE",
-                            "data": {
-                                "id": id,
-                                "x": this.id2gameObject[id].x.toFixed(2),
-                                "y": this.id2gameObject[id].y.toFixed(2),
-                                "time": timestamp,
-                                "vx": this.id2gameObject[id].body.velocity.x.toFixed(2),
-                                "vy": this.id2gameObject[id].body.velocity.y.toFixed(2),
-                            }
-                        }));
-                        // 更新上一次发送的位置
-                        lastAxisMap[id] = {
-                            "x": this.id2gameObject[id].x,
-                            "y": this.id2gameObject[id].y,
+                // 如果上一次发送的位置和当前位置不同
+                if (lastAxisMap[id] == null ||
+                    lastAxisMap[id].x !== this.id2gameObject[id].x ||
+                    lastAxisMap[id].y !== this.id2gameObject[id].y) {
+                    // 发送坐标信息
+                    ws().send(JSON.stringify({
+                        "type": "COORDINATE",
+                        "data": {
+                            "id": id,
+                            "x": this.id2gameObject[id].x.toFixed(2),
+                            "y": this.id2gameObject[id].y.toFixed(2),
+                            "time": timestamp,
+                            "vx": this.id2gameObject[id].body.velocity.x.toFixed(2),
+                            "vy": this.id2gameObject[id].body.velocity.y.toFixed(2),
                         }
+                    }));
+                    // 更新上一次发送的位置
+                    lastAxisMap[id] = {
+                        "x": this.id2gameObject[id].x,
+                        "y": this.id2gameObject[id].y,
                     }
                 }
             }
@@ -412,28 +405,9 @@ class MainScene extends Phaser.Scene {
             }
             // 目的地的到达事件
             let arriveEvent = () => {
-                // 判断精灵是否是指定精灵或者其宠物
-                let isOrIsOwneredby = (sprite, id) => {
-                    return sprite.id == id || sprite.owner == id;
-                }
-                // 判断精灵是否是玩家或者玩家的宠物
-                let isOrIsOwneredbyUser = (sprite) => {
-                    return sprite.id.startsWith("USER") || (sprite.owner != null && sprite.owner.startsWith("USER"));
-                }
                 if (destBuildingId != null) {
-                    // 当目标是建筑时，只有当发起者是自己或自己的宠物，才会触发到达事件
-                    if (!isOrIsOwneredby(initatorSprite, this.myUsername)) {
-                        return;
-                    }
-                }
-                // 当目标是精灵时，只有当目标精灵是自己或自己的宠物，
-                // 或者发起者是自己或自己的宠物同时目标精灵不是玩家并且主人也不是玩家，才会触发到达事件
-                // 这是为了避免重复触发到达事件
-                if (destSprite != null) {
-                    if (!(
-                        isOrIsOwneredby(destSprite, this.myUsername)
-                        || (isOrIsOwneredby(initatorSprite, this.myUsername) && !isOrIsOwneredbyUser(destSprite))
-                    )) {
+                    // 当目标是建筑时，只有当发起者是自己才会触发到达事件
+                    if (initatorSprite.id != this.myUsername) {
                         return;
                     }
                 }
