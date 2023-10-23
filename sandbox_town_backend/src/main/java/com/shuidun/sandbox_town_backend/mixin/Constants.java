@@ -9,6 +9,9 @@ public class Constants {
     /** 精灵最大体力值 */
     public static final int MAX_HP = 100;
 
+    /** 精灵最大速度 */
+    public static final int MAX_SPEED = 25;
+
     /** 玩家死亡时失去的金钱值 */
     public static final int MONEY_LOST_ON_DEATH = 120;
 

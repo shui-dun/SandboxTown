@@ -173,7 +173,8 @@ public class SpriteService {
             // 每次升级，增加基础属性值的1/4，至少增加1
             sprite.setAttack(sprite.getAttack() + Math.max(1, spriteType.getBasicAttack() / 4) * levelUp);
             sprite.setDefense(sprite.getDefense() + Math.max(1, spriteType.getBasicDefense() / 4) * levelUp);
-            sprite.setSpeed(sprite.getSpeed() + Math.max(1, spriteType.getBasicSpeed() / 4) * levelUp);
+            // 每升一级，速度只能增加1
+            sprite.setSpeed(sprite.getSpeed() + levelUp);
             sprite.setVisionRange(sprite.getVisionRange() + Math.max(1, spriteType.getBasicVisionRange() / 4) * levelUp);
             sprite.setAttackRange(sprite.getAttackRange() + Math.max(1, spriteType.getBasicAttackRange() / 4) * levelUp);
         }
@@ -198,6 +199,10 @@ public class SpriteService {
         }
         if (sprite.getSpeed() < 0) {
             sprite.setSpeed(0);
+        }
+        // 速度上限
+        if (sprite.getSpeed() > Constants.MAX_SPEED) {
+            sprite.setSpeed(Constants.MAX_SPEED);
         }
         if (sprite.getVisionRange() < 0) {
             sprite.setVisionRange(0);
