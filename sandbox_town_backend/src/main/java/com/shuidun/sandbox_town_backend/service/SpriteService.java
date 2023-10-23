@@ -156,16 +156,18 @@ public class SpriteService {
     @Transactional
     public Pair<SpriteDo, List<WSResponseVo>> normalizeAndUpdateSprite(SpriteDo sprite) {
         List<WSResponseVo> responseList = new ArrayList<>();
-        // 如果经验值足够升级，则升级
-        if (sprite.getExp() >= Constants.EXP_PER_LEVEL) {
+        // 如果经验值足够升级，则升级（当精灵等级为n时，升级所需经验值为n*EXP_PER_LEVEL）
+        int levelUp = 0;
+        while (sprite.getExp() >= Constants.EXP_PER_LEVEL * sprite.getLevel()) {
+            // 减少经验值
+            sprite.setExp(sprite.getExp() - Constants.EXP_PER_LEVEL * sprite.getLevel());
+            // 升级
+            sprite.setLevel(sprite.getLevel() + 1);
+            levelUp++;
+        }
+        if (levelUp > 0) {
             // 得到类型信息
             SpriteTypeDo spriteType = spriteTypeMapper.selectById(sprite.getType());
-            // 升级级数
-            int levelUp = sprite.getExp() / Constants.EXP_PER_LEVEL;
-            // 升级
-            sprite.setLevel(sprite.getLevel() + levelUp);
-            // 减少经验值
-            sprite.setExp(sprite.getExp() - levelUp * Constants.EXP_PER_LEVEL);
             // 更新玩家属性
             sprite.setMoney(sprite.getMoney() + levelUp * Constants.MONEY_GAIN_ON_LEVEL_UP);
             sprite.setHunger(Constants.MAX_HUNGER);
@@ -270,7 +272,7 @@ public class SpriteService {
         sprite.setLevel(spriteType.getBasicLevel());
         // 将等级降为1，全部赋给经验值
         if (sprite.getLevel() > 1) {
-            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * Constants.EXP_PER_LEVEL);
+            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * sprite.getLevel() * Constants.EXP_PER_LEVEL / 2);
             sprite.setLevel(1);
         }
         sprite.setHunger(spriteType.getBasicHunger());
@@ -309,7 +311,7 @@ public class SpriteService {
         sprite.setExp((int) (spriteType.getBasicExp() * scale));
         // 将等级降为1，全部赋给经验值
         if (sprite.getLevel() > 1) {
-            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * Constants.EXP_PER_LEVEL);
+            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * sprite.getLevel() * Constants.EXP_PER_LEVEL / 2);
             sprite.setLevel(1);
         }
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;

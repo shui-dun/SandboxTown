@@ -1,9 +1,7 @@
 package com.shuidun.sandbox_town_backend.mixin;
 
-import org.springframework.beans.factory.annotation.Value;
-
 public class Constants {
-    /** 多少经验升一级 */
+    /** 升级所需经验值的基数 */
     public static final int EXP_PER_LEVEL = 100;
 
     /** 精灵最大体力值 */
