@@ -7,6 +7,9 @@ public class Constants {
     /** 精灵最大体力值 */
     public static final int MAX_HP = 100;
 
+    /** 精灵最大等级 */
+    public static final int MAX_LEVEL = 20;
+
     /** 精灵最大速度 */
     public static final int MAX_SPEED = 25;
 

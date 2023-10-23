@@ -156,29 +156,38 @@ public class SpriteService {
     @Transactional
     public Pair<SpriteDo, List<WSResponseVo>> normalizeAndUpdateSprite(SpriteDo sprite) {
         List<WSResponseVo> responseList = new ArrayList<>();
-        // 如果经验值足够升级，则升级（当精灵等级为n时，升级所需经验值为n*EXP_PER_LEVEL）
-        int levelUp = 0;
-        while (sprite.getExp() >= Constants.EXP_PER_LEVEL * sprite.getLevel()) {
-            // 减少经验值
-            sprite.setExp(sprite.getExp() - Constants.EXP_PER_LEVEL * sprite.getLevel());
-            // 升级
-            sprite.setLevel(sprite.getLevel() + 1);
-            levelUp++;
-        }
-        if (levelUp > 0) {
-            // 得到类型信息
-            SpriteTypeDo spriteType = spriteTypeMapper.selectById(sprite.getType());
-            // 更新玩家属性
-            sprite.setMoney(sprite.getMoney() + levelUp * Constants.MONEY_GAIN_ON_LEVEL_UP);
-            sprite.setHunger(Constants.MAX_HUNGER);
-            sprite.setHp(Constants.MAX_HP);
-            // 每次升级，增加基础属性值的1/4，至少增加1
-            sprite.setAttack(sprite.getAttack() + Math.max(1, spriteType.getBasicAttack() / 4) * levelUp);
-            sprite.setDefense(sprite.getDefense() + Math.max(1, spriteType.getBasicDefense() / 4) * levelUp);
-            // 每升一级，速度只能增加1
-            sprite.setSpeed(sprite.getSpeed() + levelUp);
-            sprite.setVisionRange(sprite.getVisionRange() + Math.max(1, spriteType.getBasicVisionRange() / 4) * levelUp);
-            sprite.setAttackRange(sprite.getAttackRange() + Math.max(1, spriteType.getBasicAttackRange() / 4) * levelUp);
+        // 如果精灵已经满级
+        if (sprite.getLevel().equals(Constants.MAX_LEVEL)) {
+            sprite.setExp(0);
+        } else {
+            // 如果经验值足够升级，则升级（当精灵等级为n时，升级所需经验值为n*EXP_PER_LEVEL）
+            int levelUp = 0;
+            while (sprite.getExp() >= Constants.EXP_PER_LEVEL * sprite.getLevel()) {
+                // 减少经验值
+                sprite.setExp(sprite.getExp() - Constants.EXP_PER_LEVEL * sprite.getLevel());
+                // 升级
+                sprite.setLevel(sprite.getLevel() + 1);
+                levelUp++;
+                // 如果精灵已经满级
+                if (sprite.getLevel().equals(Constants.MAX_LEVEL)) {
+                    sprite.setExp(0);
+                }
+            }
+            if (levelUp > 0) {
+                // 得到类型信息
+                SpriteTypeDo spriteType = spriteTypeMapper.selectById(sprite.getType());
+                // 更新玩家属性
+                sprite.setMoney(sprite.getMoney() + levelUp * Constants.MONEY_GAIN_ON_LEVEL_UP);
+                sprite.setHunger(Constants.MAX_HUNGER);
+                sprite.setHp(Constants.MAX_HP);
+                // 每次升级，增加基础属性值的1/4，至少增加1
+                sprite.setAttack(sprite.getAttack() + Math.max(1, spriteType.getBasicAttack() / 4) * levelUp);
+                sprite.setDefense(sprite.getDefense() + Math.max(1, spriteType.getBasicDefense() / 4) * levelUp);
+                // 每升一级，速度只能增加1
+                sprite.setSpeed(sprite.getSpeed() + levelUp);
+                sprite.setVisionRange(sprite.getVisionRange() + Math.max(1, spriteType.getBasicVisionRange() / 4) * levelUp);
+                sprite.setAttackRange(sprite.getAttackRange() + Math.max(1, spriteType.getBasicAttackRange() / 4) * levelUp);
+            }
         }
         // 判断属性是否在合理范围内
         if (sprite.getHunger() > Constants.MAX_HUNGER) {
