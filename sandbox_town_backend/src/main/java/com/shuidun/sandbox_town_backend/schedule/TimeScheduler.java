@@ -72,7 +72,7 @@ public class TimeScheduler {
     @Scheduled(initialDelay = 30000, fixedDelay = 30000)
     public void notifyTimeFrame() {
         log.info("notifyTimeFrame: {}", timeService.getTimeFrame());
-        WSMessageSender.sendResponse(new WSResponseVo(
+        WSMessageSender.addResponse(new WSResponseVo(
                 WSResponseEnum.TIME_FRAME_NOTIFY,
                 timeService.getTimeFrame()
         ));

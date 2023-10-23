@@ -53,7 +53,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         String userName = (String) session.getAttributes().get("userName");
         WSMessageSender.usernameSession.remove(userName, session);
         // 发出下线事件
-        WSMessageSender.sendResponse(spriteService.offline(userName));
+        WSMessageSender.addResponse(spriteService.offline(userName));
         super.afterConnectionClosed(session, status);
     }
 

@@ -63,7 +63,7 @@ public class SpriteScheduler {
                     return;
                 }
                 // 发送移动消息
-                WSMessageSender.sendResponse(new WSResponseVo(
+                WSMessageSender.addResponse(new WSResponseVo(
                         WSResponseEnum.MOVE,
                         new MoveVo(
                                 sprite.getId(),
@@ -83,7 +83,7 @@ public class SpriteScheduler {
                     }
                     double randomVx = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
                     double randomVy = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
-                    WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVx, randomVy)));
+                    WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVx, randomVy)));
                 } else {
                     // 如果狗有主人
                     SpriteCache ownerSprite = GameCache.spriteCacheMap.get(owner);
@@ -125,7 +125,7 @@ public class SpriteScheduler {
                         // 去掉后面一段
                         path = path.subList(0, path.size() - minLen);
                         // 发送移动消息
-                        WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(sprite.getId(), sprite.getSpeed() + sprite.getSpeedInc(), DataCompressor.compressPath(path), null, null, null)));
+                        WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(sprite.getId(), sprite.getSpeed() + sprite.getSpeedInc(), DataCompressor.compressPath(path), null, null, null)));
                     }
                 }
             }
@@ -169,7 +169,7 @@ public class SpriteScheduler {
                 }
                 double randomVx = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.7);
                 double randomVy = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.7);
-                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVx, randomVy)));
+                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVx, randomVy)));
                 return;
             }
             // 寻找路径
@@ -180,7 +180,7 @@ public class SpriteScheduler {
                 return;
             }
             // 发送移动消息
-            WSMessageSender.sendResponse(new WSResponseVo(
+            WSMessageSender.addResponse(new WSResponseVo(
                     WSResponseEnum.MOVE,
                     new MoveVo(
                             sprite.getId(),
@@ -209,13 +209,13 @@ public class SpriteScheduler {
             // 生命效果
             if (counterOfSchedule % 12 == 0) {
                 if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE))) {
-                    WSMessageSender.sendResponseList(spriteService.modifyLife(sprite.getId(), 1));
+                    WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1));
                 }
             }
             // 烧伤效果
             if (counterOfSchedule % 2 == 0) {
                 if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN))) {
-                    WSMessageSender.sendResponseList(spriteService.modifyLife(sprite.getId(), -1));
+                    WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1));
                 }
             }
             // 调用对应的处理函数

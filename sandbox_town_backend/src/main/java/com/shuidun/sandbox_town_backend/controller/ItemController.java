@@ -58,7 +58,7 @@ public class ItemController {
         // 之所以这里要以websocket而非http的方式发送消息，
         // 是因为http的方式发送消息，只能发送给当前请求的用户，
         // 而websocket的方式发送消息，可以发送给需要该消息的所有用户
-        WSMessageSender.sendResponseList(spriteService.useItem(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.addResponses(spriteService.useItem(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
@@ -85,7 +85,7 @@ public class ItemController {
      */
     @PostMapping("/hold")
     public RestResponseVo<?> hold(String itemId) {
-        WSMessageSender.sendResponseList(itemService.hold(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.addResponses(itemService.hold(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
@@ -94,21 +94,21 @@ public class ItemController {
      */
     @PostMapping("/putInItemBar")
     public RestResponseVo<?> putInItemBar(String itemId) {
-        WSMessageSender.sendResponseList(itemService.putInItemBar(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.addResponses(itemService.putInItemBar(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
     /** 装备物品 */
     @PostMapping("/equip")
     public RestResponseVo<?> equip(String itemId) {
-        WSMessageSender.sendResponseList(itemService.equip(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.addResponses(itemService.equip(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
     /** 放入背包 */
     @PostMapping("/putInBackpack")
     public RestResponseVo<?> putInBackpack(String itemId) {
-        WSMessageSender.sendResponseList(itemService.putInBackpack(StpUtil.getLoginIdAsString(), itemId));
+        WSMessageSender.addResponses(itemService.putInBackpack(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 }

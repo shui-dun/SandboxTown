@@ -93,7 +93,7 @@ public class WSRequestHandler {
             spriteCache.setVy(data.getVy());
 
             // 广播给其他玩家
-            WSMessageSender.sendResponse(
+            WSMessageSender.addResponse(
                     new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
                             data.getId(), data.getX(), data.getY(), data.getVx(), data.getVy()
                     )));
@@ -123,7 +123,7 @@ public class WSRequestHandler {
             }
             // TODO: 更新玩家的状态
             // 通知玩家移动
-            WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
+            WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
                     initiator,
                     sprite.getSpeed() + sprite.getSpeedInc(),
                     DataCompressor.compressPath(path),
@@ -164,17 +164,17 @@ public class WSRequestHandler {
             if (feedResult == FeedResultEnum.ALREADY_TAMED || feedResult == FeedResultEnum.TAME_SUCCESS
                     || feedResult == FeedResultEnum.TAME_FAIL || feedResult == FeedResultEnum.FEED_SUCCESS) {
                 // 发送驯服/喂养结果通知
-                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
+                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
                         sourceSprite.getId(), targetSprite.getId(), feedResult
                 )));
                 // 驯服会消耗物品，因此发送通知栏变化通知
-                WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
+                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
                         new ItemBarNotifyVo(sourceSprite.getId())));
                 return;
             }
             // 否则本次交互的目的是进行攻击
             List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
-            WSMessageSender.sendResponseList(responses);
+            WSMessageSender.addResponses(responses);
         });
 
         // 开始处理消息
