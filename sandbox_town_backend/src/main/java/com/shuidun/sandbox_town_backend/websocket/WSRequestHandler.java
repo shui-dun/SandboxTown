@@ -28,7 +28,11 @@ public class WSRequestHandler {
     /** 事件类型 -> 处理函数 */
     private final Map<WSRequestEnum, BiConsumer<String, JSONObject>> eventMap = new HashMap<>();
 
-    /** 消息队列 */
+    /**
+     * 消息队列
+     * 避免多线程并发问题
+     * 之前是打算通过加锁解决，但是导致死锁、性能下降和编程复杂
+     */
     private final LinkedBlockingQueue<EventDto> mq = new LinkedBlockingQueue<>();
 
     /** 向消息队列中添加消息 */
@@ -39,7 +43,6 @@ public class WSRequestHandler {
     /** 处理消息 */
     private void handleMessages() {
         new Thread(() -> {
-            // 使用消息队列，避免多线程并发问题
             while (true) {
                 EventDto eventDto = null;
                 try {

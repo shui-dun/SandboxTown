@@ -1,6 +1,6 @@
 | 精灵名称 | 图像                                                         | 介绍                                                         |
 | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | 玩家     | <img src="../sandbox_town_frontend/src/assets/img/USER.png" width="120" /> | 玩家                                                         |
-| 狗狗     | <img src="../sandbox_town_frontend/src/assets/img/DOG.png" width="120" /> | <ul><li>黎明和黄昏时在商店周围刷新</li><li>没有被驯服的狗会在地图上随机游走</li><li>被驯服的狗会跟随主人移动</li><li>会攻击攻击者（即使攻击者是主人）</li><li>会保护主人，辅助主人攻击敌人</li><li>喜爱骨头，可以用骨头驯服和喂食</li></ul> |
-| 蜘蛛     | <img src="../sandbox_town_frontend/src/assets/img/SPIDER.png" width="120" /> | <ul><li>晚上在树周围刷新</li><li>会在地图上随机游走</li><li>会主动攻击附近的精灵</li></ul> |
+| 狗狗     | <img src="../sandbox_town_frontend/src/assets/img/DOG.png" width="120" /> | <ul><li>黎明和黄昏时在商店周围刷新</li><li>没有被驯服的狗会在地图上随机游走</li><li>被驯服的狗会跟随主人移动</li><li>会攻击攻击者（即使攻击者是主人）</li><li>会保护主人，辅助主人攻击敌人</li><li>喜爱骨头，可以用骨头驯服和喂食</li><li>死亡时可能掉落骨头</li></ul> |
+| 蜘蛛     | <img src="../sandbox_town_frontend/src/assets/img/SPIDER.png" width="120" /> | <ul><li>晚上在树周围刷新</li><li>会在地图上随机游走</li><li>会主动攻击附近的精灵</li><li>死亡时可能掉落木棍和面包</li><li>黎明和白天受到阳光持续烧伤</li></ul> |
 

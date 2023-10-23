@@ -460,6 +460,10 @@ class MainScene extends Phaser.Scene {
                 repeat: 0,
                 onUpdate: () => {
                     try {
+                        // 修复当玩家正在补间动画（移动）时被杀死，不会回到原点的bug
+                        if (tween.isStopped) {
+                            return;
+                        }
                         const point = path.getPoint(tweenProgress.value);
                         // 这个地方经常抛出异常，因为在玩家移动的过程中，玩家可能会下线，导致玩家被删除，但是补间动画还在继续，因此报错，因此要用try-catch包裹
                         initatorGameObject.setPosition(point.x, point.y);
