@@ -416,7 +416,7 @@ class MainScene extends Phaser.Scene {
                     let targetID = destBuildingId;
                     if (type === 'TREE') {
                         emitter.emit('TREE_ARRIVE', { "initator": this.myUsername, "target": targetID });
-                    } else if (type == 'STORE') {
+                    } else if (type === 'STORE') {
                         this.game.events.emit('forward', { name: 'showStore', data: targetID });
                     }
                 } else if (destSprite != null) {
@@ -426,10 +426,16 @@ class MainScene extends Phaser.Scene {
                         "data": {
                             "source": initatorSprite.id,
                             "target": destSprite.id,
+                            "sn": data.sn,
                         }
                     }));
                 }
             };
+            let tweenProgress = { value: 0 };
+            if (this.id2tween[data.id] != null) {
+                // 如果上一个补间动画还没结束，就停止上一个补间动画
+                this.id2tween[data.id].stop();
+            }
             // 如果不存在路径，就直接到达终点
             if (originPath == null) {
                 arriveEvent();
@@ -445,11 +451,6 @@ class MainScene extends Phaser.Scene {
             }
             for (let i = 2; i < lastPos; i += 2) {
                 path.lineTo(originPath[i], originPath[i + 1]);
-            }
-            let tweenProgress = { value: 0 };
-            if (this.id2tween[data.id] != null) {
-                // 如果上一个补间动画还没结束，就停止上一个补间动画
-                this.id2tween[data.id].stop();
             }
             let tween = this.tweens.add({
                 targets: tweenProgress,

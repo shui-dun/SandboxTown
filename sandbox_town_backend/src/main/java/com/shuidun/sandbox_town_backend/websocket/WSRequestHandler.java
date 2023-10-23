@@ -125,16 +125,21 @@ public class WSRequestHandler {
                     sprite.getSpeed() + sprite.getSpeedInc(),
                     DataCompressor.compressPath(path),
                     data.getDestBuildingId(),
-                    data.getDestSpriteId()
+                    data.getDestSpriteId(),
+                    data.getDestSpriteId() == null ? null : GameCache.random.nextInt()
             )));
         });
 
         // 交互事件
         eventMap.put(WSRequestEnum.INTERACT, (initiator, mapData) -> {
             var data = mapData.toJavaObject(InteractDto.class);
-            // 判断上次交互的时间是否过去了300m秒
+            // 判断上次交互的时间是否过去了400m秒
             var spriteCache = GameCache.spriteCacheMap.get(data.getSource());
-            if (spriteCache == null || spriteCache.getLastInteractTime() > System.currentTimeMillis() - 300) {
+            if (spriteCache == null || spriteCache.getLastInteractTime() > System.currentTimeMillis() - 400) {
+                return;
+            }
+            // 如果上次交互的序列号和本次相同，说明本次交互已经处理过了，直接返回
+            if (data.getSn().equals(spriteCache.getLastInteractSn())) {
                 return;
             }
             var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
@@ -143,7 +148,9 @@ public class WSRequestHandler {
             if (!spriteService.isNear(sourceSprite, targetSprite)) {
                 return;
             }
+            // 更新上次交互的时间和序列号
             spriteCache.setLastInteractTime(System.currentTimeMillis());
+            spriteCache.setLastInteractSn(data.getSn());
             // 先尝试驯服/喂养
             FeedResultEnum feedResult = spriteService.feed(sourceSprite, targetSprite);
             // 如果驯服结果是“已经有主人”或者“驯服成功”或者“驯服失败”或者“喂养成功”，说明本次交互的目的的确是驯服/喂养，而非攻击

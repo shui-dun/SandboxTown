@@ -12,4 +12,6 @@ public class InteractDto {
     private String source;
     // 交互事件的目标
     private String target;
+    // 交互事件的序列号（用于去重）
+    private Integer sn;
 }

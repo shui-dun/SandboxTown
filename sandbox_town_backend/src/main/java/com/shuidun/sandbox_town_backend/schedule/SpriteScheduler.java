@@ -70,7 +70,8 @@ public class SpriteScheduler {
                                 sprite.getSpeed() + sprite.getSpeedInc(),
                                 DataCompressor.compressPath(path),
                                 null,
-                                targetId
+                                targetId,
+                                GameCache.random.nextInt()
                         )
                 ));
             } else {
@@ -124,7 +125,7 @@ public class SpriteScheduler {
                         // 去掉后面一段
                         path = path.subList(0, path.size() - minLen);
                         // 发送移动消息
-                        WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(sprite.getId(), sprite.getSpeed() + sprite.getSpeedInc(), DataCompressor.compressPath(path), null, null)));
+                        WSMessageSender.sendResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(sprite.getId(), sprite.getSpeed() + sprite.getSpeedInc(), DataCompressor.compressPath(path), null, null, null)));
                     }
                 }
             }
@@ -186,7 +187,8 @@ public class SpriteScheduler {
                             sprite.getSpeed() + sprite.getSpeedInc(),
                             DataCompressor.compressPath(path),
                             null,
-                            finalTargetId
+                            finalTargetId,
+                            GameCache.random.nextInt()
                     )
             ));
         });

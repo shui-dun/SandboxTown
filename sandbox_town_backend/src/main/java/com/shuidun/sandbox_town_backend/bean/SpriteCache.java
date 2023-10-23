@@ -27,6 +27,9 @@ public class SpriteCache {
     // 上次与其他精灵交互时间
     private long lastInteractTime;
 
+    // 上次与其他精灵交互的序列号
+    private Integer lastInteractSn;
+
     SpriteStatus status;
 
     // 目标精灵id
