@@ -144,6 +144,10 @@ public class WSRequestHandler {
             }
             var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
             var targetSprite = spriteService.selectByIdWithDetail(data.getTarget());
+            // 如果两者有一个不存在，直接返回
+            if (sourceSprite == null || targetSprite == null) {
+                return;
+            }
             // 如果两者距离较远，直接返回
             if (!spriteService.isNear(sourceSprite, targetSprite)) {
                 return;
