@@ -496,14 +496,16 @@ public class SpriteService {
             responses.addAll(modifyLifeResponses);
             // 如果包含offline消息，则说明被攻击者死亡
             if (modifyLifeResponses.stream().anyMatch(response -> response.getType() == WSResponseEnum.OFFLINE)) {
-                // 查询被攻击者死亡后带给攻击者的属性提升
+                // 查询被攻击者死亡后带给攻击者的属性提升（属性提升值不仅与死亡者的类型有关，还与死亡者的等级有关）
                 VictoryAttributeRewardDo attributeReward = victoryAttributeRewardMapper.selectById(targetSprite.getType());
                 if (attributeReward != null) {
+                    // 死亡者的等级带来的属性增益因数
+                    double levelFactor = 1 + (targetSprite.getLevel() - 1) * 0.2;
                     // 更新攻击者属性
                     SpriteAttributeChangeVo spriteAttributeChange = new SpriteAttributeChangeVo();
                     spriteAttributeChange.setOriginal(sourceSprite);
-                    sourceSprite.setMoney(sourceSprite.getMoney() + attributeReward.getMoneyInc());
-                    sourceSprite.setExp(sourceSprite.getExp() + attributeReward.getExpInc());
+                    sourceSprite.setMoney(sourceSprite.getMoney() + (int) (attributeReward.getMoneyInc() * levelFactor));
+                    sourceSprite.setExp(sourceSprite.getExp() + (int) (attributeReward.getExpInc() * levelFactor));
                     sourceSprite = normalizeAndUpdateSprite(sourceSprite).getFirst();
                     if (spriteAttributeChange.setChanged(sourceSprite)) {
                         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));

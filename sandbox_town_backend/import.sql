@@ -205,8 +205,8 @@ create table victory_attribute_reward
 );
 
 insert into victory_attribute_reward(sprite_type, money_inc, exp_inc)
-values ('DOG', 20, 15),
-       ('SPIDER', 25, 20);
+values ('DOG', 15, 15),
+       ('SPIDER', 20, 20);
 
 # 杀死精灵时的物品奖励
 create table victory_item_reward
