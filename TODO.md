@@ -2,9 +2,37 @@
 
 ## feature
 
+- 添加聊天模块：
+  - 玩家之间可以聊天，chat表设计：id，source，target，type，message，time。使用自增长的`id` 插入复杂度是O(1)
+  - 添加friend表：user，friend，ban（是否拉黑），lastChatId（上一次聊天id，用于显示与所有其他用户的最后一次聊天列表，需要妥善维护，如果嫌麻烦就不加这个字段了）。一旦聊天，自动变为friend（user和friend作为主键）
+  - 搜索玩家
+  - 删除已有消息
+  - 拉黑用户（也可以取消拉黑）
+  - 编辑已有消息
+  - 支持发送文本、图片、视频等二进制数据
+    - 用户可以通过一个HTTP的`multipart/form-data` POST请求将图片或视频上传到后端
+    - 然后将它们的名称返回给客户端，这样就可以避免直接使用websocket传输二进制文件了，websocket可以保持使用json了
+    - 资源名称使用512位随机数，避免被攻击
+  - 聊天内容会被保留30天（设定一个定时任务（例如使用Spring的`@Scheduled`），每天检查并删除30天之前的消息）
+  - 每次加载20条的消息，往上滑就加载前20条消息？由于有自增id，因此使用游标分页。为了进一步提高查询速度，可以创建一个复合索引，包括 `source` 和 `target`。
+  - 搜索聊天内容(同样每次加载20条的消息，往上滑就加载前20条消息)。同样使用游标分页实现。
+  - 适配移动端，面板界面太长时可以滚动
+  - 玩家也可以建群。
+    - 数据库设计：
+      - group_admin表：groupId，userId（可以解散群，可以踢人、禁言）（groupId，userId作为主键）
+      - group_user表：id, groupId，userId（id方便游标分页）
+      - group_blacklist表：groupId，userId
+      - group_mute表：groupId，userId，endTime
+      - group_message表：id，groupId，userId，msgType，msgContent，time
+    - 功能：
+      - 创造群
+      - 搜索群
+      - 加入群
+      - 踢人（也可以取消黑名单）
+      - 禁言（也可以取消禁言和修改禁言时间）
+      - 查看群成员列表、群管理员列表、禁言列表、黑名单
 - java bean继承，例如使用 `new SpriteEffectChangeVo(spriteId)` 替代 `new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId))`，其中 `SpriteEffectChangeVo` 继承自 `WSResponseVo`
 - 完成虚无的效果
-- 只有晚上会生成一些怪（例如蜘蛛） & 黎明时怪开始迅速受伤死亡（烧伤效果）
 - 多地图（一个Java服务器负责一个地图） & rest请求用nginx做负载均衡
 - Redis做缓存（简单的用cachable注解，复杂的写代码）
 - 自动生成各种枚举类（可借助rest api）
@@ -32,10 +60,6 @@
 - 增加成就模块，一些功能需要解锁特定成就才能进行
 - 远程攻击：发射子弹，空气阻力很小，并且不透明度与速度正相关，通过服务器同步，但是服务器本身不需要保存子弹的状态，只用在客户端进行碰撞检测
 - 实现范围攻击
-- 添加聊天模块（移动端也要支持）：
-  - 玩家之间可以聊天
-  - 玩家也可以广播消息
-  - 聊天内容会被保留7天
 - 角色的等级提升会解锁之前不能购买的商品或者是工厂里不能制作的东西
 - 完成池塘 & 猫会不定期为你捕鱼，并且跑得很快，较难被攻击到
 - 玩家养的牛可以宰杀，收获牛革和牛肉，牛革可以做皮质胸甲以及其他物品
