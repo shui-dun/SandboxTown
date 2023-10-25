@@ -12,8 +12,8 @@ public class SecureNameGenerator {
      * 生成随机密钥
      */
     public static String generate() {
-        // 生成512位（64字节）的随机密钥
-        byte[] randomKey = new byte[64];
+        // 生成256位（32字节）的随机密钥
+        byte[] randomKey = new byte[32];
         secureRandom.nextBytes(randomKey);
         // 转化为Base64字符串
         // getUrlEncoder相比getEncoder，会将Base64字符串中的+和/分别替换为-和_，以便于在URL中使用

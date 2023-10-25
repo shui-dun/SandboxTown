@@ -15,6 +15,7 @@ import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.utils.SecureNameGenerator;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +35,15 @@ public class ChatMessageService {
 
     private final UserMapper userMapper;
 
-    public ChatMessageService(ChatMessageMapper chatMessageMapper, ChatFriendMapper chatFriendMapper, UserMapper userMapper) {
+    private final String userUploadPath;
+
+    public ChatMessageService(@Value("${userUploadPath}") String userUploadPath, ChatMessageMapper chatMessageMapper, ChatFriendMapper chatFriendMapper, UserMapper userMapper) {
+        this.userUploadPath = userUploadPath;
+        // 如果用户上传文件的目录不存在，则递归地创建目录
+        File file = new File(userUploadPath);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
         this.chatMessageMapper = chatMessageMapper;
         this.chatFriendMapper = chatFriendMapper;
         this.userMapper = userMapper;
@@ -105,15 +114,11 @@ public class ChatMessageService {
         List<String> messages = chatMessageMapper.selectBeforeTimeWithTypes(time, List.of(ChatMsgTypeEnum.TEXT, ChatMsgTypeEnum.IMAGE, ChatMsgTypeEnum.VIDEO, ChatMsgTypeEnum.FILE));
         // 删除消息对应的文件
         for (String message : messages) {
-            ClassPathResource resource = new ClassPathResource(Constants.USER_UPLOAD_PATH + message.split(" ", 2)[0]);
-            try {
-                File file = resource.getFile();
-                // 删除文件
-                if (file.exists()) {
-                    file.delete();
-                }
-            } catch (IOException e) {
-                log.warn("删除文件失败，文件不存在", e);
+            String path = userUploadPath + message.split(" ", 2)[0];
+            File file = new File(path);
+            // 删除文件
+            if (file.exists()) {
+                file.delete();
             }
         }
         // 删除消息
@@ -189,9 +194,8 @@ public class ChatMessageService {
             try {
                 // 保存文件到服务器或存储系统中
                 String name = SecureNameGenerator.generate();
-                String path = Constants.USER_UPLOAD_PATH + name;
-                ClassPathResource resource = new ClassPathResource(path);
-                file.transferTo(resource.getFile());
+                String path = userUploadPath + name;
+                file.transferTo(new File(path));
                 // 保存消息
                 chatMessage.setSource(source);
                 chatMessage.setTarget(target);
@@ -206,6 +210,7 @@ public class ChatMessageService {
                 // 插入消息时会得到消息的id
                 chatMessageMapper.insert(chatMessage);
             } catch (Exception e) {
+                log.info("保存文件失败", e);
                 throw new BusinessException(StatusCodeEnum.SERVER_ERROR);
             }
         }

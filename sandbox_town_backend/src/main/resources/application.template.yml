@@ -1,4 +1,5 @@
 mapId: "1"
+userUploadPath: "/usr/local/sandbox_town/upload/"
 
 server:
   port: 9090

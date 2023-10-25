@@ -104,8 +104,8 @@ public class WSMessageSender {
                 int queueIndex = Math.abs(session.hashCode()) % wsSenderTheadPoolSize;
                 sendQueues.get(queueIndex).put(Pair.of(session, message));
             }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            log.info("send message to user {} error: {}", username, e.getMessage());
         }
     }
 
