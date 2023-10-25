@@ -529,3 +529,36 @@ CREATE TABLE store_item_type
     CONSTRAINT fk_store_item_item FOREIGN KEY (item_type) REFERENCES item_type (id)
 );
 
+# 聊天的朋友表
+CREATE TABLE chat_friend
+(
+    user       VARCHAR(255) NOT NULL,
+    friend     VARCHAR(255) NOT NULL,
+    # 是否拉黑
+    ban        BOOL         NOT NULL DEFAULT 0,
+    # 与该用户的最后一条消息的id
+    lastChatId VARCHAR(255) NOT NULL DEFAULT '',
+    # 用户已读的最后一条消息的id
+    readChatId VARCHAR(255) NOT NULL DEFAULT '',
+    # 未读消息数目
+    unread     INT          NOT NULL DEFAULT 0,
+    PRIMARY KEY (user, friend),
+    CONSTRAINT fk_friend_user FOREIGN KEY (user) REFERENCES sprite (id) ON DELETE CASCADE,
+    CONSTRAINT fk_friend_friend FOREIGN KEY (friend) REFERENCES sprite (id) ON DELETE CASCADE
+);
+
+# 聊天表
+CREATE TABLE chat_message
+(
+    id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    source  VARCHAR(255) NOT NULL,
+    target  VARCHAR(255) NOT NULL,
+    # 消息类型
+    type    VARCHAR(255) NOT NULL,
+    # 如果是图片或视频，这里存储的是图片或视频的服务器上的文件名
+    # 对于文件，这里存储的是：文件的服务器上的文件名<space>文件的原始名称
+    message VARCHAR(255) NOT NULL,
+    time    DATETIME     NOT NULL,
+    CONSTRAINT fk_chat_source FOREIGN KEY (source) REFERENCES sprite (id) ON DELETE CASCADE,
+    CONSTRAINT fk_chat_target FOREIGN KEY (target) REFERENCES sprite (id) ON DELETE CASCADE
+);

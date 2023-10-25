@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.ItemDo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemPositionEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
+@Mapper
 public interface ItemMapper extends BaseMapper<ItemDo> {
 
     /** 根据角色id获得其物品信息 */

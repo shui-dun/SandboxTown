@@ -2,9 +2,11 @@ package com.shuidun.sandbox_town_backend.mapper;
 
 import com.shuidun.sandbox_town_backend.bean.ApplePickingDo;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+@Mapper
 public interface ApplePickingMapper {
     @Insert("insert into apple_picking values (#{sprite}, #{tree}, #{count}, #{pickTime})")
     void insert(ApplePickingDo applePicking);

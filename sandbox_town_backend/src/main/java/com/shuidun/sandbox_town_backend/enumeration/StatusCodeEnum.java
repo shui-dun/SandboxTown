@@ -27,7 +27,10 @@ public enum StatusCodeEnum {
     MONEY_NOT_ENOUGH(18, "金钱不足"),
     PRICE_NOT_MATCH(19, "价格不匹配"),
     ITEMBAR_FULL(20, "物品栏已满"),
-    ITEM_NOT_EQUIPMENT(21, "物品不是装备");
+    ITEM_NOT_EQUIPMENT(21, "物品不是装备"),
+    MESSAGE_NOT_EXIST(22, "消息不存在"),
+    FRIEND_NOT_EXIST(23, "好友关系不存在"),
+    MESSAGE_TYPE_NOT_SUPPORT(24, "消息类型不支持");
 
     private final int code;
     private final String msg;

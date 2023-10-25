@@ -218,4 +218,11 @@ public class UserService {
             throw new BusinessException(StatusCodeEnum.INCORRECT_CREDENTIALS);
         }
     }
+
+    /**
+     * 根据用户名搜索用户列表
+     */
+    public List<UserDo> searchUser(String username) {
+        return userMapper.searchUser(username);
+    }
 }
