@@ -15,22 +15,33 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessageDo> {
 
     /** 查询某个用户和某个好友的新于某个id的消息数量 */
     @Select("select count(*) from chat_message where source = #{user} and target = #{friend} and id > #{id}")
-    Integer countNewerThanId(String user, String friend, String id);
+    Integer countNewerThanId(String user, String friend, Integer id);
 
-    /** 删除指定时间前的消息 */
+    /** 获得指定时间前的、类型属于指定类型的所有消息的消息内容 */
+    @Select("""
+            <script>
+                select message from chat_message where time &lt; #{time} and type in
+                <foreach collection='types' item='type' open='(' separator=',' close=')'>
+                    #{type}
+                </foreach>
+            </script>
+            """)
+    List<String> selectBeforeTimeWithTypes(Date time, List<ChatMsgTypeEnum> types);
+
+    /** 删除指定时间前的所有消息 */
     @Delete("delete from chat_message where time < #{time}")
-    void deleteMessageBefore(Date time);
+    void deleteBeforeTime(Date time);
 
     /** 加载两用户在某个消息前的指定长度的消息列表 */
     @Select("select * from chat_message where ((source = #{username} and target = #{friend}) or (source = #{friend} and target = #{username})) and id < #{messageId} order by id desc limit #{count}")
-    List<ChatMessageDo> loadMessageBeforeId(String username, String friend, String messageId, Integer count);
+    List<ChatMessageDo> selectBeforeId(String username, String friend, Integer messageId, Integer count);
 
     /** 加载两用户在某个消息前的、包含某个关键字的、指定长度的、指定类型的消息列表 **/
     @Select("""
             select * from chat_message
             where ((source = #{username} and target = #{friend}) or (source = #{friend} and target = #{username}))
-            and id < #{messageId} and message like concat('%', #{keyword}, '%') and type = #{type}
+            and id &lt; #{messageId} and message like concat('%', #{keyword}, '%') and type = #{type}
             order by id desc limit #{count}
             """)
-    List<ChatMessageDo> loadMessageBeforeIdWithKeyword(String username, String friend, String messageId, Integer count, String keyword, ChatMsgTypeEnum type);
+    List<ChatMessageDo> selectBeforeIdWithKeyword(String username, String friend, Integer messageId, Integer count, String keyword, ChatMsgTypeEnum type);
 }

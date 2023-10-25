@@ -15,7 +15,7 @@ class NameGeneratorTest {
         String prefix = "testPrefix";
 
         // Act
-        String generatedName = NameGenerator.generateItemName(prefix);
+        String generatedName = UUIDNameGenerator.generateItemName(prefix);
 
         System.out.println(generatedName);
 
@@ -30,7 +30,7 @@ class NameGeneratorTest {
         // 生成100个名字，存在set里面
         Set<String> names = new HashSet<>();
         for (int i = 0; i < 100; i++) {
-            names.add(NameGenerator.generateItemName(prefix));
+            names.add(UUIDNameGenerator.generateItemName(prefix));
         }
         // 断言所有名字都不相同
         assertEquals(100, names.size(), "The generated names should be unique");

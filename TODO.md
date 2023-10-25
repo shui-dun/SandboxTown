@@ -3,20 +3,23 @@
 ## feature
 
 - 添加聊天模块：
-  - 玩家之间可以聊天，chat表设计：id，source，target，type，message，time。使用自增长的`id` 插入复杂度是O(1)
-  - 添加friend表：user，friend，ban（是否拉黑），lastChatId（上一次聊天id，用于显示与所有其他用户的最后一次聊天列表，需要妥善维护，如果嫌麻烦就不加这个字段了）。一旦聊天，自动变为friend（user和friend作为主键）
-  - 搜索玩家
-  - 删除已有消息
-  - 拉黑用户（也可以取消拉黑）
-  - 编辑已有消息
-  - 支持发送文本、图片、视频等二进制数据
-    - 用户可以通过一个HTTP的`multipart/form-data` POST请求将图片或视频上传到后端
-    - 然后将它们的名称返回给客户端，这样就可以避免直接使用websocket传输二进制文件了，websocket可以保持使用json了
-    - 资源名称使用512位随机数，避免被攻击
-  - 聊天内容会被保留30天（设定一个定时任务（例如使用Spring的`@Scheduled`），每天检查并删除30天之前的消息）
-  - 每次加载20条的消息，往上滑就加载前20条消息？由于有自增id，因此使用游标分页。为了进一步提高查询速度，可以创建一个复合索引，包括 `source` 和 `target`。
-  - 搜索聊天内容(同样每次加载20条的消息，往上滑就加载前20条消息)。同样使用游标分页实现。
-  - 适配移动端，面板界面太长时可以滚动
+  - 私聊（目前这些功能的后端全部实现了，但尚未实现前端，另外后端也尚未测试）：
+    - 玩家之间可以聊天，chat表设计：id，source，target，type，message，time。使用自增长的`id` 插入复杂度是O(1)
+    - 添加friend表：user，friend，ban（是否拉黑），lastChatId（上一次聊天id，用于显示与所有其他用户的最后一次聊天列表，需要妥善维护，如果嫌麻烦就不加这个字段了）。一旦聊天，自动变为friend（user和friend作为主键）
+    - 搜索玩家
+    - 删除已有消息
+    - 拉黑用户（也可以取消拉黑）
+    - 编辑已有消息
+    - 支持发送文本、图片、视频等二进制数据
+      - 用户可以通过一个HTTP的`multipart/form-data` POST请求将图片或视频上传到后端
+      - 然后将它们的名称返回给客户端，这样就可以避免直接使用websocket传输二进制文件了，websocket可以保持使用json了
+      - 资源名称使用512位随机数，避免被攻击
+  
+    - 聊天内容会被保留30天（设定一个定时任务（例如使用Spring的`@Scheduled`），每天检查并删除30天之前的消息）
+    - 每次加载20条的消息，往上滑就加载前20条消息？由于有自增id，因此使用游标分页。为了进一步提高查询速度，可以创建一个复合索引，包括 `source` 和 `target`。
+    - 搜索聊天内容(同样每次加载20条的消息，往上滑就加载前20条消息)。同样使用游标分页实现。
+    - 适配移动端，面板界面太长时可以滚动
+  
   - 玩家也可以建群。
     - 数据库设计：
       - group_admin表：groupId，userId（可以解散群，可以踢人、禁言）（groupId，userId作为主键）
@@ -31,6 +34,7 @@
       - 踢人（也可以取消黑名单）
       - 禁言（也可以取消禁言和修改禁言时间）
       - 查看群成员列表、群管理员列表、禁言列表、黑名单
+  
 - java bean继承，例如使用 `new SpriteEffectChangeVo(spriteId)` 替代 `new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId))`，其中 `SpriteEffectChangeVo` 继承自 `WSResponseVo`
 - 完成虚无的效果
 - 多地图（一个Java服务器负责一个地图） & rest请求用nginx做负载均衡

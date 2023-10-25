@@ -27,7 +27,6 @@ public class ChatScheduler {
     @Scheduled(initialDelay = ONE_DAY, fixedDelay = ONE_DAY)
     public void cleanChat() {
         log.info("clean chat");
-        // TODO: 应该还要删除聊天记录中的图片和视频和文件
         chatMessageService.deleteMessageBefore(new Date(System.currentTimeMillis() - CHAT_MESSAGE_EXPIRE_TIME * ONE_DAY));
     }
 }

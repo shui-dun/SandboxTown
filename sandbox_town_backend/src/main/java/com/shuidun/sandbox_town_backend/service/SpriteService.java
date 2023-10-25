@@ -6,7 +6,7 @@ import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
-import com.shuidun.sandbox_town_backend.utils.NameGenerator;
+import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
@@ -350,7 +350,7 @@ public class SpriteService {
 
     @Transactional
     public SpriteDo generateRandomSprite(SpriteTypeEnum type, String owner, double x, double y) {
-        String id = NameGenerator.generateItemName(type.name());
+        String id = UUIDNameGenerator.generateItemName(type.name());
         return generateRandomSprite(type, id, owner, x, y);
     }
 

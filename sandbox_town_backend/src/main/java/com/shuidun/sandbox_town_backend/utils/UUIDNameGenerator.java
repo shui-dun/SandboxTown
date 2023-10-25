@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.Base64;
 import java.util.UUID;
 
-public class NameGenerator {
+public class UUIDNameGenerator {
     /** 生成名字 */
     public static String generateItemName(String prefix) {
         // 生成UUID

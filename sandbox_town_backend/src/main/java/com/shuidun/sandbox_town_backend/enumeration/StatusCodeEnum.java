@@ -30,7 +30,8 @@ public enum StatusCodeEnum {
     ITEM_NOT_EQUIPMENT(21, "物品不是装备"),
     MESSAGE_NOT_EXIST(22, "消息不存在"),
     FRIEND_NOT_EXIST(23, "好友关系不存在"),
-    MESSAGE_TYPE_NOT_SUPPORT(24, "消息类型不支持");
+    MESSAGE_TYPE_NOT_SUPPORT(24, "消息类型不支持"),
+    MESSAGE_CONTENT_EMPTY(25, "消息内容为空");
 
     private final int code;
     private final String msg;

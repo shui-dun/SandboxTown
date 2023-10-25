@@ -22,4 +22,6 @@ public enum WSResponseEnum {
     FEED_RESULT,
     /** 获得物品通知 */
     ITEM_GAIN,
+    /** 聊天消息通知 */
+    CHAT_MESSAGE,
 }

@@ -61,4 +61,7 @@ public class Constants {
     /** 黎明开始时间 */
     public static final int DAWN_START = NIGHT_START + NIGHT_DURATION;
 
+    /** 用户上传的文件路径 */
+    public static final String USER_UPLOAD_PATH = "static/userUpload/";
+
 }

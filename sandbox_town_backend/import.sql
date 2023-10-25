@@ -532,16 +532,16 @@ CREATE TABLE store_item_type
 # 聊天的朋友表
 CREATE TABLE chat_friend
 (
-    user       VARCHAR(255) NOT NULL,
-    friend     VARCHAR(255) NOT NULL,
-    # 是否拉黑
-    ban        BOOL         NOT NULL DEFAULT 0,
+    user         VARCHAR(255) NOT NULL,
+    friend       VARCHAR(255) NOT NULL,
+    # 是否拉黑对方
+    ban          BOOL         NOT NULL DEFAULT 0,
     # 与该用户的最后一条消息的id
-    lastChatId VARCHAR(255) NOT NULL DEFAULT '',
+    last_chat_id INT                   DEFAULT 0,
     # 用户已读的最后一条消息的id
-    readChatId VARCHAR(255) NOT NULL DEFAULT '',
+    read_chat_id INT                   DEFAULT 0,
     # 未读消息数目
-    unread     INT          NOT NULL DEFAULT 0,
+    unread       INT                   DEFAULT 0,
     PRIMARY KEY (user, friend),
     CONSTRAINT fk_friend_user FOREIGN KEY (user) REFERENCES sprite (id) ON DELETE CASCADE,
     CONSTRAINT fk_friend_friend FOREIGN KEY (friend) REFERENCES sprite (id) ON DELETE CASCADE

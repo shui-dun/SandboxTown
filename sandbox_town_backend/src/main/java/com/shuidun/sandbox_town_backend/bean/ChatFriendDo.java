@@ -20,9 +20,9 @@ public class ChatFriendDo {
 
     private Boolean ban;
 
-    private String lastChatId;
+    private Integer lastChatId;
 
-    private String readChatId;
+    private Integer readChatId;
 
     private Integer unread;
 }

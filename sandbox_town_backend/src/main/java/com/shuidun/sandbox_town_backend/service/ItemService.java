@@ -5,7 +5,7 @@ import com.shuidun.sandbox_town_backend.enumeration.*;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
-import com.shuidun.sandbox_town_backend.utils.NameGenerator;
+import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +49,7 @@ public class ItemService {
             // 不可堆叠，直接插入
             for (int i = 0; i < count; i++) {
                 ItemDo item = new ItemDo();
-                item.setId(NameGenerator.generateItemName(itemTypeId.name()));
+                item.setId(UUIDNameGenerator.generateItemName(itemTypeId.name()));
                 item.setOwner(spriteId);
                 item.setItemType(itemTypeId);
                 item.setItemCount(1);
@@ -64,7 +64,7 @@ public class ItemService {
             if (items == null || items.size() == 0) {
                 // 玩家没有该物品，直接插入
                 ItemDo item = new ItemDo();
-                item.setId(NameGenerator.generateItemName(itemTypeId.name()));
+                item.setId(UUIDNameGenerator.generateItemName(itemTypeId.name()));
                 item.setOwner(spriteId);
                 item.setItemType(itemTypeId);
                 item.setItemCount(count);

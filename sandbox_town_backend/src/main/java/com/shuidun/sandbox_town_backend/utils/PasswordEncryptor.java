@@ -27,10 +27,13 @@ public class PasswordEncryptor {
     /** 生成加密后的密码 */
     public static String encryptedPasswd(String password, String salt) {
         try {
+            // 使用SHA-256算法进行哈希
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] saltBytes = Base64.getDecoder().decode(salt);
             byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
+            // 迭代10次
             for (int i = 0; i < 10; i++) {
+                // 调用update多次时，这些数据会被拼接（concatenated）在一起，然后执行哈希运算
                 md.update(saltBytes);
                 md.update(passwordBytes);
                 passwordBytes = md.digest();

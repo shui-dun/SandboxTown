@@ -1,26 +1,21 @@
 package com.shuidun.sandbox_town_backend.bean;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.shuidun.sandbox_town_backend.enumeration.ChatMsgTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName("chat_message")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessageDo {
-
-    /** 设置type = IdType.AUTO才能自增 */
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+public class ChatMessageVo {
+    /** 消息序列号，对应ChatMessageDo中的id字段 */
+    private Integer sn;
 
     private String source;
 
-    private String target;
+    /** 这个id是消息接收者的id，对应ChatFriendDo中的target字段 */
+    private String id;
 
     private ChatMsgTypeEnum type;
 

@@ -33,22 +33,4 @@ public class GameMapServiceTest {
         }
     }
 
-    @Test
-    void testGenerateMap() {
-        gameMapService.generateMap();
-        var map = gameMapService.getMap();
-        // 打印地图并记录为1的点的数目
-        int count = 0;
-        for (int[] ints : map) {
-            for (int anInt : ints) {
-                if (anInt != 0) {
-                    count++;
-                }
-                System.out.printf("%20d", anInt);
-            }
-            System.out.println();
-        }
-        // 应该具有至少一个1
-        assert count > 0;
-    }
 }

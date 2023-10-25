@@ -9,7 +9,7 @@ import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
-import com.shuidun.sandbox_town_backend.utils.NameGenerator;
+import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import com.shuidun.sandbox_town_backend.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -348,7 +348,7 @@ public class GameMapService {
             double scale = Math.random() * 0.4 + 0.8;
             // 创建建筑对象
             BuildingDo building = new BuildingDo();
-            building.setId(NameGenerator.generateItemName(buildingType.getId().name()));
+            building.setId(UUIDNameGenerator.generateItemName(buildingType.getId().name()));
             building.setType(buildingType.getId());
             building.setMap(mapId);
             building.setLevel(1);

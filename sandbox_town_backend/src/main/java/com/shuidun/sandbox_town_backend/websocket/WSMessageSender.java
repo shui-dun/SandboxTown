@@ -150,7 +150,8 @@ public class WSMessageSender {
             entry(WSResponseEnum.SPRITE_EFFECT_CHANGE, WSMessageSender::sendMessageToTargetUser),
             entry(WSResponseEnum.SPRITE_HP_CHANGE, WSMessageSender::sendMessageToAllUsers),
             entry(WSResponseEnum.FEED_RESULT, WSMessageSender::sendMessageToTargetUser),
-            entry(WSResponseEnum.ITEM_GAIN, WSMessageSender::sendMessageToTargetUser)
+            entry(WSResponseEnum.ITEM_GAIN, WSMessageSender::sendMessageToTargetUser),
+            entry(WSResponseEnum.CHAT_MESSAGE, WSMessageSender::sendMessageToTargetUser)
     );
 
     /**
