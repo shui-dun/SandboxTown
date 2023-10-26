@@ -32,16 +32,20 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessageDo> {
     @Delete("delete from chat_message where time < #{time}")
     void deleteBeforeTime(Date time);
 
-    /** 加载两用户在某个消息前的指定长度的消息列表 */
-    @Select("select * from chat_message where ((source = #{username} and target = #{friend}) or (source = #{friend} and target = #{username})) and id < #{messageId} order by id desc limit #{count}")
+    /** 加载两用户在某个消息前的指定长度的消息列表（包含该消息本身） */
+    @Select("select * from chat_message where ((source = #{username} and target = #{friend}) or (source = #{friend} and target = #{username})) and id <= #{messageId} order by id limit #{count}")
     List<ChatMessageDo> selectBeforeId(String username, String friend, Integer messageId, Integer count);
 
-    /** 加载两用户在某个消息前的、包含某个关键字的、指定长度的、指定类型的消息列表 **/
+    /** 加载两用户在某个消息后的指定长度的消息列表 （但不包含某消息本身） */
+    @Select("select * from chat_message where ((source = #{username} and target = #{friend}) or (source = #{friend} and target = #{username})) and id > #{messageId} order by id limit #{count}")
+    List<ChatMessageDo> selectAfterId(String username, String friend, Integer messageId, Integer count);
+
+    /** 加载两用户在某个消息前的（包含该消息本身）、包含某个关键字的、指定长度的、指定类型的消息列表 **/
     @Select("""
             select * from chat_message
             where ((source = #{username} and target = #{friend}) or (source = #{friend} and target = #{username}))
-            and id &lt; #{messageId} and message like concat('%', #{keyword}, '%') and type = #{type}
-            order by id desc limit #{count}
+            and id <= #{messageId} and message like concat('%', #{keyword}, '%') and type = #{type}
+            order by id limit #{count}
             """)
     List<ChatMessageDo> selectBeforeIdWithKeyword(String username, String friend, Integer messageId, Integer count, String keyword, ChatMsgTypeEnum type);
 }

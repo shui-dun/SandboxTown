@@ -6,12 +6,11 @@ import com.shuidun.sandbox_town_backend.enumeration.ChatMsgTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.ChatFriendService;
 import com.shuidun.sandbox_town_backend.service.ChatMessageService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.nio.file.Files;
 
 @RestController
 @RequestMapping("/chat")
@@ -60,18 +59,22 @@ public class ChatController {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
-    /** 加载与某用户在某个消息前的指定长度的消息列表 */
-    @PostMapping("/load")
-    public RestResponseVo<?> loadMessage(String userId, Integer messageId, Integer length) {
-        chatMessageService.loadMessageBefore(StpUtil.getLoginIdAsString(), userId, messageId, length);
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
+    /** 加载与某用户在某个消息前（包含该消息本身）的指定长度的消息列表 */
+    @GetMapping("/loadBefore")
+    public RestResponseVo<?> loadMessageBefore(String userId, Integer messageId, Integer length) {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, chatMessageService.loadMessageBefore(StpUtil.getLoginIdAsString(), userId, messageId, length));
+    }
+
+    /** 加载与某用户在某个消息后（不包含该消息本身）的指定长度的消息列表 */
+    @GetMapping("/loadAfter")
+    public RestResponseVo<?> loadMessageAfter(String userId, Integer messageId, Integer length) {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, chatMessageService.loadMessageAfter(StpUtil.getLoginIdAsString(), userId, messageId, length));
     }
 
     /** 加载与某用户在某个消息前的、包含某个关键字的、指定长度的文本消息列表 */
-    @PostMapping("/search")
+    @GetMapping("/search")
     public RestResponseVo<?> searchMessage(String userId, Integer messageId, Integer length, String keyword) {
-        chatMessageService.loadMessageBeforeWithKeyword(StpUtil.getLoginIdAsString(), userId, messageId, length, keyword);
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, chatMessageService.loadMessageBeforeWithKeyword(StpUtil.getLoginIdAsString(), userId, messageId, length, keyword));
     }
 
     /**

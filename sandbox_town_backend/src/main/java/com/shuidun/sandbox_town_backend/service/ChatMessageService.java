@@ -72,9 +72,20 @@ public class ChatMessageService {
     /** 删除消息 */
     @Transactional
     public void deleteMessage(String username, Integer messageId) {
-        checkPermission(username, messageId);
+        var message = checkPermission(username, messageId);
+        // 删除消息对应的文件（如果有）
+        if (!message.getType().equals(ChatMsgTypeEnum.TEXT)) {
+            String path = userUploadPath + message.getMessage().split(" ", 2)[0];
+            File file = new File(path);
+            // 删除文件
+            if (file.exists()) {
+                file.delete();
+            }
+        }
         // 删除消息
         chatMessageMapper.deleteById(messageId);
+        // 按理来说，这里应该更新好友关系中的最后一条消息、最后已读消息和未读消息数量
+        // 但为了方便，这里不做处理
     }
 
     /** 编辑已有消息（目前只支持编辑文本消息） */
@@ -96,7 +107,7 @@ public class ChatMessageService {
         ChatMessageDo message = checkPermission(username, messageId);
         ChatFriendDo chatFriend = chatFriendMapper.selectById(username, message.getSource().equals(username) ? message.getTarget() : message.getSource());
         // 判断该消息是否比上次已读消息新
-        if (messageId <= chatFriend.getReadChatId()) {
+        if (chatFriend.getReadChatId() != null && messageId <= chatFriend.getReadChatId()) {
             return;
         }
         // 更新最后一条已读消息
@@ -110,8 +121,8 @@ public class ChatMessageService {
     /** 删除指定时间前的消息 */
     @Transactional
     public void deleteMessageBefore(Date time) {
-        // 得到满足条件的所有消息
-        List<String> messages = chatMessageMapper.selectBeforeTimeWithTypes(time, List.of(ChatMsgTypeEnum.TEXT, ChatMsgTypeEnum.IMAGE, ChatMsgTypeEnum.VIDEO, ChatMsgTypeEnum.FILE));
+        // 得到满足条件的所有带有文件的消息
+        List<String> messages = chatMessageMapper.selectBeforeTimeWithTypes(time, List.of(ChatMsgTypeEnum.IMAGE, ChatMsgTypeEnum.VIDEO, ChatMsgTypeEnum.FILE));
         // 删除消息对应的文件
         for (String message : messages) {
             String path = userUploadPath + message.split(" ", 2)[0];
@@ -123,10 +134,12 @@ public class ChatMessageService {
         }
         // 删除消息
         chatMessageMapper.deleteBeforeTime(time);
+        // 按理来说，这里应该更新好友关系中的最后一条消息、最后已读消息和未读消息数量
+        // 但为了方便，这里不做处理
     }
 
     /**
-     * 加载两用户在某个消息前的指定长度的消息列表
+     * 加载两用户在某个消息前的指定长度的消息列表（包含消息本身）
      *
      * @param username  用户名
      * @param friend    好友名
@@ -137,6 +150,14 @@ public class ChatMessageService {
     public List<ChatMessageDo> loadMessageBefore(String username, String friend, Integer messageId, Integer count) {
         return chatMessageMapper.selectBeforeId(username, friend, messageId, count);
     }
+
+    /**
+     * 加载两用户在某个消息后的指定长度的消息列表（但不包含该消息本身）
+     */
+    public List<ChatMessageDo> loadMessageAfter(String username, String friend, Integer messageId, Integer count) {
+        return chatMessageMapper.selectAfterId(username, friend, messageId, count);
+    }
+
 
     /**
      * 加载两用户在某个消息前的、包含某个关键字的、指定长度的消息列表（目前只支持文本消息）
@@ -168,7 +189,7 @@ public class ChatMessageService {
             throw new BusinessException(StatusCodeEnum.MESSAGE_CONTENT_EMPTY);
         }
         // 判断源用户和目标用户是否存在
-        if (userMapper.selectById(source) == null || userMapper.selectById(target) == null) {
+        if (source == null || target == null || userMapper.selectById(source) == null || userMapper.selectById(target) == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
         // 判断是否被对方拉黑
@@ -188,7 +209,7 @@ public class ChatMessageService {
             chatMessageMapper.insert(chatMessage);
         } else {
             // 如果是图片、视频、文件消息，则保存文件
-            if (file.isEmpty()) {
+            if (file == null || file.isEmpty()) {
                 throw new BusinessException(StatusCodeEnum.MESSAGE_CONTENT_EMPTY);
             }
             try {
