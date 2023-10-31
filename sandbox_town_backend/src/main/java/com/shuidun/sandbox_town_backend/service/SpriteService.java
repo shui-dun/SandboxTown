@@ -180,13 +180,14 @@ public class SpriteService {
                 sprite.setMoney(sprite.getMoney() + levelUp * Constants.MONEY_GAIN_ON_LEVEL_UP);
                 sprite.setHunger(Constants.MAX_HUNGER);
                 sprite.setHp(Constants.MAX_HP);
-                // 每次升级，增加基础属性值的1/4，至少增加1
+                // 每次升级，攻击和防御增加基础属性值的1/4，至少增加1
                 sprite.setAttack(sprite.getAttack() + Math.max(1, spriteType.getBasicAttack() / 4) * levelUp);
                 sprite.setDefense(sprite.getDefense() + Math.max(1, spriteType.getBasicDefense() / 4) * levelUp);
                 // 每升一级，速度只能增加1
                 sprite.setSpeed(sprite.getSpeed() + levelUp);
-                sprite.setVisionRange(sprite.getVisionRange() + Math.max(1, spriteType.getBasicVisionRange() / 4) * levelUp);
-                sprite.setAttackRange(sprite.getAttackRange() + Math.max(1, spriteType.getBasicAttackRange() / 4) * levelUp);
+                // 每次升级，视野和攻击范围增加基础属性值的1/30，至少增加1
+                sprite.setVisionRange(sprite.getVisionRange() + Math.max(1, spriteType.getBasicVisionRange() / 30) * levelUp);
+                sprite.setAttackRange(sprite.getAttackRange() + Math.max(1, spriteType.getBasicAttackRange() / 30) * levelUp);
             }
         }
         // 判断属性是否在合理范围内
