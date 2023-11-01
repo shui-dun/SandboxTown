@@ -15,5 +15,6 @@ public enum ItemTypeEnum {
     IRON_HELMET,
     PHOENIX_FEATHER,
     HOLY_GRAIL,
-    FLAME_LEGGINGS;
+    FLAME_LEGGINGS,
+    BAGUETTE
 }

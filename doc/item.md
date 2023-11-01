@@ -17,3 +17,4 @@
 | 凤凰之羽 | <img src="../sandbox_town_frontend/src/assets/img/PHOENIX_FEATHER.png" width="120" /> | 凤凰的羽毛具有无比强大的火焰和治愈效果 |
 | 圣杯 | <img src="../sandbox_town_frontend/src/assets/img/HOLY_GRAIL.png" width="120" /> | 使疲惫的灵魂和肉体重获新生 |
 | 火焰护腿 | <img src="../sandbox_town_frontend/src/assets/img/FLAME_LEGGINGS.png" width="120" /> | 每一步都踏着烈焰 |
+| 法棍 | <img src="../sandbox_town_frontend/src/assets/img/BAGUETTE.png" width="120" /> | 既可以食用，也可以作为攻击武器 |

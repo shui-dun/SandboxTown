@@ -190,7 +190,8 @@ VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
        ('IRON_HELMET', '铁质头盔', '坚固耐用,能够抵挡强力击打', 70, 10, 40),
        ('PHOENIX_FEATHER', '凤凰之羽', '凤凰的羽毛具有无比强大的火焰和治愈效果', 100, 4, -1),
        ('HOLY_GRAIL', '圣杯', '使疲惫的灵魂和肉体重获新生', 240, 2, 100),
-       ('FLAME_LEGGINGS', '火焰护腿', '每一步都踏着烈焰,将敌人化为灰烬', 70, 12, 40);
+       ('FLAME_LEGGINGS', '火焰护腿', '每一步都踏着烈焰,将敌人化为灰烬', 70, 12, 40),
+       ('BAGUETTE', '法棍', '既可以食用，也可以作为攻击武器', 50, 7, 20);
 
 # 杀死精灵时的属性奖励
 # 该表按理来说可以直接放在精灵类型表中，但这里我将其和sprite_type分开：
@@ -266,7 +267,10 @@ values ('BREAD', 'FOOD'),
        ('STICK', 'WEAPON'),
        ('IRON_HELMET', 'HELMET'),
        ('PHOENIX_FEATHER', 'USABLE'),
-       ('FLAME_LEGGINGS', 'LEG');
+       ('HOLY_GRAIL', 'WEAPON'),
+       ('FLAME_LEGGINGS', 'LEG'),
+       ('BAGUETTE', 'FOOD'),
+       ('BAGUETTE', 'WEAPON');
 
 # 创建效果表
 create table effect
@@ -343,7 +347,9 @@ values ('BREAD', 'USE', 0, 0, 0, 10, 0, 0, 0, 0, 0, 0),
        ('FLYING_BOOTS', 'EQUIP', 0, 0, 0, 0, 0, 0, 0, 5, 0, 0),
        ('IRON_HELMET', 'EQUIP', 0, 0, 0, 0, 0, 0, 7, 0, 0, 0),
        ('HOLY_GRAIL', 'HANDHELD', 0, 0, 0, 5, 0, 5, 5, 5, 100, 5),
-       ('FLAME_LEGGINGS', 'EQUIP', 0, 0, 0, 0, 0, 3, 5, 0, 0, 0);
+       ('FLAME_LEGGINGS', 'EQUIP', 0, 0, 0, 0, 0, 3, 5, 0, 0, 0),
+       ('BAGUETTE', 'USE', 0, 0, 0, 10, 0, 0, 0, 0, 0, 0),
+       ('BAGUETTE', 'HANDHELD', 0, 0, 0, 0, 0, 6, 0, 0, 0, 0);
 
 
 # 装备物品后对对角色带来的特殊效果
