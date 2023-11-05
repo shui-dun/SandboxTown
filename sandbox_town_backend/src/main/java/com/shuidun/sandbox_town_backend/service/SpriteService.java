@@ -500,32 +500,51 @@ public class SpriteService {
             responses.addAll(modifyLifeResponses);
             // 如果包含offline消息，则说明被攻击者死亡
             if (modifyLifeResponses.stream().anyMatch(response -> response.getType() == WSResponseEnum.OFFLINE)) {
+                // 获得攻击者的主人
+                String ownerId = sourceSprite.getOwner();
+                SpriteDo owner = ownerId == null ? null : spriteMapper.selectById(ownerId);
                 // 查询被攻击者死亡后带给攻击者的属性提升（属性提升值不仅与死亡者的类型有关，还与死亡者的等级有关）
                 VictoryAttributeRewardDo attributeReward = victoryAttributeRewardMapper.selectById(targetSprite.getType());
                 if (attributeReward != null) {
                     // 死亡者的等级带来的属性增益因数
                     double levelFactor = 1 + (targetSprite.getLevel() - 1) * 0.2;
+                    // 带来的金钱和经验
+                    int moneyInc = (int) (attributeReward.getMoneyInc() * levelFactor);
+                    int expInc = (int) (attributeReward.getExpInc() * levelFactor);
                     // 更新攻击者属性
                     SpriteAttributeChangeVo spriteAttributeChange = new SpriteAttributeChangeVo();
                     spriteAttributeChange.setOriginal(sourceSprite);
-                    sourceSprite.setMoney(sourceSprite.getMoney() + (int) (attributeReward.getMoneyInc() * levelFactor));
-                    sourceSprite.setExp(sourceSprite.getExp() + (int) (attributeReward.getExpInc() * levelFactor));
+                    sourceSprite.setMoney(sourceSprite.getMoney() + moneyInc);
+                    sourceSprite.setExp(sourceSprite.getExp() + expInc);
                     sourceSprite = normalizeAndUpdateSprite(sourceSprite).getFirst();
                     if (spriteAttributeChange.setChanged(sourceSprite)) {
                         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
                     }
+                    // 攻击者主人的属性也得到同样的提升
+                    if (owner != null) {
+                        SpriteAttributeChangeVo ownerAttributeChange = new SpriteAttributeChangeVo();
+                        ownerAttributeChange.setOriginal(owner);
+                        owner.setMoney(owner.getMoney() + moneyInc);
+                        owner.setExp(owner.getExp() + expInc);
+                        owner = normalizeAndUpdateSprite(owner).getFirst();
+                        if (ownerAttributeChange.setChanged(owner)) {
+                            responses.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, ownerAttributeChange));
+                        }
+                    }
                 }
-                // 查询被攻击者死亡后带给攻击者的物品
+                // 查询被攻击者死亡后带来的物品奖励
                 List<VictoryItemRewardDo> itemRewards = victoryItemRewardMapper.selectBySpriteType(targetSprite.getType());
+                // 如果攻击者没有主人，物品归攻击者所有，否则归主人所有
+                String itemOwner = (owner == null ? sourceSprite.getId() : owner.getId());
                 for (VictoryItemRewardDo itemReward : itemRewards) {
                     // 为玩家添加物品
                     int cnt = GameCache.random.nextInt(itemReward.getMinCount(), itemReward.getMaxCount() + 1);
                     if (cnt <= 0) {
                         continue;
                     }
-                    itemService.add(sourceSprite.getId(), itemReward.getItemType(), cnt);
+                    itemService.add(itemOwner, itemReward.getItemType(), cnt);
                     // 获得物品的通知
-                    responses.add(new WSResponseVo(WSResponseEnum.ITEM_GAIN, new ItemGainVo(sourceSprite.getId(), itemReward.getItemType(), cnt)));
+                    responses.add(new WSResponseVo(WSResponseEnum.ITEM_GAIN, new ItemGainVo(itemOwner, itemReward.getItemType(), cnt)));
                 }
             }
         }
