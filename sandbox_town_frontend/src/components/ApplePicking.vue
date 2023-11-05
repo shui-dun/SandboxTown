@@ -15,7 +15,7 @@ export default {
         return {
             // 进度条相关设置
             showProcessBar: false,
-            processBarDuration: 5,
+            processBarDuration: 3,
             processBarText: '正在摘苹果...',
             // 摘苹果的人
             initator: '',
