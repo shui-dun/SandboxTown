@@ -3,7 +3,6 @@
 ## feature
 
 - 击败敌人时自己的主人也要得到奖励
-- attributechange只显示一行
 - 添加聊天模块：
   - 私聊（目前这些功能的后端全部实现了，但尚未实现前端）：
     - 界面分为左右两栏，左栏是列表，右栏是聊天窗口
@@ -69,7 +68,6 @@
 - 玩家物品、商家物品分页：
   - 商品表、物品表设置递增的主键，这样方便游标分页
   - 每次后端给前端5页，前端只有在最后一页并尝试往后翻时向后端请求新数据
-
 - java bean继承，例如使用 `new SpriteEffectChangeVo(spriteId)` 替代 `new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId))`，其中 `SpriteEffectChangeVo` 继承自 `WSResponseVo`
 - 完成虚无的效果
 - 多地图（一个Java服务器负责一个地图） & rest请求用nginx做负载均衡

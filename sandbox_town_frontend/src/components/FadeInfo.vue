@@ -38,19 +38,20 @@ export default {
                 "visionRangeInc": "👀 视野",
                 "attackRangeInc": "🎯 攻击范围",
             };
-            let showMsg = (attr) => {
-                if (msg[attr] > 0) {
-                    this.showInfo(`您的${showMap[attr]}增加了${msg[attr]}`);
-                } else if (msg[attr] < 0) {
-                    this.showInfo(`您的${showMap[attr]}减少了${-msg[attr]}`);
-                }
-            }
+            let msgContent = "";
             for (let key in showMap) {
                 // 如果等级提升了，那么不显示经验值的变化
                 if (key === "expInc" && msg["levelInc"] > 0) {
                     continue;
                 }
-                showMsg(key);
+                if (msg[key] > 0) {
+                    msgContent += `${showMap[key]}+${msg[key]}，`;
+                } else if (msg[key] < 0) {
+                    msgContent += `${showMap[key]}-${-msg[key]}，`;
+                }
+            }
+            if (msgContent.length > 0) {
+                this.showInfo(msgContent.slice(0, -1));
             }
         });
         // 监听驯服结果通知

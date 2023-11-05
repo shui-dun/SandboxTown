@@ -194,8 +194,6 @@ public class WSRequestHandler {
             if (targetSpriteId == null) {
                 return;
             }
-            // 更新目标
-            GameCache.spriteCacheMap.get(initiator).setTargetSpriteId(targetSpriteId);
             // 发送移动消息
             WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
                     initiator,
