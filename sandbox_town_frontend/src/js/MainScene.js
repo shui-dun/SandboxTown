@@ -359,6 +359,15 @@ class MainScene extends Phaser.Scene {
         // 设置键盘输入监听
         this.cursors = this.input.keyboard.createCursorKeys();
 
+        // 按f索敌
+        this.input.keyboard.on('keydown-F', () => {
+            // 发送索敌请求
+            ws().send(JSON.stringify({
+                "type": "FIND_ENEMY",
+                "data": null,
+            }));
+        });
+
         // 添加点击事件
         this.input.on('pointerdown', (pointer) => {
             const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);

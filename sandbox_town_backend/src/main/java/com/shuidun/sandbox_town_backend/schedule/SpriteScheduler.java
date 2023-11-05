@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Component
 @Slf4j
@@ -51,9 +52,8 @@ public class SpriteScheduler {
                     GameCache.spriteCacheMap.get(sprite.getId()).setTargetSpriteId(null);
                     return;
                 }
-                double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), targetCache.getX(), targetCache.getY());
                 // 如果距离过远（视野之外），那就不跟随
-                if (distance > sprite.getVisionRange() + sprite.getVisionRangeInc()) {
+                if (!gameMapService.isInSight(sprite, targetCache.getX(), targetCache.getY())) {
                     return;
                 }
                 // 寻找路径
@@ -81,9 +81,8 @@ public class SpriteScheduler {
                     if (GameCache.random.nextDouble() < 0.5) {
                         return;
                     }
-                    double randomVx = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
-                    double randomVy = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
-                    WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVx, randomVy)));
+                    var randomVelocity = gameMapService.randomVelocity(sprite);
+                    WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVelocity.getFirst(), randomVelocity.getSecond())));
                 } else {
                     // 如果狗有主人
                     SpriteCache ownerSprite = GameCache.spriteCacheMap.get(owner);
@@ -106,24 +105,16 @@ public class SpriteScheduler {
                         if (GameCache.random.nextDouble() < 0.6) {
                             return;
                         }
-                        double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), ownerSprite.getX(), ownerSprite.getY());
                         // 如果距离过远（视野之外），那就不跟随
-                        if (distance > sprite.getVisionRange() + sprite.getVisionRangeInc()) {
+                        if (!gameMapService.isInSight(sprite, ownerSprite.getX(), ownerSprite.getY())) {
                             return;
                         }
-                        // 寻找路径
-                        var path = gameMapService.findPath(sprite, ownerSprite.getX(), ownerSprite.getY(), null, null);
+                        // 寻找路径，但保持一定距离
+                        var path = gameMapService.findPathNotTooClose(sprite, ownerSprite.getX(), ownerSprite.getY(), null, null);
                         // 如果找不到路径，那就不跟随
                         if (path == null) {
                             return;
                         }
-                        // 如果距离过近，那就不跟随，狗与主人不要离得太近
-                        int minLen = (int) (sprite.getWidth() * sprite.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
-                        if (path.size() < minLen) {
-                            return;
-                        }
-                        // 去掉后面一段
-                        path = path.subList(0, path.size() - minLen);
                         // 发送移动消息
                         WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(sprite.getId(), sprite.getSpeed() + sprite.getSpeedInc(), DataCompressor.compressPath(path), null, null, null)));
                     }
@@ -133,32 +124,26 @@ public class SpriteScheduler {
         // 蜘蛛的处理逻辑
         typeToFunction.put(SpriteTypeEnum.SPIDER, sprite -> {
             // 在视觉范围内寻找一个目标
-            // TODO: 这里要读数据库（未来是读缓存），能不能优化成只读java内存
-            Function<SpriteDo, String> findTarget = (s) -> spriteService.getOnlineSprites().stream()
-                    .filter(x -> x.getType() != SpriteTypeEnum.SPIDER) // 不会攻击蜘蛛
-                    .filter(x -> x.getOwner() != null || x.getType() == SpriteTypeEnum.USER) // 不会攻击没有主人的精灵（因为目前的前端设计不支持）
-                    .filter(x -> gameMapService.calcDistance(s.getX(), s.getY(), x.getX(), x.getY()) <= s.getVisionRange() + s.getVisionRangeInc())
-                    .findAny()
-                    .map(SpriteDo::getId)
-                    .orElse(null);
+            // 蜘蛛的攻击目标需要满足的条件（必须有主人，并且不是蜘蛛）
+            Predicate<SpriteDo> condition = (s) -> s.getType() != SpriteTypeEnum.SPIDER
+                    && (s.getOwner() != null || s.getType() == SpriteTypeEnum.USER);
             String finalTargetId = null;
             String originalTargetId = GameCache.spriteCacheMap.get(sprite.getId()).getTargetSpriteId();
             // 如果蜘蛛没有目标
             if (originalTargetId == null || GameCache.spriteCacheMap.get(originalTargetId) == null) {
-                finalTargetId = findTarget.apply(sprite);
+                finalTargetId = gameMapService.findAnyTargetInSight(sprite, condition).map(SpriteDo::getId).orElse(null);
             } else {
                 // 判断目标是否过远
                 SpriteCache targetCache = GameCache.spriteCacheMap.get(originalTargetId);
-                double distance = gameMapService.calcDistance(sprite.getX(), sprite.getY(), targetCache.getX(), targetCache.getY());
-                if (distance > sprite.getVisionRange() + sprite.getVisionRangeInc()) {
-                    finalTargetId = findTarget.apply(sprite);
-                } else {
+                if (gameMapService.isInSight(sprite, targetCache.getX(), targetCache.getY())) {
                     // 有一定概率忘记目标
                     if (GameCache.random.nextDouble() > 0.9) {
-                        finalTargetId = findTarget.apply(sprite);
+                        finalTargetId = gameMapService.findAnyTargetInSight(sprite, condition).map(SpriteDo::getId).orElse(null);
                     } else {
                         finalTargetId = originalTargetId;
                     }
+                } else {
+                    finalTargetId = gameMapService.findAnyTargetInSight(sprite, condition).map(SpriteDo::getId).orElse(null);
                 }
             }
             GameCache.spriteCacheMap.get(sprite.getId()).setTargetSpriteId(finalTargetId);
@@ -167,9 +152,8 @@ public class SpriteScheduler {
                 if (GameCache.random.nextDouble() < 0.7) {
                     return;
                 }
-                double randomVx = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.7);
-                double randomVy = (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.7);
-                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVx, randomVy)));
+                var randomVelocity = gameMapService.randomVelocity(sprite);
+                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVelocity.getFirst(), randomVelocity.getSecond())));
                 return;
             }
             // 寻找路径

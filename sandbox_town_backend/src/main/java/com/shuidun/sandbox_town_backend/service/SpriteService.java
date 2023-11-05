@@ -489,6 +489,9 @@ public class SpriteService {
         // 被攻击者以攻击者为目标
         SpriteCache cache = GameCache.spriteCacheMap.get(targetSprite.getId());
         cache.setTargetSpriteId(sourceSprite.getId());
+        // 攻击者也以被攻击者为目标
+        SpriteCache cache2 = GameCache.spriteCacheMap.get(sourceSprite.getId());
+        cache2.setTargetSpriteId(targetSprite.getId());
         // 计算伤害
         int damage = sourceSprite.getAttack() + sourceSprite.getAttackInc() -
                 (targetSprite.getDefense() + targetSprite.getDefenseInc());
@@ -584,13 +587,6 @@ public class SpriteService {
             responses.addAll(normalizeAndUpdateSprite(sprite).getSecond());
         }
         return responses;
-    }
-
-    /** 判断两个精灵是否接近 */
-    public boolean isNear(SpriteDo sprite1, SpriteDo sprite2) {
-        // 之所以这里不乘以widthRatio和heightRatio，是因为这里是检测是否接近而不是检测是否碰撞，因此放宽一点要求
-        return Math.abs(sprite1.getX() - sprite2.getX()) < (sprite1.getWidth() + sprite2.getWidth()) / 2 &&
-                Math.abs(sprite1.getY() - sprite2.getY()) < (sprite1.getHeight() + sprite2.getHeight()) / 2;
     }
 
     /**

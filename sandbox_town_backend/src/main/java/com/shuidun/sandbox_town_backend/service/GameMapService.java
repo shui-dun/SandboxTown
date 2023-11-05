@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
+import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
@@ -14,6 +15,7 @@ import com.shuidun.sandbox_town_backend.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -22,6 +24,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * 地图相关的服务
@@ -211,6 +215,22 @@ public class GameMapService {
         return path;
     }
 
+    /** 找到路径，但与目标保持一定距离 */
+    public List<Point> findPathNotTooClose(SpriteDo initiator, double x1, double y1,
+                                           String destBuildingId, String destSpriteId) {
+        List<Point> path = findPath(initiator, x1, y1, destBuildingId, destSpriteId);
+        if (path == null) {
+            return null;
+        }
+        // 如果距离过近，那就不跟随，狗与主人不要离得太近
+        int minLen = (int) (initiator.getWidth() * initiator.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
+        if (path.size() < minLen) {
+            return null;
+        }
+        // 去掉后面一段
+        return path.subList(0, path.size() - minLen);
+    }
+
     /** 查看某建筑是否与其他建筑有重叠，或者超出边界 */
     private boolean isBuildingOverlap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
@@ -385,5 +405,55 @@ public class GameMapService {
     /** 计算两点之间的距离 */
     public double calcDistance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+    }
+
+    /** 目标精灵是否在源精灵的视野内 */
+    public boolean isInSight(SpriteDo source, double targetX, double targetY) {
+        return calcDistance(source.getX(), source.getY(), targetX, targetY) <= source.getVisionRange() + source.getVisionRange();
+    }
+
+    /** 得到随机移动速度 */
+    public Pair<Double, Double> randomVelocity(SpriteDo sprite) {
+        double coefficient = 0.9;
+        double randomVx = coefficient * (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
+        double randomVy = coefficient * (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
+        return Pair.of(randomVx, randomVy);
+    }
+
+    /**
+     * 在视觉范围内寻找任意一个满足条件的目标
+     *
+     * @param sprite    源精灵
+     * @param condition 条件，满足该条件的精灵才可能被返回
+     * @return 找到的目标精灵
+     */
+    public Optional<SpriteDo> findAnyTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        return spriteService.getOnlineSprites().stream()
+                .filter(x -> isInSight(sprite, x.getX(), x.getY()))
+                .filter(x -> !x.getId().equals(sprite.getId()))
+                .filter(condition)
+                .findAny();
+    }
+
+    /**
+     * 在视觉范围内寻找最近的一个满足条件的目标
+     *
+     * @param sprite    源精灵
+     * @param condition 条件，满足该条件的精灵才可能被返回
+     * @return 找到的目标精灵
+     */
+    public Optional<SpriteDo> findNearestTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        return spriteService.getOnlineSprites().stream()
+                .filter(x -> isInSight(sprite, x.getX(), x.getY()))
+                .filter(x -> !x.getId().equals(sprite.getId()))
+                .filter(condition)
+                .min((x, y) -> (int) (calcDistance(sprite.getX(), sprite.getY(), x.getX(), x.getY()) - calcDistance(sprite.getX(), sprite.getY(), y.getX(), y.getY())));
+    }
+
+    /** 判断两个精灵是否接近（即快要碰撞） */
+    public boolean isNear(SpriteDo sprite1, SpriteDo sprite2) {
+        // 之所以这里不乘以widthRatio和heightRatio，是因为这里是检测是否接近而不是检测是否碰撞，因此放宽一点要求
+        return Math.abs(sprite1.getX() - sprite2.getX()) < (sprite1.getWidth() + sprite2.getWidth()) / 2 &&
+                Math.abs(sprite1.getY() - sprite2.getY()) < (sprite1.getHeight() + sprite2.getHeight()) / 2;
     }
 }

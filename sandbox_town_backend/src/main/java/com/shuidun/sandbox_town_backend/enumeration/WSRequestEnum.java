@@ -11,4 +11,6 @@ public enum WSRequestEnum {
     MOVE,
     /** 精灵交互 */
     INTERACT,
+    /** 索敌 */
+    FIND_ENEMY,
 }

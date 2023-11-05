@@ -152,7 +152,7 @@ public class WSRequestHandler {
                 return;
             }
             // 如果两者距离较远，直接返回
-            if (!spriteService.isNear(sourceSprite, targetSprite)) {
+            if (!gameMapService.isNear(sourceSprite, targetSprite)) {
                 return;
             }
             // 更新上次交互的时间和序列号
@@ -175,6 +175,36 @@ public class WSRequestHandler {
             // 否则本次交互的目的是进行攻击
             List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
             WSMessageSender.addResponses(responses);
+        });
+
+        // 索敌事件
+        eventMap.put(WSRequestEnum.FIND_ENEMY, (initiator, mapData) -> {
+            SpriteDo sourceSprite = spriteService.selectByIdWithDetail(initiator);
+            String targetSpriteId = GameCache.spriteCacheMap.get(initiator).getTargetSpriteId();
+            SpriteCache targetSpriteCache = targetSpriteId == null ? null : GameCache.spriteCacheMap.get(targetSpriteId);
+            // 如果目标不存在，或者在视野外，则重新选择目标
+            if (targetSpriteCache == null || !gameMapService.isInSight(sourceSprite, targetSpriteCache.getX(), targetSpriteCache.getY())) {
+                targetSpriteId = gameMapService.findNearestTargetInSight(sourceSprite, (s) -> {
+                    // 不能攻击自己的宠物
+                    return s.getOwner() == null || !s.getOwner().equals(initiator);
+                }).map(SpriteDo::getId).orElse(null);
+                targetSpriteCache = targetSpriteId == null ? null : GameCache.spriteCacheMap.get(targetSpriteId);
+            }
+            // 如果找不到目标，直接返回
+            if (targetSpriteId == null) {
+                return;
+            }
+            // 更新目标
+            GameCache.spriteCacheMap.get(initiator).setTargetSpriteId(targetSpriteId);
+            // 发送移动消息
+            WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
+                    initiator,
+                    sourceSprite.getSpeed() + sourceSprite.getSpeedInc(),
+                    DataCompressor.compressPath(gameMapService.findPath(sourceSprite, targetSpriteCache.getX(), targetSpriteCache.getY(), null, targetSpriteId)),
+                    null,
+                    targetSpriteId,
+                    GameCache.random.nextInt()
+            )));
         });
 
         // 开始处理消息
