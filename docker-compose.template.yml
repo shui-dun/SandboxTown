@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  sandboxtownfront:
+  sandboxtown-front:
     build:
       # context是Dockerfile文件中的上下文路径，一般是Dockerfile所在的目录
       context: sandbox_town_frontend
@@ -15,7 +15,7 @@ services:
     #   - /path/to/your/key.pem:/etc/nginx/ssl/key.pem
     restart: unless-stopped
 
-  sandboxtownback:
+  sandboxtown-back:
     build:
       context: sandbox_town_backend
     expose:
@@ -26,7 +26,7 @@ services:
     # 限制内存，JVM 可以自动识别 Docker 容器的内存限制，并据此设置默认的内存使用
     mem_limit: 300m
 
-  sandboxtownmysql:
+  sandboxtown-mysql:
     # image: mysql:8.1
     # mariadb相比mysql更节约内存，并且兼容mysql，并且默认使用utf8mb4
     image: mariadb:10.5
@@ -35,10 +35,10 @@ services:
       MYSQL_DATABASE: sandbox_town
     volumes:
       - ./sandbox_town_db/customer.cnf:/etc/mysql/conf.d/customer.cnf
-      # 将MySQL的数据文件挂载到宿主机，以便数据持久化
-      # 如果宿主机的路径不存在，会自动创建
-      # 如果宿主机的路径存在，会使用宿主机的数据文件
-      - ./sandbox_town_db/data:/var/lib/mysql
+      # 将MySQL的数据文件挂载到命名卷，以便数据持久化
+      # 如果卷不存在，会自动创建
+      # 如果卷存在，会使用卷中的数据文件
+      - sandboxtown-db-volume:/var/lib/mysql
       # 初始化数据库时执行的SQL脚本
       # 注意：如果/var/lib/mysql目录中已经存在数据文件，那么这个SQL脚本不会被执行
       - ./sandbox_town_db/import.sql:/docker-entrypoint-initdb.d/import.sql
@@ -46,9 +46,12 @@ services:
     # 限制内存，MySQL/MariaDB 的某些配置项会根据内存大小自动调整
     mem_limit: 70m
     
-  sandboxtownredis:
+  sandboxtown-redis:
     image: redis:7.2-alpine
     environment:
       REDIS_PASSWORD: 123456
     restart: unless-stopped
 
+volumes:
+  sandboxtown-db-volume:
+    driver: local

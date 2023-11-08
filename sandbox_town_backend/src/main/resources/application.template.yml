@@ -12,7 +12,7 @@ server:
 
 spring:
   redis:
-    host: sandboxtownredis
+    host: sandboxtown-redis
     port: 6379
     password: 123456
     # redis有16个数据库，默认使用0号数据库
@@ -25,7 +25,7 @@ spring:
         min-idle: 1 # minimum number of idle connections
   datasource:
     # 这些配置未来可能在docker-compose中通过环境变量进行配置
-    url: jdbc:mysql://sandboxtownmysql:3306/sandbox_town?useUnicode=true&spriteEncoding=utf8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://sandboxtown-mysql:3306/sandbox_town?useUnicode=true&spriteEncoding=utf8&serverTimezone=GMT%2B8
     username: root
     password: root
     # 数据库连接池配置
