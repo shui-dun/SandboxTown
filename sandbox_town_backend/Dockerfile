@@ -8,11 +8,11 @@ WORKDIR /app
 # 首先仅复制pom.xml，进行依赖下载
 # 这样，只要pom.xml没有变化，Maven依赖就会被缓存起来，不需要每次都重新下载
 # 但我发现这样做效果并不完美，还是有一些依赖会被重新下载
-COPY sandbox_town_backend/pom.xml ./
+COPY pom.xml ./
 RUN mvn dependency:go-offline
 
 # 然后复制源码并编译
-COPY sandbox_town_backend/src ./src/
+COPY src ./src/
 RUN mvn clean package -Dmaven.test.skip=true
 
 # 使用官方的 Java 镜像作为基础镜像运行应用

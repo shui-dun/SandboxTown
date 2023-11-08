@@ -7,13 +7,13 @@ WORKDIR /app
 # 将 package.json 和 package-lock.json 复制到工作目录
 # 之所以不在一开始就复制所有文件，是为了利用 docker 缓存机制
 # 当除开 package.json 和 package-lock.json 之外的其他文件发生变化时，不会重新执行 npm install
-COPY sandbox_town_frontend/package*.json ./
+COPY package*.json ./
 
 # 安装项目依赖
 RUN npm install
 
 # 复制项目文件到工作目录
-COPY sandbox_town_frontend/ .
+COPY . .
 
 # 构建项目
 RUN npm run build
@@ -28,7 +28,7 @@ FROM nginx:1.25-alpine
 COPY --from=0 /app/dist /usr/share/nginx/html
 
 # 将 nginx.conf 复制到 nginx 的默认目录
-COPY deploy/vue/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # 暴露 80 端口
 EXPOSE 80

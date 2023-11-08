@@ -3,9 +3,8 @@ version: '3'
 services:
   sandboxtownfront:
     build:
-      context: ..
-      # dockerfile的路径相对于context，而非docker-compose.yml
-      dockerfile: ./deploy/vue/Dockerfile
+      # context是Dockerfile文件中的上下文路径，一般是Dockerfile所在的目录
+      context: sandbox_town_frontend
     ports:
       - "443:443"
     # 如果你需要使用HTTPS，那么你需要将下面的注释取消掉
@@ -18,8 +17,7 @@ services:
 
   sandboxtownback:
     build:
-      context: ..
-      dockerfile: ./deploy/springboot/Dockerfile
+      context: sandbox_town_backend
     expose:
       # Spring Boot 服务在 Docker 内部网络上暴露 9090 端口，但不暴露到宿主机
       # 但其实这里不写也可以，只是为了更清晰
@@ -36,14 +34,14 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: sandbox_town
     volumes:
-      - ./mysql/customer.cnf:/etc/mysql/conf.d/customer.cnf
+      - ./sandbox_town_db/customer.cnf:/etc/mysql/conf.d/customer.cnf
       # 将MySQL的数据文件挂载到宿主机，以便数据持久化
       # 如果宿主机的路径不存在，会自动创建
       # 如果宿主机的路径存在，会使用宿主机的数据文件
-      - ./mysql/data:/var/lib/mysql
+      - ./sandbox_town_db/data:/var/lib/mysql
       # 初始化数据库时执行的SQL脚本
       # 注意：如果/var/lib/mysql目录中已经存在数据文件，那么这个SQL脚本不会被执行
-      - ../sandbox_town_backend/import.sql:/docker-entrypoint-initdb.d/import.sql
+      - ./sandbox_town_db/import.sql:/docker-entrypoint-initdb.d/import.sql
     restart: unless-stopped
     # 限制内存，MySQL/MariaDB 的某些配置项会根据内存大小自动调整
     mem_limit: 70m

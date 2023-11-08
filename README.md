@@ -17,11 +17,10 @@
 ```bash
 cp sandbox_town_backend/src/main/resources/application.template.yml \
    sandbox_town_backend/src/main/resources/application.yml
-cp deploy/mysql/customer.template.cnf deploy/mysql/customer.cnf
-cp deploy/vue/nginx.template.conf deploy/vue/nginx.conf
-cp deploy/docker-compose.template.yml deploy/docker-compose.yml
+cp sandbox_town_db/customer.template.cnf sandbox_town_db/customer.cnf
+cp sandbox_town_frontend/nginx.template.conf sandbox_town_frontend/nginx.conf
+cp docker-compose.template.yml docker-compose.yml
 # 按需修改上述几个配置文件，例如配置ssl证书位置、配置域名等
-cd deploy
 docker-compose up -d
 ```
 
