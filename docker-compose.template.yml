@@ -51,7 +51,11 @@ services:
     environment:
       REDIS_PASSWORD: 123456
     restart: unless-stopped
+    volumes:
+      - sandboxtown-redis-data:/data
 
 volumes:
   sandboxtown-db-volume:
+    driver: local
+  sandboxtown-redis-data:
     driver: local
