@@ -2,6 +2,10 @@
 
 ## feature
 
+- 关于docker
+  - java持续开发（dockerfile2）
+  - vue持续开发（dockerfile2+npm run build指定开发环境）
+
 - 添加聊天模块：
   - 私聊（目前这些功能的后端全部实现了，但尚未实现前端）：
     - 界面分为左右两栏，左栏是列表，右栏是聊天窗口

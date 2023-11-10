@@ -45,6 +45,9 @@ services:
     restart: unless-stopped
     # 限制内存，MySQL/MariaDB 的某些配置项会根据内存大小自动调整
     mem_limit: 70m
+    # 如果测试需要，可以将MySQL的端口暴露到宿主机，取消下面的注释
+    # ports:
+    #   - "3306:3306"
     
   sandboxtown-redis:
     image: redis:7.2-alpine
@@ -53,6 +56,9 @@ services:
     restart: unless-stopped
     volumes:
       - sandboxtown-redis-data:/data
+    # 如果测试需要，可以将Redis的端口暴露到宿主机，取消下面的注释
+    # ports:
+    #   - "6379:6379"
 
 volumes:
   sandboxtown-db-volume:
