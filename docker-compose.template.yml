@@ -7,6 +7,7 @@ services:
       context: sandbox_town_frontend
       # Dockerfile路径
       # 如果你在开发过程中，需要频繁修改源代码，那么可以使用Dockerfile2
+      # 在你使用Dockerfile2的同时，需要挂载数据卷./sandbox_town_frontend:/app，另外如果你不使用Linux，宿主机和docker之间的IO特别慢，可以使用命名卷替代目录挂载
       dockerfile: Dockerfile
     ports:
       - "443:443"
