@@ -32,7 +32,7 @@ export default {
                     treeId: this.target,
                 }),
                 () => {
-                    mixin.fadeInfoShow('摘苹果成功');
+                    mixin.fadeInfoShow('获得苹果');
                 },
             );
         },

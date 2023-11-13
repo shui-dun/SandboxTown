@@ -1,0 +1,9 @@
+# Dockerfile2相比Dockerfile，使用 npm run serve 替代 npm run build，以禁用各种优化，加快构建速度
+# 但是由于Windows与Docker之间IO极慢，不能挂载目录
+# 因此失去了热部署的功能，每次修改都需要重新构建镜像
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+CMD ["npm", "run", "serve", "--", "--port", "443"]

@@ -14,14 +14,14 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       '/rest': {
-        target: 'http://localhost:9090',
+        target: 'http://sandboxtown-back:9090',
         changeOrigin: true,
         pathRewrite: {
           '^/rest': '', // 删除 /rest 前缀
         },
       },
       '/websocket': {
-        target: 'http://localhost:9090',
+        target: 'http://sandboxtown-back:9090',
         ws: true,
         changeOrigin: true,
         pathRewrite: {
