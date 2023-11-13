@@ -18,6 +18,9 @@ services:
   sandboxtown-back:
     build:
       context: sandbox_town_backend
+      # Dockerfile路径
+      # 如果你在开发过程中，需要频繁修改源代码，那么可以使用Dockerfile2，它会将你编译好的文件挂载到容器中
+      dockerfile: Dockerfile2
     expose:
       # Spring Boot 服务在 Docker 内部网络上暴露 9090 端口，但不暴露到宿主机
       # 但其实这里不写也可以，只是为了更清晰

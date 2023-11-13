@@ -3,9 +3,8 @@
 ## feature
 
 - 关于docker
-  - java持续开发（dockerfile2）
-  - vue持续开发（dockerfile2+npm run build指定开发环境）
-
+  - vue持续开发（加快npm run build速度，据说是通过指定为开发环境，将其应用到dockerfile中，如果速度还是不行，看看npm run serve有没有办法应用到docker中，我觉得理论上是可以的，就是不用nginx直接运行npm run serve）
+- java调试：如何调试springboot？如何调试docker中的springboot？
 - 添加聊天模块：
   - 私聊（目前这些功能的后端全部实现了，但尚未实现前端）：
     - 界面分为左右两栏，左栏是列表，右栏是聊天窗口

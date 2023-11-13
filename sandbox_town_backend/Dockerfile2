@@ -1,0 +1,18 @@
+# Dockerfile2与Dockerfile的区别在于
+# Dockerfile2直接将开发环境构建好的jar包复制到镜像中，而Dockerfile是在镜像中进行打包
+# 这样，当pom.xml发生变化时，Dockerfile2不需要重新下载依赖，而Dockerfile需要重新下载依赖
+# 我觉得这是docker的一个很大的问题：docker文件稍微修改，就要从头来
+# docker未来应该想办法优化这件事，否则它只适合部署，不适合开发
+# 当然，即使使用Dockerfile2，速度也不及idea直接构建的速度
+# 这是因为idea只编译已经修改过的源代码文件，而不是整个项目，这可以显著减少构建时间，而mvn clean package每次都要重新编译整个项目
+
+FROM openjdk:17-jdk-slim
+
+# 设置工作目录
+WORKDIR /app
+
+# 从构建阶段复制构建的 jar 文件到当前工作目录
+COPY  target/*.jar app.jar
+
+# 运行 Spring Boot 应用
+CMD ["java", "-jar", "app.jar"]

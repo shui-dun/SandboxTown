@@ -9,11 +9,13 @@ WORKDIR /app
 # 这样，只要pom.xml没有变化，Maven依赖就会被缓存起来，不需要每次都重新下载
 # 但我发现这样做效果并不完美，还是有一些依赖会被重新下载
 COPY pom.xml ./
-RUN mvn dependency:go-offline
+RUN mvn -T 1C dependency:go-offline
 
 # 然后复制源码并编译
+# -T 1C表示每个核心一个线程
+# -Dmaven.test.skip=true 表示不编译test/下的代码
 COPY src ./src/
-RUN mvn clean package -Dmaven.test.skip=true
+RUN mvn -T 1C -Dmaven.test.skip=true clean package
 
 # 使用官方的 Java 镜像作为基础镜像运行应用
 # 使用了多阶段构建：第一阶段使用 Maven 镜像构建项目，第二阶段使用 Java 镜像运行应用
