@@ -32,6 +32,11 @@ services:
     restart: unless-stopped
     # 限制内存，JVM 可以自动识别 Docker 容器的内存限制，并据此设置默认的内存使用
     mem_limit: 300m
+    volumes:
+      - sanboxtown-user-upload:/userUpload
+    environment:
+      REDIS_PASSWORD: 123456
+      MYSQL_PASSWORD: root
 
   sandboxtown-mysql:
     # image: mysql:8.1
@@ -71,4 +76,6 @@ volumes:
   sandboxtown-db-volume:
     driver: local
   sandboxtown-redis-data:
+    driver: local
+  sanboxtown-user-upload:
     driver: local
