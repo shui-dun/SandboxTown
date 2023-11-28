@@ -10,6 +10,7 @@ import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -117,6 +118,7 @@ public class SpriteService {
     }
 
     /** 根据id获取角色信息（只带有缓存信息） */
+    @Nullable
     public SpriteDo selectById(String id) {
         SpriteDo sprite = spriteMapper.selectById(id);
         if (sprite == null) {
@@ -128,6 +130,7 @@ public class SpriteService {
     }
 
     /** 根据id获取角色信息（只带有缓存信息和类型信息） */
+    @Nullable
     public SpriteDo selectByIdWithType(String id) {
         SpriteDo sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
@@ -139,6 +142,7 @@ public class SpriteService {
     }
 
     /** 根据id获取角色详细信息（带有缓存信息、类型信息、装备信息、属性增量信息、效果列表信息） */
+    @Nullable
     public SpriteDo selectByIdWithDetail(String id) {
         // 获得带有类型信息的sprite
         SpriteDo sprite = spriteMapper.selectByIdWithType(id);
@@ -271,7 +275,7 @@ public class SpriteService {
 
     /** 生成固定的（即各属性值严格等于其精灵类型的基础属性值）指定类型的角色，并写入数据库 */
     @Transactional
-    public SpriteDo generateFixedSprite(SpriteTypeEnum type, String id, String owner, double x, double y) {
+    public SpriteDo generateFixedSprite(SpriteTypeEnum type, String id, @Nullable String owner, double x, double y) {
         SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
         sprite.setId(id);
@@ -303,7 +307,7 @@ public class SpriteService {
 
     /** 生成随机的指定类型的角色，并写入数据库 */
     @Transactional
-    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String id, String owner, double x, double y) {
+    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String id, @Nullable String owner, double x, double y) {
         SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
         sprite.setId(id);
@@ -350,7 +354,7 @@ public class SpriteService {
     }
 
     @Transactional
-    public SpriteDo generateRandomSprite(SpriteTypeEnum type, String owner, double x, double y) {
+    public SpriteDo generateRandomSprite(SpriteTypeEnum type, @Nullable String owner, double x, double y) {
         String id = UUIDNameGenerator.generateItemName(type.name());
         return generateRandomSprite(type, id, owner, x, y);
     }
@@ -457,7 +461,7 @@ public class SpriteService {
      * @param val       减少值
      */
     public void reduceSpritesHunger(Collection<String> spriteIds, int val) {
-        if (spriteIds == null || spriteIds.isEmpty()) {
+        if (spriteIds.isEmpty()) {
             return;
         }
         spriteMapper.reduceSpritesHunger(spriteIds, val);
@@ -471,7 +475,7 @@ public class SpriteService {
      * @param incVal    恢复值
      */
     public void recoverSpritesLife(Collection<String> spriteIds, int minHunger, int incVal) {
-        if (spriteIds == null || spriteIds.isEmpty()) {
+        if (spriteIds.isEmpty()) {
             return;
         }
         spriteMapper.recoverSpritesLife(spriteIds, minHunger, incVal, Constants.MAX_HP);
@@ -619,12 +623,12 @@ public class SpriteService {
     public FeedResultEnum feed(SpriteDo sourceSprite, SpriteDo targetSprite) {
         // 判断是否可驯服
         List<FeedDo> feedList = feedMapper.selectBySpriteType(targetSprite.getType());
-        if (feedList == null || feedList.isEmpty()) {
+        if (feedList.isEmpty()) {
             return FeedResultEnum.CANNOT_TAMED;
         }
         // 是否手持了驯服所需物品
         List<ItemDo> handHeldItems = itemMapper.selectByOwnerAndPosition(sourceSprite.getId(), ItemPositionEnum.HANDHELD);
-        if (handHeldItems == null || handHeldItems.isEmpty()) {
+        if (handHeldItems.isEmpty()) {
             return FeedResultEnum.NO_ITEM;
         }
         // 得到当前手持物品对应的驯服信息

@@ -7,6 +7,7 @@ import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,7 +62,7 @@ public class ItemService {
         } else {
             // 判断玩家是否拥有该物品
             List<ItemDo> items = itemMapper.selectByOwnerAndItemType(spriteId, itemTypeId);
-            if (items == null || items.isEmpty()) {
+            if (items.isEmpty()) {
                 // 玩家没有该物品，直接插入
                 ItemDo item = new ItemDo();
                 item.setId(UUIDNameGenerator.generateItemName(itemTypeId.name()));
@@ -114,7 +115,7 @@ public class ItemService {
         // 找到所有物品
         List<ItemDo> items = itemMapper.selectByOwner(owner);
         // 如果没有物品，直接返回
-        if (items == null || items.isEmpty()) {
+        if (items.isEmpty()) {
             return items;
         }
         // 为物品列表设置物品类型信息和标签信息
@@ -128,7 +129,7 @@ public class ItemService {
         // 找到所有物品
         List<ItemDo> items = itemMapper.selectByOwnerAndPosition(owner, position);
         // 如果没有物品，直接返回
-        if (items == null || items.isEmpty()) {
+        if (items.isEmpty()) {
             return items;
         }
         // 为物品列表设置物品类型信息和标签信息
@@ -149,7 +150,7 @@ public class ItemService {
         // 找到所有物品
         List<ItemDo> items = itemMapper.selectByOwnerAndPositions(owner, positions);
         // 如果没有物品，直接返回
-        if (items == null || items.isEmpty()) {
+        if (items.isEmpty()) {
             return items;
         }
         // 为物品列表设置物品类型信息和标签信息
@@ -250,6 +251,7 @@ public class ItemService {
     }
 
     /** 根据物品id查询物品详细信息（即包含物品类型信息、标签信息、属性增益信息、效果信息） */
+    @Nullable
     public ItemDo getItemDetailById(String itemId) {
         // 找到物品
         ItemDo item = itemMapper.selectById(itemId);
@@ -306,7 +308,7 @@ public class ItemService {
         }
         // 将之前的手持物品放入物品栏
         List<ItemDo> handHeldItems = itemMapper.selectByOwnerAndPosition(spriteId, ItemPositionEnum.HANDHELD);
-        if (handHeldItems != null && !handHeldItems.isEmpty()) {
+        if (!handHeldItems.isEmpty()) {
             ItemDo handHeldItem = handHeldItems.get(0);
             handHeldItem.setPosition(ItemPositionEnum.ITEMBAR);
             itemMapper.updateById(handHeldItem);
@@ -397,7 +399,7 @@ public class ItemService {
         ItemPositionEnum itemPosition = ItemPositionEnum.valueOf(itemLabel.name());
         // 将之前的装备放入背包
         List<ItemDo> equippedItems = itemMapper.selectByOwnerAndPosition(spriteId, itemPosition);
-        if (equippedItems != null && !equippedItems.isEmpty()) {
+        if (!equippedItems.isEmpty()) {
             ItemDo equippedItem = equippedItems.get(0);
             equippedItem.setPosition(ItemPositionEnum.BACKPACK);
             itemMapper.updateById(equippedItem);

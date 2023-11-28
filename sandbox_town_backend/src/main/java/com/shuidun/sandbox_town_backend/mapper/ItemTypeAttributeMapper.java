@@ -6,12 +6,14 @@ import com.shuidun.sandbox_town_backend.bean.ItemTypeAttributeDo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemOperationEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
 @Mapper
 public interface ItemTypeAttributeMapper extends BaseMapper<ItemTypeAttributeDo> {
     /** 根据物品类型和操作获得物品类型属性 */
+    @Nullable
     default ItemTypeAttributeDo selectById(ItemTypeEnum itemType, ItemOperationEnum operation) {
         return selectOne(new LambdaQueryWrapper<ItemTypeAttributeDo>()
                 .eq(ItemTypeAttributeDo::getItemType, itemType)

@@ -40,7 +40,8 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public RestResponseVo<?> signup(@NotNull String usernameSuffix, @NotNull String password) {
+    public RestResponseVo<?> signup(@NotNull String usernameSuffix,
+                                    @NotNull String password) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.BuildingDo;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public interface BuildingMapper extends BaseMapper<BuildingDo> {
                 .in(BuildingDo::getType, types));
     }
 
-    default void updateOwnerByOwner(String fromId, String toId) {
+    default void updateOwnerByOwner(@Nullable String fromId, @Nullable String toId) {
         update(null, new LambdaUpdateWrapper<BuildingDo>()
                 .eq(BuildingDo::getOwner, fromId)
                 .set(BuildingDo::getOwner, toId));

@@ -51,11 +51,11 @@ public class UserService {
     @Transactional
     public String signup(String usernameSuffix, String password) {
         // 判断用户名是否合法
-        if (usernameSuffix == null || usernameSuffix.length() < 3) {
+        if (usernameSuffix.length() < 3) {
             throw new BusinessException(StatusCodeEnum.USERNAME_TOO_SHORT);
         }
         // 判断密码强度
-        if (password == null || password.length() < 6) {
+        if (password.length() < 6) {
             throw new BusinessException(StatusCodeEnum.PASSWORD_TOO_SHORT);
         }
         // 生成盐和加密后的密码
@@ -140,6 +140,9 @@ public class UserService {
     @Transactional
     public int enterGameToReceiveReward(String username) {
         UserDo user = userMapper.selectById(username);
+        if (user == null) {
+            throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
+        }
         // 获取上次登录日期
         Date lastLoginDate = user.getLastOnline();
         // 计算奖励
@@ -160,8 +163,10 @@ public class UserService {
                 reward = 40;
             }
         }
+        var sprite = spriteMapper.selectByIdWithType(username);
+        assert sprite != null;
         // 获得玩家当前金钱
-        int money = spriteMapper.selectByIdWithType(username).getMoney();
+        int money = sprite.getMoney();
         // 更新玩家金钱
         spriteMapper.updateAttribute(username, "money", money + reward);
         // 更新玩家上次登录时间
@@ -198,7 +203,7 @@ public class UserService {
     @Transactional
     public void changePassword(String oldPassword, String newPassword) {
         // 判断密码强度
-        if (newPassword == null || newPassword.length() < 6) {
+        if (newPassword.length() < 6) {
             throw new BusinessException(StatusCodeEnum.PASSWORD_TOO_SHORT);
         }
         // 获取当前用户

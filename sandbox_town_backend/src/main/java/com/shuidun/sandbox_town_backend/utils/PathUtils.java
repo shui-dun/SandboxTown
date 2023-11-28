@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.utils;
 
 import com.shuidun.sandbox_town_backend.bean.Point;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 
 import java.util.*;
 
@@ -17,10 +18,11 @@ public class PathUtils {
     /** 节点类，用于表示地图上的一个位置 */
     private static class Node implements Comparable<Node> {
         int x, y;
+        @Nullable
         Node parent;
         int gCost, hCost;
 
-        Node(int x, int y, Node parent, int gCost, int hCost) {
+        Node(int x, int y, @Nullable Node parent, int gCost, int hCost) {
             this.x = x;
             this.y = y;
             this.parent = parent;
@@ -66,7 +68,7 @@ public class PathUtils {
     /** 判断给定的坐标是否不能容下物体 */
     private static boolean obstacle(
             int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight,
-            int startX, int startY, int endX, int endY, Integer destinationHashCode) {
+            int startX, int startY, int endX, int endY, @Nullable Integer destinationHashCode) {
 
         // 如果坐标在目标点附近（距离小于物体大小），并且该点本身并非障碍物，那么直接认为可以容下物体
         if (Math.abs(x - endX) <= itemHalfWidth && Math.abs(y - endY) <= itemHalfHeight
@@ -114,8 +116,9 @@ public class PathUtils {
     private static boolean isDestination(
             int[][] map, int x, int y, int endX, int endY,
             int initiatorHalfWidth, int initiatorHalfHeight,
-            Integer destinationHashCode,
-            Integer destSpriteHalfWidth, Integer destSpriteHalfHeight) {
+            @Nullable Integer destinationHashCode,
+            @Nullable Integer destSpriteHalfWidth,
+            @Nullable Integer destSpriteHalfHeight) {
         // 如果精确地到达了终点，那么就是终点
         if (x == endX && y == endY) {
             return true;
@@ -156,12 +159,14 @@ public class PathUtils {
      * @param destSpriteHalfHeight 目标精灵的高度的一半，如果为null，则表示终点不是精灵
      * @return 路径
      */
+    @Nullable
     public static List<Point> findPath(
             int[][] map, int startX, int startY,
             int endX, int endY,
             int initiatorHalfWidth, int initiatorHalfHeight,
-            Integer destinationHashCode,
-            Integer destSpriteHalfWidth, Integer destSpriteHalfHeight
+            @Nullable Integer destinationHashCode,
+            @Nullable Integer destSpriteHalfWidth,
+            @Nullable Integer destSpriteHalfHeight
     ) {
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();

@@ -135,6 +135,9 @@ public class WSRequestHandler {
             spriteCache.setVy(0);
             // 更新玩家的找到的路径
             var sprite = spriteService.selectByIdWithDetail(initiator);
+            if (sprite == null) {
+                return;
+            }
             // 每种角色的宽度和高度不一样，需要根据角色类型来获取相应路径
             List<Point> path = gameMapService.findPath(
                     sprite, data.getX1(), data.getY1(),
@@ -205,6 +208,9 @@ public class WSRequestHandler {
         // 索敌事件
         eventMap.put(WSRequestEnum.FIND_ENEMY, (initiator, mapData) -> {
             SpriteDo sourceSprite = spriteService.selectByIdWithDetail(initiator);
+            if (sourceSprite == null) {
+                return;
+            }
             String targetSpriteId = GameCache.spriteCacheMap.get(initiator).getTargetSpriteId();
             SpriteCache targetSpriteCache = targetSpriteId == null ? null : GameCache.spriteCacheMap.get(targetSpriteId);
             // 如果目标不存在，或者在视野外，则重新选择目标
@@ -219,11 +225,17 @@ public class WSRequestHandler {
             if (targetSpriteId == null) {
                 return;
             }
+            // 寻找路径
+            var path = gameMapService.findPath(sourceSprite, targetSpriteCache.getX(), targetSpriteCache.getY(), null, targetSpriteId);
+            // 如果找不到路径，直接返回
+            if (path == null) {
+                return;
+            }
             // 发送移动消息
             WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
                     initiator,
                     sourceSprite.getSpeed() + sourceSprite.getSpeedInc(),
-                    DataCompressor.compressPath(gameMapService.findPath(sourceSprite, targetSpriteCache.getX(), targetSpriteCache.getY(), null, targetSpriteId)),
+                    DataCompressor.compressPath(path),
                     null,
                     targetSpriteId,
                     GameCache.random.nextInt()

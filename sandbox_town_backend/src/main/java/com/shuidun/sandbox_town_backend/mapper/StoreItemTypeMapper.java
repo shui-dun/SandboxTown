@@ -7,6 +7,7 @@ import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public interface StoreItemTypeMapper extends BaseMapper<StoreItemTypeDo> {
      */
     @Select("SELECT * FROM store_item_type WHERE store = #{store} AND item_type = #{itemType}")
     @Options(flushCache = Options.FlushCachePolicy.TRUE)
+    @Nullable
     StoreItemTypeDo selectByStoreAndItemType(String store, ItemTypeEnum itemType);
 
     /** 根据商店名和物品名更新商店物品所有信息 */

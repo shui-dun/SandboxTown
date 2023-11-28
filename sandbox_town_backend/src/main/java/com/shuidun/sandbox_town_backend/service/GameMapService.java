@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.util.Pair;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -167,8 +168,9 @@ public class GameMapService {
      * @param destBuildingId 目标建筑物id，如果终点是建筑物，则传入建筑物id，否则传入null
      * @param destSpriteId   目标精灵id，如果终点是精灵，则传入精灵id，否则传入null
      */
+    @Nullable
     public List<Point> findPath(SpriteDo initiator, double x1, double y1,
-                                String destBuildingId, String destSpriteId) {
+                                @Nullable String destBuildingId, @Nullable String destSpriteId) {
         double x0 = initiator.getX();
         double y0 = initiator.getY();
         // 将物理坐标转换为地图坐标
@@ -192,6 +194,9 @@ public class GameMapService {
             endY = (int) (GameCache.spriteCacheMap.get(destSpriteId).getY() / Constants.PIXELS_PER_GRID);
             // 获取精灵的宽高
             SpriteDo destSprite = spriteService.selectByIdWithType(destSpriteId);
+            if (destSprite == null) {
+                return null;
+            }
             double destSpriteWidth = destSprite.getWidth() * destSprite.getWidthRatio();
             double destSpriteHeight = destSprite.getHeight() * destSprite.getHeightRatio();
             // 将物品宽高的像素转换为地图坐标
@@ -215,8 +220,9 @@ public class GameMapService {
     }
 
     /** 找到路径，但与目标保持一定距离 */
+    @Nullable
     public List<Point> findPathNotTooClose(SpriteDo initiator, double x1, double y1,
-                                           String destBuildingId, String destSpriteId) {
+                                           @Nullable String destBuildingId, @Nullable String destSpriteId) {
         List<Point> path = findPath(initiator, x1, y1, destBuildingId, destSpriteId);
         if (path == null) {
             return null;

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import org.apache.ibatis.annotations.*;
+import org.springframework.lang.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +20,7 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
             ON sprite.type = sprite_type.type
             WHERE id = #{id}
             """)
+    @Nullable
     SpriteDo selectByIdWithType(String id);
 
 

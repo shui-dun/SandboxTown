@@ -15,6 +15,7 @@ import com.shuidun.sandbox_town_backend.utils.SecureNameGenerator;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -103,6 +104,9 @@ public class ChatMessageService {
     public void readMessage(String username, Integer messageId) {
         ChatMessageDo message = checkPermission(username, messageId);
         ChatFriendDo chatFriend = chatFriendMapper.selectById(username, message.getSource().equals(username) ? message.getTarget() : message.getSource());
+        if (chatFriend == null) {
+            throw new BusinessException(StatusCodeEnum.FRIEND_NOT_EXIST);
+        }
         // 判断该消息是否比上次已读消息新
         if (chatFriend.getReadChatId() != null && messageId <= chatFriend.getReadChatId()) {
             return;
@@ -180,13 +184,13 @@ public class ChatMessageService {
      * @param file    文件（只有图片、视频、文件消息才有）
      */
     @Transactional
-    public void sendMessage(String source, String target, ChatMsgTypeEnum type, String content, MultipartFile file) {
+    public void sendMessage(String source, String target, ChatMsgTypeEnum type, String content, @Nullable MultipartFile file) {
         // 如果内容为空，则抛出异常
-        if ((content == null || content.isEmpty()) && (file == null || file.isEmpty())) {
+        if (content.isEmpty() && (file == null || file.isEmpty())) {
             throw new BusinessException(StatusCodeEnum.MESSAGE_CONTENT_EMPTY);
         }
         // 判断源用户和目标用户是否存在
-        if (source == null || target == null || userMapper.selectById(source) == null || userMapper.selectById(target) == null) {
+        if (userMapper.selectById(source) == null || userMapper.selectById(target) == null) {
             throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
         }
         // 判断是否被对方拉黑

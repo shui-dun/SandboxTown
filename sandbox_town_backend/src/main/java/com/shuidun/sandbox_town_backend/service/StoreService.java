@@ -51,7 +51,7 @@ public class StoreService {
     /** 列出商店的所有商品 */
     public List<StoreItemTypeDo> listByStore(String store) {
         List<StoreItemTypeDo> storeItemTypes = storeItemTypeMapper.selectByStore(store);
-        if (storeItemTypes == null || storeItemTypes.isEmpty()) {
+        if (storeItemTypes.isEmpty()) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
         // 得到所有的物品类型枚举（不重复）

@@ -1,5 +1,7 @@
 package com.shuidun.sandbox_town_backend.utils;
 
+import org.springframework.lang.Nullable;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -25,6 +27,7 @@ public class PasswordEncryptor {
     }
 
     /** 生成加密后的密码 */
+    @Nullable
     public static String encryptedPasswd(String password, String salt) {
         try {
             // 使用SHA-256算法进行哈希

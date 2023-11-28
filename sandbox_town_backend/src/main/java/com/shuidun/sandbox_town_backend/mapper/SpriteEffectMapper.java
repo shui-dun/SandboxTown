@@ -6,6 +6,7 @@ import com.shuidun.sandbox_town_backend.bean.SpriteEffectDo;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public interface SpriteEffectMapper extends BaseMapper<SpriteEffectDo> {
     }
 
     /** 根据精灵id和效果查询精灵效果 */
+    @Nullable
     default SpriteEffectDo selectBySpriteAndEffect(String sprite, EffectEnum effect) {
         return selectOne(new LambdaQueryWrapper<SpriteEffectDo>()
                 .eq(SpriteEffectDo::getSprite, sprite)
