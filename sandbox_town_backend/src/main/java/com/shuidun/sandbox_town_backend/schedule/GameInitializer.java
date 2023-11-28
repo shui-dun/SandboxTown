@@ -1,8 +1,6 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
 import com.shuidun.sandbox_town_backend.bean.GameMapDo;
-import com.shuidun.sandbox_town_backend.bean.SpriteCache;
-import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;

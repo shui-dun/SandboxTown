@@ -4,7 +4,6 @@ import com.shuidun.sandbox_town_backend.bean.Point;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @Slf4j

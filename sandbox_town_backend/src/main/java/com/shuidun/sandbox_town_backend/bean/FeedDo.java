@@ -1,6 +1,5 @@
 package com.shuidun.sandbox_town_backend.bean;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;

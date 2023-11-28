@@ -1,9 +1,5 @@
 package com.shuidun.sandbox_town_backend.enumeration;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-
 /**
  * 这个东西目前没有用上，没有进行维护
  */

@@ -59,8 +59,6 @@ public class TreeService {
 
     /**
      * 角色摘苹果
-     *
-     * @return 是否摘苹果成功
      */
     @Transactional
     public void pickApple(String spriteId, String treeId) {

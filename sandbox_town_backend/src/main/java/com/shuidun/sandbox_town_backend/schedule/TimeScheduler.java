@@ -16,13 +16,13 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class TimeScheduler {
-    private TreeService treeService;
+    private final TreeService treeService;
 
-    private StoreService storeService;
+    private final StoreService storeService;
 
-    private TimeService timeService;
+    private final TimeService timeService;
 
-    private SpriteService spriteService;
+    private final SpriteService spriteService;
 
     public TimeScheduler(TreeService treeService, StoreService storeService, TimeService timeService, SpriteService spriteService) {
         this.treeService = treeService;

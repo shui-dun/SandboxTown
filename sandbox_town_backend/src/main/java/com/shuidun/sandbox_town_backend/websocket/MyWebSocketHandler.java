@@ -64,7 +64,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
         String messagePayload = message.getPayload();
-        if ("".equals(messagePayload)) {
+        if (messagePayload.isEmpty()) {
             return;
         }
         EventDto eventDto = JSONObject.parseObject(messagePayload, EventDto.class);

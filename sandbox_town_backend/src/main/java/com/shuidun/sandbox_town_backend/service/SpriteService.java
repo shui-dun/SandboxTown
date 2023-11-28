@@ -704,7 +704,7 @@ public class SpriteService {
         // 对于每一种精灵
         for (var entry : spriteRefreshMap.entrySet()) {
             // 得到目前的数目
-            long curNum = spriteMapper.countByTypeAndMap(entry.getKey(), mapId);
+            int curNum = (int) spriteMapper.countByTypeAndMap(entry.getKey(), mapId);
             // 将刷新信息按照建筑物类型分组
             Map<BuildingTypeEnum, SpriteRefreshDo> buildingTypeMap = entry.getValue().stream()
                     .collect(Collectors.toMap(SpriteRefreshDo::getBuildingType, Function.identity()));

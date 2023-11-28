@@ -17,9 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/chat")
 public class ChatController {
-    private ChatMessageService chatMessageService;
+    private final ChatMessageService chatMessageService;
 
-    private ChatFriendService chatFriendService;
+    private final ChatFriendService chatFriendService;
 
     public ChatController(ChatMessageService chatMessageService, ChatFriendService chatFriendService) {
         this.chatMessageService = chatMessageService;

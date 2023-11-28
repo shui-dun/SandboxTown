@@ -1,17 +1,16 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.bean.Point;
+import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
-import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
-import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import com.shuidun.sandbox_town_backend.utils.PathUtils;
+import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -145,7 +144,7 @@ public class GameMapService {
                 BufferedImage image = ImageIO.read(new ClassPathResource(imagePath).getInputStream());
                 GameCache.buildingTypesImages.put(buildingTypeId, image);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.info("读取建筑物黑白图失败", e);
             }
         }
 
@@ -259,8 +258,8 @@ public class GameMapService {
                     int pixelX = i * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
                     int pixelY = j * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
                     // 获取当前格子中心在整个建筑图中的相比于左上角的比例
-                    double ratioX = (double) (pixelX - buildingX) / buildingWidth;
-                    double ratioY = (double) (pixelY - buildingY) / buildingHeight;
+                    double ratioX = (pixelX - buildingX) / buildingWidth;
+                    double ratioY = (pixelY - buildingY) / buildingHeight;
                     // 如果比例不合法
                     if (ratioX < 0 || ratioX > 1 || ratioY < 0 || ratioY > 1) {
                         continue;
@@ -302,8 +301,8 @@ public class GameMapService {
                 int pixelX = i * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
                 int pixelY = j * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
                 // 获取当前格子中心在整个建筑图中的相比于左上角的比例
-                double ratioX = (double) (pixelX - buildingX) / buildingWidth;
-                double ratioY = (double) (pixelY - buildingY) / buildingHeight;
+                double ratioX = (pixelX - buildingX) / buildingWidth;
+                double ratioY = (pixelY - buildingY) / buildingHeight;
                 // 如果比例不合法
                 if (ratioX < 0 || ratioX > 1 || ratioY < 0 || ratioY > 1) {
                     continue;

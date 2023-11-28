@@ -1,12 +1,8 @@
 package com.shuidun.sandbox_town_backend.bean;
 
-import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 记录精灵的效果变化，只有玩家自己发生变化，

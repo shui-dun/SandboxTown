@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Component
@@ -127,7 +126,7 @@ public class SpriteScheduler {
             // 蜘蛛的攻击目标需要满足的条件（必须有主人，并且不是蜘蛛）
             Predicate<SpriteDo> condition = (s) -> s.getType() != SpriteTypeEnum.SPIDER
                     && (s.getOwner() != null || s.getType() == SpriteTypeEnum.USER);
-            String finalTargetId = null;
+            String finalTargetId;
             String originalTargetId = GameCache.spriteCacheMap.get(sprite.getId()).getTargetSpriteId();
             // 如果蜘蛛没有目标
             if (originalTargetId == null || GameCache.spriteCacheMap.get(originalTargetId) == null) {
