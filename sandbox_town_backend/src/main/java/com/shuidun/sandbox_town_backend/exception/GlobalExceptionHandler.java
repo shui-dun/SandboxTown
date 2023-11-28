@@ -9,6 +9,9 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import javax.validation.ConstraintViolationException;
 
 @Slf4j
 @ControllerAdvice
@@ -48,6 +51,20 @@ public class GlobalExceptionHandler {
     public RestResponseVo<?> exceptionHandler(HttpRequestMethodNotSupportedException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
         return new RestResponseVo<>(StatusCodeEnum.REQUEST_METHOD_NOT_SUPPORTED);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseBody
+    public RestResponseVo<?> exceptionHandler(ConstraintViolationException e) {
+        log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
+        return new RestResponseVo<>(StatusCodeEnum.PARAMETER_ERROR, e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseBody
+    public RestResponseVo<?> exceptionHandler(MethodArgumentTypeMismatchException e) {
+        log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
+        return new RestResponseVo<>(StatusCodeEnum.PARAMETER_ERROR, "参数类型转化失败");
     }
 
 }

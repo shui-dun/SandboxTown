@@ -7,11 +7,15 @@ import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
+
+@Validated
 @Slf4j
 @RestController
 @RequestMapping("/user")
@@ -24,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public RestResponseVo<?> login(String username, String password, boolean rememberMe) {
+    public RestResponseVo<?> login(@NotNull String username, @NotNull String password, @NotNull boolean rememberMe) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
@@ -36,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public RestResponseVo<?> signup(String usernameSuffix, String password) {
+    public RestResponseVo<?> signup(@NotNull String usernameSuffix, @NotNull String password) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
@@ -65,7 +69,7 @@ public class UserController {
     }
 
     @PostMapping("/changePassword")
-    public RestResponseVo<?> changePassword(String oldPassword, String newPassword) {
+    public RestResponseVo<?> changePassword(@NotNull String oldPassword, @NotNull String newPassword) {
         // 判断是否已经登陆
         if (!StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.NOT_LOG_IN);
@@ -78,7 +82,7 @@ public class UserController {
 
     @PostMapping("/ban")
     @SaCheckRole("ADMIN")
-    public RestResponseVo<?> ban(String username, int banDays) {
+    public RestResponseVo<?> ban(@NotNull String username, @NotNull int banDays) {
         userService.banUser(username, banDays);
         // 踢出用户
         StpUtil.kickout(username);
@@ -89,7 +93,7 @@ public class UserController {
 
     @PostMapping("/unban")
     @SaCheckRole("ADMIN")
-    public RestResponseVo<?> unban(String username) {
+    public RestResponseVo<?> unban(@NotNull String username) {
         userService.unbanUser(username);
         // 打印信息
         log.info("{} unban success", username);

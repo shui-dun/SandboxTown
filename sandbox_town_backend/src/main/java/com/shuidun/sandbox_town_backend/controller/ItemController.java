@@ -8,11 +8,15 @@ import com.shuidun.sandbox_town_backend.service.ItemService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
+
+@Validated
 @RestController
 @RequestMapping("/item")
 @Slf4j
@@ -54,7 +58,7 @@ public class ItemController {
 
     /** 使用物品 */
     @PostMapping("/use")
-    public RestResponseVo<?> use(String itemId) {
+    public RestResponseVo<?> use(@NotNull String itemId) {
         // 之所以这里要以websocket而非http的方式发送消息，
         // 是因为http的方式发送消息，只能发送给当前请求的用户，
         // 而websocket的方式发送消息，可以发送给需要该消息的所有用户
@@ -64,19 +68,19 @@ public class ItemController {
 
     /** 显示某个物品的详细信息 */
     @GetMapping("/itemDetail")
-    public RestResponseVo<?> detail(String itemId) {
+    public RestResponseVo<?> detail(@NotNull String itemId) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, itemService.getItemDetailById(itemId));
     }
 
     /** 显示某个物品类型的详细信息 */
     @GetMapping("/itemTypeDetail")
-    public RestResponseVo<?> detailByItemType(ItemTypeEnum itemType) {
+    public RestResponseVo<?> detailByItemType(@NotNull ItemTypeEnum itemType) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, itemService.getItemTypeDetailById(itemType));
     }
 
     /** 显示某个物品类型的简略信息 */
     @GetMapping("/itemTypeBrief")
-    public RestResponseVo<?> briefByItemType(ItemTypeEnum itemType) {
+    public RestResponseVo<?> briefByItemType(@NotNull ItemTypeEnum itemType) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, itemService.getItemTypeBriefById(itemType));
     }
 
@@ -84,7 +88,7 @@ public class ItemController {
      * 手持物品
      */
     @PostMapping("/hold")
-    public RestResponseVo<?> hold(String itemId) {
+    public RestResponseVo<?> hold(@NotNull String itemId) {
         WSMessageSender.addResponses(itemService.hold(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
@@ -93,21 +97,21 @@ public class ItemController {
      * 放入物品栏
      */
     @PostMapping("/putInItemBar")
-    public RestResponseVo<?> putInItemBar(String itemId) {
+    public RestResponseVo<?> putInItemBar(@NotNull String itemId) {
         WSMessageSender.addResponses(itemService.putInItemBar(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
     /** 装备物品 */
     @PostMapping("/equip")
-    public RestResponseVo<?> equip(String itemId) {
+    public RestResponseVo<?> equip(@NotNull String itemId) {
         WSMessageSender.addResponses(itemService.equip(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
 
     /** 放入背包 */
     @PostMapping("/putInBackpack")
-    public RestResponseVo<?> putInBackpack(String itemId) {
+    public RestResponseVo<?> putInBackpack(@NotNull String itemId) {
         WSMessageSender.addResponses(itemService.putInBackpack(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
