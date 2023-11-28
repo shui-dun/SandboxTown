@@ -2,7 +2,9 @@ package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.*;
-import com.shuidun.sandbox_town_backend.enumeration.*;
+import com.shuidun.sandbox_town_backend.enumeration.FeedResultEnum;
+import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
+import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.ItemService;
@@ -11,6 +13,7 @@ import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.validation.Validator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +37,8 @@ public class WSRequestHandler {
      * 之前是打算通过加锁解决，但是导致死锁、性能下降和编程复杂
      */
     private final LinkedBlockingQueue<EventDto> mq = new LinkedBlockingQueue<>();
+
+    private final Validator validator;
 
     /** 向消息队列中添加消息 */
     public void addMessage(EventDto eventDto) {
@@ -60,11 +65,25 @@ public class WSRequestHandler {
         }).start();
     }
 
-    public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService, ItemService itemService) {
+    /** 进行校验 */
+    private <T> boolean validate(T data) {
+        var violations = validator.validate(data);
+        if (!violations.isEmpty()) {
+            log.error("validate error: {}, data: {}", violations, data);
+            return false;
+        }
+        return true;
+    }
+
+    public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService, ItemService itemService, Validator validator) {
+        this.validator = validator;
 
         // 告知坐标信息
         eventMap.put(WSRequestEnum.COORDINATE, (initiator, mapData) -> {
             var data = mapData.toJavaObject(CoordinateDto.class);
+            if (!validate(data)) {
+                return;
+            }
             // 如果时间戳不对，直接返回
             if (data.getTime() == null || data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
                 return;
@@ -102,6 +121,9 @@ public class WSRequestHandler {
         // 想要移动
         eventMap.put(WSRequestEnum.MOVE, (initiator, mapData) -> {
             var data = mapData.toJavaObject(MoveDto.class);
+            if (!validate(data)) {
+                return;
+            }
             // 更新玩家的坐标信息
             var spriteCache = GameCache.spriteCacheMap.get(initiator);
             if (spriteCache == null) {
@@ -136,6 +158,9 @@ public class WSRequestHandler {
         // 交互事件
         eventMap.put(WSRequestEnum.INTERACT, (initiator, mapData) -> {
             var data = mapData.toJavaObject(InteractDto.class);
+            if (!validate(data)) {
+                return;
+            }
             // 判断上次交互的时间是否过去了400m秒
             var spriteCache = GameCache.spriteCacheMap.get(data.getSource());
             if (spriteCache == null || spriteCache.getLastInteractTime() > System.currentTimeMillis() - 400) {
