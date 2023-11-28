@@ -61,7 +61,7 @@ public class ItemService {
         } else {
             // 判断玩家是否拥有该物品
             List<ItemDo> items = itemMapper.selectByOwnerAndItemType(spriteId, itemTypeId);
-            if (items == null || items.size() == 0) {
+            if (items == null || items.isEmpty()) {
                 // 玩家没有该物品，直接插入
                 ItemDo item = new ItemDo();
                 item.setId(UUIDNameGenerator.generateItemName(itemTypeId.name()));

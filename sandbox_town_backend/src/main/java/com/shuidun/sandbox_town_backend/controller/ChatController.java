@@ -6,12 +6,14 @@ import com.shuidun.sandbox_town_backend.enumeration.ChatMsgTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.ChatFriendService;
 import com.shuidun.sandbox_town_backend.service.ChatMessageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequestMapping("/chat")
 public class ChatController {
@@ -87,6 +89,7 @@ public class ChatController {
      */
     @PostMapping("/send")
     public RestResponseVo<?> uploadFile(String userId, ChatMsgTypeEnum type, String content, MultipartFile file) {
+        log.info("userId: {}, type: {}, content: {}, file: {}", userId, type, content, file);
         chatMessageService.sendMessage(StpUtil.getLoginIdAsString(), userId, type, content, file);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
     }
