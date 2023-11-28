@@ -1,22 +1,24 @@
 package com.shuidun.sandbox_town_backend.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.ChatFriendDo;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 @Mapper
-public interface ChatFriendMapper {
+public interface ChatFriendMapper extends BaseMapper<ChatFriendDo> {
     /** 根据用户名和好友名查询好友关系 */
-    @Select("select * from chat_friend where user = #{user} and friend = #{friend}")
-    ChatFriendDo selectById(String user, String friend);
+    default ChatFriendDo selectById(String user, String friend) {
+        return selectOne(new LambdaQueryWrapper<ChatFriendDo>()
+                .eq(ChatFriendDo::getUser, user)
+                .eq(ChatFriendDo::getFriend, friend));
+    }
+
 
     /** 更新好友关系 */
-    @Update("update chat_friend set ban = #{ban}, last_chat_id = #{lastChatId}, read_chat_id = #{readChatId}, unread = #{unread} where user = #{user} and friend = #{friend}")
-    void update(ChatFriendDo chatFriend);
-
-    /** 创建好友关系 */
-    @Insert("insert into chat_friend (user, friend, ban, last_chat_id, read_chat_id, unread) values (#{user}, #{friend}, #{ban}, #{lastChatId}, #{readChatId}, #{unread})")
-    void insert(ChatFriendDo chatFriend);
+    default void update(ChatFriendDo chatFriend) {
+        update(chatFriend, new LambdaQueryWrapper<ChatFriendDo>()
+                .eq(ChatFriendDo::getUser, chatFriend.getUser())
+                .eq(ChatFriendDo::getFriend, chatFriend.getFriend()));
+    }
 }

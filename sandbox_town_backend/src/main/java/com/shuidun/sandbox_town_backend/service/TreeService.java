@@ -88,14 +88,14 @@ public class TreeService {
             if (applePicking.getPickTime().getTime() + Constants.DAY_TOTAL_DURATION < System.currentTimeMillis()) {
                 applePicking.setCount(1);
                 applePicking.setPickTime(new java.util.Date());
-                applePickingMapper.updateById(applePicking);
+                applePickingMapper.update(applePicking);
             } else {
                 // 如果上次摘苹果时间不超过一天
                 // 如果摘苹果数量小于树的限制
                 if (applePicking.getCount() < tree.getLimitPerSprite()) {
                     applePicking.setCount(applePicking.getCount() + 1);
                     applePicking.setPickTime(new java.util.Date());
-                    applePickingMapper.updateById(applePicking);
+                    applePickingMapper.update(applePicking);
                 } else {
                     throw new BusinessException(StatusCodeEnum.PICK_APPLE_LIMIT_EXCEEDED);
                 }

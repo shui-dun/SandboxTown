@@ -89,7 +89,7 @@ public class StoreService {
         spriteMapper.updateById(sprite);
         // 更新商店商品数量
         storeItemType.setCount(storeItemType.getCount() - amount);
-        storeItemTypeMapper.updateById(storeItemType);
+        storeItemTypeMapper.update(storeItemType);
         // 更新用户物品
         itemService.add(spriteId, item, amount);
     }
@@ -127,7 +127,7 @@ public class StoreService {
                     StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, itemType.getId());
                     if (storeItemType != null) {
                         storeItemType.setCount(storeItemType.getCount() + itemCount);
-                        storeItemTypeMapper.updateById(storeItemType);
+                        storeItemTypeMapper.update(storeItemType);
                     } else {
                         // 否则插入
                         // 以物品基础价格为基础，生成随机价格
@@ -229,7 +229,7 @@ public class StoreService {
             } else {
                 // 否则，更新商店商品的数量
                 storeItemType.setCount(storeItemType.getCount() + amount);
-                storeItemTypeMapper.updateById(storeItemType);
+                storeItemTypeMapper.update(storeItemType);
             }
         }
     }

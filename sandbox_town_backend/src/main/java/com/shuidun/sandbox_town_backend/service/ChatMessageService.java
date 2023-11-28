@@ -113,7 +113,7 @@ public class ChatMessageService {
         // 更新最后一条已读消息
         chatFriend.setReadChatId(messageId);
         // 更新未读消息数量
-        chatFriend.setUnread(chatMessageMapper.countNewerThanId(chatFriend.getUser(), chatFriend.getFriend(), chatFriend.getReadChatId()));
+        chatFriend.setUnread((int) chatMessageMapper.countNewerThanId(chatFriend.getUser(), chatFriend.getFriend(), chatFriend.getReadChatId()));
         // 写入更新后的好友关系
         chatFriendMapper.update(chatFriend);
     }

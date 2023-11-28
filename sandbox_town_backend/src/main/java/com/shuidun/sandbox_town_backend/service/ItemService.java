@@ -212,7 +212,7 @@ public class ItemService {
 
     /** 获得物品类型的效果列表 */
     private Set<ItemTypeEffectDo> selectEffectsByItemType(ItemTypeEnum itemType) {
-        Set<ItemTypeEffectDo> itemTypeEffects = itemTypeEffectMapper.selectByItemType(itemType);
+        Set<ItemTypeEffectDo> itemTypeEffects = new HashSet<>(itemTypeEffectMapper.selectByItemType(itemType));
         // 得到效果的详细信息，例如效果的描述
         Set<EffectEnum> effectEnums = itemTypeEffects.stream().map(ItemTypeEffectDo::getEffect).collect(Collectors.toSet());
         if (effectEnums.isEmpty()) {
@@ -233,7 +233,7 @@ public class ItemService {
         itemType.setLabels(itemTypeLabels);
 
         // 找到物品类型的属性增益
-        Set<ItemTypeAttributeDo> itemTypeAttribute = itemTypeAttributeMapper.selectByItemType(itemTypeId);
+        List<ItemTypeAttributeDo> itemTypeAttribute = itemTypeAttributeMapper.selectByItemType(itemTypeId);
         // 将物品品类型的属性增益按照操作类型分组
         Map<ItemOperationEnum, ItemTypeAttributeDo> itemTypeAttributeMap = itemTypeAttribute.stream().collect(Collectors.toMap(ItemTypeAttributeDo::getOperation, itemTypeAttribute1 -> itemTypeAttribute1));
         // 设置物品类型的属性增益

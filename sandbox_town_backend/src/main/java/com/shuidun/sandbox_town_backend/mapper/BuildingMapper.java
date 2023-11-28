@@ -1,11 +1,11 @@
 package com.shuidun.sandbox_town_backend.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.BuildingDo;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -13,28 +13,34 @@ import java.util.List;
 public interface BuildingMapper extends BaseMapper<BuildingDo> {
 
     /** 根据地图名称获取上面所有的建筑物 */
-    @Select("SELECT * FROM building WHERE map = #{mapId}")
-    List<BuildingDo> selectByMapId(String mapId);
+    default List<BuildingDo> selectByMapId(String mapId) {
+        return selectList(new LambdaQueryWrapper<BuildingDo>()
+                .eq(BuildingDo::getMap, mapId));
+    }
 
-    // 地图上的建筑数目
-    @Select("SELECT COUNT(*) FROM building WHERE map = #{mapId}")
-    int countByMapId(String mapId);
+    /** 地图上的建筑数目 */
+    default long countByMapId(String mapId) {
+        return selectCount(new LambdaQueryWrapper<BuildingDo>()
+                .eq(BuildingDo::getMap, mapId));
+    }
 
     /** 根据地图名称和建筑物类型获取建筑物列表 */
-    @Select("SELECT * FROM building WHERE map = #{mapId} AND type = #{type}")
-    List<BuildingDo> selectByMapIdAndType(String mapId, BuildingTypeEnum type);
+    default List<BuildingDo> selectByMapIdAndType(String mapId, BuildingTypeEnum type) {
+        return selectList(new LambdaQueryWrapper<BuildingDo>()
+                .eq(BuildingDo::getMap, mapId)
+                .eq(BuildingDo::getType, type));
+    }
 
     /** 根据地图名称和建筑物类型列表获取建筑物列表 */
-    @Select("""
-            <script>
-                SELECT * FROM building WHERE map = #{mapId} AND type in
-                <foreach collection="types" item="item" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-            </script>
-            """)
-    List<BuildingDo> selectByMapIdAndTypes(String mapId, List<BuildingTypeEnum> types);
+    default List<BuildingDo> selectByMapIdAndTypes(String mapId, List<BuildingTypeEnum> types) {
+        return selectList(new LambdaQueryWrapper<BuildingDo>()
+                .eq(BuildingDo::getMap, mapId)
+                .in(BuildingDo::getType, types));
+    }
 
-    @Update("UPDATE building SET owner = #{toId} WHERE owner = #{fromId}")
-    void updateOwnerByOwner(String fromId, String toId);
+    default void updateOwnerByOwner(String fromId, String toId) {
+        update(null, new LambdaUpdateWrapper<BuildingDo>()
+                .eq(BuildingDo::getOwner, fromId)
+                .set(BuildingDo::getOwner, toId));
+    }
 }

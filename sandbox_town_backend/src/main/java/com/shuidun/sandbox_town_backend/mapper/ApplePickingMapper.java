@@ -1,20 +1,21 @@
 package com.shuidun.sandbox_town_backend.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.ApplePickingDo;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 @Mapper
-public interface ApplePickingMapper {
-    @Insert("insert into apple_picking values (#{sprite}, #{tree}, #{count}, #{pickTime})")
-    void insert(ApplePickingDo applePicking);
+public interface ApplePickingMapper extends BaseMapper<ApplePickingDo> {
+    default ApplePickingDo selectById(String spriteId, String treeId) {
+        return selectOne(new LambdaQueryWrapper<ApplePickingDo>()
+                .eq(ApplePickingDo::getSprite, spriteId)
+                .eq(ApplePickingDo::getTree, treeId));
+    }
 
-    @Select("select * from apple_picking where sprite = #{spriteId} and tree = #{treeId}")
-    ApplePickingDo selectById(String spriteId, String treeId);
-
-    @Update("update apple_picking set count = #{count}, pick_time = #{pickTime} where sprite = #{sprite} and tree = #{tree}")
-    void updateById(ApplePickingDo applePicking);
-
+    default void update(ApplePickingDo applePicking) {
+        update(applePicking, new LambdaQueryWrapper<ApplePickingDo>()
+                .eq(ApplePickingDo::getSprite, applePicking.getSprite())
+                .eq(ApplePickingDo::getTree, applePicking.getTree()));
+    }
 }

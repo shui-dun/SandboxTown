@@ -1,5 +1,7 @@
 package com.shuidun.sandbox_town_backend.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
@@ -17,35 +19,33 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
             ON sprite.type = sprite_type.type
             WHERE id = #{id}
             """)
-    SpriteDo selectByIdWithType(@Param("id") String id);
+    SpriteDo selectByIdWithType(String id);
 
 
     @Update("UPDATE sprite SET ${attribute} = #{value} WHERE id = #{id}")
-    void updateAttribute(@Param("id") String id, @Param("attribute") String attribute, @Param("value") int value);
+    void updateAttribute(String id, String attribute, int value);
 
     /** 得到某个地图上的所有角色 */
-    @Select("SELECT * FROM sprite WHERE map = #{map}")
-    List<SpriteDo> selectByMapId(@Param("map") String map);
+    default List<SpriteDo> selectByMapId(String map) {
+        return selectList(new LambdaQueryWrapper<SpriteDo>()
+                .eq(SpriteDo::getMap, map));
+    }
 
-    @Select("SELECT * FROM sprite WHERE owner = #{owner}")
-    List<SpriteDo> selectByOwner(String owner);
+    default List<SpriteDo> selectByOwner(String owner) {
+        return selectList(new LambdaQueryWrapper<SpriteDo>()
+                .eq(SpriteDo::getOwner, owner));
+    }
 
     /** 得到没有主人的角色 */
-    @Select("SELECT * FROM sprite where owner IS NULL and type != 'user'")
-    List<SpriteDo> selectUnownedSprites();
+    default List<SpriteDo> selectUnownedSprites() {
+        return selectList(new LambdaQueryWrapper<SpriteDo>()
+                .isNull(SpriteDo::getOwner)
+                .ne(SpriteDo::getType, SpriteTypeEnum.USER));
+    }
 
     /**
      * 对精灵列表spriteIds中的每个精灵，减少val的饥饿值（如果原先饥饿值小于val则减到0）
-     * UPDATE sprite
-     * SET hunger = CASE
-     * WHEN hunger - val < 0 THEN 0
-     * ELSE hunger - val
-     * END
-     * WHERE id IN (1, 2, 3);
-     * <p>
-     * 注意，在<script>标签中，<和>需要转义为&lt;和&gt;
      */
-
     @Update("""
             <script>
                 UPDATE sprite
@@ -86,32 +86,36 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
     void recoverSpritesLife(Collection<String> spriteIds, int minHunger, int incVal, int maxHp);
 
     /** 更新坐标 */
-    @Update("UPDATE sprite SET x = #{x}, y = #{y} WHERE id = #{id}")
-    void updatePosition(@Param("id") String id, @Param("x") double x, @Param("y") double y);
+    default void updatePosition(String id, double x, double y) {
+        update(null, new LambdaUpdateWrapper<SpriteDo>()
+                .eq(SpriteDo::getId, id)
+                .set(SpriteDo::getX, x)
+                .set(SpriteDo::getY, y));
+    }
 
     /** 更新精灵体力 */
     @Update("UPDATE sprite SET hp = CASE WHEN hp + #{incVal} > #{maxHp} THEN #{maxHp} ELSE hp + #{incVal} END WHERE id = #{spriteId}")
     void addSpriteLife(String spriteId, int incVal, int maxHp);
 
     /** 根据精灵类型和地图id得到精灵数量 */
-    @Select("SELECT COUNT(*) FROM sprite WHERE type = #{type} AND map = #{map}")
-    int countByTypeAndMap(SpriteTypeEnum type, String map);
+    default long countByTypeAndMap(SpriteTypeEnum type, String map) {
+        return selectCount(new LambdaQueryWrapper<SpriteDo>()
+                .eq(SpriteDo::getType, type)
+                .eq(SpriteDo::getMap, map));
+    }
 
     /** 根据精灵类型列表和地图id得到精灵 */
-    @Select("""
-            <script>
-                SELECT * FROM sprite WHERE type IN
-                <foreach collection="types" item="type" open="(" separator="," close=")">
-                    #{type}
-                </foreach>
-                AND map = #{map}
-            </script>
-            """)
-    List<SpriteDo> selectByTypesAndMap(List<SpriteTypeEnum> types, String map);
+    default List<SpriteDo> selectByTypesAndMap(List<SpriteTypeEnum> types, String map) {
+        return selectList(new LambdaQueryWrapper<SpriteDo>()
+                .in(SpriteDo::getType, types)
+                .eq(SpriteDo::getMap, map));
+    }
 
-
-    @Update("UPDATE sprite SET owner = #{toId} WHERE owner = #{fromId}")
-    void updateOwnerByOwner(String fromId, String toId);
+    default void updateOwnerByOwner(String fromId, String toId) {
+        update(null, new LambdaUpdateWrapper<SpriteDo>()
+                .eq(SpriteDo::getOwner, fromId)
+                .set(SpriteDo::getOwner, toId));
+    }
 
     /** 如果精灵存在，则更新精灵，否则添加精灵 */
     @Insert("""

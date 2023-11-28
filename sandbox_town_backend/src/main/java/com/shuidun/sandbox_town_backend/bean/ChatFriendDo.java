@@ -12,10 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChatFriendDo {
 
-    @TableId
     private String user;
 
-    @TableId
     private String friend;
 
     private Boolean ban;

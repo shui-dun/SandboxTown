@@ -2,7 +2,6 @@
 
 ## feature
 
-- 使用 `mybatis-plus` 取代SQL注解，实现类型安全
 - 使用 `@NonNullApi`、`@NonNullFields` 和 `@Nullable` 实现空安全
 - java调试：如何调试springboot？如何调试docker中的springboot？
 - 添加聊天模块：
