@@ -49,14 +49,16 @@ public class ItemService {
         if (itemType.getDurability() != -1) {
             // 不可堆叠，直接插入
             for (int i = 0; i < count; i++) {
-                ItemDo item = new ItemDo();
-                item.setId(UUIDNameGenerator.generateItemName(itemTypeId.name()));
-                item.setOwner(spriteId);
-                item.setItemType(itemTypeId);
-                item.setItemCount(1);
-                item.setLife(Constants.MAX_ITEM_LIFE);
-                item.setLevel(1);
-                item.setPosition(ItemPositionEnum.BACKPACK);
+                ItemDo item = new ItemDo(
+                        UUIDNameGenerator.generateItemName(itemTypeId.name()),
+                        spriteId,
+                        itemTypeId,
+                        1,
+                        Constants.MAX_ITEM_LIFE,
+                        1,
+                        ItemPositionEnum.BACKPACK,
+                        null
+                );
                 itemMapper.insert(item);
             }
         } else {
@@ -64,14 +66,16 @@ public class ItemService {
             List<ItemDo> items = itemMapper.selectByOwnerAndItemType(spriteId, itemTypeId);
             if (items.isEmpty()) {
                 // 玩家没有该物品，直接插入
-                ItemDo item = new ItemDo();
-                item.setId(UUIDNameGenerator.generateItemName(itemTypeId.name()));
-                item.setOwner(spriteId);
-                item.setItemType(itemTypeId);
-                item.setItemCount(count);
-                item.setLife(Constants.MAX_ITEM_LIFE);
-                item.setLevel(1);
-                item.setPosition(ItemPositionEnum.BACKPACK);
+                ItemDo item = new ItemDo(
+                        UUIDNameGenerator.generateItemName(itemTypeId.name()),
+                        spriteId,
+                        itemTypeId,
+                        count,
+                        Constants.MAX_ITEM_LIFE,
+                        1,
+                        ItemPositionEnum.BACKPACK,
+                        null
+                );
                 itemMapper.insert(item);
             } else {
                 ItemDo item = items.get(0);

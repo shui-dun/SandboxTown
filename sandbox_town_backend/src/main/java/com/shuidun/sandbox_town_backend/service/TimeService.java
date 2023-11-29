@@ -16,38 +16,38 @@ public class TimeService {
 
     /** 进入白天 */
     public void enterDay() {
-        TimeFrameVo timeFrameVo = new TimeFrameVo();
-        timeFrameVo.setTimeFrame(TimeFrameEnum.DAY);
-        timeFrameVo.setTimeFrameDuration(Constants.DAY_DURATION);
-        timeFrameVo.setTimeFrameEndTime(System.currentTimeMillis() + Constants.DAY_DURATION);
-        GameCache.timeFrame = timeFrameVo;
+        GameCache.timeFrame = new TimeFrameVo(
+                TimeFrameEnum.DAY,
+                Constants.DAY_DURATION,
+                System.currentTimeMillis() + Constants.DAY_DURATION
+        );
     }
 
     /** 进入黄昏 */
     public void enterDusk() {
-        TimeFrameVo timeFrameVo = new TimeFrameVo();
-        timeFrameVo.setTimeFrame(TimeFrameEnum.DUSK);
-        timeFrameVo.setTimeFrameDuration(Constants.DUSK_DURATION);
-        timeFrameVo.setTimeFrameEndTime(System.currentTimeMillis() + Constants.DUSK_DURATION);
-        GameCache.timeFrame = timeFrameVo;
+        GameCache.timeFrame = new TimeFrameVo(
+                TimeFrameEnum.DUSK,
+                Constants.DUSK_DURATION,
+                System.currentTimeMillis() + Constants.DUSK_DURATION
+        );
     }
 
     /** 进入夜晚 */
     public void enterNight() {
-        TimeFrameVo timeFrameVo = new TimeFrameVo();
-        timeFrameVo.setTimeFrame(TimeFrameEnum.NIGHT);
-        timeFrameVo.setTimeFrameDuration(Constants.NIGHT_DURATION);
-        timeFrameVo.setTimeFrameEndTime(System.currentTimeMillis() + Constants.NIGHT_DURATION);
-        GameCache.timeFrame = timeFrameVo;
+        GameCache.timeFrame = new TimeFrameVo(
+                TimeFrameEnum.NIGHT,
+                Constants.NIGHT_DURATION,
+                System.currentTimeMillis() + Constants.NIGHT_DURATION
+        );
     }
 
     /** 进入黎明 */
     public void enterDawn() {
-        TimeFrameVo timeFrameVo = new TimeFrameVo();
-        timeFrameVo.setTimeFrame(TimeFrameEnum.DAWN);
-        timeFrameVo.setTimeFrameDuration(Constants.DAWN_DURATION);
-        timeFrameVo.setTimeFrameEndTime(System.currentTimeMillis() + Constants.DAWN_DURATION);
-        GameCache.timeFrame = timeFrameVo;
+        GameCache.timeFrame = new TimeFrameVo(
+                TimeFrameEnum.DAWN,
+                Constants.DAWN_DURATION,
+                System.currentTimeMillis() + Constants.DAWN_DURATION
+        );
     }
 
 }

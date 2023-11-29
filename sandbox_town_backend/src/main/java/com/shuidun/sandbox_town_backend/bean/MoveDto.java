@@ -3,25 +3,30 @@ package com.shuidun.sandbox_town_backend.bean;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class MoveDto {
     /** 出发点x坐标 */
     @NotNull
+    @NonNull
     private Double x0;
     /** 出发点y坐标 */
     @NotNull
+    @NonNull
     private Double y0;
     /** 终点x坐标 */
     @NotNull
+    @NonNull
     private Double x1;
     /** 终点y坐标 */
     @NotNull
+    @NonNull
     private Double y1;
     /** 终点建筑ID（如果有） */
     @Nullable

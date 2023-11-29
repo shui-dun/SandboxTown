@@ -66,12 +66,13 @@ public class EffectService {
             // 如果精灵的效果列表中没有这个效果
             if (!spriteEffectMap.containsKey(equipmentEffect.getEffect())) {
                 // 直接加入
-                SpriteEffectDo spriteEffectDo = new SpriteEffectDo();
-                spriteEffectDo.setSprite(spriteId);
-                spriteEffectDo.setEffect(equipmentEffect.getEffect());
-                // 装备的效果时效显然是永久
-                spriteEffectDo.setDuration(-1);
-                spriteEffectDo.setExpire(-1L);
+                SpriteEffectDo spriteEffectDo = new SpriteEffectDo(
+                        spriteId,
+                        equipmentEffect.getEffect(),
+                        -1, // 装备的效果时效显然是永久
+                        -1L,
+                        null
+                );
                 spriteEffectMap.put(equipmentEffect.getEffect(), spriteEffectDo);
             } else { // 如果精灵的效果列表中有这个效果
                 SpriteEffectDo spriteEffectDo = spriteEffectMap.get(equipmentEffect.getEffect());
@@ -136,11 +137,13 @@ public class EffectService {
             }
         }
         // 如果原没有这个效果或者已过期，则添加效果
-        spriteEffect = new SpriteEffectDo();
-        spriteEffect.setSprite(spriteId);
-        spriteEffect.setEffect(effectId);
-        spriteEffect.setDuration(duration);
-        spriteEffect.setExpire(duration == -1 ? -1L : System.currentTimeMillis() + duration * 1000L);
+        spriteEffect = new SpriteEffectDo(
+                spriteId,
+                effectId,
+                duration,
+                duration == -1 ? -1L : System.currentTimeMillis() + duration * 1000L,
+                null
+        );
         spriteEffectMapper.insertOrUpdate(spriteEffect);
 
     }

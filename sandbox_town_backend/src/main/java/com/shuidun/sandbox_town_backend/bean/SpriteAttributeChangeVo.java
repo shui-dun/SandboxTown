@@ -1,54 +1,78 @@
 package com.shuidun.sandbox_town_backend.bean;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
 
 /**
  * 记录精灵的属性变化，只有玩家自己发生变化才会收到通知
  */
 @Data
+@NoArgsConstructor
 public class SpriteAttributeChangeVo {
     /** 精灵id */
+    @NonNull
     private String id;
 
+    @NonNull
     private Integer money;
 
     /** 这些增量表示的是变化后的值减去变化前的值 */
+    @NonNull
     private Integer moneyInc;
 
+    @NonNull
     private Integer exp;
 
+    @NonNull
     private Integer expInc;
 
+    @NonNull
     private Integer level;
 
+    @NonNull
     private Integer levelInc;
 
+    @NonNull
     private Integer hunger;
 
+    @NonNull
     private Integer hungerInc;
 
+    @NonNull
     private Integer hp;
 
+    @NonNull
     private Integer hpInc;
 
+    @NonNull
     private Integer attack;
 
+    @NonNull
     private Integer attackInc;
 
+    @NonNull
     private Integer defense;
 
+    @NonNull
     private Integer defenseInc;
 
+    @NonNull
     private Integer speed;
 
+    @NonNull
     private Integer speedInc;
 
+    @NonNull
     private Integer visionRange;
 
+    @NonNull
     private Integer visionRangeInc;
 
+    @NonNull
     private Integer attackRange;
 
+    @NonNull
     private Integer attackRangeInc;
 
     /** 设置原先的属性值 */

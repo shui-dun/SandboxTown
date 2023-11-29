@@ -3,11 +3,14 @@ package com.shuidun.sandbox_town_backend.bean;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Point {
-    int x;
-    int y;
+    @NonNull
+    private int x;
+    @NonNull
+    private int y;
 }

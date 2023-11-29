@@ -85,7 +85,7 @@ public class WSRequestHandler {
                 return;
             }
             // 如果时间戳不对，直接返回
-            if (data.getTime() == null || data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
+            if (data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
                 return;
             }
             // 如果该角色已被删除，直接返回
@@ -131,8 +131,8 @@ public class WSRequestHandler {
             }
             spriteCache.setX(data.getX0());
             spriteCache.setY(data.getY0());
-            spriteCache.setVx(0);
-            spriteCache.setVy(0);
+            spriteCache.setVx(0.0);
+            spriteCache.setVy(0.0);
             // 更新玩家的找到的路径
             var sprite = spriteService.selectByIdWithDetail(initiator);
             if (sprite == null) {
@@ -166,7 +166,7 @@ public class WSRequestHandler {
             }
             // 判断上次交互的时间是否过去了400m秒
             var spriteCache = GameCache.spriteCacheMap.get(data.getSource());
-            if (spriteCache == null || spriteCache.getLastInteractTime() > System.currentTimeMillis() - 400) {
+            if (spriteCache == null || (spriteCache.getLastInteractTime() != null && spriteCache.getLastInteractTime() > System.currentTimeMillis() - 400)) {
                 return;
             }
             // 如果上次交互的序列号和本次相同，说明本次交互已经处理过了，直接返回

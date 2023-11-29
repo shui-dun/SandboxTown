@@ -14,9 +14,9 @@ CREATE TABLE user
     # 封禁结束时间
     ban_end_date DATETIME,
     # 作弊次数
-    cheat_count  INT      DEFAULT 0,
+    cheat_count  INT          NOT NULL DEFAULT 0,
     # 用户创建时间
-    create_date  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    create_date  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     # 上次在线（进入游戏）时间
     last_online  DATETIME
 );
@@ -123,7 +123,7 @@ CREATE TABLE sprite
     # 主人
     owner        VARCHAR(255),
     # 角色的各个属性都是基础值，不包括装备、效果等加成
-    money        INT                   DEFAULT 0,
+    money        INT          NOT NULL DEFAULT 0,
     exp          INT          NOT NULL DEFAULT 0,
     level        INT          NOT NULL DEFAULT 1,
     hunger       INT          NOT NULL DEFAULT 100,
@@ -472,7 +472,7 @@ create table sprite_refresh
 (
     sprite_type   varchar(255) not null,
     # 刷新在哪种建筑附近
-    building_type varchar(255),
+    building_type varchar(255) not null,
     #  最小刷新数目（这个数可以是负数）
     min_count     int          not null,
     # 最大刷新数目
@@ -543,11 +543,11 @@ CREATE TABLE chat_friend
     # 是否拉黑对方
     ban          BOOL         NOT NULL DEFAULT 0,
     # 与该用户的最后一条消息的id
-    last_chat_id INT                   DEFAULT 0,
+    last_chat_id INT          NOT NULL DEFAULT 0,
     # 用户已读的最后一条消息的id
     read_chat_id INT                   DEFAULT 0,
     # 未读消息数目
-    unread       INT                   DEFAULT 0,
+    unread       INT          NOT NULL DEFAULT 0,
     PRIMARY KEY (user, friend),
     CONSTRAINT fk_friend_user FOREIGN KEY (user) REFERENCES sprite (id) ON DELETE CASCADE,
     CONSTRAINT fk_friend_friend FOREIGN KEY (friend) REFERENCES sprite (id) ON DELETE CASCADE

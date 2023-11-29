@@ -1,4 +1,4 @@
-package com.shuidun.sandbox_town_backend.bean ;
+package com.shuidun.sandbox_town_backend.bean;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.shuidun.sandbox_town_backend.enumeration.ItemLabelEnum;
@@ -6,14 +6,17 @@ import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
 
 @TableName("item_type_label")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class ItemTypeLabelDo {
 
+    @NonNull
     private ItemTypeEnum itemType;
 
+    @NonNull
     private ItemLabelEnum label;
 }

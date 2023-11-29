@@ -132,11 +132,13 @@ public class StoreService {
                         // 以物品基础价格为基础，生成随机价格
                         int price = (int) (Math.random() * itemType.getBasicPrice()) + itemType.getBasicPrice() / 2;
                         // 生成商店商品
-                        storeItemType = new StoreItemTypeDo();
-                        storeItemType.setStore(store);
-                        storeItemType.setItemType(itemType.getId());
-                        storeItemType.setCount(itemCount);
-                        storeItemType.setPrice(price);
+                        storeItemType = new StoreItemTypeDo(
+                                itemType.getId(),
+                                store,
+                                itemCount,
+                                price,
+                                null
+                        );
                         storeItemTypeMapper.insert(storeItemType);
                     }
                     break;
@@ -219,11 +221,13 @@ public class StoreService {
             StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());
             if (storeItemType == null) {
                 // 如果商店里面没有这个商品，那么那直接用物品的售卖价格的两倍
-                storeItemType = new StoreItemTypeDo();
-                storeItemType.setStore(store);
-                storeItemType.setItemType(item.getItemType());
-                storeItemType.setCount(amount);
-                storeItemType.setPrice(perPrice * 2);
+                storeItemType = new StoreItemTypeDo(
+                        item.getItemType(),
+                        store,
+                        amount,
+                        perPrice * 2,
+                        null
+                );
                 storeItemTypeMapper.insert(storeItemType);
             } else {
                 // 否则，更新商店商品的数量

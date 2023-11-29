@@ -41,10 +41,10 @@ public class UserServiceTest {
     @BeforeEach
     // 在每个测试方法执行前执行一些预处理操作
     public void setUp() {
-        username = "testUser";
-        user = new UserDo();
-        user.setUsername(username);
-        roleSet = new HashSet<>();
+        // username = "testUser";
+        // user = new UserDo();
+        // user.setUsername(username);
+        // roleSet = new HashSet<>();
     }
 
     @Test

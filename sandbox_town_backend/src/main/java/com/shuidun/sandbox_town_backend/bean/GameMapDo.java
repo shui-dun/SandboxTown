@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @TableName("game_map")
 @Data
@@ -14,17 +16,23 @@ import lombok.NoArgsConstructor;
 public class GameMapDo {
 
     @TableId
+    @NonNull
     private String id;
 
+    @NonNull
     private String name;
 
+    @NonNull
     private Integer width;
 
+    @NonNull
     private Integer height;
 
+    @NonNull
     private Integer seed;
 
     /** 数据 */
     @TableField(exist = false)
+    @Nullable
     private int[][] data;
 }

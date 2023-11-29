@@ -238,15 +238,15 @@ public class SpriteService {
                 sprite.setY(0.0);
                 spriteMapper.updateById(sprite);
                 var spriteCache = GameCache.spriteCacheMap.get(sprite.getId());
-                spriteCache.setX(0);
-                spriteCache.setY(0);
+                spriteCache.setX(0.0);
+                spriteCache.setY(0.0);
                 // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
                 spriteCache.setLastMoveTime(System.currentTimeMillis() + 500);
                 responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
                         sprite.getId(),
                         sprite.getX(),
                         sprite.getY(),
-                        0, 0
+                        0.0, 0.0
                 )));
             } else { // 否则，删除
                 // 修改精灵的所有建筑的主人设置为null
@@ -276,31 +276,31 @@ public class SpriteService {
     /** 生成固定的（即各属性值严格等于其精灵类型的基础属性值）指定类型的角色，并写入数据库 */
     @Transactional
     public SpriteDo generateFixedSprite(SpriteTypeEnum type, String id, @Nullable String owner, double x, double y) {
-        SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
-        sprite.setId(id);
-        sprite.setType(type);
-        sprite.setOwner(owner);
-        sprite.setMoney(spriteType.getBasicMoney());
-        sprite.setExp(spriteType.getBasicExp());
-        sprite.setLevel(spriteType.getBasicLevel());
+        SpriteDo sprite = new SpriteDo(
+                id,
+                type,
+                owner,
+                spriteType.getBasicMoney(),
+                spriteType.getBasicExp(),
+                spriteType.getBasicLevel(),
+                spriteType.getBasicHunger(),
+                spriteType.getBasicHp(),
+                spriteType.getBasicAttack(),
+                spriteType.getBasicDefense(),
+                spriteType.getBasicSpeed(),
+                spriteType.getBasicVisionRange(),
+                spriteType.getBasicAttackRange(),
+                x,
+                y,
+                spriteType.getBasicWidth(),
+                spriteType.getBasicHeight(),
+                mapId);
         // 将等级降为1，全部赋给经验值
         if (sprite.getLevel() > 1) {
             sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * sprite.getLevel() * Constants.EXP_PER_LEVEL / 2);
             sprite.setLevel(1);
         }
-        sprite.setHunger(spriteType.getBasicHunger());
-        sprite.setHp(spriteType.getBasicHp());
-        sprite.setAttack(spriteType.getBasicAttack());
-        sprite.setDefense(spriteType.getBasicDefense());
-        sprite.setSpeed(spriteType.getBasicSpeed());
-        sprite.setVisionRange(spriteType.getBasicVisionRange());
-        sprite.setAttackRange(spriteType.getBasicAttackRange());
-        sprite.setX(x);
-        sprite.setY(y);
-        sprite.setWidth(spriteType.getBasicWidth());
-        sprite.setHeight(spriteType.getBasicHeight());
-        sprite.setMap(mapId);
         normalizeAndUpdateSprite(sprite);
         return sprite;
     }
@@ -308,47 +308,43 @@ public class SpriteService {
     /** 生成随机的指定类型的角色，并写入数据库 */
     @Transactional
     public SpriteDo generateRandomSprite(SpriteTypeEnum type, String id, @Nullable String owner, double x, double y) {
-        SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
-        sprite.setId(id);
-        sprite.setType(type);
-        sprite.setOwner(owner);
         // 根据基础属性值和随机数随机生成角色的属性
         double scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        sprite.setMoney((int) (spriteType.getBasicMoney() * scale));
+        int money = (int) (spriteType.getBasicMoney() * scale);
         scale = -5 + GameCache.random.nextInt(11);
-        sprite.setLevel((int) (spriteType.getBasicLevel() + scale));
-        if (sprite.getLevel() < 1) {
-            sprite.setLevel(1);
+        int level = (int) (spriteType.getBasicLevel() + scale);
+        if (level < 1) {
+            level = 1;
         }
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        sprite.setExp((int) (spriteType.getBasicExp() * scale));
+        int exp = (int) (spriteType.getBasicExp() * scale);
         // 将等级降为1，全部赋给经验值
-        if (sprite.getLevel() > 1) {
-            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * sprite.getLevel() * Constants.EXP_PER_LEVEL / 2);
-            sprite.setLevel(1);
+        if (level > 1) {
+            exp += (level - 1) * level * Constants.EXP_PER_LEVEL / 2;
+            level = 1;
         }
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        sprite.setHunger((int) (spriteType.getBasicHunger() * scale));
+        int hunger = (int) (spriteType.getBasicHunger() * scale);
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        sprite.setHp((int) (spriteType.getBasicHp() * scale));
+        int hp = (int) (spriteType.getBasicHp() * scale);
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        sprite.setAttack((int) (spriteType.getBasicAttack() * scale));
+        int attack = (int) (spriteType.getBasicAttack() * scale);
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        sprite.setDefense((int) (spriteType.getBasicDefense() * scale));
+        int defense = (int) (spriteType.getBasicDefense() * scale);
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        sprite.setSpeed((int) (spriteType.getBasicSpeed() * scale));
+        int speed = (int) (spriteType.getBasicSpeed() * scale);
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        sprite.setVisionRange((int) (spriteType.getBasicVisionRange() * scale));
+        int visionRange = (int) (spriteType.getBasicVisionRange() * scale);
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        sprite.setAttackRange((int) (spriteType.getBasicAttackRange() * scale));
-        sprite.setX(x);
-        sprite.setY(y);
+        int attackRange = (int) (spriteType.getBasicAttackRange() * scale);
         // 宽度和高度使用相同的scale
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        sprite.setWidth(spriteType.getBasicWidth() * scale);
-        sprite.setHeight(spriteType.getBasicHeight() * scale);
-        sprite.setMap(mapId);
+        double width = spriteType.getBasicWidth() * scale;
+        double height = spriteType.getBasicHeight() * scale;
+        SpriteDo sprite = new SpriteDo(id, type, owner, money,
+                exp, level, hunger, hp, attack, defense, speed,
+                visionRange, attackRange, x, y, width, height, mapId);
         normalizeAndUpdateSprite(sprite);
         return sprite;
     }
@@ -373,10 +369,9 @@ public class SpriteService {
     }
 
     public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {
-        MyAndMyPetInfoVo myAndMyPetInfo = new MyAndMyPetInfoVo();
-        myAndMyPetInfo.setMe(spriteMapper.selectById(ownerId));
-        myAndMyPetInfo.setMyPets(spriteMapper.selectByOwner(ownerId));
-        return myAndMyPetInfo;
+        return new MyAndMyPetInfoVo(
+                spriteMapper.selectById(ownerId),
+                spriteMapper.selectByOwner(ownerId));
     }
 
     /** 得到玩家的所有宠物 */
@@ -590,9 +585,7 @@ public class SpriteService {
     public List<WSResponseVo> modifyLife(String spriteId, int val) {
         SpriteDo sprite = spriteMapper.selectById(spriteId);
         List<WSResponseVo> responses = new ArrayList<>();
-        HpChangeVo hpChangeVo = new HpChangeVo();
-        hpChangeVo.setId(sprite.getId());
-        hpChangeVo.setOriginHp(sprite.getHp());
+        int originHp = sprite.getHp();
         // 扣除目标精灵生命
         sprite.setHp(sprite.getHp() + val);
         // 判断目标精灵是否死亡
@@ -603,7 +596,7 @@ public class SpriteService {
         if (sprite.getHp() > Constants.MAX_HP) {
             sprite.setHp(Constants.MAX_HP);
         }
-        hpChangeVo.setHpChange(sprite.getHp() - hpChangeVo.getOriginHp());
+        HpChangeVo hpChangeVo = new HpChangeVo(spriteId, originHp, sprite.getHp() - originHp);
         if (hpChangeVo.getHpChange() != 0) {
             responses.add(new WSResponseVo(WSResponseEnum.SPRITE_HP_CHANGE, hpChangeVo));
             // 更新目标精灵
@@ -675,10 +668,16 @@ public class SpriteService {
         // 将精灵的坐标信息写入缓存
         SpriteCache cache = GameCache.spriteCacheMap.get(id);
         if (cache == null) {
-            cache = new SpriteCache();
-            cache.setX(sprite.getX());
-            cache.setY(sprite.getY());
-            cache.setLastMoveTime(System.currentTimeMillis());
+            cache = new SpriteCache(
+                    sprite.getX(),
+                    sprite.getY(),
+                    0.0, 0.0,
+                    System.currentTimeMillis(),
+                    null,
+                    null,
+                    SpriteStatus.IDLE,
+                    null, null, null, null
+            );
             GameCache.spriteCacheMap.put(id, cache);
         }
         // 使其宠物上线
@@ -754,7 +753,7 @@ public class SpriteService {
         List<SpriteDo> sprites = spriteMapper.selectByTypesAndMap(spriteTypes, mapId);
         // 为所有夜行动物添加烧伤效果
         for (SpriteDo sprite : sprites) {
-            effectService.addEffect(sprite.getId(), EffectEnum.BURN, (Constants.DAWN_DURATION + Constants.DAY_DURATION) / 1000);
+            effectService.addEffect(sprite.getId(), EffectEnum.BURN, (int) ((Constants.DAWN_DURATION + Constants.DAY_DURATION) / 1000L));
         }
     }
 

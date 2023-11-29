@@ -2,7 +2,8 @@
 
 ## feature
 
-- 使用 `@NonNullApi`、`@NonNullFields` 和 `@Nullable` 实现空安全
+- 引入BO来组合DO，实现空安全（不需要判断VO中某些字段是否为空）
+- BO转化为VO给前端
 - java调试：如何调试springboot？如何调试docker中的springboot？
 - 添加聊天模块：
   - 私聊（目前这些功能的后端全部实现了，但尚未实现前端）：

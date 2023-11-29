@@ -372,15 +372,18 @@ public class GameMapService {
             // 随机生成建筑的宽高，在基础宽高的基础上波动（0.8倍到1.2倍）
             double scale = Math.random() * 0.4 + 0.8;
             // 创建建筑对象
-            BuildingDo building = new BuildingDo();
-            building.setId(UUIDNameGenerator.generateItemName(buildingType.getId().name()));
-            building.setType(buildingType.getId());
-            building.setMap(mapId);
-            building.setLevel(1);
-            building.setOriginX(x);
-            building.setOriginY(y);
-            building.setWidth(buildingType.getBasicWidth() * scale);
-            building.setHeight(buildingType.getBasicHeight() * scale);
+            BuildingDo building = new BuildingDo(
+                    UUIDNameGenerator.generateItemName(buildingType.getId().name()),
+                    buildingType.getId(),
+                    mapId,
+                    1,
+                    null,
+                    x,
+                    y,
+                    buildingType.getBasicWidth() * scale,
+                    buildingType.getBasicHeight() * scale
+
+            );
             // 判断是否与其他建筑重叠
             if (!isBuildingOverlap(building)) {
                 // 如果不重叠，添加建筑到数据库

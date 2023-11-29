@@ -238,13 +238,14 @@ public class ChatMessageService {
         }
         // 如果之前不存在好友关系，则创建好友关系
         if (chatFriend == null) {
-            chatFriend = new ChatFriendDo();
-            chatFriend.setUser(target);
-            chatFriend.setFriend(source);
-            chatFriend.setBan(false);
-            chatFriend.setLastChatId(chatMessage.getId());
-            chatFriend.setReadChatId(null);
-            chatFriend.setUnread(1);
+            chatFriend = new ChatFriendDo(
+                    target,
+                    source,
+                    false,
+                    chatMessage.getId(),
+                    null,
+                    1
+            );
             chatFriendMapper.insert(chatFriend);
         } else {
             // 如果之前存在好友关系，则更新好友关系
@@ -254,13 +255,14 @@ public class ChatMessageService {
         }
         ChatFriendDo chatFriend2 = chatFriendMapper.selectById(source, target);
         if (chatFriend2 == null) {
-            chatFriend2 = new ChatFriendDo();
-            chatFriend2.setUser(source);
-            chatFriend2.setFriend(target);
-            chatFriend2.setBan(false);
-            chatFriend2.setLastChatId(chatMessage.getId());
-            chatFriend2.setReadChatId(null);
-            chatFriend2.setUnread(0);
+            chatFriend2 = new ChatFriendDo(
+                    source,
+                    target,
+                    false,
+                    chatMessage.getId(),
+                    null,
+                    0
+            );
             chatFriendMapper.insert(chatFriend2);
         } else {
             chatFriend2.setLastChatId(chatMessage.getId());

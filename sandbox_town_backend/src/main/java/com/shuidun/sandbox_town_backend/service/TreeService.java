@@ -75,11 +75,12 @@ public class TreeService {
         ApplePickingDo applePicking = applePickingMapper.selectById(spriteId, treeId);
         // 如果信息为空，说明角色第一次摘苹果，插入一条记录
         if (applePicking == null) {
-            applePicking = new ApplePickingDo();
-            applePicking.setSprite(spriteId);
-            applePicking.setTree(treeId);
-            applePicking.setCount(1);
-            applePicking.setPickTime(new java.util.Date());
+            applePicking = new ApplePickingDo(
+                    spriteId,
+                    treeId,
+                    1,
+                    new java.util.Date()
+            );
             applePickingMapper.insert(applePicking);
         } else {
             // 如果上次摘苹果时间超过一天
@@ -108,11 +109,13 @@ public class TreeService {
 
     /** 创建一棵树 */
     public void createRandomTree(String treeId) {
-        TreeDo tree = new TreeDo();
-        tree.setId(treeId);
-        tree.setApplesCount(1 + GameCache.random.nextInt(5));
-        tree.setMaxApplesCount(tree.getApplesCount());
-        tree.setLimitPerSprite(1);
+        int appleCount = 1 + GameCache.random.nextInt(5);
+        TreeDo tree = new TreeDo(
+                treeId,
+                appleCount,
+                appleCount,
+                1
+        );
         treeMapper.insert(tree);
     }
 

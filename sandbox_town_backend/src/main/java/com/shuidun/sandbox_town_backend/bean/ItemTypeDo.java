@@ -10,35 +10,46 @@ import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.Map;
 import java.util.Set;
 
 @TableName("item_type")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class ItemTypeDo {
 
     @TableId
+    @NonNull
     private ItemTypeEnum id;
 
+    @NonNull
     private String name;
 
+    @NonNull
     private String description;
 
+    @NonNull
     private Integer basicPrice;
 
+    @NonNull
     private Integer rarity;
 
+    @NonNull
     private Integer durability;
 
     @TableField(exist = false)
+    @Nullable
     private Set<ItemLabelEnum> labels;
 
     @TableField(exist = false)
+    @Nullable
     private Map<ItemOperationEnum, ItemTypeAttributeDo> attributes;
 
     @TableField(exist = false)
+    @Nullable
     private Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectDo>> effects;
 }

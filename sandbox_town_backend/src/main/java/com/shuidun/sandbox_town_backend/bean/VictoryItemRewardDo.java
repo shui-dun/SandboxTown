@@ -6,18 +6,23 @@ import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
 
 @TableName("victory_item_reward")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class VictoryItemRewardDo {
 
+    @NonNull
     private SpriteTypeEnum spriteType;
 
+    @NonNull
     private ItemTypeEnum itemType;
 
+    @NonNull
     private Integer minCount;
 
+    @NonNull
     private Integer maxCount;
 }

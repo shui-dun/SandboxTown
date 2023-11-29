@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.mixin;
 import com.shuidun.sandbox_town_backend.bean.SpriteCache;
 import com.shuidun.sandbox_town_backend.bean.TimeFrameVo;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
+import org.springframework.lang.Nullable;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -23,7 +24,8 @@ public class GameCache {
     public static Map<BuildingTypeEnum, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
     /** 地图，用于寻路算法，0表示可以通过，1代表围墙，非0表示障碍物ID的哈希值 */
-    public static int[][] map = new int[0][0];
+    @Nullable
+    public static int[][] map;
 
     /** 角色缓存信息，保存在内存中，部分信息例如坐标定期写入数据库 */
     public static Map<String, SpriteCache> spriteCacheMap = new ConcurrentHashMap<>();
