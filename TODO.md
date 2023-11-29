@@ -2,15 +2,6 @@
 
 ## feature
 
-- 引入BO来组合DO，实现空安全（不需要判断VO中某些字段是否为空），重构顺序如下
-  - ItemTypeEffect
-  - itemtype
-  - storeitemtype
-  - item
-  - spriteeffect
-  - sprite
-
-- BO转化为VO给前端
 - java调试：如何调试springboot？如何调试docker中的springboot？
 - 添加聊天模块：
   - 私聊（目前这些功能的后端全部实现了，但尚未实现前端）：
@@ -142,6 +133,7 @@
   - 目前尚不支持除玩家以外的精灵到达建筑
 - 可以选举主客户端，报告npc的消息，避免重复的消息
 - 使用rabbitmq消息队列，客户端向服务端的消息发送消息，当然，服务端的任意模块也可以作为生产者向消息队列发送消息。服务端的各个模块作为消费者消费消息。这些模块高内聚低耦合，使得不需要加锁
+- BO转化为VO给前端
 
 ## bug
 
