@@ -24,7 +24,7 @@ import java.util.function.Predicate;
 public class SpriteScheduler {
 
     /** 类型到函数的映射 */
-    private final Map<SpriteTypeEnum, Consumer<SpriteDo>> typeToFunction = new HashMap<>();
+    private final Map<SpriteTypeEnum, Consumer<SpriteDetailBo>> typeToFunction = new HashMap<>();
 
     private final SpriteService spriteService;
 
@@ -185,7 +185,7 @@ public class SpriteScheduler {
         // 遍历所有角色
         for (String id : GameCache.spriteCacheMap.keySet()) {
             // 得到其角色
-            SpriteDo sprite = spriteService.selectByIdWithDetail(id);
+            SpriteDetailBo sprite = spriteService.selectByIdWithDetail(id);
             if (sprite == null) {
                 continue;
             }

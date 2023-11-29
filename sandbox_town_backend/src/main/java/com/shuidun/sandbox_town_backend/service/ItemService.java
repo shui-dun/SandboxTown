@@ -111,34 +111,18 @@ public class ItemService {
     }
 
     /** 根据主人查询物品（带有物品类型信息和标签信息） */
-    public List<ItemDo> listByOwnerWithTypeAndLabel(String owner) {
-        // 找到所有物品
-        List<ItemDo> items = itemMapper.selectByOwner(owner);
-        // 如果没有物品，直接返回
-        if (items.isEmpty()) {
-            return items;
-        }
-        // 为物品列表设置物品类型信息和标签信息
-        setItemTypeAndLabelsForItems(items);
-        return items;
+    public List<ItemWithTypeAndLabelsBo> listByOwnerWithTypeAndLabel(String owner) {
+        return setItemTypeAndLabelsForItems(itemMapper.selectByOwner(owner));
     }
 
 
     /** 根据主人以及位置查询物品（带有物品类型信息和标签信息） */
-    public List<ItemDo> listItemsByOwnerAndPositionWithTypeAndLabel(String owner, ItemPositionEnum position) {
-        // 找到所有物品
-        List<ItemDo> items = itemMapper.selectByOwnerAndPosition(owner, position);
-        // 如果没有物品，直接返回
-        if (items.isEmpty()) {
-            return items;
-        }
-        // 为物品列表设置物品类型信息和标签信息
-        setItemTypeAndLabelsForItems(items);
-        return items;
+    public List<ItemWithTypeAndLabelsBo> listItemsByOwnerAndPositionWithTypeAndLabel(String owner, ItemPositionEnum position) {
+        return setItemTypeAndLabelsForItems(itemMapper.selectByOwnerAndPosition(owner, position));
     }
 
     /** 根据主人查询背包中的物品（带有物品类型信息和标签信息） */
-    public List<ItemDo> listItemsInBackpackByOwner(String owner) {
+    public List<ItemWithTypeAndLabelsBo> listItemsInBackpackByOwner(String owner) {
         return listItemsByOwnerAndPositionWithTypeAndLabel(owner, ItemPositionEnum.BACKPACK);
     }
 
@@ -147,14 +131,7 @@ public class ItemService {
      * 物品的位置在列表中的任意一个即可
      */
     public List<ItemWithTypeAndLabelsBo> listItemsByOwnerAndPositionsWithTypeAndLabel(String owner, List<ItemPositionEnum> positions) {
-        // 找到所有物品
-        List<ItemDo> items = itemMapper.selectByOwnerAndPositions(owner, positions);
-        // 如果没有物品，直接返回
-        if (items.isEmpty()) {
-            return new ArrayList<>();
-        }
-        // 为物品列表设置物品类型信息和标签信息
-        return setItemTypeAndLabelsForItems(items);
+        return setItemTypeAndLabelsForItems(itemMapper.selectByOwnerAndPositions(owner, positions));
     }
 
     /**
@@ -204,6 +181,9 @@ public class ItemService {
 
     /** 为物品列表设置物品类型信息（带有标签信息） */
     private List<ItemWithTypeAndLabelsBo> setItemTypeAndLabelsForItems(List<ItemDo> items) {
+        if (items.isEmpty()) {
+            return new ArrayList<>();
+        }
         // 找到所有物品类型
         List<ItemTypeDo> itemTypes = itemTypeMapper.selectBatchIds(items.stream().map(ItemDo::getItemType).collect(Collectors.toList()));
         // 为物品类型列表设置标签信息

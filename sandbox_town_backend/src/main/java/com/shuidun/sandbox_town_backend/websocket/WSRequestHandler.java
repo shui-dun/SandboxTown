@@ -207,7 +207,7 @@ public class WSRequestHandler {
 
         // 索敌事件
         eventMap.put(WSRequestEnum.FIND_ENEMY, (initiator, mapData) -> {
-            SpriteDo sourceSprite = spriteService.selectByIdWithDetail(initiator);
+            SpriteDetailBo sourceSprite = spriteService.selectByIdWithDetail(initiator);
             if (sourceSprite == null) {
                 return;
             }
