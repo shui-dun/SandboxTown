@@ -40,16 +40,4 @@ public class ItemTypeDo {
 
     @NonNull
     private Integer durability;
-
-    @TableField(exist = false)
-    @Nullable
-    private Set<ItemLabelEnum> labels;
-
-    @TableField(exist = false)
-    @Nullable
-    private Map<ItemOperationEnum, ItemTypeAttributeDo> attributes;
-
-    @TableField(exist = false)
-    @Nullable
-    private Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectDo>> effects;
 }

@@ -13,13 +13,10 @@ import org.springframework.lang.Nullable;
 
 import java.util.List;
 
-@TableName("sprite")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpriteDo {
-
-    @TableId
+public class SpriteWithTypeBo {
     @NonNull
     private String id;
 
@@ -73,4 +70,17 @@ public class SpriteDo {
 
     @NonNull
     private String map;
+
+    /** 以下是Join sprite_type表的字段 */
+    @NonNull
+    private String name;
+
+    @NonNull
+    private String description;
+
+    @NonNull
+    private Double widthRatio;
+
+    @NonNull
+    private Double heightRatio;
 }

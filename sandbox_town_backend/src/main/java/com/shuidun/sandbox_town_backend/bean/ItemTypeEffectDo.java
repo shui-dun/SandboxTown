@@ -28,8 +28,4 @@ public class ItemTypeEffectDo {
 
     @NonNull
     private Integer duration;
-
-    @TableField(exist = false)
-    @Nullable
-    private EffectDo effectObj;
 }

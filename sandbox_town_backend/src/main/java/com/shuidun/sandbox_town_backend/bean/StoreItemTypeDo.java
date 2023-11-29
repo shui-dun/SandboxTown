@@ -26,8 +26,4 @@ public class StoreItemTypeDo {
 
     @NonNull
     private Integer price;
-
-    @TableField(exist = false)
-    @Nullable
-    private ItemTypeDo itemTypeObj;
 }

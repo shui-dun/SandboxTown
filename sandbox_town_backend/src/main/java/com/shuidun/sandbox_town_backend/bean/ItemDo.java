@@ -38,9 +38,4 @@ public class ItemDo {
 
     @NonNull
     private ItemPositionEnum position;
-
-    @TableField(exist = false)
-    @Nullable
-    private ItemTypeDo itemTypeObj;
-
 }
