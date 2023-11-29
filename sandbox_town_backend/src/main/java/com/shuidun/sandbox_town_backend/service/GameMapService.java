@@ -169,7 +169,7 @@ public class GameMapService {
      * @param destSpriteId   目标精灵id，如果终点是精灵，则传入精灵id，否则传入null
      */
     @Nullable
-    public List<Point> findPath(SpriteDo initiator, double x1, double y1,
+    public List<Point> findPath(SpriteDetailBo initiator, double x1, double y1,
                                 @Nullable String destBuildingId, @Nullable String destSpriteId) {
         double x0 = initiator.getX();
         double y0 = initiator.getY();
@@ -193,7 +193,7 @@ public class GameMapService {
             endX = (int) (GameCache.spriteCacheMap.get(destSpriteId).getX() / Constants.PIXELS_PER_GRID);
             endY = (int) (GameCache.spriteCacheMap.get(destSpriteId).getY() / Constants.PIXELS_PER_GRID);
             // 获取精灵的宽高
-            SpriteDo destSprite = spriteService.selectByIdWithType(destSpriteId);
+            SpriteWithTypeBo destSprite = spriteService.selectByIdWithType(destSpriteId);
             if (destSprite == null) {
                 return null;
             }
@@ -221,7 +221,7 @@ public class GameMapService {
 
     /** 找到路径，但与目标保持一定距离 */
     @Nullable
-    public List<Point> findPathNotTooClose(SpriteDo initiator, double x1, double y1,
+    public List<Point> findPathNotTooClose(SpriteDetailBo initiator, double x1, double y1,
                                            @Nullable String destBuildingId, @Nullable String destSpriteId) {
         List<Point> path = findPath(initiator, x1, y1, destBuildingId, destSpriteId);
         if (path == null) {
@@ -416,7 +416,7 @@ public class GameMapService {
     }
 
     /** 得到随机移动速度 */
-    public Pair<Double, Double> randomVelocity(SpriteDo sprite) {
+    public Pair<Double, Double> randomVelocity(SpriteDetailBo sprite) {
         double coefficient = 0.9;
         double randomVx = coefficient * (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
         double randomVy = coefficient * (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);

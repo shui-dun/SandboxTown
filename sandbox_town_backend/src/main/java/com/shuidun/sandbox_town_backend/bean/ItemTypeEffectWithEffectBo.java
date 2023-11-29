@@ -11,4 +11,9 @@ import org.springframework.lang.NonNull;
 public class ItemTypeEffectWithEffectBo extends ItemTypeEffectDo {
     @NonNull
     private EffectDo effectObj;
+
+    public ItemTypeEffectWithEffectBo(ItemTypeEffectDo itemTypeEffectDo, EffectDo effectObj) {
+        super(itemTypeEffectDo);
+        this.effectObj = effectObj;
+    }
 }

@@ -40,4 +40,13 @@ public class ItemTypeDo {
 
     @NonNull
     private Integer durability;
+
+    public ItemTypeDo(ItemTypeDo other) {
+        this.id = other.id;
+        this.name = other.name;
+        this.description = other.description;
+        this.basicPrice = other.basicPrice;
+        this.rarity = other.rarity;
+        this.durability = other.durability;
+    }
 }

@@ -73,4 +73,25 @@ public class SpriteDo {
 
     @NonNull
     private String map;
+
+    public SpriteDo(SpriteDo other) {
+        this.id = other.id;
+        this.type = other.type;
+        this.owner = other.owner;
+        this.money = other.money;
+        this.exp = other.exp;
+        this.level = other.level;
+        this.hunger = other.hunger;
+        this.hp = other.hp;
+        this.attack = other.attack;
+        this.defense = other.defense;
+        this.speed = other.speed;
+        this.visionRange = other.visionRange;
+        this.attackRange = other.attackRange;
+        this.X = other.X;
+        this.Y = other.Y;
+        this.width = other.width;
+        this.height = other.height;
+        this.map = other.map;
+    }
 }

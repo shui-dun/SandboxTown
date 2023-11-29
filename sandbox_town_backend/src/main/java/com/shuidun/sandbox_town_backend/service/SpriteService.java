@@ -70,7 +70,7 @@ public class SpriteService {
     /**
      * 获得精灵的属性增量信息
      */
-    private void assignIncToSprite(SpriteDo sprite) {
+    private void assignIncToSprite(SpriteDetailBo sprite) {
         // 首先将属性增强全都设置为0
         sprite.setHungerInc(0);
         sprite.setHpInc(0);
@@ -80,7 +80,7 @@ public class SpriteService {
         sprite.setVisionRangeInc(0);
         sprite.setAttackRangeInc(0);
         // 对于所有装备，计算属性增量
-        for (ItemDo item : sprite.getEquipments()) {
+        for (ItemDetailBo item : sprite.getEquipments()) {
             // 判断物品的位置
             ItemPositionEnum position = item.getPosition();
             // 增益信息
@@ -105,16 +105,18 @@ public class SpriteService {
     }
 
     /** 为精灵设置装备、属性增量信息和效果列表 */
-    private void assignEquipmentsAndAttributeIncAndEffectToSprite(SpriteDo sprite) {
+    private SpriteDetailBo assignEquipmentsAndAttributeIncAndEffectToSprite(SpriteWithTypeBo sprite) {
         // 获取装备列表
-        var equipments = itemService.listItemsInEquipmentByOwnerWithDetail(sprite.getId());
-        // 设置装备列表
-        sprite.setEquipments(equipments);
-        // 设置属性增量信息
-        assignIncToSprite(sprite);
+        List<ItemDetailBo> equipments = itemService.listItemsInEquipmentByOwnerWithDetail(sprite.getId());
         // 设置效果列表
-        var effects = effectService.listSpriteEffectsBySpriteIdAndEquipments(sprite.getId(), equipments);
-        sprite.setEffects(effects);
+        List<SpriteEffectWithEffectBo> effects = effectService.listSpriteEffectsBySpriteIdAndEquipments(sprite.getId(), equipments);
+        SpriteDetailBo spriteDetail = new SpriteDetailBo(sprite);
+        // 设置装备列表
+        spriteDetail.setEquipments(equipments);
+        // 设置属性增量信息
+        assignIncToSprite(spriteDetail);
+        spriteDetail.setEffects(effects);
+        return spriteDetail;
     }
 
     /** 根据id获取角色信息（只带有缓存信息） */
@@ -131,8 +133,8 @@ public class SpriteService {
 
     /** 根据id获取角色信息（只带有缓存信息和类型信息） */
     @Nullable
-    public SpriteDo selectByIdWithType(String id) {
-        SpriteDo sprite = spriteMapper.selectByIdWithType(id);
+    public SpriteWithTypeBo selectByIdWithType(String id) {
+        SpriteWithTypeBo sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
             return null;
         }
@@ -143,17 +145,16 @@ public class SpriteService {
 
     /** 根据id获取角色详细信息（带有缓存信息、类型信息、装备信息、属性增量信息、效果列表信息） */
     @Nullable
-    public SpriteDo selectByIdWithDetail(String id) {
+    public SpriteDetailBo selectByIdWithDetail(String id) {
         // 获得带有类型信息的sprite
-        SpriteDo sprite = spriteMapper.selectByIdWithType(id);
+        SpriteWithTypeBo sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
             return null;
         }
         // 看看有没有cached信息
         assignCacheToSprite(sprite);
         // 获取装备信息、属性增量信息、效果列表
-        assignEquipmentsAndAttributeIncAndEffectToSprite(sprite);
-        return sprite;
+        return assignEquipmentsAndAttributeIncAndEffectToSprite(sprite);
     }
 
     /** 判断角色属性值是否在合理范围内（包含升级操作） */
@@ -399,7 +400,7 @@ public class SpriteService {
     public List<WSResponseVo> useItem(String owner, String itemId) {
         List<WSResponseVo> responseList = new ArrayList<>();
         // 判断物品是否存在
-        ItemDo item = itemService.getItemDetailById(itemId);
+        ItemDetailBo item = itemService.getItemDetailById(itemId);
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
@@ -481,7 +482,7 @@ public class SpriteService {
     }
 
     @Transactional
-    public List<WSResponseVo> attack(SpriteDo sourceSprite, SpriteDo targetSprite) {
+    public List<WSResponseVo> attack(SpriteDetailBo sourceSprite, SpriteDetailBo targetSprite) {
         List<WSResponseVo> responses = new ArrayList<>();
         // 如果被攻击者有火焰护体效果，则攻击者烧伤
         if (targetSprite.getEffects().stream().anyMatch(effect -> effect.getEffect() == EffectEnum.FLAME_BODY)) {
@@ -519,8 +520,8 @@ public class SpriteService {
                     spriteAttributeChange.setOriginal(sourceSprite);
                     sourceSprite.setMoney(sourceSprite.getMoney() + moneyInc);
                     sourceSprite.setExp(sourceSprite.getExp() + expInc);
-                    sourceSprite = normalizeAndUpdateSprite(sourceSprite).getFirst();
-                    if (spriteAttributeChange.setChanged(sourceSprite)) {
+                    SpriteDo newSourceSprite = normalizeAndUpdateSprite(sourceSprite).getFirst();
+                    if (spriteAttributeChange.setChanged(newSourceSprite)) {
                         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
                     }
                     // 攻击者主人的属性也得到同样的提升

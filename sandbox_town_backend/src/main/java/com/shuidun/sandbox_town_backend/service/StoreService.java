@@ -48,8 +48,8 @@ public class StoreService {
         this.spriteService = spriteService;
     }
 
-    /** 列出商店的所有商品 */
-    public List<StoreItemTypeDo> listByStore(String store) {
+    /** 列出商店的所有商品（带有标签信息） */
+    public List<StoreItemTypeWithTypeAndLabelsBo> listByStore(String store) {
         List<StoreItemTypeDo> storeItemTypes = storeItemTypeMapper.selectByStore(store);
         if (storeItemTypes.isEmpty()) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
@@ -57,12 +57,15 @@ public class StoreService {
         // 得到所有的物品类型枚举（不重复）
         Set<ItemTypeEnum> itemTypes = storeItemTypes.stream().map(StoreItemTypeDo::getItemType).collect(Collectors.toSet());
         // 得到所有的物品类型
-        Map<ItemTypeEnum, ItemTypeDo> itemTypeMap = itemTypeMapper.selectBatchIds(itemTypes).stream().collect(Collectors.toMap(ItemTypeDo::getId, itemType -> itemType));
+        List<ItemTypeDo> itemTypeDos = itemTypeMapper.selectBatchIds(itemTypes);
         // 为所有物品类型设置标签
-        itemService.setLabelsForItemTypes(itemTypeMap.values());
+        List<ItemTypeWithLabelsBo> itemTypeWithLabelsBo = itemService.setLabelsForItemTypes(itemTypeDos);
+        Map<ItemTypeEnum, ItemTypeWithLabelsBo> itemTypeWithLabelsMap = itemTypeWithLabelsBo.stream().collect(Collectors.toMap(ItemTypeWithLabelsBo::getId, x -> x));
         // 为所有商店商品设置物品类型
-        storeItemTypes.forEach(storeItemType -> storeItemType.setItemTypeObj(itemTypeMap.get(storeItemType.getItemType())));
-        return storeItemTypes;
+        return storeItemTypes.stream().map(storeItemType -> {
+            ItemTypeWithLabelsBo itemTypeWithLabels = itemTypeWithLabelsMap.get(storeItemType.getItemType());
+            return new StoreItemTypeWithTypeAndLabelsBo(storeItemType, itemTypeWithLabels);
+        }).collect(Collectors.toList());
     }
 
     /** 买入商品 */
@@ -136,8 +139,7 @@ public class StoreService {
                                 itemType.getId(),
                                 store,
                                 itemCount,
-                                price,
-                                null
+                                price
                         );
                         storeItemTypeMapper.insert(storeItemType);
                     }
@@ -157,20 +159,19 @@ public class StoreService {
     }
 
     /** 列出指定商店中指定商品的信息（包含标签信息、属性增益信息、效果信息等） */
-    public StoreItemTypeDo detailByStoreAndItemType(String store, ItemTypeEnum itemType) {
+    public StoreItemTypeDetailBo detailByStoreAndItemType(String store, ItemTypeEnum itemType) {
         StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, itemType);
         if (storeItemType == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
         // 得到标签信息、属性增益信息、效果信息等
-        storeItemType.setItemTypeObj(itemService.getItemTypeDetailById(itemType));
-        return storeItemType;
+        return new StoreItemTypeDetailBo(storeItemType, itemService.getItemTypeDetailById(itemType));
     }
 
     public Integer soldPrice(String store, String itemId) {
         int price;
         // 得到物品信息（带有类型信息）
-        ItemDo item = itemService.getItemWithTypeById(itemId);
+        ItemWithTypeBo item = itemService.getItemWithTypeById(itemId);
         // 得到商店商品信息
         StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());
         // 如果商店里面没有这个商品，那么那直接用物品的基础价格的一半
@@ -225,8 +226,7 @@ public class StoreService {
                         item.getItemType(),
                         store,
                         amount,
-                        perPrice * 2,
-                        null
+                        perPrice * 2
                 );
                 storeItemTypeMapper.insert(storeItemType);
             } else {

@@ -24,4 +24,11 @@ public class SpriteEffectDo {
 
     @NonNull
     private Long expire;
+
+    public SpriteEffectDo(SpriteEffectDo other) {
+        this.sprite = other.sprite;
+        this.effect = other.effect;
+        this.duration = other.duration;
+        this.expire = other.expire;
+    }
 }

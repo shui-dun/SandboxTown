@@ -26,4 +26,11 @@ public class StoreItemTypeDo {
 
     @NonNull
     private Integer price;
+
+    public StoreItemTypeDo(StoreItemTypeDo other) {
+        this.itemType = other.itemType;
+        this.store = other.store;
+        this.count = other.count;
+        this.price = other.price;
+    }
 }

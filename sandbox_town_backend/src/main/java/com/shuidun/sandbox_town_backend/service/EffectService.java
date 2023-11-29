@@ -1,9 +1,6 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.EffectDo;
-import com.shuidun.sandbox_town_backend.bean.ItemDo;
-import com.shuidun.sandbox_town_backend.bean.ItemTypeEffectDo;
-import com.shuidun.sandbox_town_backend.bean.SpriteEffectDo;
+import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemOperationEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemPositionEnum;
@@ -37,26 +34,24 @@ public class EffectService {
      * @param spriteId   精灵id
      * @param equipments 精灵的装备列表
      */
-    public List<SpriteEffectDo> listSpriteEffectsBySpriteIdAndEquipments(String spriteId, List<ItemDo> equipments) {
+    public List<SpriteEffectWithEffectBo> listSpriteEffectsBySpriteIdAndEquipments(String spriteId, List<ItemDetailBo> equipments) {
         // 从数据库中获取精灵的效果列表 （但注意这不包含装备的效果）
         Map<EffectEnum, SpriteEffectDo> spriteEffectMap = selectEffectsAndDeleteExpiredEffects(spriteId).stream().collect(Collectors.toMap(SpriteEffectDo::getEffect, Function.identity()));
         // 获得装备的效果列表
         List<ItemTypeEffectDo> equipmentEffectList = new ArrayList<>();
-        for (ItemDo item : equipments) {
+        for (ItemDetailBo item : equipments) {
             // 判断物品的位置
             ItemPositionEnum position = item.getPosition();
             // 如果是手持
             if (position == ItemPositionEnum.HANDHELD) {
-                // equipmentEffectList.addAll(item.getItemTypeObj().getEffects().get(ItemOperationEnum.HANDHELD).values());
                 // 使用Optional来避免空指针异常
                 // map()函数会对存在的值进行计算，返回一个新的Optional。如果源Optional为空，它将直接返回一个空的Optional
                 // ifPresent()函数在Optional值存在时会执行给定的lambda表达式
-                Optional.ofNullable(item.getItemTypeObj().getEffects())
+                Optional.of(item.getItemTypeObj().getEffects())
                         .map(e -> e.get(ItemOperationEnum.HANDHELD))
                         .ifPresent(v -> equipmentEffectList.addAll(v.values()));
             } else { // 如果是装备栏
-                // equipmentEffectList.addAll(item.getItemTypeObj().getEffects().get(ItemOperationEnum.EQUIP).values());
-                Optional.ofNullable(item.getItemTypeObj().getEffects())
+                Optional.of(item.getItemTypeObj().getEffects())
                         .map(e -> e.get(ItemOperationEnum.EQUIP))
                         .ifPresent(v -> equipmentEffectList.addAll(v.values()));
             }
@@ -70,8 +65,7 @@ public class EffectService {
                         spriteId,
                         equipmentEffect.getEffect(),
                         -1, // 装备的效果时效显然是永久
-                        -1L,
-                        null
+                        -1L
                 );
                 spriteEffectMap.put(equipmentEffect.getEffect(), spriteEffectDo);
             } else { // 如果精灵的效果列表中有这个效果
@@ -81,6 +75,7 @@ public class EffectService {
                 spriteEffectDo.setExpire(-1L);
             }
         }
+        var ans = new ArrayList<SpriteEffectWithEffectBo>();
         // 添加效果详细信息到spriteEffectMap
         if (!spriteEffectMap.isEmpty()) {
             List<EffectDo> effectList = effectMapper.selectBatchIds(spriteEffectMap.keySet());
@@ -88,10 +83,10 @@ public class EffectService {
             Map<EffectEnum, EffectDo> effectMap = effectList.stream().collect(Collectors.toMap(EffectDo::getId, Function.identity()));
             // 将效果详细信息添加到spriteEffectMap
             for (SpriteEffectDo spriteEffectDo : spriteEffectMap.values()) {
-                spriteEffectDo.setEffectObj(effectMap.get(spriteEffectDo.getEffect()));
+                ans.add(new SpriteEffectWithEffectBo(spriteEffectDo, effectMap.get(spriteEffectDo.getEffect())));
             }
         }
-        return new ArrayList<>(spriteEffectMap.values());
+        return ans;
     }
 
     /**
@@ -141,8 +136,7 @@ public class EffectService {
                 spriteId,
                 effectId,
                 duration,
-                duration == -1 ? -1L : System.currentTimeMillis() + duration * 1000L,
-                null
+                duration == -1 ? -1L : System.currentTimeMillis() + duration * 1000L
         );
         spriteEffectMapper.insertOrUpdate(spriteEffect);
 

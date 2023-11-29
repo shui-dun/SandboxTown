@@ -11,4 +11,9 @@ import org.springframework.lang.NonNull;
 public class SpriteEffectWithEffectBo extends SpriteEffectDo {
     @NonNull
     private EffectDo effectObj;
+
+    public SpriteEffectWithEffectBo(SpriteEffectDo spriteEffectDo, EffectDo effectDo) {
+        super(spriteEffectDo);
+        this.effectObj = effectDo;
+    }
 }

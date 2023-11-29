@@ -39,9 +39,13 @@ public class SpriteDetailBo extends SpriteWithTypeBo {
 
     /** 效果列表 */
     @NonNull
-    private List<SpriteEffectDo> effects;
+    private List<SpriteEffectWithEffectBo> effects;
 
     /** 装备列表 */
     @NonNull
-    private List<ItemDo> equipments;
+    private List<ItemDetailBo> equipments;
+
+    public SpriteDetailBo(SpriteWithTypeBo spriteWithTypeBo) {
+        super(spriteWithTypeBo);
+    }
 }

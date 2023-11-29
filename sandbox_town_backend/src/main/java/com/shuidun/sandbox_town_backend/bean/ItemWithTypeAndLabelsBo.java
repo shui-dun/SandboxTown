@@ -11,5 +11,10 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class ItemWithTypeAndLabelsBo extends ItemDo {
     @NotNull
-    private ItemTypeWithLabelsBo itemTypeWithLabelsObj;
+    private ItemTypeWithLabelsBo itemTypeObj;
+
+    public ItemWithTypeAndLabelsBo(ItemDo itemDo, ItemTypeWithLabelsBo itemTypeObj) {
+        super(itemDo);
+        this.itemTypeObj = itemTypeObj;
+    }
 }

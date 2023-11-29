@@ -13,4 +13,9 @@ public class ItemWithTypeBo extends ItemDo {
 
     @NotNull
     private ItemTypeDo itemTypeObj;
+
+    public ItemWithTypeBo(ItemDo itemDo, ItemTypeDo itemTypeDo) {
+        super(itemDo);
+        this.itemTypeObj = itemTypeDo;
+    }
 }

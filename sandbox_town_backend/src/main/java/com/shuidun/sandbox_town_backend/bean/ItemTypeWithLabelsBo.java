@@ -14,4 +14,14 @@ import java.util.Set;
 public class ItemTypeWithLabelsBo extends ItemTypeDo {
     @NonNull
     private Set<ItemLabelEnum> labels;
+
+    public ItemTypeWithLabelsBo(ItemTypeDo itemTypeDo, Set<ItemLabelEnum> labels) {
+        super(itemTypeDo);
+        this.labels = labels;
+    }
+
+    public ItemTypeWithLabelsBo(ItemTypeWithLabelsBo other) {
+        super(other);
+        this.labels = other.labels;
+    }
 }

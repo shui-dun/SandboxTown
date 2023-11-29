@@ -19,4 +19,10 @@ public class ItemTypeDetailBo extends ItemTypeWithLabelsBo {
     @NonNull
     private Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectWithEffectBo>> effects;
 
+    public ItemTypeDetailBo(ItemTypeWithLabelsBo itemTypeWithLabelsBo, Map<ItemOperationEnum, ItemTypeAttributeDo> attributes, Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectWithEffectBo>> effects) {
+        super(itemTypeWithLabelsBo);
+        this.attributes = attributes;
+        this.effects = effects;
+    }
+
 }

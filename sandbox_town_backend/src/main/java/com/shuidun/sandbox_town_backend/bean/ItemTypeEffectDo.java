@@ -28,4 +28,11 @@ public class ItemTypeEffectDo {
 
     @NonNull
     private Integer duration;
+
+    public ItemTypeEffectDo(ItemTypeEffectDo other) {
+        this.itemType = other.itemType;
+        this.operation = other.operation;
+        this.effect = other.effect;
+        this.duration = other.duration;
+    }
 }
