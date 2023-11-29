@@ -4,8 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.SpriteDo;
+import com.shuidun.sandbox_town_backend.bean.SpriteWithTypeBo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.lang.Nullable;
 
 import java.util.Collection;
@@ -21,7 +25,7 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
             WHERE id = #{id}
             """)
     @Nullable
-    SpriteDo selectByIdWithType(String id);
+    SpriteWithTypeBo selectByIdWithType(String id);
 
 
     @Update("UPDATE sprite SET ${attribute} = #{value} WHERE id = #{id}")

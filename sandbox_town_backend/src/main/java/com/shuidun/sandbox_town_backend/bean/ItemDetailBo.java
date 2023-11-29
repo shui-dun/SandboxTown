@@ -1,17 +1,15 @@
 package com.shuidun.sandbox_town_backend.bean;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemDetailBo {
+public class ItemDetailBo extends ItemDo {
     @NotNull
-    private ItemDo item;
-    @NotNull
-    private ItemTypeDetailBo itemTypeDetail;
+    private ItemTypeDetailBo itemTypeDetailObj;
 }
