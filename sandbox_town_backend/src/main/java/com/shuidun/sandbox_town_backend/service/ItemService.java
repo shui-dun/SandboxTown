@@ -3,7 +3,10 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.*;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
-import com.shuidun.sandbox_town_backend.mapper.*;
+import com.shuidun.sandbox_town_backend.mapper.ItemMapper;
+import com.shuidun.sandbox_town_backend.mapper.ItemTypeAttributeMapper;
+import com.shuidun.sandbox_town_backend.mapper.ItemTypeLabelMapper;
+import com.shuidun.sandbox_town_backend.mapper.ItemTypeMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +21,6 @@ import java.util.stream.Collectors;
 @Service
 public class ItemService {
 
-    private final SpriteMapper spriteMapper;
     private final ItemMapper itemMapper;
 
     private final ItemTypeLabelMapper itemTypeLabelMapper;
@@ -27,18 +29,14 @@ public class ItemService {
 
     private final ItemTypeMapper itemTypeMapper;
 
-    private final ItemTypeEffectMapper itemTypeEffectMapper;
+    private final EffectService effectService;
 
-    private final EffectMapper effectMapper;
-
-    public ItemService(SpriteMapper spriteMapper, ItemMapper itemMapper, ItemTypeLabelMapper itemTypeLabelMapper, ItemTypeAttributeMapper itemTypeAttributeMapper, ItemTypeMapper itemTypeMapper, ItemTypeEffectMapper itemTypeEffectMapper, EffectMapper effectMapper) {
-        this.spriteMapper = spriteMapper;
+    public ItemService(ItemMapper itemMapper, ItemTypeLabelMapper itemTypeLabelMapper, ItemTypeAttributeMapper itemTypeAttributeMapper, ItemTypeMapper itemTypeMapper, EffectService effectService) {
         this.itemMapper = itemMapper;
         this.itemTypeLabelMapper = itemTypeLabelMapper;
         this.itemTypeAttributeMapper = itemTypeAttributeMapper;
         this.itemTypeMapper = itemTypeMapper;
-        this.itemTypeEffectMapper = itemTypeEffectMapper;
-        this.effectMapper = effectMapper;
+        this.effectService = effectService;
     }
 
     /** 给玩家添加物品 */
@@ -165,8 +163,19 @@ public class ItemService {
         return listItemsByOwnerAndPositionsWithTypeAndLabel(owner, Arrays.asList(ItemPositionEnum.ITEMBAR, ItemPositionEnum.HANDHELD));
     }
 
+    /** 根据物品类型列表查询物品类型信息（即包含标签信息） */
+    public List<ItemTypeWithLabelsBo> listItemTypeWithLabels(List<ItemTypeEnum> itemTypeIds) {
+        if (itemTypeIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        // 找到物品类型
+        List<ItemTypeDo> itemTypes = itemTypeMapper.selectBatchIds(itemTypeIds);
+        // 为物品类型列表设置标签信息
+        return setLabelsForItemTypes(itemTypes);
+    }
+
     /** 为物品类型列表设置标签信息 */
-    public List<ItemTypeWithLabelsBo> setLabelsForItemTypes(Collection<ItemTypeDo> itemTypes) {
+    private List<ItemTypeWithLabelsBo> setLabelsForItemTypes(List<ItemTypeDo> itemTypes) {
         // 找到所有物品类型的标签
         List<ItemTypeLabelDo> itemTypeLabels = itemTypeLabelMapper.selectByItemTypes(itemTypes.stream().map(ItemTypeDo::getId).collect(Collectors.toList()));
         // 根据物品类型id分组
@@ -194,18 +203,6 @@ public class ItemService {
         return items.stream().map(item -> new ItemWithTypeAndLabelsBo(item, itemTypeMap.get(item.getItemType()))).collect(Collectors.toList());
     }
 
-    /** 获得物品类型的效果列表 */
-    private Set<ItemTypeEffectWithEffectBo> selectEffectsByItemType(ItemTypeEnum itemType) {
-        Set<ItemTypeEffectDo> itemTypeEffects = new HashSet<>(itemTypeEffectMapper.selectByItemType(itemType));
-        // 得到效果的详细信息，例如效果的描述
-        Set<EffectEnum> effectEnums = itemTypeEffects.stream().map(ItemTypeEffectDo::getEffect).collect(Collectors.toSet());
-        if (effectEnums.isEmpty()) {
-            return new HashSet<>();
-        }
-        Map<EffectEnum, EffectDo> effectMap = effectMapper.selectBatchIds(effectEnums).stream().collect(Collectors.toMap(EffectDo::getId, effect -> effect));
-        return itemTypeEffects.stream().map(itemTypeEffect -> new ItemTypeEffectWithEffectBo(itemTypeEffect, effectMap.get(itemTypeEffect.getEffect()))).collect(Collectors.toSet());
-    }
-
     /** 根据物品类型id查询物品类型详细信息（即包含标签信息、属性增益信息、效果信息） */
     public ItemTypeDetailBo getItemTypeDetailById(ItemTypeEnum itemTypeId) {
         // 找到物品类型
@@ -219,7 +216,7 @@ public class ItemService {
         Map<ItemOperationEnum, ItemTypeAttributeDo> itemTypeAttributeMap = itemTypeAttribute.stream().collect(Collectors.toMap(ItemTypeAttributeDo::getOperation, itemTypeAttribute1 -> itemTypeAttribute1));
 
         // 找到物品类型的效果
-        Set<ItemTypeEffectWithEffectBo> itemTypeEffects = selectEffectsByItemType(itemTypeId);
+        Set<ItemTypeEffectWithEffectBo> itemTypeEffects = effectService.selectEffectsByItemType(itemTypeId);
         // 根据操作和效果名称组装成map
         Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectWithEffectBo>> itemTypeEffectMap = itemTypeEffects.stream().collect(Collectors.groupingBy(ItemTypeEffectDo::getOperation, Collectors.toMap(ItemTypeEffectDo::getEffect, itemTypeEffect -> itemTypeEffect)));
         // 设置物品类型的效果以及属性增益

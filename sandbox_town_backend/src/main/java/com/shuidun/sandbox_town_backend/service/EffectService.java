@@ -4,15 +4,14 @@ import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemOperationEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemPositionEnum;
+import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.mapper.EffectMapper;
+import com.shuidun.sandbox_town_backend.mapper.ItemTypeEffectMapper;
 import com.shuidun.sandbox_town_backend.mapper.SpriteEffectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -23,9 +22,12 @@ public class EffectService {
 
     private final EffectMapper effectMapper;
 
-    public EffectService(SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper) {
+    private final ItemTypeEffectMapper itemTypeEffectMapper;
+
+    public EffectService(SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, ItemTypeEffectMapper itemTypeEffectMapper) {
         this.spriteEffectMapper = spriteEffectMapper;
         this.effectMapper = effectMapper;
+        this.itemTypeEffectMapper = itemTypeEffectMapper;
     }
 
     /**
@@ -142,4 +144,15 @@ public class EffectService {
 
     }
 
+    /** 获得物品类型的效果列表 */
+    public Set<ItemTypeEffectWithEffectBo> selectEffectsByItemType(ItemTypeEnum itemType) {
+        Set<ItemTypeEffectDo> itemTypeEffects = new HashSet<>(itemTypeEffectMapper.selectByItemType(itemType));
+        // 得到效果的详细信息，例如效果的描述
+        Set<EffectEnum> effectEnums = itemTypeEffects.stream().map(ItemTypeEffectDo::getEffect).collect(Collectors.toSet());
+        if (effectEnums.isEmpty()) {
+            return new HashSet<>();
+        }
+        Map<EffectEnum, EffectDo> effectMap = effectMapper.selectBatchIds(effectEnums).stream().collect(Collectors.toMap(EffectDo::getId, effect -> effect));
+        return itemTypeEffects.stream().map(itemTypeEffect -> new ItemTypeEffectWithEffectBo(itemTypeEffect, effectMap.get(itemTypeEffect.getEffect()))).collect(Collectors.toSet());
+    }
 }

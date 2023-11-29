@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,12 +53,10 @@ public class StoreService {
         if (storeItemTypes.isEmpty()) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
-        // 得到所有的物品类型枚举（不重复）
-        Set<ItemTypeEnum> itemTypes = storeItemTypes.stream().map(StoreItemTypeDo::getItemType).collect(Collectors.toSet());
-        // 得到所有的物品类型
-        List<ItemTypeDo> itemTypeDos = itemTypeMapper.selectBatchIds(itemTypes);
-        // 为所有物品类型设置标签
-        List<ItemTypeWithLabelsBo> itemTypeWithLabelsBo = itemService.setLabelsForItemTypes(itemTypeDos);
+        // 得到所有的物品类型枚举
+        List<ItemTypeEnum> itemTypes = storeItemTypes.stream().map(StoreItemTypeDo::getItemType).toList();
+        // 得到所有的物品类型（带有标签）
+        List<ItemTypeWithLabelsBo> itemTypeWithLabelsBo = itemService.listItemTypeWithLabels(itemTypes);
         Map<ItemTypeEnum, ItemTypeWithLabelsBo> itemTypeWithLabelsMap = itemTypeWithLabelsBo.stream().collect(Collectors.toMap(ItemTypeWithLabelsBo::getId, x -> x));
         // 为所有商店商品设置物品类型
         return storeItemTypes.stream().map(storeItemType -> {
@@ -214,7 +211,7 @@ public class StoreService {
         SpriteDo sprite = spriteMapper.selectById(spriteId);
         // 更新用户金钱
         sprite.setMoney(sprite.getMoney() + perPrice * amount);
-        spriteService.normalizeAndUpdateSprite(sprite).getFirst();
+        spriteService.normalizeAndUpdateSprite(sprite);
         // 更新物品数量
         itemService.reduce(spriteId, itemId, amount);
         // 更新商店商品数量（只有全新物品商店才会再次出售）
