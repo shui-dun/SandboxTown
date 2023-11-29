@@ -276,31 +276,31 @@ public class SpriteService {
     /** 生成固定的（即各属性值严格等于其精灵类型的基础属性值）指定类型的角色，并写入数据库 */
     @Transactional
     public SpriteDo generateFixedSprite(SpriteTypeEnum type, String id, @Nullable String owner, double x, double y) {
+        SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
-        SpriteDo sprite = new SpriteDo(
-                id,
-                type,
-                owner,
-                spriteType.getBasicMoney(),
-                spriteType.getBasicExp(),
-                spriteType.getBasicLevel(),
-                spriteType.getBasicHunger(),
-                spriteType.getBasicHp(),
-                spriteType.getBasicAttack(),
-                spriteType.getBasicDefense(),
-                spriteType.getBasicSpeed(),
-                spriteType.getBasicVisionRange(),
-                spriteType.getBasicAttackRange(),
-                x,
-                y,
-                spriteType.getBasicWidth(),
-                spriteType.getBasicHeight(),
-                mapId);
+        sprite.setId(id);
+        sprite.setType(type);
+        sprite.setOwner(owner);
+        sprite.setMoney(spriteType.getBasicMoney());
+        sprite.setExp(spriteType.getBasicExp());
+        sprite.setLevel(spriteType.getBasicLevel());
         // 将等级降为1，全部赋给经验值
         if (sprite.getLevel() > 1) {
             sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * sprite.getLevel() * Constants.EXP_PER_LEVEL / 2);
             sprite.setLevel(1);
         }
+        sprite.setHunger(spriteType.getBasicHunger());
+        sprite.setHp(spriteType.getBasicHp());
+        sprite.setAttack(spriteType.getBasicAttack());
+        sprite.setDefense(spriteType.getBasicDefense());
+        sprite.setSpeed(spriteType.getBasicSpeed());
+        sprite.setVisionRange(spriteType.getBasicVisionRange());
+        sprite.setAttackRange(spriteType.getBasicAttackRange());
+        sprite.setX(x);
+        sprite.setY(y);
+        sprite.setWidth(spriteType.getBasicWidth());
+        sprite.setHeight(spriteType.getBasicHeight());
+        sprite.setMap(mapId);
         normalizeAndUpdateSprite(sprite);
         return sprite;
     }
@@ -308,43 +308,47 @@ public class SpriteService {
     /** 生成随机的指定类型的角色，并写入数据库 */
     @Transactional
     public SpriteDo generateRandomSprite(SpriteTypeEnum type, String id, @Nullable String owner, double x, double y) {
+        SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
+        sprite.setId(id);
+        sprite.setType(type);
+        sprite.setOwner(owner);
         // 根据基础属性值和随机数随机生成角色的属性
         double scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        int money = (int) (spriteType.getBasicMoney() * scale);
+        sprite.setMoney((int) (spriteType.getBasicMoney() * scale));
         scale = -5 + GameCache.random.nextInt(11);
-        int level = (int) (spriteType.getBasicLevel() + scale);
-        if (level < 1) {
-            level = 1;
+        sprite.setLevel((int) (spriteType.getBasicLevel() + scale));
+        if (sprite.getLevel() < 1) {
+            sprite.setLevel(1);
         }
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        int exp = (int) (spriteType.getBasicExp() * scale);
+        sprite.setExp((int) (spriteType.getBasicExp() * scale));
         // 将等级降为1，全部赋给经验值
-        if (level > 1) {
-            exp += (level - 1) * level * Constants.EXP_PER_LEVEL / 2;
-            level = 1;
+        if (sprite.getLevel() > 1) {
+            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * sprite.getLevel() * Constants.EXP_PER_LEVEL / 2);
+            sprite.setLevel(1);
         }
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        int hunger = (int) (spriteType.getBasicHunger() * scale);
+        sprite.setHunger((int) (spriteType.getBasicHunger() * scale));
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        int hp = (int) (spriteType.getBasicHp() * scale);
+        sprite.setHp((int) (spriteType.getBasicHp() * scale));
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        int attack = (int) (spriteType.getBasicAttack() * scale);
+        sprite.setAttack((int) (spriteType.getBasicAttack() * scale));
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        int defense = (int) (spriteType.getBasicDefense() * scale);
+        sprite.setDefense((int) (spriteType.getBasicDefense() * scale));
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        int speed = (int) (spriteType.getBasicSpeed() * scale);
+        sprite.setSpeed((int) (spriteType.getBasicSpeed() * scale));
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        int visionRange = (int) (spriteType.getBasicVisionRange() * scale);
+        sprite.setVisionRange((int) (spriteType.getBasicVisionRange() * scale));
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        int attackRange = (int) (spriteType.getBasicAttackRange() * scale);
+        sprite.setAttackRange((int) (spriteType.getBasicAttackRange() * scale));
+        sprite.setX(x);
+        sprite.setY(y);
         // 宽度和高度使用相同的scale
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
-        double width = spriteType.getBasicWidth() * scale;
-        double height = spriteType.getBasicHeight() * scale;
-        SpriteDo sprite = new SpriteDo(id, type, owner, money,
-                exp, level, hunger, hp, attack, defense, speed,
-                visionRange, attackRange, x, y, width, height, mapId);
+        sprite.setWidth(spriteType.getBasicWidth() * scale);
+        sprite.setHeight(spriteType.getBasicHeight() * scale);
+        sprite.setMap(mapId);
         normalizeAndUpdateSprite(sprite);
         return sprite;
     }

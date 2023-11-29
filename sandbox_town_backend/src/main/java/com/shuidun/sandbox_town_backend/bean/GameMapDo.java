@@ -30,9 +30,4 @@ public class GameMapDo {
 
     @NonNull
     private Integer seed;
-
-    /** 数据 */
-    @TableField(exist = false)
-    @Nullable
-    private int[][] data;
 }
