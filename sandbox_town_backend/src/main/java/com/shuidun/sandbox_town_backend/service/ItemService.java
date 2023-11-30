@@ -238,9 +238,13 @@ public class ItemService {
     }
 
     /** 根据物品id查询物品以及物品类型信息 */
+    @Nullable
     public ItemWithTypeBo getItemWithTypeById(String itemId) {
         // 找到物品
         ItemDo item = itemMapper.selectById(itemId);
+        if (item == null) {
+            return null;
+        }
         // 找到物品类型
         ItemTypeDo itemType = itemTypeMapper.selectById(item.getItemType());
         // 设置物品类型

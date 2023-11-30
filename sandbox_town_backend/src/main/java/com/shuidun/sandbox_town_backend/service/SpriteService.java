@@ -404,6 +404,11 @@ public class SpriteService {
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
+        // 判断角色是否存在
+        SpriteDo sprite = spriteMapper.selectById(owner);
+        if (sprite == null) {
+            throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
+        }
         // 判断角色是否拥有该物品
         if (!item.getOwner().equals(owner)) {
             throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
@@ -418,7 +423,6 @@ public class SpriteService {
         if (itemTypeAttribute != null) {
             // TODO: 根据物品等级计算属性变化
             // 得到角色原先属性
-            SpriteDo sprite = spriteMapper.selectById(owner);
             SpriteAttributeChangeVo spriteAttributeChange = new SpriteAttributeChangeVo();
             spriteAttributeChange.setOriginal(sprite);
             // 更新角色属性
@@ -589,6 +593,9 @@ public class SpriteService {
     @Transactional
     public List<WSResponseVo> modifyLife(String spriteId, int val) {
         SpriteDo sprite = spriteMapper.selectById(spriteId);
+        if (sprite == null) {
+            throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
+        }
         List<WSResponseVo> responses = new ArrayList<>();
         int originHp = sprite.getHp();
         // 扣除目标精灵生命
@@ -670,6 +677,9 @@ public class SpriteService {
      */
     public SpriteCache online(String id) {
         SpriteDo sprite = spriteMapper.selectById(id);
+        if (sprite == null) {
+            throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
+        }
         // 将精灵的坐标信息写入缓存
         SpriteCache cache = GameCache.spriteCacheMap.get(id);
         if (cache == null) {

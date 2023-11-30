@@ -61,9 +61,10 @@ public class EffectService {
         // 将装备的效果列表和精灵的效果列表合并
         for (ItemTypeEffectDo equipmentEffect : equipmentEffectList) {
             // 如果精灵的效果列表中没有这个效果
-            if (!spriteEffectMap.containsKey(equipmentEffect.getEffect())) {
+            SpriteEffectDo spriteEffectDo = spriteEffectMap.get(equipmentEffect.getEffect());
+            if (spriteEffectDo == null) {
                 // 直接加入
-                SpriteEffectDo spriteEffectDo = new SpriteEffectDo(
+                spriteEffectDo = new SpriteEffectDo(
                         spriteId,
                         equipmentEffect.getEffect(),
                         -1, // 装备的效果时效显然是永久
@@ -71,7 +72,6 @@ public class EffectService {
                 );
                 spriteEffectMap.put(equipmentEffect.getEffect(), spriteEffectDo);
             } else { // 如果精灵的效果列表中有这个效果
-                SpriteEffectDo spriteEffectDo = spriteEffectMap.get(equipmentEffect.getEffect());
                 // 装备的效果时效显然是永久
                 spriteEffectDo.setDuration(-1);
                 spriteEffectDo.setExpire(-1L);

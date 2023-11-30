@@ -79,6 +79,9 @@ public class StoreService {
         }
         // 得到用户的金钱
         SpriteDo sprite = spriteMapper.selectById(spriteId);
+        if (sprite == null) {
+            throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
+        }
         int money = sprite.getMoney();
         // 检查用户金钱是否足够
         if (money < storeItemType.getPrice() * amount) {
@@ -169,6 +172,9 @@ public class StoreService {
         int price;
         // 得到物品信息（带有类型信息）
         ItemWithTypeBo item = itemService.getItemWithTypeById(itemId);
+        if (item == null) {
+            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+        }
         // 得到商店商品信息
         StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());
         // 如果商店里面没有这个商品，那么那直接用物品的基础价格的一半
@@ -199,6 +205,11 @@ public class StoreService {
         if (item.getItemCount() < amount) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_ENOUGH);
         }
+        // 得到用户信息
+        SpriteDo sprite = spriteMapper.selectById(spriteId);
+        if (sprite == null) {
+            throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
+        }
         // 检查物品所有者
         if (!item.getOwner().equals(spriteId)) {
             throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
@@ -207,8 +218,6 @@ public class StoreService {
         if (!Objects.equals(perPrice, soldPrice(store, itemId))) {
             throw new BusinessException(StatusCodeEnum.PRICE_NOT_MATCH);
         }
-        // 得到用户信息
-        SpriteDo sprite = spriteMapper.selectById(spriteId);
         // 更新用户金钱
         sprite.setMoney(sprite.getMoney() + perPrice * amount);
         spriteService.normalizeAndUpdateSprite(sprite);

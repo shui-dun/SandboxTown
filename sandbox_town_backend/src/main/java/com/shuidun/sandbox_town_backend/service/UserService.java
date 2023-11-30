@@ -12,6 +12,7 @@ import com.shuidun.sandbox_town_backend.utils.PasswordEncryptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +44,7 @@ public class UserService {
         this.spriteService = spriteService;
     }
 
+    @Nullable
     public UserDo findUserByName(String username) {
         return userMapper.selectById(username);
     }
@@ -209,6 +211,9 @@ public class UserService {
         // 获取当前用户
         String username = StpUtil.getLoginIdAsString();
         UserDo user = userMapper.selectById(username);
+        if (user == null) {
+            throw new BusinessException(StatusCodeEnum.USER_NOT_EXIST);
+        }
         // 判断密码是否正确
         String encryptedPasswd = PasswordEncryptor.encryptedPasswd(oldPassword, user.getSalt());
         assert encryptedPasswd != null;

@@ -33,11 +33,9 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String userName = (String) session.getAttributes().get("userName");
         // 如果用户已经存在，删除之前的session
-        if (WSMessageSender.usernameSession.containsKey(userName)) {
-            WebSocketSession webSocketSession = WSMessageSender.usernameSession.get(userName);
-            if (webSocketSession.isOpen()) {
-                webSocketSession.close();
-            }
+        WebSocketSession webSocketSession = WSMessageSender.usernameSession.get(userName);
+        if (webSocketSession != null && webSocketSession.isOpen()) {
+            webSocketSession.close();
         }
         // 保存用户session
         WSMessageSender.usernameSession.put(userName, session);
@@ -51,6 +49,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("call afterConnectionClosed");
         String userName = (String) session.getAttributes().get("userName");
+        assert userName != null;
         WSMessageSender.usernameSession.remove(userName, session);
         // 发出下线事件
         WSMessageSender.addResponse(spriteService.offline(userName));
