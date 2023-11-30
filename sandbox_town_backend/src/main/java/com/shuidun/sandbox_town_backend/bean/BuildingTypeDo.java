@@ -15,24 +15,17 @@ import org.springframework.lang.NonNull;
 public class BuildingTypeDo {
 
     @TableId
-    @NonNull
     private BuildingTypeEnum id;
 
-    @NonNull
     private String description;
 
-    @NonNull
     private Integer basicPrice;
 
-    @NonNull
     private String imagePath;
 
-    @NonNull
     private Double basicWidth;
 
-    @NonNull
     private Double basicHeight;
 
-    @NonNull
     private Integer rarity;
 }

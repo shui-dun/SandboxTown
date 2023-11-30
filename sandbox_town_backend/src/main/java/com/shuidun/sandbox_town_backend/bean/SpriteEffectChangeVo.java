@@ -14,6 +14,5 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class SpriteEffectChangeVo {
     /** 精灵id */
-    @NonNull
     private String id;
 }

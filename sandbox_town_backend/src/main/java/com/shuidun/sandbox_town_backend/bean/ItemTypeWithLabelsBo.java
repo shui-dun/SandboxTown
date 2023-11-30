@@ -12,7 +12,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemTypeWithLabelsBo extends ItemTypeDo {
-    @NonNull
     private Set<ItemLabelEnum> labels;
 
     public ItemTypeWithLabelsBo(ItemTypeDo itemTypeDo, Set<ItemLabelEnum> labels) {

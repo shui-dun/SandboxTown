@@ -16,58 +16,41 @@ import org.springframework.lang.Nullable;
 public class SpriteDo {
 
     @TableId
-    @NonNull
     private String id;
 
-    @NonNull
     private SpriteTypeEnum type;
 
     @Nullable
     private String owner;
 
-    @NonNull
     private Integer money;
 
-    @NonNull
     private Integer exp;
 
-    @NonNull
     private Integer level;
 
-    @NonNull
     private Integer hunger;
 
-    @NonNull
     private Integer hp;
 
-    @NonNull
     private Integer attack;
 
-    @NonNull
     private Integer defense;
 
-    @NonNull
     private Integer speed;
 
-    @NonNull
     private Integer visionRange;
 
-    @NonNull
     private Integer attackRange;
 
-    @NonNull
     private Double X;
 
-    @NonNull
     private Double Y;
 
-    @NonNull
     private Double width;
 
-    @NonNull
     private Double height;
 
-    @NonNull
     private String map;
 
     public SpriteDo(SpriteDo other) {

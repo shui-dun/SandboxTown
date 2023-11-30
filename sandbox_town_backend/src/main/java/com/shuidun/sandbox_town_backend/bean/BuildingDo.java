@@ -17,30 +17,22 @@ import org.springframework.lang.Nullable;
 public class BuildingDo {
 
     @TableId
-    @NonNull
     private String id;
 
-    @NonNull
     private BuildingTypeEnum type;
 
-    @NonNull
     private String map;
 
-    @NonNull
     private Integer level;
 
     @Nullable
     private SpriteTypeEnum owner;
 
-    @NonNull
     private Double originX;
 
-    @NonNull
     private Double originY;
 
-    @NonNull
     private Double width;
 
-    @NonNull
     private Double height;
 }

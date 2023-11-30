@@ -11,9 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MyAndMyPetInfoVo {
-    @NonNull
     private SpriteDo me;
 
-    @NonNull
     private List<SpriteDo> myPets;
 }

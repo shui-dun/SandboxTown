@@ -17,21 +17,15 @@ public class ChatMessageDo {
 
     /** 设置type = IdType.AUTO才能自增 */
     @TableId(type = IdType.AUTO)
-    @NonNull
     private Integer id;
 
-    @NonNull
     private String source;
 
-    @NonNull
     private String target;
 
-    @NonNull
     private ChatMsgTypeEnum type;
 
-    @NonNull
     private String message;
 
-    @NonNull
     private java.util.Date time;
 }

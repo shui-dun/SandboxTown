@@ -12,11 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MoveVo {
-    @NonNull
     private String id;
-    @NonNull
     private int speed;
-    @NonNull
     private List<Integer> path;
     @Nullable
     private String destBuildingId;

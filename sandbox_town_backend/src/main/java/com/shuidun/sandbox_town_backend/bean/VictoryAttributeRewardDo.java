@@ -14,12 +14,9 @@ import org.springframework.lang.NonNull;
 public class VictoryAttributeRewardDo {
 
     @TableId
-    @NonNull
     private String spriteType;
 
-    @NonNull
     private Integer moneyInc;
 
-    @NonNull
     private Integer expInc;
 }

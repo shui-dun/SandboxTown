@@ -15,22 +15,17 @@ import org.springframework.lang.Nullable;
 public class UserDo {
 
     @TableId
-    @NonNull
     private String username;
 
-    @NonNull
     private String password;
 
-    @NonNull
     private String salt;
 
     @Nullable
     private java.util.Date banEndDate;
 
-    @NonNull
     private Integer cheatCount;
 
-    @NonNull
     private java.util.Date createDate;
 
     @Nullable

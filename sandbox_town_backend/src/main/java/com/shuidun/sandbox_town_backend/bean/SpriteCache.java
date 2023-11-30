@@ -15,20 +15,15 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 public class SpriteCache {
     /** 只有x和y会定期写入数据库，其他的都只在Java内存中 */
-    @NonNull
     private Double x;
 
-    @NonNull
     private Double y;
 
-    @NonNull
     private Double vx;
 
-    @NonNull
     private Double vy;
 
     /** 上次更新坐标时间 */
-    @NonNull
     private Long lastMoveTime;
 
     /** 上次与其他精灵交互时间 */
@@ -39,7 +34,6 @@ public class SpriteCache {
     @Nullable
     private Integer lastInteractSn;
 
-    @NonNull
     private SpriteStatus status;
 
     /** 目标精灵id */

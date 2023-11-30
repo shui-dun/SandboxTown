@@ -14,18 +14,13 @@ import org.springframework.lang.NonNull;
 public class GameMapDo {
 
     @TableId
-    @NonNull
     private String id;
 
-    @NonNull
     private String name;
 
-    @NonNull
     private Integer width;
 
-    @NonNull
     private Integer height;
 
-    @NonNull
     private Integer seed;
 }

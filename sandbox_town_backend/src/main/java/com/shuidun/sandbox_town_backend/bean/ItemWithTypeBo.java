@@ -2,8 +2,6 @@ package com.shuidun.sandbox_town_backend.bean;
 
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
-
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -11,7 +9,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class ItemWithTypeBo extends ItemDo {
 
-    @NotNull
     private ItemTypeDo itemTypeObj;
 
     public ItemWithTypeBo(ItemDo itemDo, ItemTypeDo itemTypeDo) {

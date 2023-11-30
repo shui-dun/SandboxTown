@@ -11,12 +11,9 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class ItemGainVo {
 
-    @NonNull
     private String id;
 
-    @NonNull
     private ItemTypeEnum item;
 
-    @NonNull
     private Integer count;
 }

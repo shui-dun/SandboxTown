@@ -9,7 +9,6 @@ import org.springframework.lang.NonNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpriteEffectWithEffectBo extends SpriteEffectDo {
-    @NonNull
     private EffectDo effectObj;
 
     public SpriteEffectWithEffectBo(SpriteEffectDo spriteEffectDo, EffectDo effectDo) {

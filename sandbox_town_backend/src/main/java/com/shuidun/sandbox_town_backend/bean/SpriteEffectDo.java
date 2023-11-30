@@ -13,16 +13,12 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class SpriteEffectDo {
 
-    @NonNull
     private String sprite;
 
-    @NonNull
     private EffectEnum effect;
 
-    @NonNull
     private Integer duration;
 
-    @NonNull
     private Long expire;
 
     public SpriteEffectDo(SpriteEffectDo other) {

@@ -11,14 +11,11 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class FeedVo {
     /** 驯服者id */
-    @NonNull
     private String id;
 
     /** 被驯服/喂食者id */
-    @NonNull
     private String targetId;
 
     /** 驯服/喂食结果 */
-    @NonNull
     private FeedResultEnum result;
 }

@@ -11,16 +11,12 @@ import org.springframework.lang.NonNull;
 public class SpriteWithTypeBo extends SpriteDo {
 
     /** 以下是Join sprite_type表的字段 */
-    @NonNull
     private String name;
 
-    @NonNull
     private String description;
 
-    @NonNull
     private Double widthRatio;
 
-    @NonNull
     private Double heightRatio;
 
     public SpriteWithTypeBo(SpriteDo spriteDo, String name, String description, Double widthRatio, Double heightRatio) {

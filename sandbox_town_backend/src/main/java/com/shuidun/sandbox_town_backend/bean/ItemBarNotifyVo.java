@@ -10,6 +10,5 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class ItemBarNotifyVo {
     /** 物品栏变化的精灵id */
-    @NonNull
     private String id;
 }

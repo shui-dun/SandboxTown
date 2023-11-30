@@ -13,16 +13,12 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class StoreItemTypeDo {
 
-    @NonNull
     private ItemTypeEnum itemType;
 
-    @NonNull
     private String store;
 
-    @NonNull
     private Integer count;
 
-    @NonNull
     private Integer price;
 
     public StoreItemTypeDo(StoreItemTypeDo other) {

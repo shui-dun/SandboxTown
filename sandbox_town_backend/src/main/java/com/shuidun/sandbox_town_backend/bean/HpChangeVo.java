@@ -9,10 +9,7 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 @Data
 public class HpChangeVo {
-    @NonNull
     private String id;
-    @NonNull
     private int originHp;
-    @NonNull
     private int hpChange;
 }

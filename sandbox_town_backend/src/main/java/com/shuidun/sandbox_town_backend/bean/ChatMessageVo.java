@@ -11,22 +11,16 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class ChatMessageVo {
     /** 消息序列号，对应ChatMessageDo中的id字段 */
-    @NonNull
     private Integer sn;
 
-    @NonNull
     private String source;
 
     /** 这个id是消息接收者的id，对应ChatFriendDo中的target字段 */
-    @NonNull
     private String id;
 
-    @NonNull
     private ChatMsgTypeEnum type;
 
-    @NonNull
     private String message;
 
-    @NonNull
     private java.util.Date time;
 }

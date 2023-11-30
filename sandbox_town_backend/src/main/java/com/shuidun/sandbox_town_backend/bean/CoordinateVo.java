@@ -11,18 +11,13 @@ import org.springframework.lang.NonNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CoordinateVo {
-    @NonNull
     private String id;
     @JSONField(format = "0.00")
-    @NonNull
     private Double x;
     @JSONField(format = "0.00")
-    @NonNull
     private Double y;
     @JSONField(format = "0.00")
-    @NonNull
     private Double vx;
     @JSONField(format = "0.00")
-    @NonNull
     private Double vy;
 }

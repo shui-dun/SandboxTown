@@ -11,15 +11,11 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApplePickingDo {
-    @NonNull
     private String sprite;
 
-    @NonNull
     private String tree;
 
-    @NonNull
     private Integer count;
 
-    @NonNull
     private java.util.Date pickTime;
 }

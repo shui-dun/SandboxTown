@@ -16,25 +16,18 @@ import org.springframework.lang.NonNull;
 public class ItemDo {
 
     @TableId
-    @NonNull
     private String id;
 
-    @NonNull
     private String owner;
 
-    @NonNull
     private ItemTypeEnum itemType;
 
-    @NonNull
     private Integer itemCount;
 
-    @NonNull
     private Integer life;
 
-    @NonNull
     private Integer level;
 
-    @NonNull
     private ItemPositionEnum position;
 
     public ItemDo(ItemDo other) {

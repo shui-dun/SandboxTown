@@ -14,9 +14,7 @@ import org.springframework.lang.Nullable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RestResponseVo<T> {
-    @NonNull
     private int code;
-    @NonNull
     private String msg;
     @Nullable
     private T data;

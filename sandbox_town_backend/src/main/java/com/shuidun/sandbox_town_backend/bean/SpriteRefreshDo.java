@@ -15,19 +15,14 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class SpriteRefreshDo {
 
-    @NonNull
     private SpriteTypeEnum spriteType;
 
-    @NonNull
     private BuildingTypeEnum buildingType;
 
-    @NonNull
     private Integer minCount;
 
-    @NonNull
     private Integer maxCount;
 
-    @NonNull
     private TimeFrameEnum refreshTime;
 
 }

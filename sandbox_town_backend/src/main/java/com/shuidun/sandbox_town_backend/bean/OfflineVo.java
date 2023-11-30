@@ -11,6 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OfflineVo {
-    @NonNull
     private List<String> ids;
 }

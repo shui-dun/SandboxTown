@@ -14,15 +14,11 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class VictoryItemRewardDo {
 
-    @NonNull
     private SpriteTypeEnum spriteType;
 
-    @NonNull
     private ItemTypeEnum itemType;
 
-    @NonNull
     private Integer minCount;
 
-    @NonNull
     private Integer maxCount;
 }

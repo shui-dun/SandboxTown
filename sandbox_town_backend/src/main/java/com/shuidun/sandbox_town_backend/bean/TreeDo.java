@@ -14,15 +14,11 @@ import org.springframework.lang.NonNull;
 public class TreeDo {
 
     @TableId
-    @NonNull
     private String id;
 
-    @NonNull
     private Integer applesCount;
 
-    @NonNull
     private Integer maxApplesCount;
 
-    @NonNull
     private Integer limitPerSprite;
 }

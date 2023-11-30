@@ -15,12 +15,9 @@ import org.springframework.lang.NonNull;
 public class EffectDo {
 
     @TableId
-    @NonNull
     private EffectEnum id;
 
-    @NonNull
     private String name;
 
-    @NonNull
     private String description;
 }

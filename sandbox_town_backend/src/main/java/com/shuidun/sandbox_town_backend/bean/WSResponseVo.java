@@ -13,9 +13,7 @@ import org.springframework.lang.NonNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WSResponseVo {
-    @NonNull
     private WSResponseEnum type;
 
-    @NonNull
     private Object data;
 }

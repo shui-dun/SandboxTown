@@ -14,9 +14,7 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class ItemTypeLabelDo {
 
-    @NonNull
     private ItemTypeEnum itemType;
 
-    @NonNull
     private ItemLabelEnum label;
 }

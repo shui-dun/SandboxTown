@@ -14,18 +14,13 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class FeedDo {
 
-    @NonNull
     private SpriteTypeEnum spriteType;
 
-    @NonNull
     private ItemTypeEnum itemType;
 
-    @NonNull
     private Double tameProb;
 
-    @NonNull
     private Integer expInc;
 
-    @NonNull
     private Integer hungerInc;
 }

@@ -9,7 +9,6 @@ import org.springframework.lang.NonNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemTypeEffectWithEffectBo extends ItemTypeEffectDo {
-    @NonNull
     private EffectDo effectObj;
 
     public ItemTypeEffectWithEffectBo(ItemTypeEffectDo itemTypeEffectDo, EffectDo effectObj) {

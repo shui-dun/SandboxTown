@@ -9,8 +9,6 @@ import org.springframework.lang.NonNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Point {
-    @NonNull
     private int x;
-    @NonNull
     private int y;
 }

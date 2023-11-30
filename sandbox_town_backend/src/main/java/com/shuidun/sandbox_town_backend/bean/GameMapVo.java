@@ -11,20 +11,15 @@ import org.springframework.lang.NonNull;
 @NoArgsConstructor
 public class GameMapVo {
 
-    @NonNull
     private String id;
 
-    @NonNull
     private String name;
 
-    @NonNull
     private Integer width;
 
-    @NonNull
     private Integer height;
 
     /** 数据 */
-    @NonNull
     private int[][] data;
 
     public static GameMapVo fromGameMapDo(GameMapDo gameMapDo) {

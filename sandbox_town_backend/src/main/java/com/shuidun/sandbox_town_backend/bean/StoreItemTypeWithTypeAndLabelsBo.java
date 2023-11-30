@@ -9,7 +9,6 @@ import org.springframework.lang.NonNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StoreItemTypeWithTypeAndLabelsBo extends StoreItemTypeDo {
-    @NonNull
     private ItemTypeWithLabelsBo itemTypeObj;
 
     public StoreItemTypeWithTypeAndLabelsBo(StoreItemTypeDo storeItemTypeDo, ItemTypeWithLabelsBo itemTypeObj) {

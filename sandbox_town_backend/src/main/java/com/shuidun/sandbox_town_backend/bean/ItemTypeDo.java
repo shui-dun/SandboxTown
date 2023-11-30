@@ -15,22 +15,16 @@ import org.springframework.lang.NonNull;
 public class ItemTypeDo {
 
     @TableId
-    @NonNull
     private ItemTypeEnum id;
 
-    @NonNull
     private String name;
 
-    @NonNull
     private String description;
 
-    @NonNull
     private Integer basicPrice;
 
-    @NonNull
     private Integer rarity;
 
-    @NonNull
     private Integer durability;
 
     public ItemTypeDo(ItemTypeDo other) {

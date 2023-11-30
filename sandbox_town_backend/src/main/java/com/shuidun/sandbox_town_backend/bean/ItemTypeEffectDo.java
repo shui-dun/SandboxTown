@@ -15,16 +15,12 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class ItemTypeEffectDo {
 
-    @NonNull
     private ItemTypeEnum itemType;
 
-    @NonNull
     private ItemOperationEnum operation;
 
-    @NonNull
     private EffectEnum effect;
 
-    @NonNull
     private Integer duration;
 
     public ItemTypeEffectDo(ItemTypeEffectDo other) {

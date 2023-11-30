@@ -14,39 +14,27 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class ItemTypeAttributeDo {
 
-    @NonNull
     private ItemTypeEnum itemType;
 
-    @NonNull
     private ItemOperationEnum operation;
 
-    @NonNull
     private Integer moneyInc;
 
-    @NonNull
     private Integer expInc;
 
-    @NonNull
     private Integer levelInc;
 
-    @NonNull
     private Integer hungerInc;
 
-    @NonNull
     private Integer hpInc;
 
-    @NonNull
     private Integer attackInc;
 
-    @NonNull
     private Integer defenseInc;
 
-    @NonNull
     private Integer speedInc;
 
-    @NonNull
     private Integer visionRangeInc;
 
-    @NonNull
     private Integer attackRangeInc;
 }

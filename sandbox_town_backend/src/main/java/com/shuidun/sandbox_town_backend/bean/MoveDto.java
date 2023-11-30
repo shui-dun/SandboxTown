@@ -14,19 +14,15 @@ import javax.validation.constraints.NotNull;
 public class MoveDto {
     /** 出发点x坐标 */
     @NotNull
-    @NonNull
     private Double x0;
     /** 出发点y坐标 */
     @NotNull
-    @NonNull
     private Double y0;
     /** 终点x坐标 */
     @NotNull
-    @NonNull
     private Double x1;
     /** 终点y坐标 */
     @NotNull
-    @NonNull
     private Double y1;
     /** 终点建筑ID（如果有） */
     @Nullable

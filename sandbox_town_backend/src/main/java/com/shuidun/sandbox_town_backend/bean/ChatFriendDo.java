@@ -13,21 +13,16 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 public class ChatFriendDo {
 
-    @NonNull
     private String user;
 
-    @NonNull
     private String friend;
 
-    @NonNull
     private Boolean ban;
 
-    @NonNull
     private Integer lastChatId;
 
     @Nullable
     private Integer readChatId;
 
-    @NonNull
     private Integer unread;
 }
