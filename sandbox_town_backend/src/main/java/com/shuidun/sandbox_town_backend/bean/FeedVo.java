@@ -4,7 +4,6 @@ import com.shuidun.sandbox_town_backend.enumeration.FeedResultEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
 
 @Data
 @NoArgsConstructor

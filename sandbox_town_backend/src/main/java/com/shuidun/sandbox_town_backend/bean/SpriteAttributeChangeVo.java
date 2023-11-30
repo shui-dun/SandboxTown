@@ -2,7 +2,6 @@ package com.shuidun.sandbox_town_backend.bean;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
 
 /**
  * 记录精灵的属性变化，只有玩家自己发生变化才会收到通知

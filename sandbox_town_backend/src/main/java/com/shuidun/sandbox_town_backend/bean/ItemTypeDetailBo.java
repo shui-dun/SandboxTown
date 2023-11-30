@@ -3,7 +3,6 @@ package com.shuidun.sandbox_town_backend.bean;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemOperationEnum;
 import lombok.*;
-import org.springframework.lang.NonNull;
 
 import java.util.Map;
 

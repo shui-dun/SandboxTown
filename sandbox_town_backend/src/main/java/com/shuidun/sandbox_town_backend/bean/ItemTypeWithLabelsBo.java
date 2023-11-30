@@ -2,7 +2,6 @@ package com.shuidun.sandbox_town_backend.bean;
 
 import com.shuidun.sandbox_town_backend.enumeration.ItemLabelEnum;
 import lombok.*;
-import org.springframework.lang.NonNull;
 
 import java.util.Set;
 

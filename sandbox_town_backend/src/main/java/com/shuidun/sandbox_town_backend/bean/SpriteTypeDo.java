@@ -6,7 +6,6 @@ import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
 
 @TableName("sprite_type")
 @Data
