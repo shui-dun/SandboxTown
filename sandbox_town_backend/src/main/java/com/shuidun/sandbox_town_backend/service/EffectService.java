@@ -85,7 +85,9 @@ public class EffectService {
             Map<EffectEnum, EffectDo> effectMap = effectList.stream().collect(Collectors.toMap(EffectDo::getId, Function.identity()));
             // 将效果详细信息添加到spriteEffectMap
             for (SpriteEffectDo spriteEffectDo : spriteEffectMap.values()) {
-                ans.add(new SpriteEffectWithEffectBo(spriteEffectDo, effectMap.get(spriteEffectDo.getEffect())));
+                EffectDo effect = effectMap.get(spriteEffectDo.getEffect());
+                assert effect != null;
+                ans.add(new SpriteEffectWithEffectBo(spriteEffectDo, effect));
             }
         }
         return ans;
@@ -153,6 +155,10 @@ public class EffectService {
             return new HashSet<>();
         }
         Map<EffectEnum, EffectDo> effectMap = effectMapper.selectBatchIds(effectEnums).stream().collect(Collectors.toMap(EffectDo::getId, effect -> effect));
-        return itemTypeEffects.stream().map(itemTypeEffect -> new ItemTypeEffectWithEffectBo(itemTypeEffect, effectMap.get(itemTypeEffect.getEffect()))).collect(Collectors.toSet());
+        return itemTypeEffects.stream().map(itemTypeEffect -> {
+            EffectDo effect = effectMap.get(itemTypeEffect.getEffect());
+            assert effect != null;
+            return new ItemTypeEffectWithEffectBo(itemTypeEffect, effect);
+        }).collect(Collectors.toSet());
     }
 }

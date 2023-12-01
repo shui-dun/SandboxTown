@@ -43,6 +43,7 @@ public class ItemService {
     @Transactional
     public void add(String spriteId, ItemTypeEnum itemTypeId, int count) {
         ItemTypeDo itemType = itemTypeMapper.selectById(itemTypeId);
+        assert itemType != null;
         // 判断物品是否可堆叠
         if (itemType.getDurability() != -1) {
             // 不可堆叠，直接插入
@@ -194,31 +195,40 @@ public class ItemService {
             return new ArrayList<>();
         }
         // 找到所有物品类型
-        List<ItemTypeDo> itemTypes = itemTypeMapper.selectBatchIds(items.stream().map(ItemDo::getItemType).collect(Collectors.toList()));
+        List<ItemTypeDo> itemTypes = itemTypeMapper.selectBatchIds(
+                items.stream().map(ItemDo::getItemType).collect(Collectors.toList()));
         // 为物品类型列表设置标签信息
         List<ItemTypeWithLabelsBo> itemTypesWithLabels = setLabelsForItemTypes(itemTypes);
         // 根据物品类型id分组
-        Map<ItemTypeEnum, ItemTypeWithLabelsBo> itemTypeMap = itemTypesWithLabels.stream().collect(Collectors.toMap(ItemTypeDo::getId, itemType -> itemType));
+        Map<ItemTypeEnum, ItemTypeWithLabelsBo> itemTypeMap = itemTypesWithLabels.stream()
+                .collect(Collectors.toMap(ItemTypeDo::getId, itemType -> itemType));
         // 为每个物品设置物品类型信息
-        return items.stream().map(item -> new ItemWithTypeAndLabelsBo(item, itemTypeMap.get(item.getItemType()))).collect(Collectors.toList());
+        return items.stream().map(item -> {
+            ItemTypeWithLabelsBo itemType = itemTypeMap.get(item.getItemType());
+            assert itemType != null;
+            return new ItemWithTypeAndLabelsBo(item, itemType);
+        }).collect(Collectors.toList());
     }
 
     /** 根据物品类型id查询物品类型详细信息（即包含标签信息、属性增益信息、效果信息） */
     public ItemTypeDetailBo getItemTypeDetailById(ItemTypeEnum itemTypeId) {
         // 找到物品类型
         ItemTypeDo itemType = itemTypeMapper.selectById(itemTypeId);
+        assert itemType != null;
         // 设置物品类型的标签
         Set<ItemLabelEnum> itemTypeLabels = itemTypeLabelMapper.selectByItemType(itemTypeId);
         ItemTypeWithLabelsBo itemTypeWithLabelsBo = new ItemTypeWithLabelsBo(itemType, itemTypeLabels);
         // 找到物品类型的属性增益
         List<ItemTypeAttributeDo> itemTypeAttribute = itemTypeAttributeMapper.selectByItemType(itemTypeId);
         // 将物品品类型的属性增益按照操作类型分组
-        Map<ItemOperationEnum, ItemTypeAttributeDo> itemTypeAttributeMap = itemTypeAttribute.stream().collect(Collectors.toMap(ItemTypeAttributeDo::getOperation, itemTypeAttribute1 -> itemTypeAttribute1));
+        Map<ItemOperationEnum, ItemTypeAttributeDo> itemTypeAttributeMap = itemTypeAttribute.stream()
+                .collect(Collectors.toMap(ItemTypeAttributeDo::getOperation, itemTypeAttribute1 -> itemTypeAttribute1));
 
         // 找到物品类型的效果
         Set<ItemTypeEffectWithEffectBo> itemTypeEffects = effectService.selectEffectsByItemType(itemTypeId);
         // 根据操作和效果名称组装成map
-        Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectWithEffectBo>> itemTypeEffectMap = itemTypeEffects.stream().collect(Collectors.groupingBy(ItemTypeEffectDo::getOperation, Collectors.toMap(ItemTypeEffectDo::getEffect, itemTypeEffect -> itemTypeEffect)));
+        Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectWithEffectBo>> itemTypeEffectMap = itemTypeEffects.stream()
+                .collect(Collectors.groupingBy(ItemTypeEffectDo::getOperation, Collectors.toMap(ItemTypeEffectDo::getEffect, x -> x)));
         // 设置物品类型的效果以及属性增益
         return new ItemTypeDetailBo(itemTypeWithLabelsBo, itemTypeAttributeMap, itemTypeEffectMap);
     }
@@ -247,13 +257,16 @@ public class ItemService {
         }
         // 找到物品类型
         ItemTypeDo itemType = itemTypeMapper.selectById(item.getItemType());
+        assert itemType != null;
         // 设置物品类型
         return new ItemWithTypeBo(item, itemType);
     }
 
 
     public ItemTypeDo getItemTypeBriefById(ItemTypeEnum itemType) {
-        return itemTypeMapper.selectById(itemType);
+        ItemTypeDo itemTypeDo = itemTypeMapper.selectById(itemType);
+        assert itemTypeDo != null;
+        return itemTypeDo;
     }
 
     /**
@@ -278,11 +291,13 @@ public class ItemService {
         }
         // 判断物品栏是否已满
         List<ItemWithTypeAndLabelsBo> itemInItemBar = listItemsInItemBarByOwner(spriteId);
-        if (itemInItemBar.size() >= Constants.ITEM_BAR_SIZE && item.getPosition() != ItemPositionEnum.ITEMBAR) {
+        if (itemInItemBar.size() >= Constants.ITEM_BAR_SIZE
+                && item.getPosition() != ItemPositionEnum.ITEMBAR) {
             throw new BusinessException(StatusCodeEnum.ITEMBAR_FULL);
         }
         // 将之前的手持物品放入物品栏
-        List<ItemDo> handHeldItems = itemMapper.selectByOwnerAndPosition(spriteId, ItemPositionEnum.HANDHELD);
+        List<ItemDo> handHeldItems = itemMapper.selectByOwnerAndPosition(
+                spriteId, ItemPositionEnum.HANDHELD);
         if (!handHeldItems.isEmpty()) {
             ItemDo handHeldItem = handHeldItems.get(0);
             handHeldItem.setPosition(ItemPositionEnum.ITEMBAR);
@@ -292,9 +307,11 @@ public class ItemService {
         item.setPosition(ItemPositionEnum.HANDHELD);
         itemMapper.updateById(item);
 
-        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, new ItemBarNotifyVo(spriteId)));
+        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
+                new ItemBarNotifyVo(spriteId)));
         // 可能有精灵效果变化
-        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE,
+                new SpriteEffectChangeVo(spriteId)));
 
         return responses;
     }
@@ -321,16 +338,19 @@ public class ItemService {
         }
         // 判断物品栏是否已满
         List<ItemWithTypeAndLabelsBo> itemInItemBar = listItemsInItemBarByOwner(spriteId);
-        if (itemInItemBar.size() >= Constants.ITEM_BAR_SIZE && item.getPosition() != ItemPositionEnum.HANDHELD) {
+        if (itemInItemBar.size() >= Constants.ITEM_BAR_SIZE
+                && item.getPosition() != ItemPositionEnum.HANDHELD) {
             throw new BusinessException(StatusCodeEnum.ITEMBAR_FULL);
         }
         // 将该物品放入物品栏
         item.setPosition(ItemPositionEnum.ITEMBAR);
         itemMapper.updateById(item);
 
-        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, new ItemBarNotifyVo(spriteId)));
+        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
+                new ItemBarNotifyVo(spriteId)));
         // 可能有精灵效果变化
-        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
+        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE,
+                new SpriteEffectChangeVo(spriteId)));
 
         return responses;
     }
@@ -373,7 +393,8 @@ public class ItemService {
         // 找到该物品的装备位置
         ItemPositionEnum itemPosition = ItemPositionEnum.valueOf(itemLabel.name());
         // 将之前的装备放入背包
-        List<ItemDo> equippedItems = itemMapper.selectByOwnerAndPosition(spriteId, itemPosition);
+        List<ItemDo> equippedItems = itemMapper.selectByOwnerAndPosition(
+                spriteId, itemPosition);
         if (!equippedItems.isEmpty()) {
             ItemDo equippedItem = equippedItems.get(0);
             equippedItem.setPosition(ItemPositionEnum.BACKPACK);

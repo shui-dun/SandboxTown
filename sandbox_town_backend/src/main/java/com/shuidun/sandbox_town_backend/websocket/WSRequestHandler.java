@@ -57,7 +57,9 @@ public class WSRequestHandler {
                     if (eventDto.getType() == null) {
                         return;
                     }
-                    eventMap.get(eventDto.getType()).accept(eventDto.getInitiator(), eventDto.getData());
+                    var consumer = eventMap.get(eventDto.getType());
+                    assert consumer != null;
+                    consumer.accept(eventDto.getInitiator(), eventDto.getData());
                 } catch (Exception e) {
                     log.error("handle {} event error", eventDto, e);
                 }

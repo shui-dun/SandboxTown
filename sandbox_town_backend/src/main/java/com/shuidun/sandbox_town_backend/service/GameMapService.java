@@ -271,10 +271,12 @@ public class GameMapService {
                         continue;
                     }
                     // 获取当前格子中心在建筑物黑白图中的坐标
-                    int buildingPixelX = (int) (ratioX * GameCache.buildingTypesImages.get(building.getType()).getWidth());
-                    int buildingPixelY = (int) (ratioY * GameCache.buildingTypesImages.get(building.getType()).getHeight());
+                    BufferedImage bufferedImage = GameCache.buildingTypesImages.get(building.getType());
+                    assert bufferedImage != null;
+                    int buildingPixelX = (int) (ratioX * bufferedImage.getWidth());
+                    int buildingPixelY = (int) (ratioY * bufferedImage.getHeight());
                     // 获取当前格子中心的颜色
-                    int color = GameCache.buildingTypesImages.get(building.getType()).getRGB(buildingPixelX, buildingPixelY);
+                    int color = bufferedImage.getRGB(buildingPixelX, buildingPixelY);
                     // 如果当前格子中心是黑色
                     if (color == Color.BLACK.getRGB()) {
                         // 说明当前格子有重叠建筑
@@ -313,11 +315,13 @@ public class GameMapService {
                 if (ratioX < 0 || ratioX > 1 || ratioY < 0 || ratioY > 1) {
                     continue;
                 }
+                BufferedImage bufferedImage = GameCache.buildingTypesImages.get(building.getType());
+                assert bufferedImage != null;
                 // 获取当前格子中心在建筑物黑白图中的坐标
-                int buildingPixelX = (int) (ratioX * GameCache.buildingTypesImages.get(building.getType()).getWidth());
-                int buildingPixelY = (int) (ratioY * GameCache.buildingTypesImages.get(building.getType()).getHeight());
+                int buildingPixelX = (int) (ratioX * bufferedImage.getWidth());
+                int buildingPixelY = (int) (ratioY * bufferedImage.getHeight());
                 // 获取当前格子中心的颜色
-                int color = GameCache.buildingTypesImages.get(building.getType()).getRGB(buildingPixelX, buildingPixelY);
+                int color = bufferedImage.getRGB(buildingPixelX, buildingPixelY);
                 // 如果当前格子中心是黑色
                 if (color == Color.BLACK.getRGB()) {
                     // 将当前格子设置为建筑物的id的哈希码
@@ -329,7 +333,9 @@ public class GameMapService {
 
     /** 得到地图信息 */
     public GameMapDo getGameMap() {
-        return gameMapMapper.selectById(mapId);
+        GameMapDo gameMap = gameMapMapper.selectById(mapId);
+        assert gameMap != null;
+        return gameMap;
     }
 
     /** 初始化地图（建造建筑等） */

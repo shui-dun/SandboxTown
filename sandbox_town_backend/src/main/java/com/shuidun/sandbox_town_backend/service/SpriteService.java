@@ -181,6 +181,7 @@ public class SpriteService {
             if (levelUp > 0) {
                 // 得到类型信息
                 SpriteTypeDo spriteType = spriteTypeMapper.selectById(sprite.getType());
+                assert spriteType != null;
                 // 更新玩家属性
                 sprite.setMoney(sprite.getMoney() + levelUp * Constants.MONEY_GAIN_ON_LEVEL_UP);
                 sprite.setHunger(Constants.MAX_HUNGER);
@@ -279,6 +280,7 @@ public class SpriteService {
     public SpriteDo generateFixedSprite(SpriteTypeEnum type, String id, @Nullable String owner, double x, double y) {
         SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
+        assert spriteType != null;
         sprite.setId(id);
         sprite.setType(type);
         sprite.setOwner(owner);
@@ -311,6 +313,7 @@ public class SpriteService {
     public SpriteDo generateRandomSprite(SpriteTypeEnum type, String id, @Nullable String owner, double x, double y) {
         SpriteDo sprite = new SpriteDo();
         SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
+        assert spriteType != null;
         sprite.setId(id);
         sprite.setType(type);
         sprite.setOwner(owner);
@@ -734,6 +737,7 @@ public class SpriteService {
             // 遍历每一个建筑，生成精灵
             for (BuildingDo building : buildings) {
                 SpriteRefreshDo spriteRefresh = buildingTypeMap.get(building.getType());
+                assert spriteRefresh != null;
                 // 生成数目
                 int cnt = GameCache.random.nextInt(spriteRefresh.getMinCount(),
                         spriteRefresh.getMaxCount() + 1);

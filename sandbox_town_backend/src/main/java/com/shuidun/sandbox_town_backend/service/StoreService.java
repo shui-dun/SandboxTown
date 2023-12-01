@@ -61,6 +61,7 @@ public class StoreService {
         // 为所有商店商品设置物品类型
         return storeItemTypes.stream().map(storeItemType -> {
             ItemTypeWithLabelsBo itemTypeWithLabels = itemTypeWithLabelsMap.get(storeItemType.getItemType());
+            assert itemTypeWithLabels != null;
             return new StoreItemTypeWithTypeAndLabelsBo(storeItemType, itemTypeWithLabels);
         }).collect(Collectors.toList());
     }
