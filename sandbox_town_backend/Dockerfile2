@@ -14,5 +14,5 @@ WORKDIR /app
 # 从构建阶段复制构建的 jar 文件到当前工作目录
 COPY  target/*.jar app.jar
 
-# 运行 Spring Boot 应用
-CMD ["java", "-jar", "app.jar"]
+# 运行 Spring Boot 应用 （并开启断言）
+CMD ["java", "-enableassertions", "-jar", "app.jar"]

@@ -91,20 +91,23 @@ public class WSMessageSender {
     private static void sendMessageToUser(String username, TextMessage message) {
         // 得到会话
         WebSocketSession session = WSMessageSender.usernameSession.get(username);
-        try {
-            if (!session.isOpen()) {
+        if (session == null || !session.isOpen()) {
+            log.info("user {} not online, message: {} will be discarded", username, message);
+            if (session != null) {
                 WSMessageSender.usernameSession.remove(username, session);
-            } else {
-                // 计算应该放入哪个队列
-                // 使用hashcode，保证同一个用户的消息放入同一个队列，这样是为了防止如下报错：
-                // java.lang.IllegalStateException: The remote endpoint was in state [TEXT_PARTIAL_WRITING] which is an invalid state for called method
-                // 该报错指的是在没有完成当前消息发送的情况下就试图发送新的消息。
-                // 在WebSocket中，你不能对同一个session同时发送多个消息，必须等待当前的消息发送完成后才能发送下一个消息
-                int queueIndex = Math.abs(session.hashCode()) % wsSenderTheadPoolSize;
-                sendQueues.get(queueIndex).put(Pair.of(session, message));
             }
+            return;
+        }
+        try {
+            // 计算应该放入哪个队列
+            // 使用hashcode，保证同一个用户的消息放入同一个队列，这样是为了防止如下报错：
+            // java.lang.IllegalStateException: The remote endpoint was in state [TEXT_PARTIAL_WRITING] which is an invalid state for called method
+            // 该报错指的是在没有完成当前消息发送的情况下就试图发送新的消息。
+            // 在WebSocket中，你不能对同一个session同时发送多个消息，必须等待当前的消息发送完成后才能发送下一个消息
+            int queueIndex = Math.abs(session.hashCode()) % wsSenderTheadPoolSize;
+            sendQueues.get(queueIndex).put(Pair.of(session, message));
         } catch (Exception e) {
-            log.info("send message to user {} error: {}", username, e.getMessage());
+            log.info("send message to user {} error: {}, message: {} will be discarded", username, e.getMessage(), message);
         }
     }
 
