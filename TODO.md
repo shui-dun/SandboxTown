@@ -2,6 +2,7 @@
 
 ## feature
 
+- 升级到java21，并开启zgc（是否需要手动开启？）
 - java调试：如何调试springboot？如何调试docker中的springboot？
 - 添加聊天模块：
   - 私聊（目前这些功能的后端全部实现了，但尚未实现前端）：

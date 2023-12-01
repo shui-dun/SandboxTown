@@ -157,17 +157,15 @@ public class PathUtils {
      * @param destinationHashCode  目标点的hashcode，如果为null，则表示终点不是建筑物
      * @param destSpriteHalfWidth  目标精灵的宽度的一半，如果为null，则表示终点不是精灵
      * @param destSpriteHalfHeight 目标精灵的高度的一半，如果为null，则表示终点不是精灵
-     * @return 路径
+     * @return 路径，如果没找到，返回空列表
      */
-    @Nullable
     public static List<Point> findPath(
             int[][] map, int startX, int startY,
             int endX, int endY,
             int initiatorHalfWidth, int initiatorHalfHeight,
             @Nullable Integer destinationHashCode,
             @Nullable Integer destSpriteHalfWidth,
-            @Nullable Integer destSpriteHalfHeight
-    ) {
+            @Nullable Integer destSpriteHalfHeight) {
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
 
@@ -225,7 +223,7 @@ public class PathUtils {
             }
         }
         log.info("can not find path");
-        return null; // 如果没有找到路径，返回null
+        return new ArrayList<>();
     }
 
 }

@@ -90,15 +90,15 @@ public class WSRequestHandler {
             if (data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
                 return;
             }
+            var spriteCache = spriteService.getSpriteCache(data.getId());
             // 如果该角色已被删除，直接返回
-            if (!GameCache.spriteCacheMap.containsKey(data.getId())
+            if (spriteCache == null
                     && spriteService.selectById(data.getId()) == null) {
                 return;
             }
 
             // TODO: 只能控制自己或者是自己的宠物或者公共npc，如果是其他玩家或者是其他玩家的宠物，直接返回
             // 更新坐标信息
-            var spriteCache = GameCache.spriteCacheMap.get(data.getId());
             // 如果传入的时间戳小于上次更新的时间戳，直接返回
             if (spriteCache != null && spriteCache.getLastMoveTime() > data.getTime()) {
                 return;
@@ -127,25 +127,33 @@ public class WSRequestHandler {
                 return;
             }
             // 更新玩家的坐标信息
-            var spriteCache = GameCache.spriteCacheMap.get(initiator);
-            if (spriteCache == null) {
-                spriteCache = spriteService.online(initiator);
-            }
-            spriteCache.setX(data.getX0());
-            spriteCache.setY(data.getY0());
-            spriteCache.setVx(0.0);
-            spriteCache.setVy(0.0);
-            // 更新玩家的找到的路径
-            var sprite = spriteService.selectByIdWithDetail(initiator);
+            SpriteDetailBo sprite = spriteService.selectByIdWithDetail(initiator);
+            // 如果精灵不存在
             if (sprite == null) {
                 return;
             }
+            // 如果精灵不在线
+            if (sprite.getCache() == null) {
+                sprite.setCache(spriteService.online(initiator));
+            }
+            sprite.setX(data.getX0());
+            sprite.setY(data.getY0());
+            sprite.getCache().setX(data.getX0());
+            sprite.getCache().setY(data.getY0());
+            sprite.getCache().setVx(0.0);
+            sprite.getCache().setVy(0.0);
+            // 更新玩家的找到的路径
             // 每种角色的宽度和高度不一样，需要根据角色类型来获取相应路径
+            // 如果存在目标精灵
+            SpriteWithTypeBo destSprite = null;
+            if (data.getDestSpriteId() != null) {
+                destSprite = spriteService.selectByIdWithType(data.getDestSpriteId());
+            }
             List<Point> path = gameMapService.findPath(
                     sprite, data.getX1(), data.getY1(),
-                    data.getDestBuildingId(), data.getDestSpriteId());
+                    data.getDestBuildingId(), destSprite);
             // 如果找不到路径，直接返回
-            if (path == null) {
+            if (path.isEmpty()) {
                 return;
             }
             // TODO: 更新玩家的状态
@@ -167,7 +175,7 @@ public class WSRequestHandler {
                 return;
             }
             // 判断上次交互的时间是否过去了400m秒
-            var spriteCache = GameCache.spriteCacheMap.get(data.getSource());
+            var spriteCache = spriteService.getSpriteCache(data.getSource());
             if (spriteCache == null || (spriteCache.getLastInteractTime() != null && spriteCache.getLastInteractTime() > System.currentTimeMillis() - 400)) {
                 return;
             }
@@ -210,27 +218,30 @@ public class WSRequestHandler {
         // 索敌事件
         eventMap.put(WSRequestEnum.FIND_ENEMY, (initiator, mapData) -> {
             SpriteDetailBo sourceSprite = spriteService.selectByIdWithDetail(initiator);
-            if (sourceSprite == null) {
+            // 如果精灵不存在或者不在线，则返回
+            if (sourceSprite == null || sourceSprite.getCache() == null) {
                 return;
             }
-            String targetSpriteId = GameCache.spriteCacheMap.get(initiator).getTargetSpriteId();
-            SpriteCache targetSpriteCache = targetSpriteId == null ? null : GameCache.spriteCacheMap.get(targetSpriteId);
-            // 如果目标不存在，或者在视野外，则重新选择目标
-            if (targetSpriteCache == null || !gameMapService.isInSight(sourceSprite, targetSpriteCache.getX(), targetSpriteCache.getY())) {
+            String targetSpriteId = sourceSprite.getCache().getTargetSpriteId();
+            SpriteWithTypeBo targetSprite = targetSpriteId == null ? null : spriteService.selectByIdWithType(targetSpriteId);
+            // 如果目标不存在，或者不在线，或者在视野外，则重新选择目标
+            if (targetSprite == null
+                    || targetSprite.getCache() == null
+                    || !gameMapService.isInSight(sourceSprite, targetSprite.getX(), targetSprite.getY())) {
                 targetSpriteId = gameMapService.findNearestTargetInSight(sourceSprite, (s) -> {
                     // 不能攻击自己的宠物
                     return s.getOwner() == null || !s.getOwner().equals(initiator);
                 }).map(SpriteDo::getId).orElse(null);
-                targetSpriteCache = targetSpriteId == null ? null : GameCache.spriteCacheMap.get(targetSpriteId);
+                targetSprite = targetSpriteId == null ? null : spriteService.selectByIdWithType(targetSpriteId);
             }
             // 如果找不到目标，直接返回
-            if (targetSpriteId == null) {
+            if (targetSprite == null) {
                 return;
             }
             // 寻找路径
-            var path = gameMapService.findPath(sourceSprite, targetSpriteCache.getX(), targetSpriteCache.getY(), null, targetSpriteId);
+            var path = gameMapService.findPath(sourceSprite, targetSprite.getX(), targetSprite.getY(), null, targetSprite);
             // 如果找不到路径，直接返回
-            if (path == null) {
+            if (path.isEmpty()) {
                 return;
             }
             // 发送移动消息

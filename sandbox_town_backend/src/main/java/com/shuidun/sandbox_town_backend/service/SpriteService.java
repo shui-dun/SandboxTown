@@ -64,6 +64,7 @@ public class SpriteService {
         if (spriteCache != null) {
             sprite.setX(spriteCache.getX());
             sprite.setY(spriteCache.getY());
+            sprite.setCache(spriteCache);
         }
     }
 
@@ -119,7 +120,7 @@ public class SpriteService {
         return spriteDetail;
     }
 
-    /** 根据id获取角色信息（只带有缓存信息） */
+    /** 根据id获取角色信息 */
     @Nullable
     public SpriteDo selectById(String id) {
         SpriteDo sprite = spriteMapper.selectById(id);
@@ -131,7 +132,7 @@ public class SpriteService {
         return sprite;
     }
 
-    /** 根据id获取角色信息（只带有缓存信息和类型信息） */
+    /** 根据id获取角色信息（只带有类型信息） */
     @Nullable
     public SpriteWithTypeBo selectByIdWithType(String id) {
         SpriteWithTypeBo sprite = spriteMapper.selectByIdWithType(id);
@@ -143,7 +144,7 @@ public class SpriteService {
         return sprite;
     }
 
-    /** 根据id获取角色详细信息（带有缓存信息、类型信息、装备信息、属性增量信息、效果列表信息） */
+    /** 根据id获取角色详细信息（带有类型信息、装备信息、属性增量信息、效果列表信息） */
     @Nullable
     public SpriteDetailBo selectByIdWithDetail(String id) {
         // 获得带有类型信息的sprite
@@ -239,17 +240,17 @@ public class SpriteService {
                 sprite.setX(0.0);
                 sprite.setY(0.0);
                 spriteMapper.updateById(sprite);
-                var spriteCache = GameCache.spriteCacheMap.get(sprite.getId());
-                spriteCache.setX(0.0);
-                spriteCache.setY(0.0);
-                // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
-                spriteCache.setLastMoveTime(System.currentTimeMillis() + 500);
-                responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
-                        sprite.getId(),
-                        sprite.getX(),
-                        sprite.getY(),
-                        0.0, 0.0
-                )));
+                // 如果在线，设置坐标为原点
+                if (sprite.getCache() != null) {
+                    sprite.getCache().setX(0.0);
+                    sprite.getCache().setY(0.0);
+                    // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
+                    sprite.getCache().setLastMoveTime(System.currentTimeMillis() + 500);
+                    responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
+                            sprite.getId(),
+                            0.0, 0.0, 0.0, 0.0
+                    )));
+                }
             } else { // 否则，删除
                 // 修改精灵的所有建筑的主人设置为null
                 buildingMapper.updateOwnerByOwner(sprite.getId(), null);
@@ -370,10 +371,17 @@ public class SpriteService {
         List<SpriteDo> sprites = spriteMapper.selectBatchIds(GameCache.spriteCacheMap.keySet());
         // 更新坐标为缓存中的最新坐标
         for (SpriteDo sprite : sprites) {
-            sprite.setX(GameCache.spriteCacheMap.get(sprite.getId()).getX());
-            sprite.setY(GameCache.spriteCacheMap.get(sprite.getId()).getY());
+            SpriteCache cache = GameCache.spriteCacheMap.get(sprite.getId());
+            if (cache != null) {
+                sprite.setX(cache.getX());
+                sprite.setY(cache.getY());
+            }
         }
         return sprites;
+    }
+
+    public Map<String, SpriteCache> getOnlineSpritesCache() {
+        return GameCache.spriteCacheMap;
     }
 
     public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {
@@ -490,6 +498,10 @@ public class SpriteService {
 
     @Transactional
     public List<WSResponseVo> attack(SpriteDetailBo sourceSprite, SpriteDetailBo targetSprite) {
+        // 如果双方有人不在线，则不进行攻击
+        if (sourceSprite.getCache() == null || targetSprite.getCache() == null) {
+            return new ArrayList<>();
+        }
         List<WSResponseVo> responses = new ArrayList<>();
         // 如果被攻击者有火焰护体效果，则攻击者烧伤
         if (targetSprite.getEffects().stream().anyMatch(effect -> effect.getEffect() == EffectEnum.FLAME_BODY)) {
@@ -498,11 +510,9 @@ public class SpriteService {
             responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sourceSprite.getId())));
         }
         // 被攻击者以攻击者为目标
-        SpriteCache cache = GameCache.spriteCacheMap.get(targetSprite.getId());
-        cache.setTargetSpriteId(sourceSprite.getId());
+        targetSprite.getCache().setTargetSpriteId(sourceSprite.getId());
         // 攻击者也以被攻击者为目标
-        SpriteCache cache2 = GameCache.spriteCacheMap.get(sourceSprite.getId());
-        cache2.setTargetSpriteId(targetSprite.getId());
+        sourceSprite.getCache().setTargetSpriteId(targetSprite.getId());
         // 计算伤害
         int damage = sourceSprite.getAttack() + sourceSprite.getAttackInc() -
                 (targetSprite.getDefense() + targetSprite.getDefenseInc());
@@ -673,6 +683,14 @@ public class SpriteService {
             normalizeAndUpdateSprite(targetSprite);
             return FeedResultEnum.TAME_FAIL;
         }
+    }
+
+    /**
+     * 得到精灵缓存信息，如果不在线则返回null
+     */
+    @Nullable
+    public SpriteCache getSpriteCache(String id) {
+        return GameCache.spriteCacheMap.get(id);
     }
 
     /**

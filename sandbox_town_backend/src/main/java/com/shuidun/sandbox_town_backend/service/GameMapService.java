@@ -166,11 +166,11 @@ public class GameMapService {
      * @param x1             终点x坐标
      * @param y1             终点y坐标
      * @param destBuildingId 目标建筑物id，如果终点是建筑物，则传入建筑物id，否则传入null
-     * @param destSpriteId   目标精灵id，如果终点是精灵，则传入精灵id，否则传入null
+     * @param destSprite   目标精灵，如果终点是精灵，则传入精灵信息，否则传入null
+     * @return 路径节点列表，如果找不到路径，则返回空列表
      */
-    @Nullable
-    public List<Point> findPath(SpriteDetailBo initiator, double x1, double y1,
-                                @Nullable String destBuildingId, @Nullable String destSpriteId) {
+    public List<Point> findPath(SpriteWithTypeBo initiator, double x1, double y1,
+                                @Nullable String destBuildingId, @Nullable SpriteWithTypeBo destSprite) {
         double x0 = initiator.getX();
         double y0 = initiator.getY();
         // 将物理坐标转换为地图坐标
@@ -188,15 +188,11 @@ public class GameMapService {
         // 如果目标是精灵
         Integer destSpriteHalfWidth = null;
         Integer destSpriteHalfHeight = null;
-        if (destSpriteId != null) {
+        if (destSprite != null) {
             // 此时重点被修正为精灵中心点
-            endX = (int) (GameCache.spriteCacheMap.get(destSpriteId).getX() / Constants.PIXELS_PER_GRID);
-            endY = (int) (GameCache.spriteCacheMap.get(destSpriteId).getY() / Constants.PIXELS_PER_GRID);
+            endX = (int) (destSprite.getX() / Constants.PIXELS_PER_GRID);
+            endY = (int) (destSprite.getY() / Constants.PIXELS_PER_GRID);
             // 获取精灵的宽高
-            SpriteWithTypeBo destSprite = spriteService.selectByIdWithType(destSpriteId);
-            if (destSprite == null) {
-                return null;
-            }
             double destSpriteWidth = destSprite.getWidth() * destSprite.getWidthRatio();
             double destSpriteHeight = destSprite.getHeight() * destSprite.getHeightRatio();
             // 将物品宽高的像素转换为地图坐标
@@ -205,10 +201,6 @@ public class GameMapService {
         }
         // 调用寻路算法
         List<Point> path = PathUtils.findPath(GameCache.map, startX, startY, endX, endY, spriteHalfWidth, spriteHalfHeight, destBuildingHashCode, destSpriteHalfWidth, destSpriteHalfHeight);
-        // 判断是否为空
-        if (path == null) {
-            return null;
-        }
         // 将地图坐标转换为物理坐标
         // 一般来说，地图坐标是整数，而物理坐标是浮点数
         // 但是显然在这里计算得到的物理坐标也是整数
@@ -220,17 +212,13 @@ public class GameMapService {
     }
 
     /** 找到路径，但与目标保持一定距离 */
-    @Nullable
-    public List<Point> findPathNotTooClose(SpriteDetailBo initiator, double x1, double y1,
-                                           @Nullable String destBuildingId, @Nullable String destSpriteId) {
-        List<Point> path = findPath(initiator, x1, y1, destBuildingId, destSpriteId);
-        if (path == null) {
-            return null;
-        }
+    public List<Point> findPathNotTooClose(SpriteWithTypeBo initiator, double x1, double y1,
+                                           @Nullable String destBuildingId, @Nullable SpriteWithTypeBo destSprite) {
+        List<Point> path = findPath(initiator, x1, y1, destBuildingId, destSprite);
         // 如果距离过近，那就不跟随，狗与主人不要离得太近
         int minLen = (int) (initiator.getWidth() * initiator.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
         if (path.size() < minLen) {
-            return null;
+            return new ArrayList<>();
         }
         // 去掉后面一段
         return path.subList(0, path.size() - minLen);

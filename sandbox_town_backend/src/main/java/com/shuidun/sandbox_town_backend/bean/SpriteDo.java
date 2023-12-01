@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
@@ -52,6 +53,11 @@ public class SpriteDo {
 
     private String map;
 
+    /** 精灵缓存信息，存在代表精灵在线，否则代表精灵离线 */
+    @TableField(exist = false)
+    @Nullable
+    SpriteCache cache;
+
     public SpriteDo(SpriteDo other) {
         this.id = other.id;
         this.type = other.type;
@@ -71,5 +77,6 @@ public class SpriteDo {
         this.width = other.width;
         this.height = other.height;
         this.map = other.map;
+        this.cache = other.cache;
     }
 }
