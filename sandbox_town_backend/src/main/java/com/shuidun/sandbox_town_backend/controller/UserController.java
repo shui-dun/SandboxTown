@@ -28,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public RestResponseVo<?> login(@NotNull String username, @NotNull String password, @NotNull boolean rememberMe) {
+    public RestResponseVo<Void> login(@NotNull String username, @NotNull String password, @NotNull boolean rememberMe) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public RestResponseVo<?> signup(@NotNull String usernameSuffix,
+    public RestResponseVo<Void> signup(@NotNull String usernameSuffix,
                                     @NotNull String password) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
@@ -54,13 +54,13 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public RestResponseVo<?> logout() {
+    public RestResponseVo<Void> logout() {
         StpUtil.logout();
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
     @GetMapping("/getUsername")
-    public RestResponseVo<?> getUsername() {
+    public RestResponseVo<String> getUsername() {
         if (StpUtil.isLogin()) {
             return new RestResponseVo<>(StatusCodeEnum.SUCCESS, StpUtil.getLoginIdAsString());
         } else {
@@ -70,7 +70,7 @@ public class UserController {
     }
 
     @PostMapping("/changePassword")
-    public RestResponseVo<?> changePassword(@NotNull String oldPassword, @NotNull String newPassword) {
+    public RestResponseVo<Void> changePassword(@NotNull String oldPassword, @NotNull String newPassword) {
         // 判断是否已经登陆
         if (!StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.NOT_LOG_IN);
@@ -83,7 +83,7 @@ public class UserController {
 
     @PostMapping("/ban")
     @SaCheckRole("ADMIN")
-    public RestResponseVo<?> ban(@NotNull String username, @NotNull int banDays) {
+    public RestResponseVo<Void> ban(@NotNull String username, @NotNull int banDays) {
         userService.banUser(username, banDays);
         // 踢出用户
         StpUtil.kickout(username);
@@ -94,7 +94,7 @@ public class UserController {
 
     @PostMapping("/unban")
     @SaCheckRole("ADMIN")
-    public RestResponseVo<?> unban(@NotNull String username) {
+    public RestResponseVo<Void> unban(@NotNull String username) {
         userService.unbanUser(username);
         // 打印信息
         log.info("{} unban success", username);
@@ -103,7 +103,7 @@ public class UserController {
 
     /** 进入游戏，将会修改上次在线时间，并且领取奖励 */
     @PostMapping("/enterGameToReceiveReward")
-    public RestResponseVo<?> enterGameToReceiveReward() {
+    public RestResponseVo<Integer> enterGameToReceiveReward() {
         // 获取当前用户
         String username = StpUtil.getLoginIdAsString();
         // 领取奖励

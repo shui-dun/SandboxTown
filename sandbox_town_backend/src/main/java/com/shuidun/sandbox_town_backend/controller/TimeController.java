@@ -1,6 +1,7 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
+import com.shuidun.sandbox_town_backend.bean.TimeFrameVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.TimeService;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +22,7 @@ public class TimeController {
 
     /** 得到当前的时间段以及结束时刻 */
     @GetMapping("/getTimeFrame")
-    public RestResponseVo<?> getTimeFrame() {
+    public RestResponseVo<TimeFrameVo> getTimeFrame() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, timeService.getTimeFrame());
     }
 }

@@ -28,7 +28,7 @@ public class GameMapController {
 
     /** 得到地图的信息 */
     @GetMapping("/getGameMap")
-    public RestResponseVo<?> getGameMap() {
+    public RestResponseVo<GameMapVo> getGameMap() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 GameMapVo.fromGameMapDo(gameMapService.getGameMap()));
     }
@@ -36,7 +36,7 @@ public class GameMapController {
     /** 建造随机的生态系统 */
     @SaCheckRole("ADMIN")
     @GetMapping("/createEnvironment")
-    public RestResponseVo<?> createEnvironment(@NotNull int nBuildings) {
+    public RestResponseVo<Void> createEnvironment(@NotNull int nBuildings) {
         gameMapService.createEnvironment(nBuildings);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }

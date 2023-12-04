@@ -29,42 +29,42 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
-    public RestResponseVo<?> exceptionHandler(Exception e) {
+    public RestResponseVo<Void> exceptionHandler(Exception e) {
         log.error("User: {} Stack is :\n", currentUser(), e);
         return new RestResponseVo<>(StatusCodeEnum.SERVER_ERROR);
     }
 
     @ExceptionHandler(NotLoginException.class)
     @ResponseBody
-    public RestResponseVo<?> exceptionHandler(NotLoginException e) {
+    public RestResponseVo<Void> exceptionHandler(NotLoginException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
         return new RestResponseVo<>(StatusCodeEnum.NO_PERMISSION);
     }
 
     @ExceptionHandler(BusinessException.class)
     @ResponseBody
-    public RestResponseVo<?> exceptionHandler(BusinessException e) {
+    public RestResponseVo<Void> exceptionHandler(BusinessException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
         return new RestResponseVo<>(e.getStatusCode());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseBody
-    public RestResponseVo<?> exceptionHandler(HttpRequestMethodNotSupportedException e) {
+    public RestResponseVo<Void> exceptionHandler(HttpRequestMethodNotSupportedException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
         return new RestResponseVo<>(StatusCodeEnum.REQUEST_METHOD_NOT_SUPPORTED);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseBody
-    public RestResponseVo<?> exceptionHandler(ConstraintViolationException e) {
+    public RestResponseVo<String> exceptionHandler(ConstraintViolationException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
         return new RestResponseVo<>(StatusCodeEnum.PARAMETER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseBody
-    public RestResponseVo<?> exceptionHandler(MethodArgumentTypeMismatchException e) {
+    public RestResponseVo<String> exceptionHandler(MethodArgumentTypeMismatchException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
         return new RestResponseVo<>(StatusCodeEnum.PARAMETER_ERROR, "参数类型转化失败");
     }

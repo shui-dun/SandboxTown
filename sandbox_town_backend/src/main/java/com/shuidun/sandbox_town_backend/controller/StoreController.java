@@ -2,6 +2,8 @@ package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
+import com.shuidun.sandbox_town_backend.bean.StoreItemTypeDetailBo;
+import com.shuidun.sandbox_town_backend.bean.StoreItemTypeWithTypeAndLabelsBo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.StoreService;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Validated
 @Slf4j
@@ -27,8 +30,9 @@ public class StoreController {
 
     /** 得到某个商店的所有商品列表 */
     @GetMapping("/listByStore")
-    public RestResponseVo<?> listByStore(@NotNull String store) {
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, storeService.listByStore(store));
+    public RestResponseVo<List<StoreItemTypeWithTypeAndLabelsBo>> listByStore(@NotNull String store) {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
+                storeService.listByStore(store));
     }
 
     /**
@@ -39,28 +43,30 @@ public class StoreController {
      * @param amount 数量
      */
     @PostMapping("/buy")
-    public RestResponseVo<?> buy(@NotNull String store, @NotNull ItemTypeEnum item, @NotNull Integer amount) {
+    public RestResponseVo<Void> buy(@NotNull String store, @NotNull ItemTypeEnum item, @NotNull Integer amount) {
         storeService.buy(StpUtil.getLoginIdAsString(), store, item, amount);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
     /** 得到某个商店的某个商品的详细信息 */
     @GetMapping("/getByStoreAndItemType")
-    public RestResponseVo<?> getByStoreAndItem(@NotNull String store, @NotNull ItemTypeEnum itemType) {
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, storeService.detailByStoreAndItemType(store, itemType));
+    public RestResponseVo<StoreItemTypeDetailBo> getByStoreAndItem(@NotNull String store, @NotNull ItemTypeEnum itemType) {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
+                storeService.detailByStoreAndItemType(store, itemType));
     }
 
     /** 得到用户向商店出售时的售价 */
     @GetMapping("/soldPrice")
-    public RestResponseVo<?> soldPrice(@NotNull String store, @NotNull String itemId) {
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, storeService.soldPrice(store, itemId));
+    public RestResponseVo<Integer> soldPrice(@NotNull String store, @NotNull String itemId) {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
+                storeService.soldPrice(store, itemId));
     }
 
     /** 出售物品 */
     @PostMapping("/sell")
-    public RestResponseVo<?> sell(@NotNull String store, @NotNull String itemId, @NotNull Integer amount, @NotNull Integer perPrice) {
+    public RestResponseVo<Void> sell(@NotNull String store, @NotNull String itemId, @NotNull Integer amount, @NotNull Integer perPrice) {
         storeService.sell(StpUtil.getLoginIdAsString(), store, itemId, amount, perPrice);
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
 }

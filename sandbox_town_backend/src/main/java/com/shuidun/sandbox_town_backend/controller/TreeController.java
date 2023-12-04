@@ -27,7 +27,7 @@ public class TreeController {
 
     /** 摘苹果 */
     @PostMapping("/pickApple")
-    public RestResponseVo<?> pickApple(@NotNull String treeId) {
+    public RestResponseVo<Void> pickApple(@NotNull String treeId) {
         treeService.pickApple(StpUtil.getLoginIdAsString(), treeId);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
@@ -39,8 +39,8 @@ public class TreeController {
      * @return 状态码为success表示可以摘苹果，否则不可以
      */
     @GetMapping("/canPickApple")
-    public RestResponseVo<?> canPickApple(@NotNull String treeId) {
+    public RestResponseVo<Void> canPickApple(@NotNull String treeId) {
         treeService.checkPickApple(StpUtil.getLoginIdAsString(), treeId);
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, null);
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 }
