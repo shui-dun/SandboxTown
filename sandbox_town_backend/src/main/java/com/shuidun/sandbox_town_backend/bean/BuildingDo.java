@@ -3,7 +3,6 @@ package com.shuidun.sandbox_town_backend.bean;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
-import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +24,7 @@ public class BuildingDo {
     private Integer level;
 
     @Nullable
-    private SpriteTypeEnum owner;
+    private String owner;
 
     private Double originX;
 

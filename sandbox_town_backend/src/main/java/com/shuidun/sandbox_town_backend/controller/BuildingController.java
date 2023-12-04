@@ -1,7 +1,6 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import com.shuidun.sandbox_town_backend.bean.BuildingDo;
-import com.shuidun.sandbox_town_backend.bean.BuildingTypeDo;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.BuildingService;
@@ -23,12 +22,6 @@ public class BuildingController {
 
     public BuildingController(BuildingService buildingService) {
         this.buildingService = buildingService;
-    }
-
-    /** 得到所有建筑类型 */
-    @GetMapping("/getAllBuildingTypes")
-    public RestResponseVo<List<BuildingTypeDo>> getAllBuildingTypes() {
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, buildingService.getAllBuildingTypes());
     }
 
     /** 得到某个地图上的所有建筑 */
