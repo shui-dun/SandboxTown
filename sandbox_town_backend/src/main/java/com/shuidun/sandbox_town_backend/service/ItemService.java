@@ -10,6 +10,10 @@ import com.shuidun.sandbox_town_backend.mapper.ItemTypeMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +24,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ItemService {
+
+    /**
+     * 自注入，使得调用自身的方法时可以走 Spring AOP，进而使得注解生效
+     * 不加入Lazy会报错：循环依赖
+     */
+    @Lazy
+    @Autowired
+    private ItemService self;
 
     private final ItemMapper itemMapper;
 
@@ -152,7 +164,7 @@ public class ItemService {
         // 获得这些装备的属性增量信息等详细信息
         List<ItemDetailBo> detailedItems = new ArrayList<>();
         items.forEach(item -> {
-            ItemDetailBo detailedItem = getItemDetailById(item.getId());
+            ItemDetailBo detailedItem = self.getItemDetailById(item.getId());
             detailedItems.add(detailedItem);
         });
         return detailedItems;
@@ -211,6 +223,7 @@ public class ItemService {
     }
 
     /** 根据物品类型id查询物品类型详细信息（即包含标签信息、属性增益信息、效果信息） */
+    @Cacheable(value = "item::itemTypeDetail")
     public ItemTypeDetailBo getItemTypeDetailById(ItemTypeEnum itemTypeId) {
         // 找到物品类型
         ItemTypeDo itemType = itemTypeMapper.selectById(itemTypeId);
@@ -235,6 +248,7 @@ public class ItemService {
 
     /** 根据物品id查询物品详细信息（即包含物品类型信息、标签信息、属性增益信息、效果信息） */
     @Nullable
+    @Cacheable(value = "item::itemDetail")
     public ItemDetailBo getItemDetailById(String itemId) {
         // 找到物品
         ItemDo item = itemMapper.selectById(itemId);
@@ -242,7 +256,7 @@ public class ItemService {
             return null;
         }
         // 找到物品类型
-        ItemTypeDetailBo itemType = getItemTypeDetailById(item.getItemType());
+        ItemTypeDetailBo itemType = self.getItemTypeDetailById(item.getItemType());
         // 设置物品类型
         return new ItemDetailBo(item, itemType);
     }
@@ -273,6 +287,7 @@ public class ItemService {
      * 手持物品
      */
     @Transactional
+    @CacheEvict(value = "item::itemDetail", key = "#itemId")
     public List<WSResponseVo> hold(String spriteId, String itemId) {
         List<WSResponseVo> responses = new ArrayList<>();
         // 查询该物品

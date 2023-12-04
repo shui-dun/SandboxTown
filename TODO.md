@@ -2,6 +2,8 @@
 
 ## feature
 
+- 使用swagger取代postman
+- Redis做缓存（简单的用cachable注解，复杂的写代码）
 - 升级到java21，并开启zgc（是否需要手动开启？）
 - java调试：如何调试springboot？如何调试docker中的springboot？
 - 添加聊天模块：
@@ -78,7 +80,6 @@
 - java bean继承，例如使用 `new SpriteEffectChangeVo(spriteId)` 替代 `new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId))`，其中 `SpriteEffectChangeVo` 继承自 `WSResponseVo`
 - 完成虚无的效果
 - 多地图（一个Java服务器负责一个地图） & rest请求用nginx做负载均衡
-- Redis做缓存（简单的用cachable注解，复杂的写代码）
 - 自动生成各种枚举类（可借助rest api）
 - 优化自动生成各个说明文档（可借助rest api），这些生成脚本不应该删除已有的介绍内容，例如对狗狗行为规则的介绍，同时应该展示物品的详细信息（例如给精灵带来的效果）
 - 使用spring cloud, k8s替代docker-compose
