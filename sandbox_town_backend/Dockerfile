@@ -33,6 +33,11 @@ COPY --from=build /app/target/*.jar app.jar
 # 但是，EXPOSE 并不会自动在宿主主机上打开对应的端口，所以在运行时需要使用 -p 参数来指定端口映射
 EXPOSE 9090
 
+# 设置环境变量来禁用 Springdoc OpenAPI
+# Spring Boot 可以从环境变量中读取配置属性，并且会自动将这些环境变量映射到相应的配置属性上
+# 例如，springdoc.api-docs.enabled 这个配置属性可以通过设置一个名为 SPRINGDOC_API_DOCS_ENABLED 的环境变量来覆盖
+ENV SPRINGDOC_API_DOCS_ENABLED=false
+
 # 运行 Spring Boot 应用
 CMD ["java", "-jar", "app.jar"]
 
