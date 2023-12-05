@@ -5,6 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -69,4 +70,10 @@ public class GlobalExceptionHandler {
         return new RestResponseVo<>(StatusCodeEnum.PARAMETER_ERROR, "参数类型转化失败");
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseBody
+    public RestResponseVo<String> exceptionHandler(HttpMessageNotReadableException e) {
+        log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
+        return new RestResponseVo<>(StatusCodeEnum.PARAMETER_ERROR, e.getMessage());
+    }
 }

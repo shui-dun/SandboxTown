@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.bean;
 
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ public class GameMapVo {
 
     private Integer height;
 
-    @ApiModelProperty(value = "地图数据")
+    @Schema(description = "地图数据")
     private int[][] data;
 
     public static GameMapVo fromGameMapDo(GameMapDo gameMapDo) {

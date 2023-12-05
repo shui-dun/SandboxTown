@@ -11,19 +11,19 @@ import org.springframework.lang.Nullable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RestResponseVo<T> {
-    private StatusCodeEnum code;
+    private int code;
     private String msg;
     @Nullable
     private T data;
 
     public RestResponseVo(StatusCodeEnum codeEnum, @Nullable T data) {
-        this.code = codeEnum;
+        this.code = codeEnum.getCode();
         this.msg = codeEnum.getMsg();
         this.data = data;
     }
 
     public RestResponseVo(StatusCodeEnum codeEnum) {
-        this.code = codeEnum;
+        this.code = codeEnum.getCode();
         this.msg = codeEnum.getMsg();
     }
 }

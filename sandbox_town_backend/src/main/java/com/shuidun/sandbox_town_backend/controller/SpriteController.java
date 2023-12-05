@@ -7,7 +7,7 @@ import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
 import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
@@ -32,14 +32,14 @@ public class SpriteController {
         this.spriteService = spriteService;
     }
 
-    @ApiOperation(value = "获取角色详细信息")
+    @Operation(summary = "获取角色详细信息")
     @GetMapping("/list/{id}")
     public RestResponseVo<SpriteDetailBo> getSpriteById(@PathVariable("id") String id) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 spriteService.selectByIdWithDetail(id));
     }
 
-    @ApiOperation(value = "获取当前登陆玩家的详细信息")
+    @Operation(summary = "获取当前登陆玩家的详细信息")
     @GetMapping("/listMine")
     public RestResponseVo<SpriteDetailBo> getMyPlayerInfo() {
         String username = StpUtil.getLoginIdAsString();
@@ -47,7 +47,7 @@ public class SpriteController {
                 spriteService.selectByIdWithDetail(username));
     }
 
-    @ApiOperation(value = "获取整个地图上的所有角色信息")
+    @Operation(summary = "获取整个地图上的所有角色信息")
     @GetMapping("/listAll")
     public RestResponseVo<List<SpriteDo>> getAllSprite() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,

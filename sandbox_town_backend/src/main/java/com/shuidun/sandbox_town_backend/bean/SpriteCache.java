@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.bean;
 
 import com.shuidun.sandbox_town_backend.enumeration.SpriteStatus;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,7 @@ import org.springframework.lang.Nullable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpriteCache {
-    @ApiModelProperty(value = "只有x和y会定期写入数据库，其他的都只在Java内存中")
+    @Schema(description = "只有x和y会定期写入数据库，其他的都只在Java内存中")
     private Double x;
 
     private Double y;
@@ -21,32 +21,32 @@ public class SpriteCache {
 
     private Double vy;
 
-    @ApiModelProperty(value = "上次更新坐标时间")
+    @Schema(description = "上次更新坐标时间")
     private Long lastMoveTime;
 
-    @ApiModelProperty(value = "上次与其他精灵交互时间")
+    @Schema(description = "上次与其他精灵交互时间")
     @Nullable
     private Long lastInteractTime;
 
-    @ApiModelProperty(value = "上次与其他精灵交互的序列号")
+    @Schema(description = "上次与其他精灵交互的序列号")
     @Nullable
     private Integer lastInteractSn;
 
     private SpriteStatus status;
 
-    @ApiModelProperty(value = "目标精灵id")
+    @Schema(description = "目标精灵id")
     @Nullable
     private String targetSpriteId;
 
-    @ApiModelProperty(value = "目标建筑id")
+    @Schema(description = "目标建筑id")
     @Nullable
     private String targetBuildingId;
 
-    @ApiModelProperty(value = "目标（既非精灵也非建筑）的x坐标")
+    @Schema(description = "目标（既非精灵也非建筑）的x坐标")
     @Nullable
     private Double targetX;
 
-    @ApiModelProperty(value = "目标（既非精灵也非建筑）的y坐标")
+    @Schema(description = "目标（既非精灵也非建筑）的y坐标")
     @Nullable
     private Double targetY;
 }

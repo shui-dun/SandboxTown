@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -54,7 +54,7 @@ public class SpriteDo {
 
     private String map;
 
-    @ApiModelProperty(value = "精灵缓存信息，存在代表精灵在线，否则代表精灵离线")
+    @Schema(description = "精灵缓存信息，存在代表精灵在线，否则代表精灵离线")
     @TableField(exist = false)
     @Nullable
     SpriteCache cache;

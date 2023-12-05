@@ -1,6 +1,6 @@
 package com.shuidun.sandbox_town_backend.bean;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class SpriteAttributeChangeVo {
-    @ApiModelProperty(value = "精灵id")
+    @Schema(description = "精灵id")
     private String id;
 
     private Integer money;
 
-    @ApiModelProperty(value = "以下这些增量表示的是变化后的值减去变化前的值")
+    @Schema(description = "以下这些增量表示的是变化后的值减去变化前的值")
     private Integer moneyInc;
 
     private Integer exp;

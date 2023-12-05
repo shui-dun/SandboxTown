@@ -2,7 +2,7 @@ package com.shuidun.sandbox_town_backend.bean;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ public class EventDto {
     @Nullable
     private WSRequestEnum type;
 
-    @ApiModelProperty(value = "事件发起者的用户名")
+    @Schema(description = "事件发起者的用户名")
     @Nullable
     private String initiator;
 

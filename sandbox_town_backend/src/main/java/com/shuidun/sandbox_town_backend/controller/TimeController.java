@@ -4,7 +4,7 @@ import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.bean.TimeFrameVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.TimeService;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +21,7 @@ public class TimeController {
         this.timeService = timeService;
     }
 
-    @ApiOperation(value = "得到当前的时间段以及结束时刻")
+    @Operation(summary = "得到当前的时间段以及结束时刻")
     @GetMapping("/getTimeFrame")
     public RestResponseVo<TimeFrameVo> getTimeFrame() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, timeService.getTimeFrame());

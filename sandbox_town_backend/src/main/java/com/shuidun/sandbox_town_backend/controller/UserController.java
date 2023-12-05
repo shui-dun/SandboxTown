@@ -6,13 +6,10 @@ import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.service.UserService;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -29,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public RestResponseVo<Void> login(@NotNull String username, @NotNull String password, @NotNull boolean rememberMe) {
+    public RestResponseVo<Void> login(@NotNull @RequestParam String username, @NotNull @RequestParam String password, @NotNull @RequestParam boolean rememberMe) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
@@ -41,8 +38,8 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public RestResponseVo<Void> signup(@NotNull String usernameSuffix,
-                                       @NotNull String password) {
+    public RestResponseVo<Void> signup(@NotNull @RequestParam String usernameSuffix,
+                                       @NotNull @RequestParam String password) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
@@ -71,7 +68,7 @@ public class UserController {
     }
 
     @PostMapping("/changePassword")
-    public RestResponseVo<Void> changePassword(@NotNull String oldPassword, @NotNull String newPassword) {
+    public RestResponseVo<Void> changePassword(@NotNull @RequestParam String oldPassword, @NotNull @RequestParam String newPassword) {
         // 判断是否已经登陆
         if (!StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.NOT_LOG_IN);
@@ -84,7 +81,7 @@ public class UserController {
 
     @PostMapping("/ban")
     @SaCheckRole("ADMIN")
-    public RestResponseVo<Void> ban(@NotNull String username, @NotNull int banDays) {
+    public RestResponseVo<Void> ban(@NotNull @RequestParam String username, @NotNull @RequestParam int banDays) {
         userService.banUser(username, banDays);
         // 踢出用户
         StpUtil.kickout(username);
@@ -95,14 +92,14 @@ public class UserController {
 
     @PostMapping("/unban")
     @SaCheckRole("ADMIN")
-    public RestResponseVo<Void> unban(@NotNull String username) {
+    public RestResponseVo<Void> unban(@NotNull @RequestParam String username) {
         userService.unbanUser(username);
         // 打印信息
         log.info("{} unban success", username);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
-    @ApiOperation(value = "进入游戏，将会修改上次在线时间，并且领取奖励")
+    @Operation(summary = "进入游戏，将会修改上次在线时间，并且领取奖励")
     @PostMapping("/enterGameToReceiveReward")
     public RestResponseVo<Integer> enterGameToReceiveReward() {
         // 获取当前用户
