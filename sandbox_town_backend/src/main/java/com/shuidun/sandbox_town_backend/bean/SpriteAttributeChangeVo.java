@@ -1,20 +1,19 @@
 package com.shuidun.sandbox_town_backend.bean;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * 记录精灵的属性变化，只有玩家自己发生变化才会收到通知
- */
+/** 记录精灵的属性变化，只有玩家自己发生变化才会收到通知 */
 @Data
 @NoArgsConstructor
 public class SpriteAttributeChangeVo {
-    /** 精灵id */
+    @ApiModelProperty(value = "精灵id")
     private String id;
 
     private Integer money;
 
-    /** 这些增量表示的是变化后的值减去变化前的值 */
+    @ApiModelProperty(value = "以下这些增量表示的是变化后的值减去变化前的值")
     private Integer moneyInc;
 
     private Integer exp;

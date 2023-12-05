@@ -4,6 +4,7 @@ import com.shuidun.sandbox_town_backend.bean.BuildingDo;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.BuildingService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ public class BuildingController {
         this.buildingService = buildingService;
     }
 
-    /** 得到某个地图上的所有建筑 */
+    @ApiOperation(value = "得到某个地图上的所有建筑")
     @GetMapping("/getAllBuildings")
     public RestResponseVo<List<BuildingDo>> getAllBuildings() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, buildingService.getAllBuildings());

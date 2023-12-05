@@ -1,6 +1,6 @@
 # 使用官方 Maven 镜像作为基础镜像进行构建
 # AS build 指定了这个阶段的名称为 build，这个名称可以用来在后面的 FROM 指令引用
-FROM 3.9.5-eclipse-temurin-21-alpine AS build
+FROM maven:3.9.5-eclipse-temurin-21-alpine AS build
 
 # 设置工作目录
 WORKDIR /app

@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.bean;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,13 +11,13 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Data
 public class InteractDto {
-    /** 交互事件的发起者 */
+    @ApiModelProperty(value = "交互事件的发起者")
     @NotNull
     private String source;
-    /** 交互事件的目标 */
+    @ApiModelProperty(value = "交互事件的目标")
     @NotNull
     private String target;
-    /** 交互事件的序列号（用于去重） */
+    @ApiModelProperty(value = "交互事件的序列号（用于去重）")
     @NotNull
     private Integer sn;
 }

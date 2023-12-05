@@ -7,6 +7,7 @@ import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.ItemService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,28 +33,28 @@ public class ItemController {
         this.spriteService = spriteService;
     }
 
-    /** 获取当前登陆玩家的所有物品信息 */
+    @ApiOperation(value = "获取当前登陆玩家的所有物品信息")
     @GetMapping("/listMyItems")
     public RestResponseVo<List<ItemWithTypeAndLabelsBo>> listMyItems() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.listByOwnerWithTypeAndLabel(StpUtil.getLoginIdAsString()));
     }
 
-    /** 获取当前登陆玩家的背包中的所有物品信息 */
+    @ApiOperation(value = "获取当前登陆玩家的背包中的所有物品信息")
     @GetMapping("/listMyItemsInBackpack")
     public RestResponseVo<List<ItemWithTypeAndLabelsBo>> listMyItemsInBackpack() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.listItemsInBackpackByOwner(StpUtil.getLoginIdAsString()));
     }
 
-    /** 获取当前登陆玩家的装备栏中的所有物品信息 */
+    @ApiOperation(value = "获取当前登陆玩家的装备栏中的所有物品信息")
     @GetMapping("/listMyItemsInEquipment")
     public RestResponseVo<List<ItemWithTypeAndLabelsBo>> listMyItemsInEquipment() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.listItemsInEquipmentByOwner(StpUtil.getLoginIdAsString()));
     }
 
-    /** 获取当前登陆玩家的物品栏中的所有物品信息 */
+    @ApiOperation(value = "获取当前登陆玩家的物品栏中的所有物品信息")
     @GetMapping("/listMyItemsInItemBar")
     public RestResponseVo<List<ItemWithTypeAndLabelsBo>> listMyItemsInItemBar() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
@@ -61,7 +62,7 @@ public class ItemController {
     }
 
 
-    /** 使用物品 */
+    @ApiOperation(value = "使用物品")
     @PostMapping("/use")
     public RestResponseVo<Void> use(@NotNull String itemId) {
         // 之所以这里要以websocket而非http的方式发送消息，
@@ -71,53 +72,49 @@ public class ItemController {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
-    /** 显示某个物品的详细信息 */
+    @ApiOperation(value = "显示某个物品的详细信息")
     @GetMapping("/itemDetail")
     public RestResponseVo<ItemDetailBo> detail(@NotNull String itemId) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.getItemDetailById(itemId));
     }
 
-    /** 显示某个物品类型的详细信息 */
+    @ApiOperation(value = "显示某个物品类型的详细信息")
     @GetMapping("/itemTypeDetail")
     public RestResponseVo<ItemTypeDetailBo> detailByItemType(@NotNull ItemTypeEnum itemType) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.getItemTypeDetailById(itemType));
     }
 
-    /** 显示某个物品类型的简略信息 */
+    @ApiOperation(value = "显示某个物品类型的简略信息")
     @GetMapping("/itemTypeBrief")
     public RestResponseVo<ItemTypeDo> briefByItemType(@NotNull ItemTypeEnum itemType) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.getItemTypeBriefById(itemType));
     }
 
-    /**
-     * 手持物品
-     */
+    @ApiOperation(value = "手持物品")
     @PostMapping("/hold")
     public RestResponseVo<Void> hold(@NotNull String itemId) {
         WSMessageSender.addResponses(itemService.hold(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
-    /**
-     * 放入物品栏
-     */
+    @ApiOperation(value = "放入物品栏")
     @PostMapping("/putInItemBar")
     public RestResponseVo<Void> putInItemBar(@NotNull String itemId) {
         WSMessageSender.addResponses(itemService.putInItemBar(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
-    /** 装备物品 */
+    @ApiOperation(value = "装备物品")
     @PostMapping("/equip")
     public RestResponseVo<Void> equip(@NotNull String itemId) {
         WSMessageSender.addResponses(itemService.equip(StpUtil.getLoginIdAsString(), itemId));
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
-    /** 放入背包 */
+    @ApiOperation(value = "放入背包")
     @PostMapping("/putInBackpack")
     public RestResponseVo<Void> putInBackpack(@NotNull String itemId) {
         WSMessageSender.addResponses(itemService.putInBackpack(StpUtil.getLoginIdAsString(), itemId));

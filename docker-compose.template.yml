@@ -25,10 +25,9 @@ services:
       # Dockerfile路径
       # 如果你在开发过程中，需要频繁修改源代码，那么可以使用Dockerfile2，它会将你编译好的文件挂载到容器中
       dockerfile: Dockerfile
-    expose:
-      # Spring Boot 服务在 Docker 内部网络上暴露 9090 端口，但不暴露到宿主机
-      # 但其实这里不写也可以，只是为了更清晰
-      - "9090" 
+    # 如果你在开发过程中，需要测试swagger，那么暴露后端端口
+    ports:
+      - "9090:9090"
     restart: unless-stopped
     # 限制内存，JVM 可以自动识别 Docker 容器的内存限制，并据此设置默认的内存使用
     mem_limit: 300m

@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * 服务器向客户端发送的事件
- */
+/** 服务器向客户端发送的事件 */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

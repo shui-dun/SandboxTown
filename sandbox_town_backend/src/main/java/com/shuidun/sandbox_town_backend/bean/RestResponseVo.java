@@ -6,26 +6,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 
-/**
- * restful接口返回的数据
- */
+/** restful接口返回的数据 */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class RestResponseVo<T> {
-    private int code;
+    private StatusCodeEnum code;
     private String msg;
     @Nullable
     private T data;
 
     public RestResponseVo(StatusCodeEnum codeEnum, @Nullable T data) {
-        this.code = codeEnum.getCode();
+        this.code = codeEnum;
         this.msg = codeEnum.getMsg();
         this.data = data;
     }
 
     public RestResponseVo(StatusCodeEnum codeEnum) {
-        this.code = codeEnum.getCode();
+        this.code = codeEnum;
         this.msg = codeEnum.getMsg();
     }
 }

@@ -5,6 +5,7 @@ import com.shuidun.sandbox_town_backend.bean.GameMapVo;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,14 +27,14 @@ public class GameMapController {
     }
 
 
-    /** 得到地图的信息 */
+    @ApiOperation(value = "得到地图的信息")
     @GetMapping("/getGameMap")
     public RestResponseVo<GameMapVo> getGameMap() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 GameMapVo.fromGameMapDo(gameMapService.getGameMap()));
     }
 
-    /** 建造随机的生态系统 */
+    @ApiOperation(value = "建造随机的生态系统")
     @SaCheckRole("ADMIN")
     @GetMapping("/createEnvironment")
     public RestResponseVo<Void> createEnvironment(@NotNull int nBuildings) {

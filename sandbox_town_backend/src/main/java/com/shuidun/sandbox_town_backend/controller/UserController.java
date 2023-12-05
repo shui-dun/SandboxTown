@@ -6,6 +6,7 @@ import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.service.UserService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +42,7 @@ public class UserController {
 
     @PostMapping("/signup")
     public RestResponseVo<Void> signup(@NotNull String usernameSuffix,
-                                    @NotNull String password) {
+                                       @NotNull String password) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
@@ -101,7 +102,7 @@ public class UserController {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
-    /** 进入游戏，将会修改上次在线时间，并且领取奖励 */
+    @ApiOperation(value = "进入游戏，将会修改上次在线时间，并且领取奖励")
     @PostMapping("/enterGameToReceiveReward")
     public RestResponseVo<Integer> enterGameToReceiveReward() {
         // 获取当前用户

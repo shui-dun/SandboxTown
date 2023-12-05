@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.bean;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpriteEffectChangeVo {
-    /** 精灵id */
+    @ApiModelProperty(value = "精灵id")
     private String id;
 }
