@@ -59,7 +59,8 @@ public class ChatController {
 
     @Operation(summary = "编辑消息")
     @PostMapping("/edit")
-    public RestResponseVo<Void> editMessage(@NotNull @RequestParam Integer messageId, @NotNull @RequestParam String content) {
+    public RestResponseVo<Void> editMessage(@NotNull @RequestParam Integer messageId,
+                                            @NotNull @RequestParam String content) {
         chatMessageService.editMessage(StpUtil.getLoginIdAsString(), messageId, content);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
@@ -90,7 +91,10 @@ public class ChatController {
 
     @Operation(summary = "加载与某用户在某个消息前的、包含某个关键字的、指定长度的文本消息列表")
     @GetMapping("/search")
-    public RestResponseVo<List<ChatMessageDo>> searchMessage(@NotNull @RequestParam String userId, @NotNull @RequestParam Integer messageId, @NotNull @RequestParam Integer length, @NotNull @RequestParam String keyword) {
+    public RestResponseVo<List<ChatMessageDo>> searchMessage(@NotNull @RequestParam String userId,
+                                                             @NotNull @RequestParam Integer messageId,
+                                                             @NotNull @RequestParam Integer length,
+                                                             @NotNull @RequestParam String keyword) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 chatMessageService.loadMessageBeforeWithKeyword(StpUtil.getLoginIdAsString(), userId, messageId, length, keyword));
     }

@@ -95,6 +95,7 @@ public class ItemService {
 
     /** 给角色减少物品 */
     @Transactional
+    @CacheEvict(value = "item::itemDetail", key = "#itemId")
     public void reduce(String spriteId, String itemId, int count) {
         // 查询玩家拥有的该物品
         ItemDo item = itemMapper.selectById(itemId);
@@ -335,6 +336,7 @@ public class ItemService {
      * 放入物品栏
      */
     @Transactional
+    @CacheEvict(value = "item::itemDetail", key = "#itemId")
     public List<WSResponseVo> putInItemBar(String spriteId, String itemId) {
         List<WSResponseVo> responses = new ArrayList<>();
         // 查询该物品
@@ -372,10 +374,11 @@ public class ItemService {
 
     /** 装备物品 */
     @Transactional
+    @CacheEvict(value = "item::itemDetail", key = "#itemId")
     public List<WSResponseVo> equip(String spriteId, String itemId) {
         List<WSResponseVo> responses = new ArrayList<>();
         // 查询该物品详细信息
-        ItemDetailBo item = getItemDetailById(itemId);
+        ItemDetailBo item = self.getItemDetailById(itemId);
         // 判断该物品是否存在
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
@@ -431,6 +434,7 @@ public class ItemService {
 
     /** 放入背包 */
     @Transactional
+    @CacheEvict(value = "item::itemDetail", key = "#itemId")
     public List<WSResponseVo> putInBackpack(String spriteId, String itemId) {
         List<WSResponseVo> responses = new ArrayList<>();
         // 查询该物品

@@ -33,7 +33,8 @@ public class TreeController {
 
     @Operation(summary = "检查是否可以摘苹果，返回的状态码为success表示可以摘苹果，否则不可以")
     @GetMapping("/canPickApple")
-    public RestResponseVo<Void> canPickApple(@NotNull @RequestParam @Parameter(description = "树的id") String treeId) {
+    public RestResponseVo<Void> canPickApple(@NotNull @RequestParam @Parameter(description = "树的id")
+                                             String treeId) {
         treeService.checkPickApple(StpUtil.getLoginIdAsString(), treeId);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }

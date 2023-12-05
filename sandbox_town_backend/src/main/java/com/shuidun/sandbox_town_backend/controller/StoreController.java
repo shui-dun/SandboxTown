@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.bean.StoreItemTypeDetailBo;
@@ -36,9 +37,12 @@ public class StoreController {
 
     @Operation(summary = "买入商品")
     @PostMapping("/buy")
-    public RestResponseVo<Void> buy(@NotNull @RequestParam @Parameter(description = "商店") String store,
-                                    @NotNull @RequestParam @Parameter(description = "物品类型") ItemTypeEnum item,
-                                    @NotNull @RequestParam @Parameter(description = "购买数量") Integer amount) {
+    public RestResponseVo<Void> buy(@NotNull @RequestParam @Parameter(description = "商店")
+                                    String store,
+                                    @NotNull @RequestParam @Parameter(description = "物品类型")
+                                    ItemTypeEnum item,
+                                    @NotNull @RequestParam @Parameter(description = "购买数量")
+                                    Integer amount) {
         storeService.buy(StpUtil.getLoginIdAsString(), store, item, amount);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
@@ -66,6 +70,22 @@ public class StoreController {
                                      @NotNull @RequestParam Integer amount,
                                      @NotNull @RequestParam Integer perPrice) {
         storeService.sell(StpUtil.getLoginIdAsString(), store, itemId, amount, perPrice);
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
+    }
+
+    @Operation(summary = "管理员刷新指定商店中的物品")
+    @SaCheckRole("ADMIN")
+    @PostMapping("/refresh")
+    public RestResponseVo<Void> refresh(@NotNull @RequestParam String store) {
+        storeService.refresh(store);
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
+    }
+
+    @Operation(summary = "管理员刷新所有商店中的物品")
+    @SaCheckRole("ADMIN")
+    @PostMapping("/refreshAll")
+    public RestResponseVo<Void> refreshAll() {
+        storeService.refreshAll();
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 

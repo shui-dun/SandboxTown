@@ -26,7 +26,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public RestResponseVo<Void> login(@NotNull @RequestParam String username, @NotNull @RequestParam String password, @NotNull @RequestParam boolean rememberMe) {
+    public RestResponseVo<Void> login(@NotNull @RequestParam String username,
+                                      @NotNull @RequestParam String password,
+                                      @NotNull @RequestParam boolean rememberMe) {
         // 判断是否已经登陆
         if (StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.ALREADY_LOGGED_IN);
@@ -68,7 +70,8 @@ public class UserController {
     }
 
     @PostMapping("/changePassword")
-    public RestResponseVo<Void> changePassword(@NotNull @RequestParam String oldPassword, @NotNull @RequestParam String newPassword) {
+    public RestResponseVo<Void> changePassword(@NotNull @RequestParam String oldPassword,
+                                               @NotNull @RequestParam String newPassword) {
         // 判断是否已经登陆
         if (!StpUtil.isLogin()) {
             throw new BusinessException(StatusCodeEnum.NOT_LOG_IN);
@@ -81,7 +84,8 @@ public class UserController {
 
     @PostMapping("/ban")
     @SaCheckRole("ADMIN")
-    public RestResponseVo<Void> ban(@NotNull @RequestParam String username, @NotNull @RequestParam int banDays) {
+    public RestResponseVo<Void> ban(@NotNull @RequestParam String username,
+                                    @NotNull @RequestParam int banDays) {
         userService.banUser(username, banDays);
         // 踢出用户
         StpUtil.kickout(username);

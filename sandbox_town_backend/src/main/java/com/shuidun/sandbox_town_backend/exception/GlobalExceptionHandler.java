@@ -1,6 +1,7 @@
 package com.shuidun.sandbox_town_backend.exception;
 
 import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotRoleException;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
@@ -83,5 +84,12 @@ public class GlobalExceptionHandler {
     public RestResponseVo<String> exceptionHandler(MissingServletRequestParameterException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
         return new RestResponseVo<>(StatusCodeEnum.PARAMETER_ERROR, e.getMessage());
+    }
+
+    @ExceptionHandler(NotRoleException.class)
+    @ResponseBody
+    public RestResponseVo<String> exceptionHandler(NotRoleException e) {
+        log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
+        return new RestResponseVo<>(StatusCodeEnum.NO_PERMISSION);
     }
 }

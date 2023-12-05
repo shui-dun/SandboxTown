@@ -76,8 +76,8 @@ public class RedisConfig extends CachingConfigurerSupport {
         // 定制缓存序列化方式
         RedisCacheConfiguration config =
                 RedisCacheConfiguration.defaultCacheConfig()
-                        // 配置缓存过期时间（1分钟）
-                        .entryTtl(Duration.ofMinutes(1))
+                        // 配置缓存过期时间（5分钟）
+                        .entryTtl(Duration.ofMinutes(5))
                         // 配置key的序列化方式
                         .serializeKeysWith(RedisSerializationContext.SerializationPair
                                 .fromSerializer(strSerializer))

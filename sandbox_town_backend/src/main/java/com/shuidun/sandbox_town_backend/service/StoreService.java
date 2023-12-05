@@ -9,12 +9,17 @@ import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,10 +39,12 @@ public class StoreService {
 
     private final SpriteService spriteService;
 
+    private final RedisTemplate<String, Object> redisTemplate;
+
     @Value("${mapId}")
     private String mapId;
 
-    public StoreService(StoreItemTypeMapper storeItemTypeMapper, SpriteMapper spriteMapper, BuildingMapper buildingMapper, ItemTypeMapper itemTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteService spriteService) {
+    public StoreService(StoreItemTypeMapper storeItemTypeMapper, SpriteMapper spriteMapper, BuildingMapper buildingMapper, ItemTypeMapper itemTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate) {
         this.storeItemTypeMapper = storeItemTypeMapper;
         this.spriteMapper = spriteMapper;
         this.buildingMapper = buildingMapper;
@@ -45,9 +52,12 @@ public class StoreService {
         this.itemService = itemService;
         this.itemMapper = itemMapper;
         this.spriteService = spriteService;
+        this.redisTemplate = redisTemplate;
     }
 
     /** 列出商店的所有商品（带有标签信息） */
+    // TODO: 未来应该分页
+    @Cacheable(value = "store::listByStore", key = "#store")
     public List<StoreItemTypeWithTypeAndLabelsBo> listByStore(String store) {
         List<StoreItemTypeDo> storeItemTypes = storeItemTypeMapper.selectByStore(store);
         if (storeItemTypes.isEmpty()) {
@@ -68,6 +78,10 @@ public class StoreService {
 
     /** 买入商品 */
     @Transactional
+    // 如果有多个CacheEvict，则使用@Caching注解
+    @Caching(evict = {
+            @CacheEvict(value = "store::listByStore", key = "#store"),
+            @CacheEvict(value = "store::storeItemTypeDetail", key = "#store + '_' + #item")})
     public void buy(String spriteId, String store, ItemTypeEnum item, Integer amount) {
         StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item);
         // 检查商品是否存在
@@ -100,7 +114,13 @@ public class StoreService {
 
 
     /** 刷新商店商品 */
+    @Transactional
     public void refresh(String store) {
+        // 判断商店是否存在
+        BuildingDo building = buildingMapper.selectById(store);
+        if (building == null) {
+            throw new BusinessException(StatusCodeEnum.BUILDING_NOT_FOUND);
+        }
         // 删除原有的商店商品
         storeItemTypeMapper.deleteByStore(store);
         // 获取所有物品信息
@@ -148,6 +168,12 @@ public class StoreService {
                 }
             }
         }
+        // 删除缓存
+        redisTemplate.delete("store::listByStore::" + store);
+        Set<String> keys = redisTemplate.keys("store::storeItemTypeDetail::%s*".formatted(store));
+        if (keys != null) {
+            redisTemplate.delete(keys);
+        }
     }
 
     /** 刷新所有商店商品 */
@@ -160,6 +186,7 @@ public class StoreService {
     }
 
     /** 列出指定商店中指定商品的信息（包含标签信息、属性增益信息、效果信息等） */
+    @Cacheable(value = "store::storeItemTypeDetail", key = "#store + '_' + #itemType")
     public StoreItemTypeDetailBo detailByStoreAndItemType(String store, ItemTypeEnum itemType) {
         StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, itemType);
         if (storeItemType == null) {
@@ -242,5 +269,8 @@ public class StoreService {
                 storeItemTypeMapper.update(storeItemType);
             }
         }
+        // 删除缓存
+        redisTemplate.delete("store::listByStore::" + store);
+        redisTemplate.delete("store::storeItemTypeDetail::%s_%s".formatted(store, item.getItemType()));
     }
 }
