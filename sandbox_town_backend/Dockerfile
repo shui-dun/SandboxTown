@@ -1,6 +1,6 @@
 # 使用官方 Maven 镜像作为基础镜像进行构建
 # AS build 指定了这个阶段的名称为 build，这个名称可以用来在后面的 FROM 指令引用
-FROM maven:3.8.1-openjdk-17-slim AS build
+FROM 3.9.5-eclipse-temurin-21-alpine AS build
 
 # 设置工作目录
 WORKDIR /app
@@ -20,7 +20,7 @@ RUN mvn -T 1C -Dmaven.test.skip=true clean package
 # 使用官方的 Java 镜像作为基础镜像运行应用
 # 使用了多阶段构建：第一阶段使用 Maven 镜像构建项目，第二阶段使用 Java 镜像运行应用
 # 这样，最终的镜像只包含运行应用所需的内容，而不包含构建工具和其他不必要的文件，从而减小了镜像的大小
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
 # 设置工作目录
 WORKDIR /app

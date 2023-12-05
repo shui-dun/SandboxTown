@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     /**
-     * 自注入，使得调用自身的方法时可以走 Spring AOP，进而使得注解生效
+     * 自注入，使得调用自身的方法时可以走 Spring AOP（使得注解生效）
      * 不加入Lazy会报错：循环依赖
      */
     @Lazy
