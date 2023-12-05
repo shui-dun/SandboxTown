@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.ChatMessageDo;
+import com.shuidun.sandbox_town_backend.bean.ChatMessageQueryDto;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.ChatMsgTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
@@ -35,6 +36,8 @@ public class ChatController {
 
     @Operation(summary = "拉黑用户")
     @PostMapping("/ban")
+    // 所有参数都要写@RequestParam
+    // 虽然这是默认行为，但是swagger-ui经常不能识别没有注解的请求参数
     public RestResponseVo<Void> banUser(@NotNull @RequestParam String userId) {
         chatFriendService.banUser(StpUtil.getLoginIdAsString(), userId);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
@@ -69,17 +72,20 @@ public class ChatController {
     }
 
     @Operation(summary = "加载与某用户在某个消息前（包含该消息本身）的指定长度的消息列表")
-    @GetMapping("/loadBefore")
-    public RestResponseVo<List<ChatMessageDo>> loadMessageBefore(@NotNull @RequestParam String userId, @NotNull @RequestParam Integer messageId, @NotNull @RequestParam Integer length) {
+    // 不是get不能用RequestBody（json），而是swagger-ui上面的get只能用www-form-urlencoded
+    // 于是这里改成post
+    // swagger是真难用，希望以后能找到不错的替代品
+    @PostMapping(value = "/loadBefore")
+    public RestResponseVo<List<ChatMessageDo>> loadMessageBefore(@NotNull @RequestBody ChatMessageQueryDto query) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                chatMessageService.loadMessageBefore(StpUtil.getLoginIdAsString(), userId, messageId, length));
+                chatMessageService.loadMessageBefore(StpUtil.getLoginIdAsString(), query.getUserId(), query.getMessageId(), query.getLength()));
     }
 
     @Operation(summary = "加载与某用户在某个消息后（不包含该消息本身）的指定长度的消息列表")
-    @GetMapping("/loadAfter")
-    public RestResponseVo<List<ChatMessageDo>> loadMessageAfter(@NotNull @RequestParam String userId, @NotNull @RequestParam Integer messageId, @NotNull @RequestParam Integer length) {
+    @PostMapping(value = "/loadAfter")
+    public RestResponseVo<List<ChatMessageDo>> loadMessageAfter(@NotNull @RequestBody ChatMessageQueryDto query) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                chatMessageService.loadMessageAfter(StpUtil.getLoginIdAsString(), userId, messageId, length));
+                chatMessageService.loadMessageAfter(StpUtil.getLoginIdAsString(), query.getUserId(), query.getMessageId(), query.getLength()));
     }
 
     @Operation(summary = "加载与某用户在某个消息前的、包含某个关键字的、指定长度的文本消息列表")
@@ -90,7 +96,12 @@ public class ChatController {
     }
 
     @Operation(summary = "发送消息")
+    // consumes = MediaType.MULTIPART_FORM_DATA_VALUE是告诉愚蠢的swagger这里接收multipart/form-data类型
+    // 不然swagger-ui没有上传文件的按钮
     @PostMapping(value = "/send", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // 下面要使用RequestParam而非RequestPart（RequestParam也能接收multipart/form-data），否则报错：
+    // org.springframework.web.httpmediatypenotsupportedexception: content type 'application/octet-stream' not supported
+    // 原因未知
     public RestResponseVo<Void> send(@NotNull @RequestParam @Parameter(description = "目标用户id")
                                      String userId,
                                      @NotNull @RequestParam @Parameter(description = "消息类型")
