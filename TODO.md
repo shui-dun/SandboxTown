@@ -2,7 +2,6 @@
 
 ## feature
 
-- 使用swagger取代postman
 - Redis做缓存（简单的用cachable注解，复杂的写代码）
 - 升级到java21，并开启zgc（是否需要手动开启？）
 - java调试：如何调试springboot？如何调试docker中的springboot？

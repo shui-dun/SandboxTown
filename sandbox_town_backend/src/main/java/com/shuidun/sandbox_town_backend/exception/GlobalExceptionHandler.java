@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -73,6 +74,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseBody
     public RestResponseVo<String> exceptionHandler(HttpMessageNotReadableException e) {
+        log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
+        return new RestResponseVo<>(StatusCodeEnum.PARAMETER_ERROR, e.getMessage());
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseBody
+    public RestResponseVo<String> exceptionHandler(MissingServletRequestParameterException e) {
         log.error("e: \"{}\". User: {}\n", e.getMessage(), currentUser());
         return new RestResponseVo<>(StatusCodeEnum.PARAMETER_ERROR, e.getMessage());
     }

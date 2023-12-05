@@ -10,6 +10,7 @@ import com.shuidun.sandbox_town_backend.service.ChatMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -89,11 +90,15 @@ public class ChatController {
     }
 
     @Operation(summary = "发送消息")
-    @PostMapping(value = "/send")
-    public RestResponseVo<Void> send(@NotNull @RequestParam @Parameter(description = "目标用户id") String userId,
-                                     @NotNull @RequestParam @Parameter(description = "消息类型") ChatMsgTypeEnum type,
-                                     @NotNull @RequestParam @Parameter(description = "消息内容（文本消息和文件消息才有，对于文件消息，内容是原文件名）") String content,
-                                     @Nullable @RequestParam @Parameter(description = "文件（只有图片、视频、文件消息才有）") MultipartFile file) {
+    @PostMapping(value = "/send", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public RestResponseVo<Void> send(@NotNull @RequestParam @Parameter(description = "目标用户id")
+                                     String userId,
+                                     @NotNull @RequestParam @Parameter(description = "消息类型")
+                                     ChatMsgTypeEnum type,
+                                     @NotNull @RequestParam @Parameter(description = "消息内容（文本消息和文件消息才有，对于文件消息，内容是原文件名）")
+                                     String content,
+                                     @Nullable @RequestParam(required = false) @Parameter(description = "文件（只有图片、视频、文件消息才有）")
+                                     MultipartFile file) {
         chatMessageService.sendMessage(StpUtil.getLoginIdAsString(), userId, type, content, file);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
