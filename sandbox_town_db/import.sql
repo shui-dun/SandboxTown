@@ -444,7 +444,7 @@ INSERT INTO building_type (id, description, basic_price, image_path, basic_width
 VALUES ('STORE', '买卖商品的场所', 200, 'static/bitmap/STORE.png', 400, 400, 15),
        ('TREE', '可以伐木或摘苹果', 100, 'static/bitmap/TREE.png', 500, 500, 40),
        ('ABANDONED_MENTAL_HOSPITAL', '废弃的精神病院，周围有幽灵出没', 500,
-        'static/bitmap/ABANDONED_MENTAL_HOSPITAL.png', 500, 500, 8),
+        'static/bitmap/ABANDONED_MENTAL_HOSPITAL.png', 400, 400, 8),
        ('GREEK_TEMPLE', '希腊神庙，敌对生物无法靠近', 2000, 'static/bitmap/GREEK_TEMPLE.png', 400, 400, 4);
 
 
