@@ -286,8 +286,8 @@ List of all bodies:
         Identifier:     0
         FixedRotation:  NO
 
-        AnchorPointRel: { 0.490,0.498 }
-        AnchorPointAbs: { 245.000,249.000 }
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 250.000,250.000 }
         Size:           { 500.000,500.000 }
     
     List of all fixtures:
@@ -306,11 +306,187 @@ List of all bodies:
 
 
         Hull polygon:
-             (-87, 94)  , (-117, 39)  , (-17, -109)  , (35, -106)  , (126, 40)  , (100, 94) 
+             (-92, 93)  , (-122, 38)  , (-22, -110)  , (30, -107)  , (121, 39)  , (95, 93) 
 
         Convex sub polygons:
 
-             (-17, -109)  , (35, -106)  , (126, 40)  , (100, 94)  , (-87, 94)  , (-117, 39) 
+             (-22, -110)  , (30, -107)  , (121, 39)  , (95, 93)  , (-92, 93)  , (-122, 38) 
+
+
+
+
+    Name:               GREEK_TEMPLE
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 512.000,512.000 }
+        Size:           { 1024.000,1024.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (-421, 301)  , (-272.77492877492875, -27.715099715099768)  , (-272, -238)  , (-1.4586894586894346, -325.2877492877493)  , (254, -249)  , (264.02279202279203, -4.3760683760683605)  , (400, 307) 
+
+        Convex sub polygons:
+
+             (264.02276611328125, -4.3760986328125)  , (-421, 301)  , (-272.7749328613281, -27.715087890625)  , (-1.45867919921875, -325.2877197265625)  , (254, -249) 
+             (-1.45867919921875, -325.2877197265625)  , (-272.7749328613281, -27.715087890625)  , (-272, -238) 
+             (400, 307)  , (-421, 301)  , (264.02276611328125, -4.3760986328125) 
+
+
+
+
+    Name:               GREEK_TEMPLE-2
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 512.000,512.000 }
+        Size:           { 1024.000,1024.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (-362, 312)  , (-243, -5)  , (257, 2)  , (385, 313) 
+
+        Convex sub polygons:
+
+             (257, 2)  , (385, 313)  , (-362, 312)  , (-243, -5) 
+
+
+
+
+    Name:               ABANDONED_MENTAL
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 512.000,512.000 }
+        Size:           { 1024.000,1024.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (211, 123)  , (273, 44)  , (401, 331)  , (-231.9316239316239, 357.3789173789173)  , (-394, 325)  , (-220.26210826210826, 173.5840455840455)  , (-197, -236)  , (136, -320)  , (217.34472934472933, -229.01424501424503) 
+
+        Convex sub polygons:
+
+             (-220.26211547851562, 173.58404541015625)  , (-231.93161010742188, 357.37892150878906)  , (-394, 325) 
+             (136, -320)  , (217.3447265625, -229.01422119140625)  , (-220.26211547851562, 173.58404541015625)  , (-197, -236) 
+             (401, 331)  , (211, 123)  , (273, 44) 
+             (-231.93161010742188, 357.37892150878906)  , (211, 123)  , (401, 331) 
+             (-231.93161010742188, 357.37892150878906)  , (-220.26211547851562, 173.58404541015625)  , (217.3447265625, -229.01422119140625)  , (211, 123) 
+
+
+
+
+    Name:               ABANDONED_MENTAL-2
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 512.000,512.000 }
+        Size:           { 1024.000,1024.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (-194, 7)  , (209, 8)  , (279, 314)  , (-280, 319) 
+
+        Convex sub polygons:
+
+             (-194, 7)  , (209, 8)  , (279, 314)  , (-280, 319) 
+
+
+
+
+    Name:               EARTHBOUND_SPIRIT
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 250.000,250.000 }
+        Size:           { 500.000,500.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (89, 100)  , (-85, 96)  , (-115, -10)  , (-36, -128)  , (53, -108)  , (115, -14) 
+
+        Convex sub polygons:
+
+             (-85, 96)  , (-115, -10)  , (-36, -128)  , (53, -108)  , (115, -14)  , (89, 100) 
 
 
 
