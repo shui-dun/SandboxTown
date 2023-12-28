@@ -2,7 +2,7 @@ import re
 
 def parseSql(tableName, columnOfImgName=None):
     # 读取import.sql
-    with open('../../sandbox_town_backend/import.sql', encoding='utf-8') as f:
+    with open('../../sandbox_town_db/import.sql', encoding='utf-8') as f:
         sql = f.read()
 
 

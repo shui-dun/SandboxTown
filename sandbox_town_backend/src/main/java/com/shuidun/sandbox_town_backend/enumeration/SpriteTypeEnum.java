@@ -4,5 +4,6 @@ public enum SpriteTypeEnum {
     USER,
     DOG,
     CAT,
-    SPIDER
+    SPIDER,
+    EARTHBOUND_SPIRIT,
 }

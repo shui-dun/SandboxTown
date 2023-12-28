@@ -385,7 +385,7 @@ List of all bodies:
 
 
 
-    Name:               ABANDONED_MENTAL
+    Name:               ABANDONED_MENTAL_HOSPITAL
     Custom values (from the <bodies> section):
         Identifier:     0
         FixedRotation:  NO
@@ -423,7 +423,7 @@ List of all bodies:
 
 
 
-    Name:               ABANDONED_MENTAL-2
+    Name:               ABANDONED_MENTAL_HOSPITAL-2
     Custom values (from the <bodies> section):
         Identifier:     0
         FixedRotation:  NO

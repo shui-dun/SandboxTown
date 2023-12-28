@@ -168,8 +168,11 @@ class MainScene extends Phaser.Scene {
         this.load.image("DOG", require("@/assets/img/DOG.png"));
         this.load.image("SPIDER", require("@/assets/img/SPIDER.png"));
         this.load.image("CAT", require("@/assets/img/CAT.png"));
+        this.load.image("EARTHBOUND_SPIRIT", require("@/assets/img/EARTHBOUND_SPIRIT.png"));
         this.load.image("STORE", require("@/assets/img/STORE.png"));
         this.load.image("TREE", require("@/assets/img/TREE.png"));
+        this.load.image("ABANDONED_MENTAL_HOSPITAL", require("@/assets/img/ABANDONED_MENTAL_HOSPITAL.png"));
+        this.load.image("GREEK_TEMPLE", require("@/assets/img/GREEK_TEMPLE.png"));
 
         // 围墙
         this.load.image("WALL", require("@/assets/img/WALL.png"));

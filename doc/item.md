@@ -8,7 +8,7 @@
 | 苹果 | <img src="../sandbox_town_frontend/src/assets/img/APPLE.png" width="120" /> | 禁忌和知识之果 |
 | 宝箱 | <img src="../sandbox_town_frontend/src/assets/img/TREASURE_CHEST.png" width="120" /> | 打开宝箱，获得随机物品 |
 | 飞翔靴 | <img src="../sandbox_town_frontend/src/assets/img/FLYING_BOOTS.png" width="120" /> | 让风成为你最忠实的伙伴 |
-| 隐身帽 | <img src="../sandbox_town_frontend/src/assets/img/INVISIBLE_CAP.png" width="120" /> | 藏匿无影 |
+| 隐身帽 | <img src="../sandbox_town_frontend/src/assets/img/INVISIBLE_CAP.png" width="120" /> | 藏匿无影，让敌对生物无法找到你 |
 | 皮质盔甲 | <img src="../sandbox_town_frontend/src/assets/img/LEATHER_CHEST_ARMOR.png" width="120" /> | 提供基础的防御 |
 | 锯子 | <img src="../sandbox_town_frontend/src/assets/img/SAW.png" width="120" /> | 伐木的好帮手 |
 | 木棍 | <img src="../sandbox_town_frontend/src/assets/img/STICK.png" width="120" /> | 基础的攻击武器 |

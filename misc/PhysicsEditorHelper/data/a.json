@@ -267,9 +267,9 @@
 			}
 		]
 	},
-	"ABANDONED_MENTAL": {
+	"ABANDONED_MENTAL_HOSPITAL": {
 		"type": "fromPhysicsEditor",
-		"label": "ABANDONED_MENTAL",
+		"label": "ABANDONED_MENTAL_HOSPITAL",
 		"isStatic": false,
 		"density": 0.1,
 		"restitution": 0,
@@ -295,14 +295,14 @@
 			}
 		]
 	},
-	"ABANDONED_MENTAL-2": {
+	"ABANDONED_MENTAL_HOSPITAL-2": {
 		"type": "fromPhysicsEditor",
-		"label": "ABANDONED_MENTAL-2",
+		"label": "ABANDONED_MENTAL_HOSPITAL-2",
 		"isStatic": false,
 		"density": 0.10000000149011612,
 		"restitution": 0,
 		"friction": 0.10000000149011612,
-		"frictionAir": 0.009999999776482582,
+		"frictionAir": 0.01,
 		"frictionStatic": 0.5,
 		"collisionFilter": {
 			"group": 0,

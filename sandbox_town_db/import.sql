@@ -111,8 +111,10 @@ VALUES ('USER', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 6, 10, 160, 
         1000, 100, 0.35, 0.5),
        ('CAT', '猫咪', '常见的家养宠物，具有柔软的毛发和灵活的身体，喜爱捕鱼', 0, 0, 0, 1, 100, 100, 9, 5, 10, 160, 160,
         1000, 100, 0.35, 0.5),
-       ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 1, 100, 100, 12, 4, 8, 170, 170, 300, 100,
-        0.5, 0.35);
+       ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 2, 100, 100, 12, 4, 8, 170, 170, 300, 100,
+        0.5, 0.35),
+       ('EARTHBOUND_SPIRIT', '地缚灵', '被困在地下的灵魂，游走在废弃的精神病院周围', 0, 0, 0, 3, 100, 100, 12, 5, 7, 170,
+        170, 300, 100, 0.4, 0.4);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
 CREATE TABLE sprite
@@ -182,7 +184,7 @@ VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
        ('APPLE', '苹果', '禁忌和知识之果', 5, 40, -1),
        ('TREASURE_CHEST', '宝箱', '打开宝箱，获得随机物品', 20, 7, -1),
        ('FLYING_BOOTS', '飞翔靴', '让风成为你最忠实的伙伴', 100, 4, 40),
-       ('INVISIBLE_CAP', '隐身帽', '藏匿无影', 280, 3, 50),
+       ('INVISIBLE_CAP', '隐身帽', '藏匿无影，让敌对生物无法找到你', 280, 3, 50),
        ('LEATHER_CHEST_ARMOR', '皮质盔甲', '提供基础的防御', 40, 16, 25),
        ('SAW', '锯子', '伐木的好帮手', 30, 40, 30),
        ('STICK', '木棍', '基础的攻击武器', 22, 40, 40),
@@ -207,7 +209,8 @@ create table victory_attribute_reward
 
 insert into victory_attribute_reward(sprite_type, money_inc, exp_inc)
 values ('DOG', 15, 15),
-       ('SPIDER', 20, 20);
+       ('SPIDER', 20, 20),
+       ('EARTHBOUND_SPIRIT', 30, 30);
 
 # 杀死精灵时的物品奖励
 create table victory_item_reward
@@ -225,7 +228,8 @@ create table victory_item_reward
 insert into victory_item_reward(sprite_type, item_type, min_count, max_count)
 values ('DOG', 'BONE', -7, 3),
        ('SPIDER', 'BREAD', -7, 2),
-       ('SPIDER', 'STICK', -20, 2);
+       ('SPIDER', 'STICK', -20, 2),
+       ('EARTHBOUND_SPIRIT', 'INVISIBLE_CAP', -100, 1);
 
 # 喂食表
 create table feed
@@ -438,7 +442,10 @@ CREATE TABLE building_type
 
 INSERT INTO building_type (id, description, basic_price, image_path, basic_width, basic_height, rarity)
 VALUES ('STORE', '买卖商品的场所', 200, 'static/bitmap/STORE.png', 400, 400, 15),
-       ('TREE', '可以伐木或摘苹果', 100, 'static/bitmap/TREE.png', 500, 500, 40);
+       ('TREE', '可以伐木或摘苹果', 100, 'static/bitmap/TREE.png', 500, 500, 40),
+       ('ABANDONED_MENTAL_HOSPITAL', '废弃的精神病院，周围有幽灵出没', 500,
+        'static/bitmap/ABANDONED_MENTAL_HOSPITAL.png', 500, 500, 8),
+       ('GREEK_TEMPLE', '希腊神庙，敌对生物无法靠近', 2000, 'static/bitmap/GREEK_TEMPLE.png', 400, 400, 4);
 
 
 # 创建建筑表
@@ -487,7 +494,8 @@ create table sprite_refresh
 insert into sprite_refresh(sprite_type, building_type, min_count, max_count, refresh_time)
 values ('DOG', 'STORE', -8, 4, 'DAWN'),
        ('DOG', 'STORE', -6, 2, 'DUSK'),
-       ('SPIDER', 'TREE', -18, 3, 'NIGHT');
+       ('SPIDER', 'TREE', -18, 3, 'NIGHT'),
+       ('EARTHBOUND_SPIRIT', 'ABANDONED_MENTAL_HOSPITAL', -5, 2, 'NIGHT');
 
 # 创建树表
 CREATE TABLE tree
