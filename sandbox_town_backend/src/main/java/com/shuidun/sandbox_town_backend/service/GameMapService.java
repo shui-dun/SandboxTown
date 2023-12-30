@@ -166,7 +166,7 @@ public class GameMapService {
      * @param x1             终点x坐标
      * @param y1             终点y坐标
      * @param destBuildingId 目标建筑物id，如果终点是建筑物，则传入建筑物id，否则传入null
-     * @param destSprite   目标精灵，如果终点是精灵，则传入精灵信息，否则传入null
+     * @param destSprite     目标精灵，如果终点是精灵，则传入精灵信息，否则传入null
      * @return 路径节点列表，如果找不到路径，则返回空列表
      */
     public List<Point> findPath(SpriteWithTypeBo initiator, double x1, double y1,
@@ -276,6 +276,37 @@ public class GameMapService {
         return false;
     }
 
+    /** 严格版本的建筑重叠检测，当前建筑超过边界或者当前建筑所在的矩形区域内有其他建筑，则返回true */
+    private boolean isBuildingOverlapStrict(BuildingDo building) {
+        // 获取建筑物的左上角的坐标
+        double buildingX = building.getOriginX();
+        double buildingY = building.getOriginY();
+        // 获取建筑物的宽高（暂时不知道宽和高写反了没有，因为现在的图片都是正方形的）
+        double buildingWidth = building.getWidth();
+        double buildingHeight = building.getHeight();
+        // 获取建筑的左上角的逻辑坐标
+        int buildingLogicalX = (int) Math.round(buildingX) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalY = (int) Math.round(buildingY) / Constants.PIXELS_PER_GRID;
+        // 获取建筑的宽高的逻辑坐标
+        int buildingLogicalWidth = (int) Math.round(buildingWidth) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalHeight = (int) Math.round(buildingHeight) / Constants.PIXELS_PER_GRID;
+        // 判断是否超出边界
+        if (buildingLogicalX < 0 || buildingLogicalY < 0 ||
+                buildingLogicalX + buildingLogicalWidth > GameCache.map.length || buildingLogicalY + buildingLogicalHeight > GameCache.map[0].length) {
+            return true;
+        }
+        // 遍历建筑的每一个格子
+        for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
+            for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
+                // 如果当前格子已有其他建筑（或者围墙）
+                if (GameCache.map[i][j] != 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /** 放置建筑 */
     private void placeBuildingOnMap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
@@ -374,7 +405,7 @@ public class GameMapService {
             building.setWidth(buildingType.getBasicWidth() * scale);
             building.setHeight(buildingType.getBasicHeight() * scale);
             // 判断是否与其他建筑重叠
-            if (!isBuildingOverlap(building)) {
+            if (!isBuildingOverlapStrict(building)) {
                 // 如果不重叠，添加建筑到数据库
                 buildingMapper.insert(building);
                 // 放置建筑
