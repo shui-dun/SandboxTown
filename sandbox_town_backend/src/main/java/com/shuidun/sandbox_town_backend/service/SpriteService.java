@@ -366,7 +366,7 @@ public class SpriteService {
 
     public List<SpriteDo> getOnlineSprites() {
         if (GameCache.spriteCacheMap.isEmpty()) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         List<SpriteDo> sprites = spriteMapper.selectBatchIds(GameCache.spriteCacheMap.keySet());
         // 更新坐标为缓存中的最新坐标
@@ -500,7 +500,7 @@ public class SpriteService {
     public List<WSResponseVo> attack(SpriteDetailBo sourceSprite, SpriteDetailBo targetSprite) {
         // 如果双方有人不在线，则不进行攻击
         if (sourceSprite.getCache() == null || targetSprite.getCache() == null) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         List<WSResponseVo> responses = new ArrayList<>();
         // 如果被攻击者有火焰护体效果，则攻击者烧伤

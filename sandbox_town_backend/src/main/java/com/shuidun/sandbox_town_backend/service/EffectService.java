@@ -152,7 +152,7 @@ public class EffectService {
         // 得到效果的详细信息，例如效果的描述
         Set<EffectEnum> effectEnums = itemTypeEffects.stream().map(ItemTypeEffectDo::getEffect).collect(Collectors.toSet());
         if (effectEnums.isEmpty()) {
-            return new HashSet<>();
+            return Collections.emptySet();
         }
         Map<EffectEnum, EffectDo> effectMap = effectMapper.selectBatchIds(effectEnums).stream().collect(Collectors.toMap(EffectDo::getId, effect -> effect));
         return itemTypeEffects.stream().map(itemTypeEffect -> {

@@ -23,6 +23,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -218,7 +219,7 @@ public class GameMapService {
         // 如果距离过近，那就不跟随，狗与主人不要离得太近
         int minLen = (int) (initiator.getWidth() * initiator.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
         if (path.size() < minLen) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         // 去掉后面一段
         return path.subList(0, path.size() - minLen);

@@ -180,7 +180,7 @@ public class ItemService {
     /** 根据物品类型列表查询物品类型信息（即包含标签信息） */
     public List<ItemTypeWithLabelsBo> listItemTypeWithLabels(List<ItemTypeEnum> itemTypeIds) {
         if (itemTypeIds.isEmpty()) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         // 找到物品类型
         List<ItemTypeDo> itemTypes = itemTypeMapper.selectBatchIds(itemTypeIds);
@@ -205,7 +205,7 @@ public class ItemService {
     /** 为物品列表设置物品类型信息（带有标签信息） */
     private List<ItemWithTypeAndLabelsBo> setItemTypeAndLabelsForItems(List<ItemDo> items) {
         if (items.isEmpty()) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         // 找到所有物品类型
         List<ItemTypeDo> itemTypes = itemTypeMapper.selectBatchIds(

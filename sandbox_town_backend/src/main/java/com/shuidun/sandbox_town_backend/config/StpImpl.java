@@ -5,6 +5,7 @@ import com.shuidun.sandbox_town_backend.service.RoleService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ public class StpImpl implements StpInterface {
      */
     @Override
     public List<String> getPermissionList(Object loginId, String loginType) {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     /**

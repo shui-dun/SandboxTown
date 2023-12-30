@@ -223,7 +223,7 @@ public class PathUtils {
             }
         }
         log.info("can not find path");
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
 }
