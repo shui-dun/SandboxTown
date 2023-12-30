@@ -140,7 +140,6 @@
 
 ## bug
 
-- 有时死亡后还是不会回归原点
 - 当我在 `swagger-ui` 中登录而不是通过前端登陆后，websocket将失效，即使重启浏览器也不行，必须要退出登录随后使用前端登录。
 - 游戏处理流程应该完全地串行化（SpriteSchedule和用户请求不能同时进行），以避免 `GameCache.spriteCacheMap.get(xx).getXX()` 产生空指针异常
 - 局域网多人游戏时，除服务器所在电脑以外的其他电脑上会有一些bug

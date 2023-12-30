@@ -386,13 +386,15 @@ public class SpriteService {
 
     public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {
         return new MyAndMyPetInfoVo(
-                spriteMapper.selectById(ownerId),
-                spriteMapper.selectByOwner(ownerId));
+                selectById(ownerId),
+                selectByOwner(ownerId));
     }
 
     /** 得到玩家的所有宠物 */
     public List<SpriteDo> selectByOwner(String ownerId) {
-        return spriteMapper.selectByOwner(ownerId);
+        List<SpriteDo> sprites = spriteMapper.selectByOwner(ownerId);
+        sprites.forEach(this::assignCacheToSprite);
+        return sprites;
     }
 
     /** 得到所有未被玩家拥有的角色 */
@@ -416,7 +418,7 @@ public class SpriteService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
         // 判断角色是否存在
-        SpriteDo sprite = spriteMapper.selectById(owner);
+        SpriteDo sprite = selectById(owner);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
@@ -523,7 +525,7 @@ public class SpriteService {
             if (modifyLifeResponses.stream().anyMatch(response -> response.getType() == WSResponseEnum.OFFLINE)) {
                 // 获得攻击者的主人
                 String ownerId = sourceSprite.getOwner();
-                SpriteDo owner = ownerId == null ? null : spriteMapper.selectById(ownerId);
+                SpriteDo owner = ownerId == null ? null : selectById(ownerId);
                 // 查询被攻击者死亡后带给攻击者的属性提升（属性提升值不仅与死亡者的类型有关，还与死亡者的等级有关）
                 VictoryAttributeRewardDo attributeReward = victoryAttributeRewardMapper.selectById(targetSprite.getType());
                 if (attributeReward != null) {
@@ -605,7 +607,7 @@ public class SpriteService {
      */
     @Transactional
     public List<WSResponseVo> modifyLife(String spriteId, int val) {
-        SpriteDo sprite = spriteMapper.selectById(spriteId);
+        SpriteDo sprite = selectById(spriteId);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
@@ -697,7 +699,7 @@ public class SpriteService {
      * 使精灵上线
      */
     public SpriteCache online(String id) {
-        SpriteDo sprite = spriteMapper.selectById(id);
+        SpriteDo sprite = selectById(id);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }

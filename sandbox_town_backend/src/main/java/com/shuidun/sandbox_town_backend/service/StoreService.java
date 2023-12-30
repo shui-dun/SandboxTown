@@ -93,7 +93,7 @@ public class StoreService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_ENOUGH);
         }
         // 得到用户的金钱
-        SpriteDo sprite = spriteMapper.selectById(spriteId);
+        SpriteDo sprite = spriteService.selectById(spriteId);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
@@ -234,7 +234,7 @@ public class StoreService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_ENOUGH);
         }
         // 得到用户信息
-        SpriteDo sprite = spriteMapper.selectById(spriteId);
+        SpriteDo sprite = spriteService.selectById(spriteId);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
