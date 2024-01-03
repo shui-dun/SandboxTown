@@ -1,13 +1,12 @@
 package com.shuidun.sandbox_town_backend.agent;
 
-import com.shuidun.sandbox_town_backend.bean.*;
+import com.shuidun.sandbox_town_backend.bean.MoveBo;
+import com.shuidun.sandbox_town_backend.bean.SpriteCache;
+import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
-import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
-import com.shuidun.sandbox_town_backend.utils.DataCompressor;
-import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,7 +22,7 @@ public class DogAgent implements SpriteAgent {
     }
 
     @Override
-    public void act(SpriteDetailBo sprite) {
+    public MoveBo act(SpriteDetailBo sprite) {
         assert sprite.getCache() != null;
         // 获得狗的主人
         String owner = sprite.getOwner();
@@ -37,44 +36,26 @@ public class DogAgent implements SpriteAgent {
                     || target.getCache() == null
                     || GameCache.random.nextDouble() > 0.8) {
                 sprite.getCache().setTargetSpriteId(null);
-                return;
+                return MoveBo.empty();
             }
             // 如果距离过远（视野之外），那就不跟随
             if (!gameMapService.isInSight(sprite, target.getX(), target.getY())) {
-                return;
+                return MoveBo.empty();
             }
-            // 寻找路径
-            var path = gameMapService.findPath(sprite, target.getX(), target.getY(), null, target);
-            // 如果找不到路径，那就不前往
-            if (path.isEmpty()) {
-                return;
-            }
-            // 发送移动消息
-            WSMessageSender.addResponse(new WSResponseVo(
-                    WSResponseEnum.MOVE,
-                    new MoveVo(
-                            sprite.getId(),
-                            sprite.getSpeed() + sprite.getSpeedInc(),
-                            DataCompressor.compressPath(path),
-                            null,
-                            targetId,
-                            GameCache.random.nextInt()
-                    )
-            ));
+            return MoveBo.moveToSprite(target);
         } else {
             // 如果狗没有主人
             if (owner == null) {
                 // 随机移动
-                if (GameCache.random.nextDouble() < 0.5) {
-                    return;
+                if (GameCache.random.nextDouble() < 0.75) {
+                    return MoveBo.empty();
                 }
-                var randomVelocity = gameMapService.randomVelocity(sprite);
-                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVelocity.getFirst(), randomVelocity.getSecond())));
+                return Agents.randomMove(sprite);
             } else {
                 // 如果狗的主人在线
                 SpriteCache ownerSprite = spriteService.getSpriteCache(owner);
                 if (ownerSprite == null) {
-                    return;
+                    return MoveBo.empty();
                 }
                 // 如果主人有攻击目标，那么狗也以主人的攻击目标为攻击目标
                 // 这里有一个有趣的特例：如果主人的攻击目标是狗，那么狗可能会自残
@@ -87,23 +68,17 @@ public class DogAgent implements SpriteAgent {
                 String ownerTargetId = ownerSprite.getTargetSpriteId();
                 if (ownerTargetId != null && spriteService.getSpriteCache(ownerTargetId) != null) {
                     sprite.getCache().setTargetSpriteId(ownerTargetId);
+                    return MoveBo.empty();
                 } else {
                     // 否则狗一定概率就跟着主人走
                     if (GameCache.random.nextDouble() < 0.6) {
-                        return;
+                        return MoveBo.empty();
                     }
                     // 如果距离过远（视野之外），那就不跟随
                     if (!gameMapService.isInSight(sprite, ownerSprite.getX(), ownerSprite.getY())) {
-                        return;
+                        return MoveBo.empty();
                     }
-                    // 寻找路径，但保持一定距离
-                    var path = gameMapService.findPathNotTooClose(sprite, ownerSprite.getX(), ownerSprite.getY(), null, null);
-                    // 如果找不到路径，那就不跟随
-                    if (path.isEmpty()) {
-                        return;
-                    }
-                    // 发送移动消息
-                    WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(sprite.getId(), sprite.getSpeed() + sprite.getSpeedInc(), DataCompressor.compressPath(path), null, null, null)));
+                    return MoveBo.moveToPoint(ownerSprite.getX(), ownerSprite.getY()).keepDistance();
                 }
             }
         }

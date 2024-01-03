@@ -216,7 +216,7 @@ public class GameMapService {
     public List<Point> findPathNotTooClose(SpriteWithTypeBo initiator, double x1, double y1,
                                            @Nullable String destBuildingId, @Nullable SpriteWithTypeBo destSprite) {
         List<Point> path = findPath(initiator, x1, y1, destBuildingId, destSprite);
-        // 如果距离过近，那就不跟随，狗与主人不要离得太近
+        // 去除后面一段
         int minLen = (int) (initiator.getWidth() * initiator.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
         if (path.size() < minLen) {
             return Collections.emptyList();

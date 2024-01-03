@@ -2,12 +2,9 @@ package com.shuidun.sandbox_town_backend.agent;
 
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
-import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
-import com.shuidun.sandbox_town_backend.utils.DataCompressor;
-import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Predicate;
@@ -24,7 +21,7 @@ public class SpiderAgent implements SpriteAgent {
     }
 
     @Override
-    public void act(SpriteDetailBo sprite) {
+    public MoveBo act(SpriteDetailBo sprite) {
         assert sprite.getCache() != null;
         // 在视觉范围内寻找一个目标
         // 蜘蛛的攻击目标需要满足的条件（必须有主人，并且不是蜘蛛）
@@ -54,32 +51,13 @@ public class SpiderAgent implements SpriteAgent {
                 : spriteService.selectByIdWithType(finalTargetId);
         if (finalTarget == null) {
             // 随机移动
-            if (GameCache.random.nextDouble() < 0.7) {
-                return;
+            if (GameCache.random.nextDouble() < 0.85) {
+                return MoveBo.empty();
             }
-            var randomVelocity = gameMapService.randomVelocity(sprite);
-            WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(sprite.getId(), sprite.getX(), sprite.getY(), randomVelocity.getFirst(), randomVelocity.getSecond())));
-            return;
+            return Agents.randomMove(sprite);
         }
         sprite.getCache().setTargetSpriteId(finalTargetId);
-        // 寻找路径
-        var path = gameMapService.findPath(sprite, finalTarget.getX(), finalTarget.getY(), null, finalTarget);
-        // 如果找不到路径，那就不前往
-        if (path.isEmpty()) {
-            return;
-        }
-        // 发送移动消息
-        WSMessageSender.addResponse(new WSResponseVo(
-                WSResponseEnum.MOVE,
-                new MoveVo(
-                        sprite.getId(),
-                        sprite.getSpeed() + sprite.getSpeedInc(),
-                        DataCompressor.compressPath(path),
-                        null,
-                        finalTargetId,
-                        GameCache.random.nextInt()
-                )
-        ));
+        return MoveBo.moveToSprite(finalTarget);
     }
 
     @Override

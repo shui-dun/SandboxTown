@@ -1,11 +1,15 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
 import com.shuidun.sandbox_town_backend.agent.SpriteAgent;
-import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
+import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
+import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
+import com.shuidun.sandbox_town_backend.mixin.GameCache;
+import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
+import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,16 +25,18 @@ public class SpriteScheduler {
 
     private final SpriteService spriteService;
 
-    public SpriteScheduler(SpriteService spriteService, List<SpriteAgent> spriteAgents) {
+    private final GameMapService gameMapService;
+
+    public SpriteScheduler(SpriteService spriteService, List<SpriteAgent> spriteAgents, GameMapService gameMapService) {
         this.spriteService = spriteService;
-        // 初始化类型到函数的映射
+        this.gameMapService = gameMapService;
         for (SpriteAgent agent : spriteAgents) {
-            typeToFunction.put(agent.getType(), agent);
+            typeToAgent.put(agent.getType(), agent);
         }
     }
 
-    /** 类型到函数的映射 */
-    private final Map<SpriteTypeEnum, SpriteAgent> typeToFunction = new HashMap<>();
+    /** 精灵类型到精灵Agent的映射 */
+    private final Map<SpriteTypeEnum, SpriteAgent> typeToAgent = new HashMap<>();
 
     private long counterOfSchedule = 0;
 
@@ -58,9 +64,36 @@ public class SpriteScheduler {
                 }
             }
             // 调用对应的处理函数
-            var func = typeToFunction.get(sprite.getType());
+            var func = typeToAgent.get(sprite.getType());
             if (func != null) {
-                func.act(sprite);
+                MoveBo moveBo = func.act(sprite);
+                if (!moveBo.isMove()) {
+                    continue;
+                }
+                // 寻找路径
+                List<Point> path = null;
+                if (moveBo.isKeepDistance()) {
+                    path = gameMapService.findPathNotTooClose(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite());
+                } else {
+                    path = gameMapService.findPath(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite());
+                }
+                // 如果路径为空，那么就不移动
+                if (path.isEmpty()) {
+                    continue;
+                }
+                // 发送移动事件
+                WSMessageSender.addResponse(new WSResponseVo(
+                        WSResponseEnum.MOVE,
+                        new MoveVo(
+                                sprite.getId(),
+                                sprite.getSpeed() + sprite.getSpeedInc(),
+                                DataCompressor.compressPath(path),
+                                moveBo.getDestBuildingId(),
+                                moveBo.getDestSprite() == null ? null : moveBo.getDestSprite().getId(),
+                                moveBo.getDestSprite() == null ? null : GameCache.random.nextInt()
+                        )
+                ));
+
             }
             // 保存坐标
             spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());
