@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.MyAndMyPetInfoVo;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
@@ -11,10 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -60,10 +58,18 @@ public class SpriteController {
                 spriteService.getOnlineSprites());
     }
 
-    @GetMapping("myAndMyPetInfo")
+    @GetMapping("/myAndMyPetInfo")
     public RestResponseVo<MyAndMyPetInfoVo> getMyAndMyPetInfo() {
         String username = StpUtil.getLoginIdAsString();
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 spriteService.getMyAndMyPetInfo(username));
+    }
+
+    /** 刷新所有精灵 */
+    @SaCheckRole("ADMIN")
+    @PostMapping("/refreshAll")
+    public RestResponseVo<Void> refreshAll() {
+        spriteService.refreshAllSprites();
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 }

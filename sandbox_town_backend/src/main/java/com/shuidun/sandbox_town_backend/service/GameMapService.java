@@ -3,7 +3,6 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
-import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
@@ -13,6 +12,7 @@ import com.shuidun.sandbox_town_backend.utils.PathUtils;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.util.Pair;
 import org.springframework.lang.Nullable;
@@ -358,8 +358,13 @@ public class GameMapService {
         return gameMap;
     }
 
-    /** 初始化地图（建造建筑等） */
     public void createEnvironment(int nBuildings) {
+        createEnvironment(nBuildings, mapId);
+    }
+
+    /** 初始化地图（建造建筑等） */
+    @CacheEvict(value = "building::buildings", key = "#mapId")
+    public void createEnvironment(int nBuildings, String mapId) {
         // 得到所有建筑类型
         var buildingTypes = buildingTypeMapper.selectList(null);
         // 首先，所有类型的建筑都有一个
@@ -425,10 +430,7 @@ public class GameMapService {
             }
         }
         // 生成精灵
-        spriteService.refreshSprites(TimeFrameEnum.DAY);
-        spriteService.refreshSprites(TimeFrameEnum.DUSK);
-        spriteService.refreshSprites(TimeFrameEnum.NIGHT);
-        spriteService.refreshSprites(TimeFrameEnum.DAWN);
+        spriteService.refreshAllSprites();
     }
 
     /** 计算两点之间的距离 */
@@ -477,6 +479,17 @@ public class GameMapService {
                 .filter(x -> !x.getId().equals(sprite.getId()))
                 .filter(condition)
                 .min((x, y) -> (int) (calcDistance(sprite.getX(), sprite.getY(), x.getX(), x.getY()) - calcDistance(sprite.getX(), sprite.getY(), y.getX(), y.getY())));
+    }
+
+    /**
+     * 在视觉范围内寻找所有的满足条件的目标
+     */
+    public List<SpriteDo> findAllTargetsInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        return spriteService.getOnlineSprites().stream()
+                .filter(x -> isInSight(sprite, x.getX(), x.getY()))
+                .filter(x -> !x.getId().equals(sprite.getId()))
+                .filter(condition)
+                .toList();
     }
 
     /** 判断两个精灵是否接近（即快要碰撞） */

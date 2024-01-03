@@ -369,13 +369,9 @@ public class SpriteService {
             return Collections.emptyList();
         }
         List<SpriteDo> sprites = spriteMapper.selectBatchIds(GameCache.spriteCacheMap.keySet());
-        // 更新坐标为缓存中的最新坐标
+        // 得到缓存信息
         for (SpriteDo sprite : sprites) {
-            SpriteCache cache = GameCache.spriteCacheMap.get(sprite.getId());
-            if (cache != null) {
-                sprite.setX(cache.getX());
-                sprite.setY(cache.getY());
-            }
+            assignCacheToSprite(sprite);
         }
         return sprites;
     }
@@ -781,6 +777,13 @@ public class SpriteService {
                     online(sprite.getId());
                 }
             }
+        }
+    }
+
+    /** 刷新所有时间段的精灵 */
+    public void refreshAllSprites() {
+        for (TimeFrameEnum time : TimeFrameEnum.values()) {
+            refreshSprites(time);
         }
     }
 
