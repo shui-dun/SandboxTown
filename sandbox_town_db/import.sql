@@ -113,7 +113,7 @@ VALUES ('USER', '玩家', '小镇居民', 0, 0, 0, 1, 100, 100, 10, 6, 10, 160, 
         1000, 100, 0.35, 0.5),
        ('SPIDER', '蜘蛛', '八腿的恶棍，以其敏捷和毒液为武器', 0, 0, 0, 2, 100, 100, 12, 4, 8, 170, 170, 300, 100,
         0.5, 0.35),
-       ('EARTHBOUND_SPIRIT', '地缚灵', '被困在地下的灵魂，游走在废弃的精神病院周围', 0, 0, 0, 3, 100, 100, 12, 5, 7, 170,
+       ('EARTHBOUND_SPIRIT', '地缚灵', '被困在地下的灵魂，游走在墓碑周围', 0, 0, 0, 3, 100, 100, 12, 5, 7, 170,
         170, 300, 100, 0.4, 0.4);
 
 # 创建角色表，包含玩家、宠物、怪物等角色
@@ -442,9 +442,9 @@ CREATE TABLE building_type
 
 INSERT INTO building_type (id, description, basic_price, image_path, basic_width, basic_height, rarity)
 VALUES ('STORE', '买卖商品的场所', 200, 'static/bitmap/STORE.png', 400, 400, 15),
-       ('TREE', '可以伐木或摘苹果', 100, 'static/bitmap/TREE.png', 500, 500, 40),
-       ('ABANDONED_MENTAL_HOSPITAL', '废弃的精神病院，周围有幽灵出没', 500,
-        'static/bitmap/ABANDONED_MENTAL_HOSPITAL.png', 400, 400, 8),
+       ('TREE', '可以伐木或摘苹果', 100, 'static/bitmap/TREE.png', 350, 350, 40),
+       ('TOMBSTONE', '墓碑的周围有幽灵出没', 500,
+        'static/bitmap/TOMBSTONE.png', 200, 200, 8),
        ('GREEK_TEMPLE', '希腊神庙，敌对生物无法靠近', 2000, 'static/bitmap/GREEK_TEMPLE.png', 400, 400, 4);
 
 
@@ -495,7 +495,7 @@ insert into sprite_refresh(sprite_type, building_type, min_count, max_count, ref
 values ('DOG', 'STORE', -8, 4, 'DAWN'),
        ('DOG', 'STORE', -6, 2, 'DUSK'),
        ('SPIDER', 'TREE', -24, 3, 'NIGHT'),
-       ('EARTHBOUND_SPIRIT', 'ABANDONED_MENTAL_HOSPITAL', -5, 5, 'NIGHT');
+       ('EARTHBOUND_SPIRIT', 'TOMBSTONE', -5, 5, 'NIGHT');
 
 # 创建树表
 CREATE TABLE tree

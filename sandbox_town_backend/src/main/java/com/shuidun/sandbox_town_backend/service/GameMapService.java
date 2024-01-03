@@ -11,8 +11,10 @@ import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.PathUtils;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.util.Pair;
 import org.springframework.lang.Nullable;
@@ -49,6 +51,10 @@ public class GameMapService {
 
     @Value("${mapId}")
     private String mapId;
+
+    @Lazy
+    @Autowired
+    private GameMapService self;
 
     public GameMapService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, GameMapMapper gameMapMapper, SpriteService spriteService, TreeService treeService, StoreService storeService) {
         this.buildingTypeMapper = buildingTypeMapper;
@@ -359,7 +365,7 @@ public class GameMapService {
     }
 
     public void createEnvironment(int nBuildings) {
-        createEnvironment(nBuildings, mapId);
+        self.createEnvironment(nBuildings, mapId);
     }
 
     /** 初始化地图（建造建筑等） */

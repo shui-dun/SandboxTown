@@ -4,8 +4,8 @@
 
 - java调试：如何调试springboot？如何调试docker中的springboot？
 - 细化spriteAgent接口，例如添加 `move`，`interact` 、`switchTarget` 等方法。
-  
-- 增加地缚灵，它是敌对生物，晚上刷新，会主动攻击玩家，只能在废弃的精神病院周围活动
+
+- 地缚灵只能在墓碑周围活动
 - 对于敌对生物，有一些共有的特征：（重点是如何抽象出公共的行为？）
   - 无法靠近希腊神庙
   - 不会主动攻击装备隐身帽的生物
@@ -88,7 +88,7 @@
 - 使用spring cloud, k8s替代docker-compose
 - 添加修炼场：一个修炼场所，精灵呆在里面一定时间可以获得特殊效果，例如“一定概率秒杀对方”或者“经验球”，或者直接获得经验值更方便
 - 使用ai p图，生成各个精灵的各种动作的图片，例如行走（各个方向）、攻击、受伤、死亡等
-- 设计以下武器（prompt：cute cartoon dog, white background, Illustration, Graphic Design, Minimalism, simple, color, front view）：
+- 设计以下武器（prompt：xxx, white background, Illustration, Minimalism, color, simple, Simplicity,Simplicity, Clear Lines and Shapes, front view, Iconic Representation, a little kawaii, Functional simplicity, Geometric simplicity）：
   - 埃阿斯之盾：体力上限+7，受到伤害时50%概率将伤害值+1后反弹给攻击者
   - 雷霆之杖（LightningBolts）：无视对方防具，并对对方造成30s烧伤效果
   - 青龙偃月刀：一定概率秒杀对方
