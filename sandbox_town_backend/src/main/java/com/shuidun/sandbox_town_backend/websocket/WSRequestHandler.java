@@ -222,13 +222,15 @@ public class WSRequestHandler {
             if (sourceSprite == null || sourceSprite.getCache() == null) {
                 return;
             }
-            SpriteDetailBo targetSprite = gameMapService.getValidTarget(sourceSprite);
+            SpriteWithTypeBo targetSprite = gameMapService.getValidTarget(sourceSprite)
+                    .map(s -> spriteService.selectByIdWithType(s.getId()))
+                    .orElse(null);
             // 如果目标不合法，则重新选择目标
             if (targetSprite == null) {
                 targetSprite = gameMapService.findNearestTargetInSight(sourceSprite, (s) -> {
                     // 不能攻击自己的宠物
                     return s.getOwner() == null || !s.getOwner().equals(initiator);
-                });
+                }).map(s -> spriteService.selectByIdWithType(s.getId())).orElse(null);
             }
             // 如果找不到目标，直接返回
             if (targetSprite == null) {
