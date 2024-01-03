@@ -13,9 +13,9 @@ import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.util.Pair;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -56,13 +56,16 @@ public class GameMapService {
     @Autowired
     private GameMapService self;
 
-    public GameMapService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, GameMapMapper gameMapMapper, SpriteService spriteService, TreeService treeService, StoreService storeService) {
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    public GameMapService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, GameMapMapper gameMapMapper, SpriteService spriteService, TreeService treeService, StoreService storeService, RedisTemplate<String, Object> redisTemplate) {
         this.buildingTypeMapper = buildingTypeMapper;
         this.gameMapMapper = gameMapMapper;
         this.buildingMapper = buildingMapper;
         this.spriteService = spriteService;
         this.treeService = treeService;
         this.storeService = storeService;
+        this.redisTemplate = redisTemplate;
     }
 
     /** 画一个2x2的墙 */
@@ -369,13 +372,8 @@ public class GameMapService {
         return gameMap;
     }
 
-    public void createEnvironment(int nBuildings) {
-        self.createEnvironment(nBuildings, mapId);
-    }
-
     /** 初始化地图（建造建筑等） */
-    @CacheEvict(value = "building::buildings", key = "#mapId")
-    public void createEnvironment(int nBuildings, String mapId) {
+    public void createEnvironment(int nBuildings) {
         // 得到所有建筑类型
         var buildingTypes = buildingTypeMapper.selectList(null);
         // 首先，所有类型的建筑都有一个
@@ -442,6 +440,11 @@ public class GameMapService {
         }
         // 生成精灵
         spriteService.refreshAllSprites();
+
+        // 删除建筑的缓存
+        // 之所以不直接使用@CacheEvict(value = "building::buildings", key = "#mapId")
+        // 是为了修复GameInitializer的构造方法中调用createEnvironment时，@CacheEvict注解不生效的问题（看起来一个component必须在构造之后才能使用注解）
+        redisTemplate.delete("building::buildings::" + mapId);
     }
 
     /** 计算两点之间的距离 */
