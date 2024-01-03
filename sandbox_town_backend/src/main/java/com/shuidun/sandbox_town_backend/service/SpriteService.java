@@ -795,7 +795,7 @@ public class SpriteService {
         List<SpriteDo> sprites = spriteMapper.selectByTypesAndMap(spriteTypes, mapId);
         // 为所有夜行动物添加烧伤效果
         for (SpriteDo sprite : sprites) {
-            effectService.addEffect(sprite.getId(), EffectEnum.BURN, (int) ((Constants.DAWN_DURATION + Constants.DAY_DURATION) / 1000L));
+            effectService.addEffect(sprite.getId(), EffectEnum.BURN, (int) (Constants.DAY_DURATION / 1000L));
         }
     }
 

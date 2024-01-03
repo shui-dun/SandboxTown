@@ -444,7 +444,7 @@ INSERT INTO building_type (id, description, basic_price, image_path, basic_width
 VALUES ('STORE', '买卖商品的场所', 200, 'static/bitmap/STORE.png', 400, 400, 15),
        ('TREE', '可以伐木或摘苹果', 100, 'static/bitmap/TREE.png', 350, 350, 40),
        ('TOMBSTONE', '墓碑的周围有幽灵出没', 500,
-        'static/bitmap/TOMBSTONE.png', 200, 200, 8),
+        'static/bitmap/TOMBSTONE.png', 160, 160, 8),
        ('GREEK_TEMPLE', '希腊神庙，敌对生物无法靠近', 2000, 'static/bitmap/GREEK_TEMPLE.png', 400, 400, 4);
 
 
@@ -493,9 +493,9 @@ create table sprite_refresh
 
 insert into sprite_refresh(sprite_type, building_type, min_count, max_count, refresh_time)
 values ('DOG', 'STORE', -8, 4, 'DAWN'),
-       ('DOG', 'STORE', -6, 2, 'DUSK'),
+       ('DOG', 'TREE', -16, 2, 'DUSK'),
        ('SPIDER', 'TREE', -24, 3, 'NIGHT'),
-       ('EARTHBOUND_SPIRIT', 'TOMBSTONE', -5, 5, 'NIGHT');
+       ('EARTHBOUND_SPIRIT', 'TOMBSTONE', -5, 5, 'DUSK');
 
 # 创建树表
 CREATE TABLE tree

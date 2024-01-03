@@ -31,11 +31,16 @@ public class GameInitializer {
         gameMapService.generateMaze(GameCache.map, 0, 0, GameCache.map.length / 2, GameCache.map[0].length / 2);
 
         // 在地图上放置建筑
-        gameMapService.placeAllBuildingsOnMap();
+        boolean containsBuilding = gameMapService.placeAllBuildingsOnMap();
 
         // 放置没有主人的角色
         spriteService.getUnownedSprites().forEach(sprite ->
                 spriteService.online(sprite.getId())
         );
+
+        // 如果没有建筑物，则生成一定数量的建筑物
+        if (!containsBuilding) {
+            gameMapService.createEnvironment(gameMap.getWidth() * gameMap.getHeight() / 300000);
+        }
     }
 }

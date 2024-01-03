@@ -65,8 +65,8 @@ public class SpriteController {
                 spriteService.getMyAndMyPetInfo(username));
     }
 
-    /** 刷新所有精灵 */
     @SaCheckRole("ADMIN")
+    @Operation(summary = "刷新所有精灵")
     @PostMapping("/refreshAll")
     public RestResponseVo<Void> refreshAll() {
         spriteService.refreshAllSprites();

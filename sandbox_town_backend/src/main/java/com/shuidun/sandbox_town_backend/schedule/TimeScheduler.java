@@ -41,6 +41,8 @@ public class TimeScheduler {
         storeService.refreshAll();
         // 刷新动物
         spriteService.refreshSprites(TimeFrameEnum.DAY);
+        // 使所有夜行动物（即在晚上出现的动物）都受到烧伤效果
+        spriteService.burnAllNightSprites();
     }
 
     @Scheduled(initialDelay = Constants.DUSK_START, fixedDelay = Constants.DAY_TOTAL_DURATION)
@@ -65,8 +67,6 @@ public class TimeScheduler {
         notifyTimeFrame();
         // 刷新动物
         spriteService.refreshSprites(TimeFrameEnum.DAWN);
-        // 使所有夜行动物（即在晚上出现的动物）都受到烧伤效果
-        spriteService.burnAllNightSprites();
     }
 
     @Scheduled(initialDelay = 30000, fixedDelay = 30000)

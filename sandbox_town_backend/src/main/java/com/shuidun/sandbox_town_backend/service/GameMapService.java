@@ -141,8 +141,12 @@ public class GameMapService {
         generateMaze(map, x + w / 2, y + h / 2, w / 2, h / 2);
     }
 
-    /** 将所有建筑物放置在地图上 */
-    public void placeAllBuildingsOnMap() {
+    /**
+     * 将所有建筑物放置在地图上
+     *
+     * @return 是否至少存在一个建筑物
+     */
+    public boolean placeAllBuildingsOnMap() {
         // 建筑物的黑白图的字典
         var buildingTypes = buildingTypeMapper.selectList(null);
         for (BuildingTypeDo buildingType : buildingTypes) {
@@ -163,6 +167,7 @@ public class GameMapService {
         for (BuildingDo building : buildings) {
             placeBuildingOnMap(building);
         }
+        return !buildings.isEmpty();
     }
 
 
