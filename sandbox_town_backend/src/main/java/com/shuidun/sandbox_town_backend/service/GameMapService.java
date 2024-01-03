@@ -456,12 +456,14 @@ public class GameMapService {
      * @param condition 条件，满足该条件的精灵才可能被返回
      * @return 找到的目标精灵
      */
-    public Optional<SpriteDo> findAnyTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
-        return spriteService.getOnlineSprites().stream()
+    @Nullable
+    public SpriteDetailBo findAnyTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        Optional<SpriteDo> spriteDo = spriteService.getOnlineSprites().stream()
                 .filter(x -> isInSight(sprite, x.getX(), x.getY()))
                 .filter(x -> !x.getId().equals(sprite.getId()))
                 .filter(condition)
                 .findAny();
+        return spriteDo.map(s -> spriteService.selectByIdWithDetail(s.getId())).orElse(null);
     }
 
     /**
@@ -471,12 +473,14 @@ public class GameMapService {
      * @param condition 条件，满足该条件的精灵才可能被返回
      * @return 找到的目标精灵
      */
-    public Optional<SpriteDo> findNearestTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
-        return spriteService.getOnlineSprites().stream()
+    @Nullable
+    public SpriteDetailBo findNearestTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        Optional<SpriteDo> spriteDo = spriteService.getOnlineSprites().stream()
                 .filter(x -> isInSight(sprite, x.getX(), x.getY()))
                 .filter(x -> !x.getId().equals(sprite.getId()))
                 .filter(condition)
                 .min((x, y) -> (int) (calcDistance(sprite.getX(), sprite.getY(), x.getX(), x.getY()) - calcDistance(sprite.getX(), sprite.getY(), y.getX(), y.getY())));
+        return spriteDo.map(s -> spriteService.selectByIdWithDetail(s.getId())).orElse(null);
     }
 
     /** 判断两个精灵是否接近（即快要碰撞） */
@@ -484,5 +488,73 @@ public class GameMapService {
         // 之所以这里不乘以widthRatio和heightRatio，是因为这里是检测是否接近而不是检测是否碰撞，因此放宽一点要求
         return Math.abs(sprite1.getX() - sprite2.getX()) < (sprite1.getWidth() + sprite2.getWidth()) / 2 &&
                 Math.abs(sprite1.getY() - sprite2.getY()) < (sprite1.getHeight() + sprite2.getHeight()) / 2;
+    }
+
+    /** 得到精灵合法的目标，即目标精灵必须存在，并且在线，并且在视野范围内。如果不合法，则返回null */
+    @Nullable
+    public SpriteDetailBo getValidTarget(SpriteDo sprite) {
+        // 如果精灵本身不在线
+        if (sprite.getCache() == null) {
+            return null;
+        }
+        // 如果精灵的目标精灵不存在
+        String targetSpriteId = sprite.getCache().getTargetSpriteId();
+        if (targetSpriteId == null) {
+            return null;
+        }
+        // 如果目标精灵不在线
+        SpriteDetailBo targetSprite = spriteService.selectByIdWithDetail(targetSpriteId);
+        if (targetSprite == null || targetSprite.getCache() == null) {
+            sprite.getCache().setTargetSpriteId(null);
+            return null;
+        }
+        // 如果目标精灵不在视野范围内
+        if (!isInSight(sprite, targetSprite.getX(), targetSprite.getY())) {
+            sprite.getCache().setTargetSpriteId(null);
+            return null;
+        }
+        return targetSprite;
+    }
+
+    /** 得到精灵合法的目标，并且以一定概率忘记目标 */
+    @Nullable
+    public SpriteDetailBo getValidTargetWithRandomForget(SpriteDo sprite, double forgetProbability) {
+        SpriteDetailBo targetSprite = getValidTarget(sprite);
+        // 如果目标精灵不合法
+        if (targetSprite == null) {
+            return null;
+        }
+        // 以一定概率忘记目标
+        if (GameCache.random.nextDouble() < forgetProbability) {
+            if (sprite.getCache() != null) {
+                sprite.getCache().setTargetSpriteId(null);
+            }
+            return null;
+        }
+        return targetSprite;
+    }
+
+    /** 得到精灵的合法主人，即主人必须存在，并且在线，并且在视野范围内。如果不合法，则返回null */
+    @Nullable
+    public SpriteDetailBo getValidOwner(SpriteDo sprite) {
+        // 如果精灵本身不在线
+        if (sprite.getCache() == null) {
+            return null;
+        }
+        // 如果精灵的主人不存在
+        String owner = sprite.getOwner();
+        if (owner == null) {
+            return null;
+        }
+        // 如果主人不在线
+        SpriteDetailBo ownerSprite = spriteService.selectByIdWithDetail(owner);
+        if (ownerSprite == null || ownerSprite.getCache() == null) {
+            return null;
+        }
+        // 如果主人不在视野范围内
+        if (!isInSight(sprite, ownerSprite.getX(), ownerSprite.getY())) {
+            return null;
+        }
+        return ownerSprite;
     }
 }

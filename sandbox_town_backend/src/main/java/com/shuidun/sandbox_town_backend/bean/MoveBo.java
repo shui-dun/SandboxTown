@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.bean;
 
+import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,6 +39,14 @@ public class MoveBo {
         return this;
     }
 
+    /** 以一定概率移动，否则不移动 */
+    public MoveBo moveWithProb(double probability) {
+        if (Math.random() < probability) {
+            return this;
+        }
+        return empty();
+    }
+
     private static final MoveBo EMPTY = new MoveBo(false, 0.0, 0.0, null, null, false);
 
     /** 不进行移动时，返回该对象 */
@@ -63,5 +72,12 @@ public class MoveBo {
     /** 移动到指定精灵 */
     public static MoveBo moveToSprite(SpriteWithTypeBo sprite) {
         return new MoveBo(true, sprite.getX(), sprite.getY(), null, sprite, false);
+    }
+
+    /** 精灵随机移动 */
+    public static MoveBo randomMove(SpriteDetailBo sprite) {
+        int randX = (sprite.getSpeed() + sprite.getSpeedInc()) * (GameCache.random.nextInt(11) - 5);
+        int randY = (sprite.getSpeed() + sprite.getSpeedInc()) * (GameCache.random.nextInt(11) - 5);
+        return MoveBo.moveToPoint(sprite.getX() + randX, sprite.getY() + randY);
     }
 }

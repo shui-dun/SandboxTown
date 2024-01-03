@@ -222,17 +222,13 @@ public class WSRequestHandler {
             if (sourceSprite == null || sourceSprite.getCache() == null) {
                 return;
             }
-            String targetSpriteId = sourceSprite.getCache().getTargetSpriteId();
-            SpriteWithTypeBo targetSprite = targetSpriteId == null ? null : spriteService.selectByIdWithType(targetSpriteId);
-            // 如果目标不存在，或者不在线，或者在视野外，则重新选择目标
-            if (targetSprite == null
-                    || targetSprite.getCache() == null
-                    || !gameMapService.isInSight(sourceSprite, targetSprite.getX(), targetSprite.getY())) {
-                targetSpriteId = gameMapService.findNearestTargetInSight(sourceSprite, (s) -> {
+            SpriteDetailBo targetSprite = gameMapService.getValidTarget(sourceSprite);
+            // 如果目标不合法，则重新选择目标
+            if (targetSprite == null) {
+                targetSprite = gameMapService.findNearestTargetInSight(sourceSprite, (s) -> {
                     // 不能攻击自己的宠物
                     return s.getOwner() == null || !s.getOwner().equals(initiator);
-                }).map(SpriteDo::getId).orElse(null);
-                targetSprite = targetSpriteId == null ? null : spriteService.selectByIdWithType(targetSpriteId);
+                });
             }
             // 如果找不到目标，直接返回
             if (targetSprite == null) {
@@ -250,7 +246,7 @@ public class WSRequestHandler {
                     sourceSprite.getSpeed() + sourceSprite.getSpeedInc(),
                     DataCompressor.compressPath(path),
                     null,
-                    targetSpriteId,
+                    targetSprite.getId(),
                     GameCache.random.nextInt()
             )));
         });
