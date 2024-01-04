@@ -6,14 +6,13 @@
 - 细化spriteAgent接口，例如添加 `move`，`interact` 、`switchTarget` 等方法。
 - 对于敌对生物，有一些共有的特征：（重点是如何抽象出公共的行为？）
   - 无法靠近希腊神庙。实现方法是：
-    - 定义枚举类：`public enum MapBit {BUILDING, BLANK, WALL, SURROUNDING_GREEK_TEMPLE, SURROUNDING_TOMBSTONE}`
+    - 定义枚举类：`public enum MapBit {BLANK, BUILDING, SURROUNDING_GREEK_TEMPLE, SURROUNDING_TOMBSTONE}`
     - 修改地图点的含义（改为long）：
       - 后32位表示当前建筑的hashcode，如果不是建筑物后32位为0
-      - 第0位为1表示是建筑物
-      - 第1位为1表示是空地
-      - 第2位为1表示是围墙
-      - 第3位为1表示希腊神庙的周围
-      - 第4位为1表示在墓碑的周围
+      - 第0位为1表示是空地，否则为建筑物或围墙
+      - 第1位为1表示为建筑，因此，空地是10，建筑是01，围墙是00
+      - 第2位为1表示希腊神庙的周围
+      - 第3位为1表示在墓碑的周围
     - spriteAgent提供 `List<MapBit> forbiddenBits`，例如如果forbiddenBits包含SURROUNDING_GREEK_TEMPLE表示该精灵无法进入希腊神庙周围（蜘蛛在血量低于25时可以进入希腊神庙，否则不能进入）（地缚灵永远不能进入神庙）
     - spriteAgent提供 `List<MapBit> permittedBits`，例如如果permittedBits包含SURROUNDING_TOMBSTONE表示该精灵只能在墓碑周围移动，permittedBits不为空时将无视forbiddenBits。（地缚灵在血量低于25时可以自由移动，否则只能在墓碑周围）
   - 不会主动攻击装备隐身帽的生物
