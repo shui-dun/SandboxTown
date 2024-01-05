@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import com.shuidun.sandbox_town_backend.bean.GameMapVo;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
+import com.shuidun.sandbox_town_backend.service.EcosystemService;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +24,11 @@ public class GameMapController {
 
     private final GameMapService gameMapService;
 
-    public GameMapController(GameMapService gameMapService) {
+    private final EcosystemService ecosystemService;
+
+    public GameMapController(GameMapService gameMapService, EcosystemService ecosystemService) {
         this.gameMapService = gameMapService;
+        this.ecosystemService = ecosystemService;
     }
 
 
@@ -39,7 +43,7 @@ public class GameMapController {
     @SaCheckRole("ADMIN")
     @GetMapping("/createEnvironment")
     public RestResponseVo<Void> createEnvironment(@NotNull @RequestParam int nBuildings) {
-        gameMapService.createEnvironment(nBuildings);
+        ecosystemService.createEnvironment(nBuildings);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 }

@@ -8,10 +8,12 @@ import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +26,11 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class StoreService {
+public class StoreService implements RefreshableBuilding {
+
+    @Lazy
+    @Autowired
+    private StoreService self;
 
     private final StoreItemTypeMapper storeItemTypeMapper;
 
@@ -177,11 +183,12 @@ public class StoreService {
     }
 
     /** 刷新所有商店商品 */
+    @Override
     public void refreshAll() {
         // 得到所有商店
         List<BuildingDo> stores = buildingMapper.selectByMapIdAndType(mapId, BuildingTypeEnum.STORE);
         for (BuildingDo store : stores) {
-            refresh(store.getId());
+            self.refresh(store.getId());
         }
     }
 

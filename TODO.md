@@ -6,10 +6,6 @@
 
 - 将精灵的move从spriteScheduler迁移到Agent，也就是 `default MoveVo move(sprite, moveBo)`，以便WSRequestHandler也能方便地调用。
 
-- 创建EcosystemService管理生态环境的创建、精灵的刷新、建筑的刷新。将gameMapService中创建生态环境的功能迁移到EcosystemService，该服务依赖于gamemapServie、spriteService、buildingService、`List<RefreshableBuilding>`（见下文）等。这样之后，gameMapService就不再依赖于spriteService、buildingService、treeService、storeService等。
-
-- 另外，让treeService、storeService实现RefreshableBuilding接口，这样，EcosystemService自动注入`List<RefreshableBuilding>`，并对外提供 `refreshAllBuildings`。
-
 - java调试：如何调试springboot？如何调试docker中的springboot？
 
 - 细化spriteAgent接口，例如添加 `move`，`interact` 、`switchTarget` 等方法。
@@ -47,11 +43,7 @@
     
   - 不会主动攻击装备隐身帽的生物
   
-- 地缚灵只能在墓碑周围活动
-
 - 地缚灵可以穿墙以及穿过建筑物
-
-- gameMapService过大，考虑修改架构
 
 - 添加聊天模块：
   - 私聊（目前这些功能的后端全部实现了，但尚未实现前端）：

@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class TreeService {
+public class TreeService implements RefreshableBuilding {
 
     private final TreeMapper treeMapper;
 
@@ -120,6 +120,7 @@ public class TreeService {
     }
 
     /** 刷新所有树的苹果数目等信息 */
+    @Override
     public void refreshAll() {
         // 查找所有树
         List<TreeDo> trees = treeMapper.selectList(null);

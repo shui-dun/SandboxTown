@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.schedule;
 import com.shuidun.sandbox_town_backend.bean.GameMapDo;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
+import com.shuidun.sandbox_town_backend.service.EcosystemService;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class GameInitializer {
 
-    public GameInitializer(GameMapService gameMapService, SpriteService spriteService) {
+    public GameInitializer(GameMapService gameMapService, SpriteService spriteService, EcosystemService ecosystemService) {
 
         // 获得地图信息
         GameMapDo gameMap = gameMapService.getGameMap();
@@ -31,7 +32,7 @@ public class GameInitializer {
         gameMapService.generateMaze(GameCache.map, 0, 0, GameCache.map.length / 2, GameCache.map[0].length / 2);
 
         // 在地图上放置建筑
-        boolean containsBuilding = gameMapService.placeAllBuildingsOnMap();
+        boolean containsBuilding = ecosystemService.placeAllBuildingsOnMap();
 
         // 放置没有主人的角色
         spriteService.getUnownedSprites().forEach(sprite ->
@@ -40,7 +41,7 @@ public class GameInitializer {
 
         // 如果没有建筑物，则生成一定数量的建筑物
         if (!containsBuilding) {
-            gameMapService.createEnvironment(gameMap.getWidth() * gameMap.getHeight() / 300000);
+            ecosystemService.createEnvironment(gameMap.getWidth() * gameMap.getHeight() / 300000);
         }
     }
 }
