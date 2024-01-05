@@ -2,13 +2,9 @@
 
 ## feature
 
-- 创建spriteActionSerive供各个SpriteAgent调用，提供精灵Agent在决策和行动时所需的各种公共方法，例如寻找最近的目标。该service依赖于spriteSerive、gameMapService等（因为精灵的决策不仅取决于精灵本身的状态，还取决于地图周围的环境）。将gameMapService中的部分功能迁移到spriteAgentSerive（例如寻找最近的功能、计算两精灵之间的距离、寻找有效target、寻找有效owner）。
-
 - 将精灵的move从spriteScheduler迁移到Agent，也就是 `default MoveVo move(sprite, moveBo)`，以便WSRequestHandler也能方便地调用。
 
 - java调试：如何调试springboot？如何调试docker中的springboot？
-
-- 细化spriteAgent接口，例如添加 `move`，`interact` 、`switchTarget` 等方法。
 
 - 对于敌对生物，有一些共有的特征：（重点是如何抽象出公共的行为？）
   - 无法靠近希腊神庙。实现方法是：
@@ -42,7 +38,7 @@
     - spriteAgent提供 `int forbiddenBits`，例如如果forbiddenBits在SURROUNDING_GREEK_TEMPLE这一位为1表示该精灵无法进入希腊神庙周围（蜘蛛在血量低于25时可以进入希腊神庙，否则不能进入）（地缚灵永远不能进入神庙）。优先级最低
     
   - 不会主动攻击装备隐身帽的生物
-  
+
 - 地缚灵可以穿墙以及穿过建筑物
 
 - 添加聊天模块：
@@ -77,7 +73,7 @@
       - 踢人（也可以取消黑名单）
       - 禁言（也可以取消禁言和修改禁言时间）
       - 查看群成员列表、群管理员列表、禁言列表、黑名单
-  
+
 - 集群：
   - k8s进行容器编排，实现自动扩展
   - 要考虑如何减少内存占用，不然集群太占内存：
@@ -111,8 +107,10 @@
     - 冷热分离：太久之前的聊天消息放入冷表
 
   - 如何进行压力测试？
-  
+
 - docker-compose指定启动顺序
+
+- 生命药水：交互时给目标恢复血量
 
 - 宝箱可以开启任意物品（和商店一样，以稀有度作为概率）
 
@@ -121,7 +119,7 @@
 - 玩家物品、商家物品分页：
   - 商品表、物品表设置递增的主键，这样方便游标分页
   - 每次后端给前端5页，前端只有在最后一页并尝试往后翻时向后端请求新数据
-  
+
 - java bean继承，例如使用 `new SpriteEffectChangeVo(spriteId)` 替代 `new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId))`，其中 `SpriteEffectChangeVo` 继承自 `WSResponseVo`
 
 - 完成虚无的效果
@@ -147,7 +145,7 @@
   - 湖中剑：造成特定数值的固定伤害
   - 荷鲁斯之眼：生命和饱腹值恢复到满，并带有30s生命效果
   - 可以冰冻对方，对方不能move和interact
-  
+
 - 添加额外效果表(item_type_extra_effect)，例如对于埃阿斯之盾的“受到伤害时50%概率将伤害值+1后反弹给攻击者”的效果，后端计算时是直接if(装备名)来触发，而不是通过if(effect)来触发，前端效果列表中也不会显示，只是在前端的物品详细列表中会展示。
 
 - 添加音频素材（jsfxr）
@@ -209,7 +207,7 @@
     - 法一：弄一个polygon然后检测碰撞？注意不要与建筑之外的东西产生碰撞，也就是，还需要弄mask
     - 法二（简单些）：将建筑的黑白图的白色变成透明，随后，建造建筑时就跟随光标显示这个图，为方便起见，只在服务器检测位置是否合法
   - 目前尚不支持除玩家以外的精灵到达建筑
-  
+
 - 可以选举主客户端，报告npc的消息，避免重复的消息
 
 - 使用rabbitmq消息队列，客户端向服务端的消息发送消息，当然，服务端的任意模块也可以作为生产者向消息队列发送消息。服务端的各个模块作为消费者消费消息。这些模块高内聚低耦合，使得不需要加锁

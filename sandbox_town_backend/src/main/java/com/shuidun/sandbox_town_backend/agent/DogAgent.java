@@ -5,7 +5,7 @@ import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
 import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.bean.SpriteWithTypeBo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
-import com.shuidun.sandbox_town_backend.service.GameMapService;
+import com.shuidun.sandbox_town_backend.service.SpriteActionService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import org.springframework.stereotype.Component;
 
@@ -14,25 +14,25 @@ public class DogAgent implements SpriteAgent {
 
     private final SpriteService spriteService;
 
-    private final GameMapService gameMapService;
+    private final SpriteActionService spriteActionService;
 
-    public DogAgent(SpriteService spriteService, GameMapService gameMapService) {
+    public DogAgent(SpriteService spriteService, SpriteActionService spriteActionService) {
         this.spriteService = spriteService;
-        this.gameMapService = gameMapService;
+        this.spriteActionService = spriteActionService;
     }
 
     @Override
     public MoveBo act(SpriteDetailBo sprite) {
         assert sprite.getCache() != null;
         // 如果狗有目标精灵（并以一定概率忘记目标），那么狗就会攻击目标精灵
-        SpriteWithTypeBo target = gameMapService.getValidTargetWithRandomForget(sprite, 0.2)
+        SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.2)
                 .map(s -> spriteService.selectByIdWithType(s.getId()))
                 .orElse(null);
         if (target != null) {
             return MoveBo.moveToSprite(target);
         }
         // 如果狗有主人
-        SpriteDo owner = gameMapService.getValidOwner(sprite).orElse(null);
+        SpriteDo owner = spriteActionService.getValidOwner(sprite).orElse(null);
         if (owner != null) {
             // 如果主人有攻击目标，那么狗也以主人的攻击目标为攻击目标
             // 这里有一个有趣的特例：如果主人的攻击目标是狗，那么狗可能会自残
@@ -42,7 +42,7 @@ public class DogAgent implements SpriteAgent {
             // 3. 主人的另一只狗狗b会攻击狗a
             // 4. 于是狗a和狗b相互攻击
             // 5. 如果狗a杀死了狗b，那么狗a接着可能会攻击自己
-            SpriteDo ownerTarget = gameMapService.getValidTarget(owner).orElse(null);
+            SpriteDo ownerTarget = spriteActionService.getValidTarget(owner).orElse(null);
             if (ownerTarget != null) {
                 sprite.getCache().setTargetSpriteId(ownerTarget.getId());
                 return MoveBo.empty();

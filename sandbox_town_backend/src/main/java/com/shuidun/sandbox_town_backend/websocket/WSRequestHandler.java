@@ -8,6 +8,7 @@ import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.ItemService;
+import com.shuidun.sandbox_town_backend.service.SpriteActionService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +78,7 @@ public class WSRequestHandler {
         return true;
     }
 
-    public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService, ItemService itemService, Validator validator) {
+    public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService, SpriteActionService spriteActionService, ItemService itemService, Validator validator) {
         this.validator = validator;
 
         // 告知坐标信息
@@ -190,7 +191,7 @@ public class WSRequestHandler {
                 return;
             }
             // 如果两者距离较远，直接返回
-            if (!gameMapService.isNear(sourceSprite, targetSprite)) {
+            if (!spriteActionService.isNear(sourceSprite, targetSprite)) {
                 return;
             }
             // 更新上次交互的时间和序列号
@@ -222,12 +223,12 @@ public class WSRequestHandler {
             if (sourceSprite == null || sourceSprite.getCache() == null) {
                 return;
             }
-            SpriteWithTypeBo targetSprite = gameMapService.getValidTarget(sourceSprite)
+            SpriteWithTypeBo targetSprite = spriteActionService.getValidTarget(sourceSprite)
                     .map(s -> spriteService.selectByIdWithType(s.getId()))
                     .orElse(null);
             // 如果目标不合法，则重新选择目标
             if (targetSprite == null) {
-                targetSprite = gameMapService.findNearestTargetInSight(sourceSprite, (s) -> {
+                targetSprite = spriteActionService.findNearestTargetInSight(sourceSprite, (s) -> {
                     // 不能攻击自己的宠物
                     return s.getOwner() == null || !s.getOwner().equals(initiator);
                 }).map(s -> spriteService.selectByIdWithType(s.getId())).orElse(null);
