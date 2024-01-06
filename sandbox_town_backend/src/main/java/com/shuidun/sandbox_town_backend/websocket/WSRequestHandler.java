@@ -1,6 +1,7 @@
 package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.shuidun.sandbox_town_backend.agent.UserAgent;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.FeedResultEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
@@ -76,7 +77,7 @@ public class WSRequestHandler {
         return true;
     }
 
-    public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService, SpriteActionService spriteActionService, ItemService itemService, Validator validator) {
+    public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService, SpriteActionService spriteActionService, ItemService itemService, Validator validator, UserAgent userAgent) {
         this.validator = validator;
 
         // 告知坐标信息
@@ -153,7 +154,7 @@ public class WSRequestHandler {
             } else {
                 moveBo = MoveBo.moveToPoint(data.getX1(), data.getY1());
             }
-            MoveVo moveVo = spriteActionService.move(sprite, moveBo);
+            MoveVo moveVo = spriteActionService.move(sprite, moveBo, userAgent.mapBitsPermissions(sprite));
             if (moveVo != null) {
                 WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
             }
@@ -228,7 +229,7 @@ public class WSRequestHandler {
                 return;
             }
             // 寻找路径
-            MoveVo moveVo = spriteActionService.move(sourceSprite, MoveBo.moveToSprite(targetSprite));
+            MoveVo moveVo = spriteActionService.move(sourceSprite, MoveBo.moveToSprite(targetSprite), userAgent.mapBitsPermissions(sourceSprite));
             if (moveVo != null) {
                 WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
             }

@@ -4,40 +4,7 @@
 
 - java调试：如何调试springboot？如何调试docker中的springboot？
 
-- 对于敌对生物，有一些共有的特征：（重点是如何抽象出公共的行为？）
-  - 无法靠近希腊神庙。实现方法是：
-    - 定义枚举类：`public enum MapBit {BLANK, BUILDING, WALL, SURROUNDING_GREEK_TEMPLE, SURROUNDING_TOMBSTONE}`
-    
-    - 修改地图点的含义：
-      
-      - buildingsHashCode: 当前建筑的hashcode，如果不是建筑物后32位为0
-      - map
-        - 第0位为1表示是空地（从低到高，这样传给前段时数据量小）
-        - 第1位为1表示为建筑
-        - 第2位为1表示为围墙
-        - 第3位为1表示希腊神庙的周围
-        - 第4位为1表示在墓碑的周围
-      
-    - 这样之后，我们就可以通过与 `(1 << MapBit.BUILDING.ordinal()) | (1 << MapBit.WALL.ordinal())` 进行与运算，通过结果是否为0来判断是不是障碍物，可以进一步封装出以下方法：
-      ```
-      private static int mapBitArrayToInt(MapBit... bits) {
-          int result = 0;
-          for (MapBit bit : bits) {
-              result |= (1 << bit.ordinal());
-          }
-          return result;
-      }
-      ```
-    
-    - spriteAgent提供一个 `MapBitsPermissions mapBitsPermissions()` 方法，其中MapBitsPermissions包含3个int32：
-    
-      - `int obstacleBits`，例如如果obstacleBits在WALL这一位为1表示该精灵无法进入围墙，优先级最高。
-    
-      - `int permittedBits`，例如如果permittedBits包含SURROUNDING_TOMBSTONE表示该精灵只能在墓碑周围移动（地缚灵在血量低于30时可以自由移动，否则只能在墓碑周围）。优先级仅次于obstacleBits。
-    
-      - spriteAgent提供 `int forbiddenBits`，例如如果forbiddenBits在SURROUNDING_GREEK_TEMPLE这一位为1表示该精灵无法进入希腊神庙周围（蜘蛛和地缚灵在等于大于等于6时可以进入希腊神庙，否则不能进入）。优先级最低
-    
-  - 不会主动攻击装备隐身帽的生物
+- 敌对生物不会主动攻击装备隐身帽的生物
   
 - 地缚灵可以穿墙以及穿过建筑物
 

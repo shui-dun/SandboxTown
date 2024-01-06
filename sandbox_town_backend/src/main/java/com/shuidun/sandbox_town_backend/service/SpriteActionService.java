@@ -161,16 +161,16 @@ public class SpriteActionService {
 
     /** 精灵根据移动目标进行移动 */
     @Nullable
-    public MoveVo move(SpriteDetailBo sprite, MoveBo moveBo) {
+    public MoveVo move(SpriteDetailBo sprite, MoveBo moveBo, MapBitsPermissionsBo permissions) {
         if (!moveBo.isMove()) {
             return null;
         }
         // 寻找路径
         List<Point> path;
         if (moveBo.isKeepDistance()) {
-            path = gameMapService.findPathNotTooClose(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite());
+            path = gameMapService.findPathNotTooClose(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite(), permissions);
         } else {
-            path = gameMapService.findPath(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite());
+            path = gameMapService.findPath(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite(), permissions);
         }
         // 如果路径为空，那么就不移动
         if (path.isEmpty()) {

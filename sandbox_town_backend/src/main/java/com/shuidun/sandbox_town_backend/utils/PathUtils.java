@@ -1,5 +1,6 @@
 package com.shuidun.sandbox_town_backend.utils;
 
+import com.shuidun.sandbox_town_backend.bean.MapBitsPermissionsBo;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
@@ -65,14 +66,31 @@ public class PathUtils {
         return x >= 0 && x < map.length && y >= 0 && y < map[0].length;
     }
 
+    /** 判断给定点是否是障碍物 */
+    private static boolean obstacle(int mapBits, MapBitsPermissionsBo permissions) {
+        // 如果是障碍物，那么直接返回true
+        if ((mapBits & permissions.getObstacles()) != 0) {
+            return true;
+        }
+        // 如果需要进行allow判断
+        if (permissions.getAllow() != 0) {
+            // 如果是允许的，那么返回false
+            return (mapBits & permissions.getAllow()) == 0;
+        }
+        // 如果是禁止的，那么返回true
+        return (mapBits & permissions.getForbid()) != 0;
+    }
+
     /** 判断给定的坐标是否不能容下物体 */
     private static boolean obstacle(
-            int[][] map, int x, int y, int itemHalfWidth, int itemHalfHeight,
-            int startX, int startY, int endX, int endY, @Nullable Integer destinationHashCode) {
+            int[][] map, int[][] buildingsHashCodeMap,
+            int x, int y, int itemHalfWidth, int itemHalfHeight,
+            int startX, int startY, int endX, int endY, @Nullable Integer destinationHashCode,
+            MapBitsPermissionsBo permissions) {
 
         // 如果坐标在目标点附近（距离小于物体大小），并且该点本身并非障碍物，那么直接认为可以容下物体
         if (Math.abs(x - endX) <= itemHalfWidth && Math.abs(y - endY) <= itemHalfHeight
-                && map[x][y] == 0) {
+                && !obstacle(map[x][y], permissions)) {
             return false;
         }
 
@@ -99,12 +117,13 @@ public class PathUtils {
 
         // 判断这些点是否有障碍物
         for (Point point : points) {
-            // 如果该点不在地图范围内，或者该点是障碍物，那么就不能容下物体
-            // 如果是建筑，但是该建筑是目标建筑，则不视作障碍物
-            if (!isValid(map, point.getX(), point.getY()) ||
-                    (destinationHashCode == null ? map[point.getX()][point.getY()] != 0 : map[point.getX()][point.getY()] != 0
-                            && map[point.getX()][point.getY()] != destinationHashCode)
-            ) {
+            // 如果该点不在地图范围内，则不能容下物体
+            if (!isValid(map, point.getX(), point.getY())) {
+                return true;
+            }
+            // 或者该点是障碍物，并且不是目标建筑，那么不能容下物体
+            boolean isObstacle = obstacle(map[point.getX()][point.getY()], permissions);
+            if (isObstacle && (destinationHashCode == null || buildingsHashCodeMap[point.getX()][point.getY()] != destinationHashCode)) {
                 return true;
             }
         }
@@ -114,7 +133,8 @@ public class PathUtils {
 
     /** 判断是否是终点 */
     private static boolean isDestination(
-            int[][] map, int x, int y, int endX, int endY,
+            int[][] buildingsHashCodeMap,
+            int x, int y, int endX, int endY,
             int initiatorHalfWidth, int initiatorHalfHeight,
             @Nullable Integer destinationHashCode,
             @Nullable Integer destSpriteHalfWidth,
@@ -127,7 +147,7 @@ public class PathUtils {
         // 如果终点是建筑
         if (destinationHashCode != null) {
             // 如果当前坐标是建筑内部，那么就是终点
-            if (map[x][y] == destinationHashCode) {
+            if (buildingsHashCodeMap[x][y] == destinationHashCode) {
                 return true;
             }
         }
@@ -148,6 +168,7 @@ public class PathUtils {
      * 以下坐标全都是指逻辑坐标，而非像素坐标
      *
      * @param map                  地图
+     * @param buildingsHashCodeMap 建筑物的hashcode地图，如果某个点是建筑物，则该点的值为建筑物的hashcode，否则为0
      * @param startX               起点x坐标
      * @param startY               起点y坐标
      * @param endX                 终点x坐标
@@ -157,15 +178,18 @@ public class PathUtils {
      * @param destinationHashCode  目标点的hashcode，如果为null，则表示终点不是建筑物
      * @param destSpriteHalfWidth  目标精灵的宽度的一半，如果为null，则表示终点不是精灵
      * @param destSpriteHalfHeight 目标精灵的高度的一半，如果为null，则表示终点不是精灵
+     * @param permissions          精灵的权限
      * @return 路径，如果没找到，返回空列表
      */
     public static List<Point> findPath(
-            int[][] map, int startX, int startY,
+            int[][] map, int[][] buildingsHashCodeMap,
+            int startX, int startY,
             int endX, int endY,
             int initiatorHalfWidth, int initiatorHalfHeight,
             @Nullable Integer destinationHashCode,
             @Nullable Integer destSpriteHalfWidth,
-            @Nullable Integer destSpriteHalfHeight) {
+            @Nullable Integer destSpriteHalfHeight,
+            MapBitsPermissionsBo permissions) {
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
 
@@ -181,7 +205,7 @@ public class PathUtils {
             }
 
             // 如果到达了目标点，或者当前点的hashcode与终点的hashcode相同，就返回路径
-            if (isDestination(map, currentNode.x, currentNode.y, endX, endY,
+            if (isDestination(buildingsHashCodeMap, currentNode.x, currentNode.y, endX, endY,
                     initiatorHalfWidth, initiatorHalfHeight,
                     destinationHashCode, destSpriteHalfWidth, destSpriteHalfHeight)) {
                 List<Point> path = new ArrayList<>();
@@ -206,7 +230,7 @@ public class PathUtils {
                 int newX = currentNode.x + direction[0];
                 int newY = currentNode.y + direction[1];
 
-                if (!isValid(map, newX, newY) || obstacle(map, newX, newY, initiatorHalfWidth, initiatorHalfHeight, startX, startY, endX, endY, destinationHashCode)) {
+                if (!isValid(map, newX, newY) || obstacle(map, buildingsHashCodeMap, newX, newY, initiatorHalfWidth, initiatorHalfHeight, startX, startY, endX, endY, destinationHashCode, permissions)) {
                     continue;
                 }
 
@@ -222,7 +246,6 @@ public class PathUtils {
                 openList.add(neighbor);
             }
         }
-        log.info("can not find path");
         return Collections.emptyList();
     }
 

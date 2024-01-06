@@ -78,7 +78,7 @@ public class WSMessageSender {
                         pair = sendQueues.get(finalI).take();
                         pair.getFirst().sendMessage(pair.getSecond());
                     } catch (Exception e) {
-                        log.error("send message {} error", pair, e);
+                        log.error("send message {} error: {}", pair, e.getMessage());
                     }
                 }
             });

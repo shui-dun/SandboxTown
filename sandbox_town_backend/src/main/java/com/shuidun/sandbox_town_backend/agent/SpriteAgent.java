@@ -1,8 +1,10 @@
 package com.shuidun.sandbox_town_backend.agent;
 
+import com.shuidun.sandbox_town_backend.bean.MapBitsPermissionsBo;
 import com.shuidun.sandbox_town_backend.bean.MoveBo;
 import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
+
 
 /**
  * 该接口定义了游戏中不同类型精灵行为的基础框架。
@@ -23,4 +25,11 @@ public interface SpriteAgent {
      * 得到精灵的类型
      */
     SpriteTypeEnum getType();
+
+    /**
+     * 用于获取精灵在地图上的移动权限
+     */
+    default MapBitsPermissionsBo mapBitsPermissions(SpriteDetailBo sprite) {
+        return MapBitsPermissionsBo.DEFAULT_MAP_BITS_PERMISSIONS;
+    }
 }

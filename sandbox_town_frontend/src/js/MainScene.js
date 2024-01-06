@@ -283,7 +283,8 @@ class MainScene extends Phaser.Scene {
         let pixelsPerGrid = 30;
         for (let x = 0; x < this.gameMap.data.length; ++x) {
             for (let y = 0; y < this.gameMap.data[0].length; ++y) {
-                if (this.gameMap.data[x][y] == 1) {
+                // 如果最低位为1，表示该位置有围墙
+                if (this.gameMap.data[x][y] & 1) {
                     const texture = this.matter.add.sprite(x * pixelsPerGrid, y * pixelsPerGrid, 'WALL', null, { isStatic: true, shape: this.collapseShapes["WALL"] })
                     texture.setDisplaySize(pixelsPerGrid, pixelsPerGrid);
                 }

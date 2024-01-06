@@ -781,6 +781,7 @@ public class SpriteService {
     }
 
     /** 刷新所有时间段的精灵 */
+    @Transactional
     public void refreshAllSprites() {
         for (TimeFrameEnum time : TimeFrameEnum.values()) {
             refreshSprites(time);

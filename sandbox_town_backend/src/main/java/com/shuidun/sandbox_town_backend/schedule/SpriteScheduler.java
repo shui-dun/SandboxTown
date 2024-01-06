@@ -69,10 +69,10 @@ public class SpriteScheduler {
                 }
             }
             // 调用对应的处理函数
-            var func = typeToAgent.get(sprite.getType());
-            if (func != null) {
-                MoveBo moveBo = func.act(sprite);
-                MoveVo moveVo = spriteActionService.move(sprite, moveBo);
+            var agent = typeToAgent.get(sprite.getType());
+            if (agent != null) {
+                MoveBo moveBo = agent.act(sprite);
+                MoveVo moveVo = spriteActionService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
                 if (moveVo == null) {
                     continue;
                 }

@@ -3,6 +3,7 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
+import com.shuidun.sandbox_town_backend.enumeration.MapBitEnum;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
@@ -21,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 地图相关的服务
@@ -44,20 +46,46 @@ public class GameMapService {
         this.buildingTypeMapper = buildingTypeMapper;
     }
 
+    /** 向地图指定位置添加一个bit */
+    private void addBitToMap(int[][] map, int x, int y, MapBitEnum bit) {
+        int bitValue = 1 << bit.ordinal();
+        map[x][y] |= bitValue;
+    }
+
+    /** 从地图指定位置删除一个bit */
+    private void removeBitFromMap(int[][] map, int x, int y, MapBitEnum bit) {
+        int bitValue = 1 << bit.ordinal();
+        map[x][y] &= ~bitValue;
+    }
+
+    /** 判断地图某一点是否为某个bit */
+    private boolean isBitInMap(int[][] map, int x, int y, MapBitEnum bit) {
+        int bitValue = 1 << bit.ordinal();
+        return (map[x][y] & bitValue) != 0;
+    }
+
+    /** 判断地图某一点是否为某些bit中的至少一个 */
+    private boolean isAnyBitInMap(int[][] map, int x, int y, MapBitEnum... bits) {
+        int bitValue = 0;
+        for (MapBitEnum bit : bits) {
+            bitValue |= 1 << bit.ordinal();
+        }
+        return (map[x][y] & bitValue) != 0;
+    }
 
     /** 画一个2x2的墙 */
     private void drawWall(int[][] map, int x, int y) {
-        map[2 * x][2 * y] = 1;
-        map[2 * x + 1][2 * y] = 1;
-        map[2 * x][2 * y + 1] = 1;
-        map[2 * x + 1][2 * y + 1] = 1;
+        addBitToMap(map, 2 * x, 2 * y, MapBitEnum.WALL);
+        addBitToMap(map, 2 * x + 1, 2 * y, MapBitEnum.WALL);
+        addBitToMap(map, 2 * x, 2 * y + 1, MapBitEnum.WALL);
+        addBitToMap(map, 2 * x + 1, 2 * y + 1, MapBitEnum.WALL);
     }
 
     private void unDrawWall(int[][] map, int x, int y) {
-        map[2 * x][2 * y] = 0;
-        map[2 * x + 1][2 * y] = 0;
-        map[2 * x][2 * y + 1] = 0;
-        map[2 * x + 1][2 * y + 1] = 0;
+        removeBitFromMap(map, 2 * x, 2 * y, MapBitEnum.WALL);
+        removeBitFromMap(map, 2 * x + 1, 2 * y, MapBitEnum.WALL);
+        removeBitFromMap(map, 2 * x, 2 * y + 1, MapBitEnum.WALL);
+        removeBitFromMap(map, 2 * x + 1, 2 * y + 1, MapBitEnum.WALL);
     }
 
     /** 生成迷宫 */
@@ -133,7 +161,8 @@ public class GameMapService {
      * @return 路径节点列表，如果找不到路径，则返回空列表
      */
     public List<Point> findPath(SpriteWithTypeBo initiator, double x1, double y1,
-                                @Nullable String destBuildingId, @Nullable SpriteWithTypeBo destSprite) {
+                                @Nullable String destBuildingId, @Nullable SpriteWithTypeBo destSprite,
+                                MapBitsPermissionsBo permissions) {
         double x0 = initiator.getX();
         double y0 = initiator.getY();
         // 将物理坐标转换为地图坐标
@@ -163,7 +192,10 @@ public class GameMapService {
             destSpriteHalfHeight = (int) Math.ceil(destSpriteHeight / Constants.PIXELS_PER_GRID) / 2;
         }
         // 调用寻路算法
-        List<Point> path = PathUtils.findPath(GameCache.map, startX, startY, endX, endY, spriteHalfWidth, spriteHalfHeight, destBuildingHashCode, destSpriteHalfWidth, destSpriteHalfHeight);
+        List<Point> path = PathUtils.findPath(GameCache.map, GameCache.buildingsHashCodeMap, startX, startY, endX, endY, spriteHalfWidth, spriteHalfHeight, destBuildingHashCode, destSpriteHalfWidth, destSpriteHalfHeight, permissions);
+        if (path.isEmpty()) {
+            log.info("找不到路径，发起者：{}, 起点：x={}, y={}，终点：x={}, y={}", initiator.getId(), startX, startY, endX, endY);
+        }
         // 将地图坐标转换为物理坐标
         // 一般来说，地图坐标是整数，而物理坐标是浮点数
         // 但是显然在这里计算得到的物理坐标也是整数
@@ -176,8 +208,9 @@ public class GameMapService {
 
     /** 找到路径，但与目标保持一定距离 */
     public List<Point> findPathNotTooClose(SpriteWithTypeBo initiator, double x1, double y1,
-                                           @Nullable String destBuildingId, @Nullable SpriteWithTypeBo destSprite) {
-        List<Point> path = findPath(initiator, x1, y1, destBuildingId, destSprite);
+                                           @Nullable String destBuildingId, @Nullable SpriteWithTypeBo destSprite,
+                                           MapBitsPermissionsBo permissions) {
+        List<Point> path = findPath(initiator, x1, y1, destBuildingId, destSprite, permissions);
         // 去除后面一段
         int minLen = (int) (initiator.getWidth() * initiator.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
         if (path.size() < minLen) {
@@ -210,7 +243,7 @@ public class GameMapService {
         for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
             for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
                 // 如果当前格子已有其他建筑（或者围墙）
-                if (GameCache.map[i][j] != 0) {
+                if (isAnyBitInMap(GameCache.map, i, j, MapBitEnum.BUILDING, MapBitEnum.WALL)) {
                     // 得到当前格中心的物理坐标
                     int pixelX = i * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
                     int pixelY = j * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
@@ -262,13 +295,19 @@ public class GameMapService {
         for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
             for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
                 // 如果当前格子已有其他建筑（或者围墙）
-                if (GameCache.map[i][j] != 0) {
+                if (isAnyBitInMap(GameCache.map, i, j, MapBitEnum.BUILDING, MapBitEnum.WALL)) {
                     return true;
                 }
             }
         }
         return false;
     }
+
+    /** 建筑类型到“建筑周围”地图点的映射 */
+    private static final Map<BuildingTypeEnum, MapBitEnum> BUILDING_TYPE_TO_SURROUNDING_MAP_BIT = Map.of(
+            BuildingTypeEnum.TOMBSTONE, MapBitEnum.SURROUNDING_TOMBSTONE,
+            BuildingTypeEnum.GREEK_TEMPLE, MapBitEnum.SURROUNDING_GREEK_TEMPLE
+    );
 
     /** 放置建筑 */
     public void placeBuildingOnMap(BuildingDo building) {
@@ -307,8 +346,25 @@ public class GameMapService {
                 // 如果当前格子中心是黑色
                 if (color == Color.BLACK.getRGB()) {
                     // 将当前格子设置为建筑物的id的哈希码
-                    GameCache.map[i][j] = building.getId().hashCode();
+                    GameCache.buildingsHashCodeMap[i][j] = building.getId().hashCode();
+                    // 设置当前格子为建筑物
+                    addBitToMap(GameCache.map, i, j, MapBitEnum.BUILDING);
                 }
+            }
+        }
+        // 标记当前建筑的周围
+        MapBitEnum mapBit = BUILDING_TYPE_TO_SURROUNDING_MAP_BIT.get(building.getType());
+        if (mapBit == null) {
+            return;
+        }
+        int margin = 5;
+        int startX = Math.max(0, buildingLogicalX - margin);
+        int startY = Math.max(0, buildingLogicalY - margin);
+        int endX = Math.min(GameCache.map.length - 1, buildingLogicalX + buildingLogicalWidth + margin);
+        int endY = Math.min(GameCache.map[0].length - 1, buildingLogicalY + buildingLogicalHeight + margin);
+        for (int i = startX; i <= endX; ++i) {
+            for (int j = startY; j <= endY; ++j) {
+                addBitToMap(GameCache.map, i, j, mapBit);
             }
         }
     }

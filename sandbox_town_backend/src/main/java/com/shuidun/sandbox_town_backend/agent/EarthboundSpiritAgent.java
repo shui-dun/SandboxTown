@@ -1,8 +1,10 @@
 package com.shuidun.sandbox_town_backend.agent;
 
+import com.shuidun.sandbox_town_backend.bean.MapBitsPermissionsBo;
 import com.shuidun.sandbox_town_backend.bean.MoveBo;
 import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
 import com.shuidun.sandbox_town_backend.bean.SpriteWithTypeBo;
+import com.shuidun.sandbox_town_backend.enumeration.MapBitEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.service.SpriteActionService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
@@ -51,5 +53,29 @@ public class EarthboundSpiritAgent implements SpriteAgent {
     @Override
     public SpriteTypeEnum getType() {
         return SpriteTypeEnum.EARTHBOUND_SPIRIT;
+    }
+
+    /** 默认只能在墓碑周围移动 */
+    private static final int DEFAULT_ALLOW = MapBitsPermissionsBo.mapBitArrayToInt(MapBitEnum.SURROUNDING_TOMBSTONE);
+
+    /** 默认不能在希腊神庙周围移动 */
+    private static final int DEFAULT_FORBID = MapBitsPermissionsBo.mapBitArrayToInt(MapBitEnum.SURROUNDING_GREEK_TEMPLE);
+
+    @Override
+    public MapBitsPermissionsBo mapBitsPermissions(SpriteDetailBo sprite) {
+        int obstacles = MapBitsPermissionsBo.DEFAULT_OBSTACLES;
+        // 默认只能在墓碑周围移动
+        int allow = DEFAULT_ALLOW;
+        // 如果体力小于一定值，则允许在任意地方移动
+        if (sprite.getHp() < 50) {
+            allow = MapBitsPermissionsBo.DEFAULT_ALLOW;
+        }
+        // 默认不能在希腊神庙周围移动
+        int forbid = DEFAULT_FORBID;
+        // 如果等级大于一定值，则可以在希腊神庙周围移动
+        if (sprite.getLevel() > 5) {
+            forbid = MapBitsPermissionsBo.DEFAULT_FORBID;
+        }
+        return new MapBitsPermissionsBo(obstacles, allow, forbid);
     }
 }
