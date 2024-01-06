@@ -5,12 +5,10 @@ import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.FeedResultEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
-import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.ItemService;
 import com.shuidun.sandbox_town_backend.service.SpriteActionService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
-import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -133,7 +131,7 @@ public class WSRequestHandler {
             if (sprite == null) {
                 return;
             }
-            // 如果精灵不在线
+            // 如果精灵不在线，使其在线
             if (sprite.getCache() == null) {
                 sprite.setCache(spriteService.online(initiator));
             }
@@ -143,30 +141,22 @@ public class WSRequestHandler {
             sprite.getCache().setY(data.getY0());
             sprite.getCache().setVx(0.0);
             sprite.getCache().setVy(0.0);
-            // 更新玩家的找到的路径
-            // 每种角色的宽度和高度不一样，需要根据角色类型来获取相应路径
-            // 如果存在目标精灵
-            SpriteWithTypeBo destSprite = null;
+            // 寻找路径
+            MoveBo moveBo = MoveBo.empty();
             if (data.getDestSpriteId() != null) {
-                destSprite = spriteService.selectByIdWithType(data.getDestSpriteId());
+                SpriteWithTypeBo destSprite = spriteService.selectByIdWithType(data.getDestSpriteId());
+                if (destSprite != null) {
+                    moveBo = MoveBo.moveToSprite(destSprite, data.getX1(), data.getY1());
+                }
+            } else if (data.getDestBuildingId() != null) {
+                moveBo = MoveBo.moveToBuilding(data.getDestBuildingId(), data.getX1(), data.getY1());
+            } else {
+                moveBo = MoveBo.moveToPoint(data.getX1(), data.getY1());
             }
-            List<Point> path = gameMapService.findPath(
-                    sprite, data.getX1(), data.getY1(),
-                    data.getDestBuildingId(), destSprite);
-            // 如果找不到路径，直接返回
-            if (path.isEmpty()) {
-                return;
+            MoveVo moveVo = spriteActionService.move(sprite, moveBo);
+            if (moveVo != null) {
+                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
             }
-            // TODO: 更新玩家的状态
-            // 通知玩家移动
-            WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
-                    initiator,
-                    sprite.getSpeed() + sprite.getSpeedInc(),
-                    DataCompressor.compressPath(path),
-                    data.getDestBuildingId(),
-                    data.getDestSpriteId(),
-                    data.getDestSpriteId() == null ? null : GameCache.random.nextInt()
-            )));
         });
 
         // 交互事件
@@ -238,20 +228,10 @@ public class WSRequestHandler {
                 return;
             }
             // 寻找路径
-            var path = gameMapService.findPath(sourceSprite, targetSprite.getX(), targetSprite.getY(), null, targetSprite);
-            // 如果找不到路径，直接返回
-            if (path.isEmpty()) {
-                return;
+            MoveVo moveVo = spriteActionService.move(sourceSprite, MoveBo.moveToSprite(targetSprite));
+            if (moveVo != null) {
+                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
             }
-            // 发送移动消息
-            WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
-                    initiator,
-                    sourceSprite.getSpeed() + sourceSprite.getSpeedInc(),
-                    DataCompressor.compressPath(path),
-                    null,
-                    targetSprite.getId(),
-                    GameCache.random.nextInt()
-            )));
         });
 
         // 开始处理消息

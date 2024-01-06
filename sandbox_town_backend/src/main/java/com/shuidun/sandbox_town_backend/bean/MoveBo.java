@@ -74,6 +74,11 @@ public class MoveBo {
         return new MoveBo(true, sprite.getX(), sprite.getY(), null, sprite, false);
     }
 
+    /** 移动到指定精灵 */
+    public static MoveBo moveToSprite(SpriteWithTypeBo sprite, double x, double y) {
+        return new MoveBo(true, x, y, null, sprite, false);
+    }
+
     /** 精灵随机移动 */
     public static MoveBo randomMove(SpriteDetailBo sprite) {
         int randX = (sprite.getSpeed() + sprite.getSpeedInc()) * (GameCache.random.nextInt(11) - 5);

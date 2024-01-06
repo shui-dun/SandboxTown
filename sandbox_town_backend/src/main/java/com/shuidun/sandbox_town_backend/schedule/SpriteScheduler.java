@@ -1,15 +1,17 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
 import com.shuidun.sandbox_town_backend.agent.SpriteAgent;
-import com.shuidun.sandbox_town_backend.bean.*;
+import com.shuidun.sandbox_town_backend.bean.MoveBo;
+import com.shuidun.sandbox_town_backend.bean.MoveVo;
+import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
+import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
-import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
+import com.shuidun.sandbox_town_backend.service.SpriteActionService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
-import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,9 +29,12 @@ public class SpriteScheduler {
 
     private final GameMapService gameMapService;
 
-    public SpriteScheduler(SpriteService spriteService, List<SpriteAgent> spriteAgents, GameMapService gameMapService) {
+    private final SpriteActionService spriteActionService;
+
+    public SpriteScheduler(SpriteService spriteService, List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService) {
         this.spriteService = spriteService;
         this.gameMapService = gameMapService;
+        this.spriteActionService = spriteActionService;
         for (SpriteAgent agent : spriteAgents) {
             typeToAgent.put(agent.getType(), agent);
         }
@@ -67,33 +72,11 @@ public class SpriteScheduler {
             var func = typeToAgent.get(sprite.getType());
             if (func != null) {
                 MoveBo moveBo = func.act(sprite);
-                if (!moveBo.isMove()) {
+                MoveVo moveVo = spriteActionService.move(sprite, moveBo);
+                if (moveVo == null) {
                     continue;
                 }
-                // 寻找路径
-                List<Point> path = null;
-                if (moveBo.isKeepDistance()) {
-                    path = gameMapService.findPathNotTooClose(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite());
-                } else {
-                    path = gameMapService.findPath(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite());
-                }
-                // 如果路径为空，那么就不移动
-                if (path.isEmpty()) {
-                    continue;
-                }
-                // 发送移动事件
-                WSMessageSender.addResponse(new WSResponseVo(
-                        WSResponseEnum.MOVE,
-                        new MoveVo(
-                                sprite.getId(),
-                                sprite.getSpeed() + sprite.getSpeedInc(),
-                                DataCompressor.compressPath(path),
-                                moveBo.getDestBuildingId(),
-                                moveBo.getDestSprite() == null ? null : moveBo.getDestSprite().getId(),
-                                moveBo.getDestSprite() == null ? null : GameCache.random.nextInt()
-                        )
-                ));
-
+                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
             }
             // 保存坐标
             spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());

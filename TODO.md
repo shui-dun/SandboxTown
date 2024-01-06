@@ -2,8 +2,6 @@
 
 ## feature
 
-- 将精灵的move从spriteScheduler迁移到spriteActionService，以供任何地方调用。
-
 - java调试：如何调试springboot？如何调试docker中的springboot？
 
 - 对于敌对生物，有一些共有的特征：（重点是如何抽象出公共的行为？）

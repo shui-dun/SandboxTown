@@ -1,9 +1,10 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
-import com.shuidun.sandbox_town_backend.bean.SpriteDo;
+import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
+import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import org.springframework.data.util.Pair;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,9 +20,12 @@ import java.util.function.Predicate;
 public class SpriteActionService {
     private final SpriteService spriteService;
 
+    private final GameMapService gameMapService;
 
-    public SpriteActionService(SpriteService spriteService) {
+
+    public SpriteActionService(SpriteService spriteService, GameMapService gameMapService) {
         this.spriteService = spriteService;
+        this.gameMapService = gameMapService;
     }
 
     /** 计算两点之间的距离 */
@@ -153,5 +157,33 @@ public class SpriteActionService {
             return Optional.empty();
         }
         return Optional.of(ownerSprite);
+    }
+
+    /** 精灵根据移动目标进行移动 */
+    @Nullable
+    public MoveVo move(SpriteDetailBo sprite, MoveBo moveBo) {
+        if (!moveBo.isMove()) {
+            return null;
+        }
+        // 寻找路径
+        List<Point> path;
+        if (moveBo.isKeepDistance()) {
+            path = gameMapService.findPathNotTooClose(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite());
+        } else {
+            path = gameMapService.findPath(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite());
+        }
+        // 如果路径为空，那么就不移动
+        if (path.isEmpty()) {
+            return null;
+        }
+        // 发送移动事件
+        return new MoveVo(
+                sprite.getId(),
+                sprite.getSpeed() + sprite.getSpeedInc(),
+                DataCompressor.compressPath(path),
+                moveBo.getDestBuildingId(),
+                moveBo.getDestSprite() == null ? null : moveBo.getDestSprite().getId(),
+                moveBo.getDestSprite() == null ? null : GameCache.random.nextInt()
+        );
     }
 }
