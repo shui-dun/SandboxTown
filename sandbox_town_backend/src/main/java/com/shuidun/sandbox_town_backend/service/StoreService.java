@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class StoreService implements RefreshableBuilding {
+public class StoreService implements SpecificBuildingService {
 
     @Lazy
     @Autowired
@@ -118,17 +118,12 @@ public class StoreService implements RefreshableBuilding {
         itemService.add(spriteId, item, amount);
     }
 
-
-    /** 刷新商店商品 */
+    /** 刷新/初始化商店商品 */
     @Transactional
-    public void refresh(String store) {
-        // 判断商店是否存在
-        BuildingDo building = buildingMapper.selectById(store);
-        if (building == null) {
-            throw new BusinessException(StatusCodeEnum.BUILDING_NOT_FOUND);
-        }
+    @Override
+    public void initBuilding(BuildingDo building) {
         // 删除原有的商店商品
-        storeItemTypeMapper.deleteByStore(store);
+        storeItemTypeMapper.deleteByStore(building.getId());
         // 获取所有物品信息
         List<ItemTypeDo> itemTypes = itemTypeMapper.selectList(null);
         // 进货随机数目种类的商品
@@ -153,7 +148,7 @@ public class StoreService implements RefreshableBuilding {
                     int itemCount = (int) (Math.random() * itemType.getRarity()) + 1;
                     // 如果该物品已经在商店中了，那么更新
                     // 这里要关闭缓存，否则会出现脏读
-                    StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, itemType.getId());
+                    StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(building.getId(), itemType.getId());
                     if (storeItemType != null) {
                         storeItemType.setCount(storeItemType.getCount() + itemCount);
                         storeItemTypeMapper.update(storeItemType);
@@ -164,7 +159,7 @@ public class StoreService implements RefreshableBuilding {
                         // 生成商店商品
                         storeItemType = new StoreItemTypeDo(
                                 itemType.getId(),
-                                store,
+                                building.getId(),
                                 itemCount,
                                 price
                         );
@@ -175,20 +170,38 @@ public class StoreService implements RefreshableBuilding {
             }
         }
         // 删除缓存
-        redisTemplate.delete("store::listByStore::" + store);
-        Set<String> keys = redisTemplate.keys("store::storeItemTypeDetail::%s*".formatted(store));
+        redisTemplate.delete("store::listByStore::" + building.getId());
+        Set<String> keys = redisTemplate.keys("store::storeItemTypeDetail::%s*".formatted(building.getId()));
         if (keys != null) {
             redisTemplate.delete(keys);
         }
     }
 
+    @Override
+    public BuildingTypeEnum getType() {
+        return BuildingTypeEnum.STORE;
+    }
+
+
+    /** 刷新/初始化商店商品 */
+    @Transactional
+    public void initBuilding(String store) {
+        // 判断商店是否存在
+        BuildingDo building = buildingMapper.selectById(store);
+        if (building == null) {
+            throw new BusinessException(StatusCodeEnum.BUILDING_NOT_FOUND);
+        }
+        initBuilding(building);
+    }
+
     /** 刷新所有商店商品 */
     @Override
+    @Transactional
     public void refreshAll() {
         // 得到所有商店
         List<BuildingDo> stores = buildingMapper.selectByMapIdAndType(mapId, BuildingTypeEnum.STORE);
         for (BuildingDo store : stores) {
-            self.refresh(store.getId());
+            self.initBuilding(store);
         }
     }
 

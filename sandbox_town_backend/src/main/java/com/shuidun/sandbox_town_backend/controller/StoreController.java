@@ -77,7 +77,7 @@ public class StoreController {
     @SaCheckRole("ADMIN")
     @PostMapping("/refresh")
     public RestResponseVo<Void> refresh(@NotNull @RequestParam String store) {
-        storeService.refresh(store);
+        storeService.initBuilding(store);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 

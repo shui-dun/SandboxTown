@@ -1,7 +1,9 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import com.shuidun.sandbox_town_backend.bean.ApplePickingDo;
+import com.shuidun.sandbox_town_backend.bean.BuildingDo;
 import com.shuidun.sandbox_town_backend.bean.TreeDo;
+import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
@@ -16,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class TreeService implements RefreshableBuilding {
+public class TreeService implements SpecificBuildingService {
 
     private final TreeMapper treeMapper;
 
@@ -108,10 +110,11 @@ public class TreeService implements RefreshableBuilding {
     }
 
     /** 创建一棵树 */
-    public void createRandomTree(String treeId) {
+    @Override
+    public void initBuilding(BuildingDo building) {
         int appleCount = 1 + GameCache.random.nextInt(5);
         TreeDo tree = new TreeDo(
-                treeId,
+                building.getId(),
                 appleCount,
                 appleCount,
                 1
@@ -131,5 +134,10 @@ public class TreeService implements RefreshableBuilding {
             // 更新树
             treeMapper.updateById(tree);
         }
+    }
+
+    @Override
+    public BuildingTypeEnum getType() {
+        return BuildingTypeEnum.TREE;
     }
 }

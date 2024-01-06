@@ -2,7 +2,7 @@
 
 ## feature
 
-- 将精灵的move从spriteScheduler迁移到Agent，也就是 `default MoveVo move(sprite, moveBo)`，以便WSRequestHandler也能方便地调用。
+- 将精灵的move从spriteScheduler迁移到spriteActionService，以供任何地方调用。
 
 - java调试：如何调试springboot？如何调试docker中的springboot？
 

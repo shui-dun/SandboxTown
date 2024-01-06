@@ -32,7 +32,7 @@ public class GameInitializer {
         gameMapService.generateMaze(GameCache.map, 0, 0, GameCache.map.length / 2, GameCache.map[0].length / 2);
 
         // 在地图上放置建筑
-        boolean containsBuilding = ecosystemService.placeAllBuildingsOnMap();
+        boolean containsBuilding = gameMapService.placeAllBuildingsOnMap();
 
         // 放置没有主人的角色
         spriteService.getUnownedSprites().forEach(sprite ->

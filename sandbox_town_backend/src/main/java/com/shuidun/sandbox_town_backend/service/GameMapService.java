@@ -1,20 +1,24 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.BuildingDo;
-import com.shuidun.sandbox_town_backend.bean.GameMapDo;
 import com.shuidun.sandbox_town_backend.bean.Point;
-import com.shuidun.sandbox_town_backend.bean.SpriteWithTypeBo;
+import com.shuidun.sandbox_town_backend.bean.*;
+import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
+import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
+import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,11 +31,17 @@ public class GameMapService {
 
     private final GameMapMapper gameMapMapper;
 
+    private final BuildingMapper buildingMapper;
+
+    private final BuildingTypeMapper buildingTypeMapper;
+
     @Value("${mapId}")
     private String mapId;
 
-    public GameMapService(GameMapMapper gameMapMapper) {
+    public GameMapService(GameMapMapper gameMapMapper, BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper) {
         this.gameMapMapper = gameMapMapper;
+        this.buildingMapper = buildingMapper;
+        this.buildingTypeMapper = buildingTypeMapper;
     }
 
 
@@ -301,6 +311,35 @@ public class GameMapService {
                 }
             }
         }
+    }
+
+    /**
+     * 将所有建筑物放置在地图上
+     *
+     * @return 是否至少存在一个建筑物
+     */
+    public boolean placeAllBuildingsOnMap() {
+        // 建筑物的黑白图的字典
+        var buildingTypes = buildingTypeMapper.selectList(null);
+        for (BuildingTypeDo buildingType : buildingTypes) {
+            BuildingTypeEnum buildingTypeId = buildingType.getId();
+            String imagePath = buildingType.getImagePath();
+            try {
+                BufferedImage image = ImageIO.read(new ClassPathResource(imagePath).getInputStream());
+                GameCache.buildingTypesImages.put(buildingTypeId, image);
+            } catch (IOException e) {
+                log.info("读取建筑物黑白图失败", e);
+            }
+        }
+
+        // 获取当前地图上的所有建筑物
+        var buildings = buildingMapper.selectByMapId(mapId);
+
+        // 将建筑放置在地图上
+        for (BuildingDo building : buildings) {
+            placeBuildingOnMap(building);
+        }
+        return !buildings.isEmpty();
     }
 
     /** 得到地图信息 */

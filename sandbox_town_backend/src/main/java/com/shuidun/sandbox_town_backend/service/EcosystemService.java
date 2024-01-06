@@ -10,15 +10,13 @@ import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -33,10 +31,6 @@ public class EcosystemService {
 
     private final SpriteService spriteService;
 
-    private final TreeService treeService;
-
-    private final StoreService storeService;
-
     @Value("${mapId}")
     private String mapId;
 
@@ -44,55 +38,26 @@ public class EcosystemService {
 
     private final GameMapService gameMapService;
 
-    private final List<RefreshableBuilding> refreshableBuildings;
+    private final Map<BuildingTypeEnum, SpecificBuildingService> specificBuildingServices;
 
-    public EcosystemService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, SpriteService spriteService, TreeService treeService, StoreService storeService, RedisTemplate<String, Object> redisTemplate, GameMapService gameMapService, List<RefreshableBuilding> refreshableBuildings) {
+    public EcosystemService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate, GameMapService gameMapService, List<SpecificBuildingService> specificBuildingServices) {
         this.buildingMapper = buildingMapper;
         this.buildingTypeMapper = buildingTypeMapper;
         this.spriteService = spriteService;
-        this.treeService = treeService;
-        this.storeService = storeService;
         this.redisTemplate = redisTemplate;
         this.gameMapService = gameMapService;
-        this.refreshableBuildings = refreshableBuildings;
+        this.specificBuildingServices = specificBuildingServices.stream().collect(
+                Collectors.toMap(SpecificBuildingService::getType, s -> s)
+        );
     }
 
 
     /** 刷新所有可刷新的建筑 */
     public void refreshAllBuildings() {
-        for (RefreshableBuilding refreshableBuilding : refreshableBuildings) {
-            refreshableBuilding.refreshAll();
-            log.info("refreshAllBuildings: {}", refreshableBuilding.getClass().getName());
+        for (SpecificBuildingService specificBuildingService : specificBuildingServices.values()) {
+            specificBuildingService.refreshAll();
+            log.info("refreshAllBuildings: {}", specificBuildingService.getClass().getName());
         }
-    }
-
-    /**
-     * 将所有建筑物放置在地图上
-     *
-     * @return 是否至少存在一个建筑物
-     */
-    public boolean placeAllBuildingsOnMap() {
-        // 建筑物的黑白图的字典
-        var buildingTypes = buildingTypeMapper.selectList(null);
-        for (BuildingTypeDo buildingType : buildingTypes) {
-            BuildingTypeEnum buildingTypeId = buildingType.getId();
-            String imagePath = buildingType.getImagePath();
-            try {
-                BufferedImage image = ImageIO.read(new ClassPathResource(imagePath).getInputStream());
-                GameCache.buildingTypesImages.put(buildingTypeId, image);
-            } catch (IOException e) {
-                log.info("读取建筑物黑白图失败", e);
-            }
-        }
-
-        // 获取当前地图上的所有建筑物
-        var buildings = buildingMapper.selectByMapId(mapId);
-
-        // 将建筑放置在地图上
-        for (BuildingDo building : buildings) {
-            gameMapService.placeBuildingOnMap(building);
-        }
-        return !buildings.isEmpty();
     }
 
     /** 随机创建指定数目的建筑以及其附属的生态环境 */
@@ -148,12 +113,10 @@ public class EcosystemService {
                 buildingMapper.insert(building);
                 // 放置建筑
                 gameMapService.placeBuildingOnMap(building);
-                // 如果是树
-                if (buildingType.getId().equals(BuildingTypeEnum.TREE)) {
-                    treeService.createRandomTree(building.getId());
-                } else if (buildingType.getId().equals(BuildingTypeEnum.STORE)) { // 如果是商店
-                    // 刷新商店商品
-                    storeService.refresh(building.getId());
+                // 初始化对应的建筑
+                SpecificBuildingService specificBuildingService = specificBuildingServices.get(buildingType.getId());
+                if (specificBuildingService != null) {
+                    specificBuildingService.initBuilding(building);
                 }
             } else {
                 log.info("建筑重叠，重新生成建筑");
