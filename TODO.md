@@ -29,14 +29,16 @@
       }
       ```
     
-    - spriteAgent提供 `int obstacleBits`，例如如果obstacleBits在WALL这一位为1表示该精灵无法进入围墙，优先级最高。
+    - spriteAgent提供一个 `MapBitsPermissions mapBitsPermissions()` 方法，其中MapBitsPermissions包含3个int32：
     
-    - spriteAgent提供 `int permittedBits`，例如如果permittedBits包含SURROUNDING_TOMBSTONE表示该精灵只能在墓碑周围移动（地缚灵在血量低于25时可以自由移动，否则只能在墓碑周围）。优先级仅次于obstacleBits。
+      - `int obstacleBits`，例如如果obstacleBits在WALL这一位为1表示该精灵无法进入围墙，优先级最高。
     
-    - spriteAgent提供 `int forbiddenBits`，例如如果forbiddenBits在SURROUNDING_GREEK_TEMPLE这一位为1表示该精灵无法进入希腊神庙周围（蜘蛛在血量低于25时可以进入希腊神庙，否则不能进入）（地缚灵永远不能进入神庙）。优先级最低
+      - `int permittedBits`，例如如果permittedBits包含SURROUNDING_TOMBSTONE表示该精灵只能在墓碑周围移动（地缚灵在血量低于30时可以自由移动，否则只能在墓碑周围）。优先级仅次于obstacleBits。
+    
+      - spriteAgent提供 `int forbiddenBits`，例如如果forbiddenBits在SURROUNDING_GREEK_TEMPLE这一位为1表示该精灵无法进入希腊神庙周围（蜘蛛和地缚灵在等于大于等于6时可以进入希腊神庙，否则不能进入）。优先级最低
     
   - 不会主动攻击装备隐身帽的生物
-
+  
 - 地缚灵可以穿墙以及穿过建筑物
 
 - 添加聊天模块：
@@ -109,6 +111,8 @@
 - docker-compose指定启动顺序
 
 - 生命药水：交互时给目标恢复血量
+
+- 经验药水
 
 - 宝箱可以开启任意物品（和商店一样，以稀有度作为概率）
 
