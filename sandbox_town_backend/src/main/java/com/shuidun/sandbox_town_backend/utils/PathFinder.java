@@ -177,7 +177,7 @@ public class PathFinder {
     }
 
     /** 判断给定点是否是障碍物 */
-    private boolean isObstacle(int mapBits) {
+    private boolean isMapBitObstacle(int mapBits) {
         // 如果是障碍物，那么直接返回true
         if ((mapBits & permissions.getObstacles()) != 0) {
             return true;
@@ -191,19 +191,22 @@ public class PathFinder {
         return (mapBits & permissions.getForbid()) != 0;
     }
 
-    /** 判断给定的坐标是否不能容下物体 */
-    private boolean isObstacle(int x, int y) {
-        // 如果坐标在目标点附近（距离小于物体大小），并且该点本身并非障碍物，那么直接认为可以容下物体
-        if (Math.abs(x - logicalX1) <= initiatorHalfLogicalWidth && Math.abs(y - logicalY1) <= initiatorHalfLogicalHeight
-                && !isObstacle(GameCache.map[x][y])) {
-            return false;
-        }
-
+    /** 判断给定的坐标是否不能容下物体（宽松版本，即如果坐标是起点附近，直接不视为障碍物） */
+    private boolean isObstacleLoose(int x, int y) {
         // 如果坐标是起点附近
         if (Math.abs(x - logicalX0) <= 1 && Math.abs(y - logicalY0) <= 1) {
             return false;
         }
+        return isObstacleStrict(x, y);
+    }
 
+    /** 判断给定的坐标是否不能容下物体（严格版本） */
+    private boolean isObstacleStrict(int x, int y) {
+        // 如果坐标在目标点附近（距离小于物体大小），并且该点本身并非障碍物，那么直接认为可以容下物体
+        if (Math.abs(x - logicalX1) <= initiatorHalfLogicalWidth && Math.abs(y - logicalY1) <= initiatorHalfLogicalHeight
+                && !isMapBitObstacle(GameCache.map[x][y])) {
+            return false;
+        }
         // 由于物体本身占据一定长宽，因此在这里需要判断物体所占据的空间内是否有障碍物
         // 为方便起见，这里只判断了物体中央的十字架和左上角、左下角、右上角、右下角四个点
         List<Point> points = new ArrayList<>();
@@ -227,7 +230,7 @@ public class PathFinder {
                 return true;
             }
             // 或者该点是障碍物，并且不是目标建筑，那么不能容下物体
-            boolean isObstacle = isObstacle(GameCache.map[point.getX()][point.getY()]);
+            boolean isObstacle = isMapBitObstacle(GameCache.map[point.getX()][point.getY()]);
             if (isObstacle && (destBuildingHashCode == null || GameCache.buildingsHashCodeMap[point.getX()][point.getY()] != destBuildingHashCode)) {
                 return true;
             }
@@ -317,7 +320,7 @@ public class PathFinder {
                 int newX = currentNode.x + direction[0];
                 int newY = currentNode.y + direction[1];
 
-                if (isOutOfBound(newX, newY) || isObstacle(newX, newY)) {
+                if (isOutOfBound(newX, newY) || isObstacleLoose(newX, newY)) {
                     continue;
                 }
 
@@ -350,7 +353,7 @@ public class PathFinder {
             int logicalX = physicalAxisToLogicalAxis(x);
             int logicalY = physicalAxisToLogicalAxis(y);
             // 如何不合法或者是障碍物，那么就不再继续
-            if (isOutOfBound(logicalX, logicalY) || isObstacle(logicalX, logicalY)) {
+            if (isOutOfBound(logicalX, logicalY) || isObstacleStrict(logicalX, logicalY)) {
                 break;
             }
             points.add(new Point((int) x, (int) y));

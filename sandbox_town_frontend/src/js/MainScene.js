@@ -261,7 +261,7 @@ class MainScene extends Phaser.Scene {
         this.matter.world.setBounds(0, 0, this.gameMap.width, this.gameMap.height);
 
         // 相机设置
-        this.cameras.main.setBackgroundColor('#c1d275');
+        this.cameras.main.setBackgroundColor('#c1d275'); // 我不知道为啥浏览器渲染出的颜色、指定的颜色、图片文件中的颜色都不一样，不同浏览器渲染出的颜色也不一样，有色差
         this.cameras.main.setBounds(0, 0, this.gameMap.width, this.gameMap.height);
 
         // 遍历每个区域，创建背景纹理
