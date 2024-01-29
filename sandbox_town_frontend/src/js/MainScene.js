@@ -286,7 +286,24 @@ class MainScene extends Phaser.Scene {
                 // 如果最低位为1，表示该位置有围墙
                 if (this.gameMap.data[x][y] & 1) {
                     const texture = this.matter.add.sprite(x * pixelsPerGrid, y * pixelsPerGrid, 'WALL', null, { isStatic: true, shape: this.collapseShapes["WALL"] })
+                    texture.setAlpha(0.8)
                     texture.setDisplaySize(pixelsPerGrid, pixelsPerGrid);
+                }
+            }
+        }
+
+        // 将神庙周围、墓碑周围用特殊的颜色表示
+        for (let x = 0; x < this.gameMap.data.length; ++x) {
+            for (let y = 0; y < this.gameMap.data[0].length; ++y) {
+                // 神庙周围
+                if (this.gameMap.data[x][y] & 4) {
+                    const texture = this.add.rectangle(x * pixelsPerGrid, y * pixelsPerGrid, pixelsPerGrid, pixelsPerGrid, 0xffffff)
+                    texture.setAlpha(0.15)
+                }
+                // 墓碑周围
+                if (this.gameMap.data[x][y] & 8) {
+                    const texture = this.add.rectangle(x * pixelsPerGrid, y * pixelsPerGrid, pixelsPerGrid, pixelsPerGrid, 0x000000)
+                    texture.setAlpha(0.15)
                 }
             }
         }
