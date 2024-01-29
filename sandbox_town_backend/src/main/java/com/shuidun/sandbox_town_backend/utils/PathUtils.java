@@ -1,7 +1,10 @@
 package com.shuidun.sandbox_town_backend.utils;
 
 import com.shuidun.sandbox_town_backend.bean.MapBitsPermissionsBo;
+import com.shuidun.sandbox_town_backend.bean.MoveBo;
 import com.shuidun.sandbox_town_backend.bean.Point;
+import com.shuidun.sandbox_town_backend.bean.SpriteWithTypeBo;
+import com.shuidun.sandbox_town_backend.mixin.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 
@@ -15,6 +18,43 @@ public class PathUtils {
             {-1, 0}, {1, 0}, {0, -1}, {0, 1}, // 上下左右
             {-1, -1}, {-1, 1}, {1, -1}, {1, 1} // 斜向
     };
+
+    /** 寻找路径 */
+    public static List<Point> findPath(int[][] map, int[][] buildingsHashCodeMap, SpriteWithTypeBo initiator, MoveBo moveBo, MapBitsPermissionsBo permissions) {
+        double x0 = initiator.getX();
+        double y0 = initiator.getY();
+        // 将物理坐标转换为地图坐标
+        int startX = physicalAxisToMapAxis(x0);
+        int startY = physicalAxisToMapAxis(y0);
+        int endX = physicalAxisToMapAxis(moveBo.getX());
+        int endY = physicalAxisToMapAxis(moveBo.getY());
+        double spriteWidth = initiator.getWidth() * initiator.getWidthRatio();
+        double spriteHeight = initiator.getHeight() * initiator.getHeightRatio();
+        // 将物品宽高的像素转换为地图坐标
+        int initiatorHalfWidth = physicalSizeToMapSize(spriteWidth) / 2;
+        int initiatorHalfHeight = physicalSizeToMapSize(spriteHeight) / 2;
+        // 如果目标是建筑物
+        Integer destinationHashCode = moveBo.getDestBuildingId() == null ? null : moveBo.getDestBuildingId().hashCode();
+        // 如果目标是精灵
+        Integer destSpriteHalfWidth = null;
+        Integer destSpriteHalfHeight = null;
+        if (moveBo.getDestSprite() != null) {
+            // 此时重点被修正为精灵中心点
+            endX = (int) (moveBo.getDestSprite().getX() / Constants.PIXELS_PER_GRID);
+            endY = (int) (moveBo.getDestSprite().getY() / Constants.PIXELS_PER_GRID);
+            // 获取精灵的宽高
+            double destSpriteWidth = moveBo.getDestSprite().getWidth() * moveBo.getDestSprite().getWidthRatio();
+            double destSpriteHeight = moveBo.getDestSprite().getHeight() * moveBo.getDestSprite().getHeightRatio();
+            // 将物品宽高的像素转换为地图坐标
+            destSpriteHalfWidth = (int) Math.ceil(destSpriteWidth / Constants.PIXELS_PER_GRID) / 2;
+            destSpriteHalfHeight = (int) Math.ceil(destSpriteHeight / Constants.PIXELS_PER_GRID) / 2;
+        }
+        if (moveBo.isStraightMove()) {
+            return findStraightPath(map, buildingsHashCodeMap, initiator, x0, y0, moveBo.getX(), moveBo.getY(), startX, startY, endX, endY, initiatorHalfWidth, initiatorHalfHeight, destinationHashCode, destSpriteHalfWidth, destSpriteHalfHeight, permissions, moveBo.isKeepDistance());
+        } else {
+            return findAStarPath(map, buildingsHashCodeMap, initiator, startX, startY, endX, endY, initiatorHalfWidth, initiatorHalfHeight, destinationHashCode, destSpriteHalfWidth, destSpriteHalfHeight, permissions, moveBo.isKeepDistance());
+        }
+    }
 
     /** 节点类，用于表示地图上的一个位置 */
     private static class Node implements Comparable<Node> {
@@ -164,32 +204,62 @@ public class PathUtils {
     }
 
     /**
+     * 后处理路径，将路径中的冗余点去掉
+     *
+     * @param physicalAxis 是否已经是物理坐标，如果不是，那么会将地图坐标转换为物理坐标
+     */
+    private static List<Point> postProcessPath(boolean physicalAxis, SpriteWithTypeBo initiator, List<Point> path, int startX, int startY, int endX, int endY, int initiatorHalfWidth, int initiatorHalfHeight, boolean keepDistance, @Nullable Integer destinationHashCode) {
+        // 如果终点是建筑物，那么提前几步终止，防止到达终点后因为卡进建筑而抖动
+        int removeLen = Math.max(initiatorHalfWidth, initiatorHalfHeight);
+        if (destinationHashCode != null) {
+            path = path.subList(0, Math.max(0, path.size() - removeLen));
+        }
+        if (path.isEmpty()) {
+            log.info("找不到路径，发起者：{}, 起点：x={}, y={}，终点：x={}, y={}", initiator.getId(), startX, startY, endX, endY);
+        }
+        // 将地图坐标转换为物理坐标
+        // 一般来说，地图坐标是整数，而物理坐标是浮点数
+        // 但是显然在这里计算得到的物理坐标也是整数
+        if (!physicalAxis) {
+            for (Point point : path) {
+                point.setX(point.getX() * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2);
+                point.setY(point.getY() * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2);
+            }
+        }
+        // 如果保持距离
+        if (keepDistance) {
+            // 去除后面一段
+            int minLen = (int) (initiator.getWidth() * initiator.getWidthRatio() * 2.5 / Constants.PIXELS_PER_GRID);
+            if (path.size() < minLen) {
+                return Collections.emptyList();
+            }
+            // 去掉后面一段
+            return path.subList(0, path.size() - minLen);
+        }
+        return path;
+    }
+
+    /**
      * 寻找路径
      * 以下坐标全都是指逻辑坐标，而非像素坐标
      *
      * @param map                  地图
      * @param buildingsHashCodeMap 建筑物的hashcode地图，如果某个点是建筑物，则该点的值为建筑物的hashcode，否则为0
-     * @param startX               起点x坐标
-     * @param startY               起点y坐标
-     * @param endX                 终点x坐标
-     * @param endY                 终点y坐标
-     * @param initiatorHalfWidth   发起者的宽度的一半
-     * @param initiatorHalfHeight  发起者的高度的一半
-     * @param destinationHashCode  目标点的hashcode，如果为null，则表示终点不是建筑物
-     * @param destSpriteHalfWidth  目标精灵的宽度的一半，如果为null，则表示终点不是精灵
-     * @param destSpriteHalfHeight 目标精灵的高度的一半，如果为null，则表示终点不是精灵
+     * @param initiator            发起者
      * @param permissions          精灵的权限
      * @return 路径，如果没找到，返回空列表
      */
-    public static List<Point> findPath(
+    public static List<Point> findAStarPath(
             int[][] map, int[][] buildingsHashCodeMap,
+            SpriteWithTypeBo initiator,
             int startX, int startY,
             int endX, int endY,
             int initiatorHalfWidth, int initiatorHalfHeight,
             @Nullable Integer destinationHashCode,
             @Nullable Integer destSpriteHalfWidth,
             @Nullable Integer destSpriteHalfHeight,
-            MapBitsPermissionsBo permissions) {
+            MapBitsPermissionsBo permissions,
+            boolean keepDistance) {
         PriorityQueue<Node> openList = new PriorityQueue<>();
         Set<Node> closedList = new HashSet<>();
 
@@ -215,13 +285,7 @@ public class PathUtils {
                 }
                 Collections.reverse(path);
 
-                // 如果终点是建筑物，那么提前几步终止，防止到达终点后因为卡进建筑而抖动
-                int removeLen = Math.max(initiatorHalfWidth, initiatorHalfHeight);
-                if (destinationHashCode != null) {
-                    path = path.subList(0, Math.max(0, path.size() - removeLen));
-                }
-
-                return path;
+                return postProcessPath(false, initiator, path, startX, startY, endX, endY, initiatorHalfWidth, initiatorHalfHeight, keepDistance, destinationHashCode);
             }
 
             closedList.add(currentNode);
@@ -249,4 +313,52 @@ public class PathUtils {
         return Collections.emptyList();
     }
 
+    /** 寻找直线路径 */
+    public static List<Point> findStraightPath(
+            int[][] map, int[][] buildingsHashCodeMap,
+            SpriteWithTypeBo initiator,
+            double x0, double y0, double x1, double y1,
+            int startX, int startY,
+            int endX, int endY,
+            int initiatorHalfWidth, int initiatorHalfHeight,
+            @Nullable Integer destinationHashCode,
+            @Nullable Integer destSpriteHalfWidth,
+            @Nullable Integer destSpriteHalfHeight,
+            MapBitsPermissionsBo permissions,
+            boolean keepDistance) {
+        // 计算射线角度
+        double angle = Math.atan2(y1 - y0, x1 - x0);
+        // x1是否在x0的右边
+        boolean x1OnTheRight = x1 > x0;
+        // 计算从起点到终点的每个点（每个点之间的x坐标间隔PIXELS_PER_GRID / 2）
+        List<Point> points = new ArrayList<>();
+        for (double x = x0, y = y0;
+             x1OnTheRight ? x <= x1 : x >= x1;
+             x += Math.cos(angle) * Constants.PIXELS_PER_GRID / 2, y += Math.sin(angle) * Constants.PIXELS_PER_GRID / 2) {
+            int logicalX = physicalAxisToMapAxis(x);
+            int logicalY = physicalAxisToMapAxis(y);
+            // 如何不合法或者是障碍物，那么就不再继续
+            if (!isValid(map, logicalX, logicalY) || obstacle(map, buildingsHashCodeMap, logicalX, logicalY, initiatorHalfWidth, initiatorHalfHeight, startX, startY, endX, endY, destinationHashCode, permissions)) {
+                break;
+            }
+            points.add(new Point((int) x, (int) y));
+            // 判断是否是终点
+            if (isDestination(buildingsHashCodeMap, logicalX, logicalY, endX, endY,
+                    initiatorHalfWidth, initiatorHalfHeight,
+                    destinationHashCode, destSpriteHalfWidth, destSpriteHalfHeight)) {
+                break;
+            }
+        }
+        return postProcessPath(true, initiator, points, startX, startY, endX, endY, initiatorHalfWidth, initiatorHalfHeight, keepDistance, destinationHashCode);
+    }
+
+    /** 将物理坐标转换为地图坐标 */
+    public static int physicalAxisToMapAxis(double physicalAxis) {
+        return (int) Math.round(physicalAxis) / Constants.PIXELS_PER_GRID;
+    }
+
+    /** 将物理高度或宽度转换为地图高度或宽度 */
+    public static int physicalSizeToMapSize(double physicalSize) {
+        return (int) Math.ceil(physicalSize / Constants.PIXELS_PER_GRID);
+    }
 }

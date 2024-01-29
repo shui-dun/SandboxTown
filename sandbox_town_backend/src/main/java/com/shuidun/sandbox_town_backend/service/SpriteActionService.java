@@ -166,12 +166,7 @@ public class SpriteActionService {
             return null;
         }
         // 寻找路径
-        List<Point> path;
-        if (moveBo.isKeepDistance()) {
-            path = gameMapService.findPathNotTooClose(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite(), permissions);
-        } else {
-            path = gameMapService.findPath(sprite, moveBo.getX(), moveBo.getY(), moveBo.getDestBuildingId(), moveBo.getDestSprite(), permissions);
-        }
+        List<Point> path = gameMapService.findPath(sprite, moveBo, permissions);
         // 如果路径为空，那么就不移动
         if (path.isEmpty()) {
             return null;

@@ -31,6 +31,9 @@ public class MoveBo {
     /** 是否与目标保持一定距离 */
     private boolean keepDistance;
 
+    /** 是否是直线移动 */
+    private boolean straightMove;
+
     /** 保持一定距离 */
     public MoveBo keepDistance() {
         this.keepDistance = true;
@@ -47,7 +50,13 @@ public class MoveBo {
         return empty();
     }
 
-    private static final MoveBo EMPTY = new MoveBo(false, 0.0, 0.0, null, null, false);
+    /** 直线移动 */
+    public MoveBo straightMove() {
+        this.straightMove = true;
+        return this;
+    }
+
+    private static final MoveBo EMPTY = new MoveBo(false, 0.0, 0.0, null, null, false, false);
 
     /** 不进行移动时，返回该对象 */
     public static MoveBo empty() {
@@ -56,33 +65,33 @@ public class MoveBo {
 
     /** 移动到指定点 */
     public static MoveBo moveToPoint(double x, double y) {
-        return new MoveBo(true, x, y, null, null, false);
+        return new MoveBo(true, x, y, null, null, false, false);
     }
 
     /** 移动到指定建筑 */
     public static MoveBo moveToBuilding(String buildingId, double x, double y) {
-        return new MoveBo(true, x, y, buildingId, null, false);
+        return new MoveBo(true, x, y, buildingId, null, false, false);
     }
 
     /** 移动到指定建筑 */
     public static MoveBo moveToBuilding(BuildingDo building) {
-        return new MoveBo(true, building.getOriginX() + building.getWidth() / 2, building.getOriginY() + building.getHeight() / 2, building.getId(), null, false);
+        return new MoveBo(true, building.getOriginX() + building.getWidth() / 2, building.getOriginY() + building.getHeight() / 2, building.getId(), null, false, false);
     }
 
     /** 移动到指定精灵 */
     public static MoveBo moveToSprite(SpriteWithTypeBo sprite) {
-        return new MoveBo(true, sprite.getX(), sprite.getY(), null, sprite, false);
+        return new MoveBo(true, sprite.getX(), sprite.getY(), null, sprite, false, false);
     }
 
     /** 移动到指定精灵 */
     public static MoveBo moveToSprite(SpriteWithTypeBo sprite, double x, double y) {
-        return new MoveBo(true, x, y, null, sprite, false);
+        return new MoveBo(true, x, y, null, sprite, false, false);
     }
 
     /** 精灵随机移动 */
     public static MoveBo randomMove(SpriteDetailBo sprite) {
         int randX = (sprite.getSpeed() + sprite.getSpeedInc()) * (GameCache.random.nextInt(11) - 5);
         int randY = (sprite.getSpeed() + sprite.getSpeedInc()) * (GameCache.random.nextInt(11) - 5);
-        return MoveBo.moveToPoint(sprite.getX() + randX, sprite.getY() + randY);
+        return MoveBo.moveToPoint(sprite.getX() + randX, sprite.getY() + randY).straightMove();
     }
 }
