@@ -299,14 +299,17 @@ public class GameMapService {
         if (mapBit == null) {
             return;
         }
-        int margin = 8;
-        int startX = Math.max(0, buildingLogicalX - margin);
-        int startY = Math.max(0, buildingLogicalY - margin);
-        int endX = Math.min(GameCache.map.length - 1, buildingLogicalX + buildingLogicalWidth + margin);
-        int endY = Math.min(GameCache.map[0].length - 1, buildingLogicalY + buildingLogicalHeight + margin);
-        for (int i = startX; i <= endX; ++i) {
-            for (int j = startY; j <= endY; ++j) {
-                addBitToMap(GameCache.map, i, j, mapBit);
+        int radius = 8; // 圆的半径
+        int centerX = buildingLogicalX + buildingLogicalWidth / 2; // 圆心的x坐标
+        int centerY = buildingLogicalY + buildingLogicalHeight / 2; // 圆心的y坐标
+
+        for (int i = 0; i < GameCache.map.length; ++i) {
+            for (int j = 0; j < GameCache.map[0].length; ++j) {
+                // 计算当前点到圆心的距离
+                int distance = (int) Math.sqrt(Math.pow(i - centerX, 2) + Math.pow(j - centerY, 2));
+                if (distance <= radius) {
+                    addBitToMap(GameCache.map, i, j, mapBit);
+                }
             }
         }
     }
