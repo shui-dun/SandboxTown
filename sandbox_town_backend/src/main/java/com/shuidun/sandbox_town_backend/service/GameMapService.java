@@ -9,7 +9,7 @@ import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
-import com.shuidun.sandbox_town_backend.utils.PathUtils;
+import com.shuidun.sandbox_town_backend.utils.PathFinder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -159,7 +159,7 @@ public class GameMapService {
                                 MapBitsPermissionsBo permissions) {
 
         // 调用寻路算法
-        return PathUtils.findPath(GameCache.map, GameCache.buildingsHashCodeMap, initiator, moveBo, permissions);
+        return new PathFinder(initiator, moveBo, permissions).find();
     }
 
     /** 查看某建筑是否与其他建筑有重叠，或者超出边界 */

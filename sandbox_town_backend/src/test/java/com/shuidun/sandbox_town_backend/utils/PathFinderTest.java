@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class PathUtilsTest {
+class PathFinderTest {
 
     private final GameMapService gameMapService;
 
-    PathUtilsTest(GameMapService gameMapService) {
+    PathFinderTest(GameMapService gameMapService) {
         this.gameMapService = gameMapService;
     }
 
