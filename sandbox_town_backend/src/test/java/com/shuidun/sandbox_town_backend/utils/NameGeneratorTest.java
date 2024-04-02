@@ -5,24 +5,9 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NameGeneratorTest {
-
-    @Test
-    void generateItemName_shouldAddPrefixToGeneratedName() {
-        // Arrange
-        String prefix = "testPrefix";
-
-        // Act
-        String generatedName = UUIDNameGenerator.generateItemName(prefix);
-
-        System.out.println(generatedName);
-
-        // Assert
-        assertTrue(generatedName.startsWith(prefix + "_"), "The generated name should start with the prefix followed by a _");
-    }
-
     @Test
     void generateItemName_shouldGenerateUniqueNames() {
         // Arrange

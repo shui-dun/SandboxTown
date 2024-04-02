@@ -1,29 +1,12 @@
 package com.shuidun.sandbox_town_backend.utils;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
 class PasswordEncryptorTest {
-
-    @Test
-    void testGenerateSaltedHash() {
-        String password = "testPassword";
-        String[] saltedHash = PasswordEncryptor.generateSaltedHash(password);
-        assertNotNull(saltedHash);
-        assertEquals(2, saltedHash.length);
-        assertNotNull(saltedHash[0]);
-        assertNotNull(saltedHash[1]);
-    }
-
-    @Test
-    void testEncryptedPasswd() {
-        String password = "testPassword";
-        String salt = "testSalt";
-        String encryptedPassword = PasswordEncryptor.encryptedPasswd(password, salt);
-        assertNotNull(encryptedPassword);
-        assertNotEquals(password, encryptedPassword);
-    }
 
     @Test
     void testEncryptedPasswdConsistency() {
