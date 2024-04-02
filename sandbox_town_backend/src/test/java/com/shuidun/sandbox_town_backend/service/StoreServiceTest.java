@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 class StoreServiceTest {
 
     @InjectMocks
-    private StoreService service; // 假设YourService是包含buy方法的类
+    private StoreService service;
 
     @Mock
     private StoreItemTypeMapper storeItemTypeMapper;
@@ -136,5 +136,62 @@ class StoreServiceTest {
         BusinessException thrown = assertThrows(BusinessException.class, () -> service.buy(spriteId, store, item, amount));
         assertSame(thrown.getStatusCode(), StatusCodeEnum.MONEY_NOT_ENOUGH, "Status code should be MONEY_NOT_ENOUGH");
     }
+
+    // 测试商品数量刚好等于请求数量
+    @Test
+    public void testBuyItemQuantityExactMatch() {
+        String spriteId = "spriteId";
+        String store = "store";
+        ItemTypeEnum item = ItemTypeEnum.APPLE;
+        int amount = 10; // 请求购买的数量与库存相同
+
+        StoreItemTypeDo mockStoreItemType = new StoreItemTypeDo();
+        mockStoreItemType.setCount(10); // 设置库存数量
+        mockStoreItemType.setPrice(100); // 假设价格为100
+
+        SpriteDo mockSprite = new SpriteDo();
+        mockSprite.setMoney(1000); // 假设用户余额足以支付
+
+        when(storeItemTypeMapper.selectByStoreAndItemType(store, item)).thenReturn(mockStoreItemType);
+        when(spriteService.selectById(spriteId)).thenReturn(mockSprite);
+
+        service.buy(spriteId, store, item, amount); // 执行购买操作
+
+        // 验证库存更新为0
+        assertEquals(0, mockStoreItemType.getCount());
+        // 验证用户余额更新
+        assertEquals(0, mockSprite.getMoney());
+        // 验证是否向用户添加了商品
+        verify(itemService, times(1)).add(spriteId, item, amount);
+    }
+
+    // 测试用户余额刚好等于商品总价
+    @Test
+    public void testBuyWhenMoneyEqualsPrice() {
+        String spriteId = "spriteId";
+        String store = "store";
+        ItemTypeEnum item = ItemTypeEnum.APPLE;
+        int amount = 5; // 购买数量
+
+        StoreItemTypeDo mockStoreItemType = new StoreItemTypeDo();
+        mockStoreItemType.setCount(10); // 库存足够
+        mockStoreItemType.setPrice(100); // 商品单价
+
+        SpriteDo mockSprite = new SpriteDo();
+        mockSprite.setMoney(500); // 用户余额恰好等于所需支付的总金额
+
+        when(storeItemTypeMapper.selectByStoreAndItemType(store, item)).thenReturn(mockStoreItemType);
+        when(spriteService.selectById(spriteId)).thenReturn(mockSprite);
+
+        service.buy(spriteId, store, item, amount); // 执行购买操作
+
+        // 验证用户余额被正确更新为0
+        assertEquals(0, mockSprite.getMoney());
+        // 验证库存被正确更新
+        assertEquals(5, mockStoreItemType.getCount());
+        // 验证是否正确向用户添加了商品
+        verify(itemService, times(1)).add(spriteId, item, amount);
+    }
+
 
 }
