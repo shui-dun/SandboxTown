@@ -3,6 +3,7 @@
 ## feature
 
 - 简化设计，废弃整个物理引擎（因为bug太多了，不仅要解决自己代码的bug，还要解决物理引擎的上游bug），进而，可以简化前后端交互（废弃COORDINATE request，服务器不再需要通过前端获得位置信息）
+- 使用jmeter进行压力测试
 - java调试：如何调试springboot？如何调试docker中的springboot？
 - 敌对生物不会主动攻击装备隐身帽的生物
 - 守卫者：攻击主动攻击别人的生物
