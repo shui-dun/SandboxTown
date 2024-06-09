@@ -140,6 +140,13 @@
 - 使用rabbitmq消息队列，客户端向服务端的消息发送消息，当然，服务端的任意模块也可以作为生产者向消息队列发送消息。服务端的各个模块作为消费者消费消息。这些模块高内聚低耦合，使得不需要加锁
 - BO转化为VO给前端
 - 使用Redis缓存更多需要的东西（简单的用cachable注解，复杂的写代码）
+- 出一个lite版，不用redis，将mysql替换为sqlite
+	- 这需要：
+		- 维护另一个pom.xml文件
+		- 在docker生成后端镜像时，使用脚本：
+			- 删除redis相关的注解和代码
+			- 替换sql方言，将 `ON DUPLICATE KEY UPDATE` 替换为 `ON CONFLICT`
+	- 带来的问题：不适用分布式，因为session不能存放在redis里面了
 
 ## bug
 
