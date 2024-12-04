@@ -14,6 +14,7 @@ import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import com.shuidun.sandbox_town_backend.websocket.WSRequestHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -50,7 +51,6 @@ public class GameLoop {
             typeToAgent.put(agent.getType(), agent);
         }
 
-
         // 获得地图信息
         GameMapDo gameMap = gameMapService.getGameMap();
 
@@ -76,76 +76,68 @@ public class GameLoop {
         if (!containsBuilding) {
             ecosystemService.createEnvironment(gameMap.getWidth() * gameMap.getHeight() / 300000);
         }
-
-        // 主游戏循环
-        // 必须在一个新线程中运行，否则会阻塞Spring的初始化
-        new Thread(this::gameLoop).start();
     }
 
     private long lastTime = System.currentTimeMillis();
 
-    private void gameLoop() {
-        while (true) {
-            try {
-                Thread.sleep(Constants.GAME_LOOP_INTERVAL);
-                counter++;
+    @Scheduled(initialDelay = 0, fixedDelay = Constants.GAME_LOOP_INTERVAL)
+    public void gameLoop() {
+        try {
+            counter++;
 
-                var time = System.currentTimeMillis();
-                log.info("time diff: {}", time - lastTime);
-                lastTime = time;
+            var time = System.currentTimeMillis();
+            log.info("time diff between two frames: {}", time - lastTime);
+            lastTime = time;
 
-                // 处理事件
-                wsRequestHandler.handleMessages();
+            // 处理事件
+            wsRequestHandler.handleMessages();
 
-                // 遍历所有角色
-                for (String id : spriteService.getOnlineSpritesCache().keySet()) {
-                    // 得到其角色
-                    SpriteDetailBo sprite = spriteService.selectByIdWithDetail(id);
-                    // 如果精灵不存在或者不在线，就不处理
-                    if (sprite == null || sprite.getCache() == null) {
-                        continue;
-                    }
-                    // 生命效果
-                    if (counter % Constants.EFFECT_FRAMES == 0) {
-                        if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE))) {
-                            WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1));
-                        }
-                    }
-                    // 烧伤效果
-                    if (counter % Constants.BURN_FRAMES == 0) {
-                        if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN))) {
-                            WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1));
-                        }
-                    }
-                    // 调用精灵行为
-                    if (counter % Constants.SPRITE_ACTION_FRAMES == 0) {
-                        var agent = typeToAgent.get(sprite.getType());
-                        if (agent != null) {
-                            MoveBo moveBo = agent.act(sprite);
-                            MoveVo moveVo = spriteActionService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
-                            if (moveVo == null) {
-                                continue;
-                            }
-                            WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
-                        }
-                    }
-                    // 保存坐标
-                    if (counter % Constants.SAVE_COORDINATE_FRAMES == 0) {
-                        spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());
+            // 生命效果
+            if (counter % Constants.EFFECT_FRAMES == 0) {
+                for (var sprite : spriteService.getOnlineSpritesWithDetail()) {
+                    if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE))) {
+                        WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1));
                     }
                 }
-
-                // 减少饱腹值
-                if (counter % Constants.REDUCE_HUNGER_FRAMES == 0) {
-                    spriteService.reduceSpritesHunger(spriteService.getOnlineSpritesCache().keySet(), 1);
-                }
-                // 恢复体力
-                if (counter % Constants.RECOVER_LIFE_FRAMES == 0) {
-                    spriteService.recoverSpritesLife(spriteService.getOnlineSpritesCache().keySet(), Constants.HUNGER_THRESHOLD, 1);
-                }
-            } catch (Exception e) {
-                log.error("GameLoop error", e);
             }
+            // 烧伤效果
+            if (counter % Constants.BURN_FRAMES == 0) {
+                for (var sprite : spriteService.getOnlineSpritesWithDetail()) {
+                    if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN))) {
+                        WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1));
+                    }
+                }
+            }
+            // 调用精灵行为
+            if (counter % Constants.SPRITE_ACTION_FRAMES == 0) {
+                for (var sprite : spriteService.getOnlineSpritesWithDetail()) {
+                    var agent = typeToAgent.get(sprite.getType());
+                    if (agent != null) {
+                        MoveBo moveBo = agent.act(sprite);
+                        MoveVo moveVo = spriteActionService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
+                        if (moveVo == null) {
+                            continue;
+                        }
+                        WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
+                    }
+                }
+            }
+            // 保存坐标
+            if (counter % Constants.SAVE_COORDINATE_FRAMES == 0) {
+                for (var sprite : spriteService.getOnlineSpritesWithDetail()) {
+                    spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());
+                }
+            }
+            // 减少饱腹值
+            if (counter % Constants.REDUCE_HUNGER_FRAMES == 0) {
+                spriteService.reduceSpritesHunger(spriteService.getOnlineSpritesCache().keySet(), 1);
+            }
+            // 恢复体力
+            if (counter % Constants.RECOVER_LIFE_FRAMES == 0) {
+                spriteService.recoverSpritesLife(spriteService.getOnlineSpritesCache().keySet(), Constants.HUNGER_THRESHOLD, 1);
+            }
+        } catch (Exception e) {
+            log.error("GameLoop error", e);
         }
     }
 }

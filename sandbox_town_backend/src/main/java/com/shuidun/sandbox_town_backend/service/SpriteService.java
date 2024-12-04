@@ -380,6 +380,18 @@ public class SpriteService {
         return GameCache.spriteCacheMap;
     }
 
+    public List<SpriteDetailBo> getOnlineSpritesWithDetail() {
+        List<SpriteDetailBo> sprites = new ArrayList<>();
+        for (String id : getOnlineSpritesCache().keySet()) {
+            SpriteDetailBo sprite = selectByIdWithDetail(id);
+            if (sprite == null || sprite.getCache() == null) {
+                continue;
+            }
+            sprites.add(sprite);
+        }
+        return sprites;
+    }
+
     public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {
         return new MyAndMyPetInfoVo(
                 selectById(ownerId),
