@@ -46,25 +46,26 @@ public class WSRequestHandler {
     }
 
     /** 处理消息 */
-    private void handleMessages() {
-        new Thread(() -> {
-            while (true) {
-                EventDto eventDto = null;
-                try {
-                    // 从队列的头部检索并删除元素，如果队列为空，则阻塞
-                    eventDto = mq.take();
-                    // 如果类型是空，就不处理
-                    if (eventDto.getType() == null) {
-                        return;
-                    }
-                    var consumer = eventMap.get(eventDto.getType());
-                    assert consumer != null;
-                    consumer.accept(eventDto.getInitiator(), eventDto.getData());
-                } catch (Exception e) {
-                    log.error("handle {} event error", eventDto, e);
+    public void handleMessages() {
+        while (true) {
+            EventDto eventDto = null;
+            try {
+                // 从队列的头部检索并删除元素，如果队列为空，则返回null
+                eventDto = mq.poll();
+                if (eventDto == null) {
+                    break;
                 }
+                // 如果类型是空，就不处理
+                if (eventDto.getType() == null) {
+                    continue;
+                }
+                var consumer = eventMap.get(eventDto.getType());
+                assert consumer != null;
+                consumer.accept(eventDto.getInitiator(), eventDto.getData());
+            } catch (Exception e) {
+                log.error("handle {} event error", eventDto, e);
             }
-        }).start();
+        }
     }
 
     /** 进行校验 */
@@ -234,9 +235,6 @@ public class WSRequestHandler {
                 WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
             }
         });
-
-        // 开始处理消息
-        handleMessages();
     }
 
 }

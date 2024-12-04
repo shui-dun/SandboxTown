@@ -12,6 +12,7 @@ import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.SpriteActionService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
+import com.shuidun.sandbox_town_backend.websocket.WSRequestHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -33,15 +34,18 @@ public class GameLoop {
 
     private final SpriteActionService spriteActionService;
 
+    private final WSRequestHandler wsRequestHandler;
+
     /** 精灵类型到精灵Agent的映射 */
     private final Map<SpriteTypeEnum, SpriteAgent> typeToAgent = new HashMap<>();
 
     private long counter = 0;
 
-    public GameLoop(List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService, SpriteService spriteService, EcosystemService ecosystemService) throws InterruptedException {
+    public GameLoop(List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService, SpriteService spriteService, EcosystemService ecosystemService, WSRequestHandler wsRequestHandler) throws InterruptedException {
         this.spriteService = spriteService;
         this.gameMapService = gameMapService;
         this.spriteActionService = spriteActionService;
+        this.wsRequestHandler = wsRequestHandler;
         for (SpriteAgent agent : spriteAgents) {
             typeToAgent.put(agent.getType(), agent);
         }
@@ -78,11 +82,20 @@ public class GameLoop {
         new Thread(this::gameLoop).start();
     }
 
+    private long lastTime = System.currentTimeMillis();
+
     private void gameLoop() {
         while (true) {
             try {
                 Thread.sleep(Constants.GAME_LOOP_INTERVAL);
                 counter++;
+
+                var time = System.currentTimeMillis();
+                log.info("time diff: {}", time - lastTime);
+                lastTime = time;
+
+                // 处理事件
+                wsRequestHandler.handleMessages();
 
                 // 遍历所有角色
                 for (String id : spriteService.getOnlineSpritesCache().keySet()) {
