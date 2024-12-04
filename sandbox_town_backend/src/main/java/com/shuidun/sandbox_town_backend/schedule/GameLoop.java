@@ -74,9 +74,14 @@ public class GameLoop {
         }
 
         // 主游戏循环
+        // 必须在一个新线程中运行，否则会阻塞Spring的初始化
+        new Thread(this::gameLoop).start();
+    }
+
+    private void gameLoop() {
         while (true) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(Constants.GAME_LOOP_INTERVAL);
                 counter++;
 
                 // 遍历所有角色
@@ -88,44 +93,42 @@ public class GameLoop {
                         continue;
                     }
                     // 生命效果
-                    if (counter % 12 == 0) {
+                    if (counter % Constants.EFFECT_FRAMES == 0) {
                         if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE))) {
                             WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1));
                         }
                     }
                     // 烧伤效果
-                    if (counter % 2 == 0) {
+                    if (counter % Constants.BURN_FRAMES == 0) {
                         if (sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN))) {
                             WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1));
                         }
                     }
-                    // 调用对应的处理函数
-                    var agent = typeToAgent.get(sprite.getType());
-                    if (agent != null) {
-                        MoveBo moveBo = agent.act(sprite);
-                        MoveVo moveVo = spriteActionService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
-                        if (moveVo == null) {
-                            continue;
+                    // 调用精灵行为
+                    if (counter % Constants.SPRITE_ACTION_FRAMES == 0) {
+                        var agent = typeToAgent.get(sprite.getType());
+                        if (agent != null) {
+                            MoveBo moveBo = agent.act(sprite);
+                            MoveVo moveVo = spriteActionService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
+                            if (moveVo == null) {
+                                continue;
+                            }
+                            WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
                         }
-                        WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
                     }
                     // 保存坐标
-                    spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());
+                    if (counter % Constants.SAVE_COORDINATE_FRAMES == 0) {
+                        spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());
+                    }
                 }
 
                 // 减少饱腹值
-                if (counter % 20 == 0) {
+                if (counter % Constants.REDUCE_HUNGER_FRAMES == 0) {
                     spriteService.reduceSpritesHunger(spriteService.getOnlineSpritesCache().keySet(), 1);
                 }
                 // 恢复体力
-                if (counter % 13 == 0) {
+                if (counter % Constants.RECOVER_LIFE_FRAMES == 0) {
                     spriteService.recoverSpritesLife(spriteService.getOnlineSpritesCache().keySet(), Constants.HUNGER_THRESHOLD, 1);
-                }
-
-                // 其实当计数器重置时，会导致所有这些定时任务的执行时间都会不准确
-                // 但是这个问题不大，因为Long.MAX_VALUE是一个很大的数，在有限的时间内不会重置
-                if (counter == Long.MAX_VALUE) {
-                    counter = 0;
                 }
             } catch (Exception e) {
                 log.error("GameLoop error", e);
