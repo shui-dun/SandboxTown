@@ -11,15 +11,14 @@ import com.shuidun.sandbox_town_backend.service.EcosystemService;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.SpriteActionService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
+import com.shuidun.sandbox_town_backend.utils.Concurrent;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import com.shuidun.sandbox_town_backend.websocket.WSRequestHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -112,7 +111,7 @@ public class GameLoop {
                 List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetail().stream()
                         .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE)))
                         .toList();
-                executeInThreadPool(sprites, (sprite) -> {
+                Concurrent.executeInThreadPool(sprites, (sprite) -> {
                     WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1));
                 });
             }
@@ -121,14 +120,14 @@ public class GameLoop {
                 List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetail().stream()
                         .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN)))
                         .toList();
-                executeInThreadPool(sprites, (sprite) -> {
+                Concurrent.executeInThreadPool(sprites, (sprite) -> {
                     WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1));
                 });
             }
             // 调用精灵行为
             if (counter % Constants.SPRITE_ACTION_FRAMES == 0) {
                 List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetail();
-                executeInThreadPool(sprites, (sprite) -> {
+                Concurrent.executeInThreadPool(sprites, (sprite) -> {
                     var agent = typeToAgent.get(sprite.getType());
                     if (agent != null) {
                         MoveBo moveBo = agent.act(sprite);
@@ -143,7 +142,7 @@ public class GameLoop {
             // 保存坐标
             if (counter % Constants.SAVE_COORDINATE_FRAMES == 0) {
                 List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetail();
-                executeInThreadPool(sprites, (sprite) -> {
+                Concurrent.executeInThreadPool(sprites, (sprite) -> {
                     spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());
                 });
             }
@@ -159,25 +158,5 @@ public class GameLoop {
             log.error("GameLoop error", e);
         }
 
-    }
-
-    // 在线程池中执行任务
-    private <T> void executeInThreadPool(List<T> items, Consumer<T> consumer) {
-        List<CompletableFuture<Void>> futures = items.stream()
-                .map(item -> CompletableFuture.runAsync(() -> consumer.accept(item), GameCache.executor))
-                .toList();
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-    }
-
-    // 在线程池中执行任务并收集结果
-    private <T, R> List<R> executeInThreadPoolWithOutput(List<T> items, Function<T, R> function) {
-        List<CompletableFuture<R>> futures = items.stream()
-                .map(item -> CompletableFuture.supplyAsync(() -> function.apply(item), GameCache.executor))
-                .toList();
-
-        // 等待所有任务完成并收集结果
-        return futures.stream()
-                .map(CompletableFuture::join)
-                .toList();
     }
 }

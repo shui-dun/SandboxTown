@@ -6,6 +6,7 @@ import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
+import com.shuidun.sandbox_town_backend.utils.Concurrent;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -381,10 +382,11 @@ public class SpriteService {
     }
 
     public List<SpriteDetailBo> getOnlineSpritesWithDetail() {
-        return getOnlineSpritesCache().keySet().parallelStream()
-                .map(this::selectByIdWithDetail)
+        Set<String> sprites = getOnlineSpritesCache().keySet();
+        List<SpriteDetailBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectByIdWithDetail);
+        return spriteDetails.stream()
                 .filter(sprite -> sprite != null && sprite.getCache() != null)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {
