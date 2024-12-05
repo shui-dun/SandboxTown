@@ -7,10 +7,7 @@ import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
-import com.shuidun.sandbox_town_backend.service.EcosystemService;
-import com.shuidun.sandbox_town_backend.service.GameMapService;
-import com.shuidun.sandbox_town_backend.service.SpriteActionService;
-import com.shuidun.sandbox_town_backend.service.SpriteService;
+import com.shuidun.sandbox_town_backend.service.*;
 import com.shuidun.sandbox_town_backend.utils.Concurrent;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import com.shuidun.sandbox_town_backend.websocket.WSRequestHandler;
@@ -38,17 +35,20 @@ public class GameLoop {
 
     private final WSRequestHandler wsRequestHandler;
 
+    private final TimeService timeService;
+
     /** 精灵类型到精灵Agent的映射 */
     private final Map<SpriteTypeEnum, SpriteAgent> typeToAgent = new HashMap<>();
 
     /** 当前帧数 */
     private long curFrame = 0;
 
-    public GameLoop(List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService, SpriteService spriteService, EcosystemService ecosystemService, WSRequestHandler wsRequestHandler) throws InterruptedException {
+    public GameLoop(List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService, SpriteService spriteService, EcosystemService ecosystemService, WSRequestHandler wsRequestHandler, TimeService timeService) throws InterruptedException {
         this.spriteService = spriteService;
         this.gameMapService = gameMapService;
         this.spriteActionService = spriteActionService;
         this.wsRequestHandler = wsRequestHandler;
+        this.timeService = timeService;
         for (SpriteAgent agent : spriteAgents) {
             typeToAgent.put(agent.getType(), agent);
         }
@@ -99,7 +99,6 @@ public class GameLoop {
 
             var time = System.currentTimeMillis();
             log.info("time diff between two frames: {}", time - lastTime);
-            lastTime = time;
 
             // 处理事件
             wsRequestHandler.handleMessages();
@@ -144,6 +143,29 @@ public class GameLoop {
             if (curFrame % Constants.RECOVER_LIFE_FRAMES == 0) {
                 spriteService.recoverSpritesLife(spriteService.getOnlineSpritesCache().keySet(), Constants.HUNGER_THRESHOLD, 1);
             }
+            // 更新时间
+            if (time > GameCache.timeFrame.getTimeFrameEndTime()) {
+                switch (GameCache.timeFrame.getTimeFrame()) {
+                    case DAY:
+                        timeService.enterDusk();
+                        break;
+                    case DUSK:
+                        timeService.enterNight();
+                        break;
+                    case NIGHT:
+                        timeService.enterDawn();
+                        break;
+                    case DAWN:
+                        timeService.enterDay();
+                        break;
+                }
+            }
+            // 通知时间段
+            if (curFrame % Constants.NOTIFY_TIME_FRAME_FRAMES == 0) {
+                timeService.notifyTimeFrame();
+            }
+
+            lastTime = time;
         } catch (Exception e) {
             log.error("GameLoop error", e);
         }

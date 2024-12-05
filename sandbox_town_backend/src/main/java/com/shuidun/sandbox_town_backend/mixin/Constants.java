@@ -58,6 +58,9 @@ public class Constants {
     /** 恢复体力的帧数 */
     public static final int RECOVER_LIFE_FRAMES = 13 * FPS;
 
+    /** 通知时间段的帧数 */
+    public static final int NOTIFY_TIME_FRAME_FRAMES = 5 * FPS;
+
     /** 白天时长5分钟（300000ms） */
     public static final long DAY_DURATION = 300000;
 
@@ -72,17 +75,4 @@ public class Constants {
 
     /** 一天总时长 */
     public static final long DAY_TOTAL_DURATION = DAY_DURATION + DUSK_DURATION + NIGHT_DURATION + DAWN_DURATION;
-
-    /** 白天开始时间 */
-    public static final long DAY_START = 0;
-
-    /** 黄昏开始时间 */
-    public static final long DUSK_START = DAY_START + DAY_DURATION;
-
-    /** 夜晚开始时间 */
-    public static final long NIGHT_START = DUSK_START + DUSK_DURATION;
-
-    /** 黎明开始时间 */
-    public static final long DAWN_START = NIGHT_START + NIGHT_DURATION;
-
 }
