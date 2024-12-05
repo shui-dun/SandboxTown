@@ -7,6 +7,7 @@ import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.Concurrent;
+import com.shuidun.sandbox_town_backend.utils.MyMath;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -395,7 +396,7 @@ public class SpriteService {
      */
     public List<SpriteDetailBo> getOnlineSpritesWithDetailByFrame(int n, long curFrame) {
         List<String> sprites = getOnlineSpritesCache().keySet().stream()
-                .filter(id -> id.hashCode() % n == curFrame % n)
+                .filter(id -> MyMath.safeMod(id.hashCode(), n) == MyMath.safeMod(curFrame, n))
                 .toList();
         List<SpriteDetailBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectByIdWithDetail);
         return spriteDetails.stream()
