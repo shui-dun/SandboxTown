@@ -381,15 +381,10 @@ public class SpriteService {
     }
 
     public List<SpriteDetailBo> getOnlineSpritesWithDetail() {
-        List<SpriteDetailBo> sprites = new ArrayList<>();
-        for (String id : getOnlineSpritesCache().keySet()) {
-            SpriteDetailBo sprite = selectByIdWithDetail(id);
-            if (sprite == null || sprite.getCache() == null) {
-                continue;
-            }
-            sprites.add(sprite);
-        }
-        return sprites;
+        return getOnlineSpritesCache().keySet().parallelStream()
+                .map(this::selectByIdWithDetail)
+                .filter(sprite -> sprite != null && sprite.getCache() != null)
+                .collect(Collectors.toList());
     }
 
     public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {

@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 
 /**
@@ -166,5 +167,17 @@ public class GameLoop {
                 .map(item -> CompletableFuture.runAsync(() -> consumer.accept(item), GameCache.executor))
                 .toList();
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+    }
+
+    // 在线程池中执行任务并收集结果
+    private <T, R> List<R> executeInThreadPoolWithOutput(List<T> items, Function<T, R> function) {
+        List<CompletableFuture<R>> futures = items.stream()
+                .map(item -> CompletableFuture.supplyAsync(() -> function.apply(item), GameCache.executor))
+                .toList();
+
+        // 等待所有任务完成并收集结果
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .toList();
     }
 }
