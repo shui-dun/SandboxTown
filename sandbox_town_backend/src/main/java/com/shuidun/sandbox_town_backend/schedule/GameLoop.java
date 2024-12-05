@@ -19,11 +19,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 
 /**
@@ -44,7 +41,8 @@ public class GameLoop {
     /** 精灵类型到精灵Agent的映射 */
     private final Map<SpriteTypeEnum, SpriteAgent> typeToAgent = new HashMap<>();
 
-    private long counter = 0;
+    /** 当前帧数 */
+    private long curFrame = 0;
 
     public GameLoop(List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService, SpriteService spriteService, EcosystemService ecosystemService, WSRequestHandler wsRequestHandler) throws InterruptedException {
         this.spriteService = spriteService;
@@ -97,7 +95,7 @@ public class GameLoop {
     @Scheduled(initialDelay = 0, fixedDelay = Constants.GAME_LOOP_INTERVAL)
     public void gameLoop() {
         try {
-            counter++;
+            curFrame++;
 
             var time = System.currentTimeMillis();
             log.info("time diff between two frames: {}", time - lastTime);
@@ -107,51 +105,43 @@ public class GameLoop {
             wsRequestHandler.handleMessages();
 
             // 生命效果
-            if (counter % Constants.EFFECT_FRAMES == 0) {
-                List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetail().stream()
-                        .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE)))
-                        .toList();
-                Concurrent.executeInThreadPool(sprites, (sprite) -> {
-                    WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1));
-                });
-            }
+            List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetailByFrame(Constants.LIFE_FRAMES, curFrame).stream()
+                    .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE)))
+                    .toList();
+            Concurrent.executeInThreadPool(sprites, (sprite) -> {
+                WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1));
+            });
             // 烧伤效果
-            if (counter % Constants.BURN_FRAMES == 0) {
-                List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetail().stream()
-                        .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN)))
-                        .toList();
-                Concurrent.executeInThreadPool(sprites, (sprite) -> {
-                    WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1));
-                });
-            }
+            sprites = spriteService.getOnlineSpritesWithDetailByFrame(Constants.BURN_FRAMES, curFrame).stream()
+                    .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN)))
+                    .toList();
+            Concurrent.executeInThreadPool(sprites, (sprite) -> {
+                WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1));
+            });
             // 调用精灵行为
-            if (counter % Constants.SPRITE_ACTION_FRAMES == 0) {
-                List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetail();
-                Concurrent.executeInThreadPool(sprites, (sprite) -> {
-                    var agent = typeToAgent.get(sprite.getType());
-                    if (agent != null) {
-                        MoveBo moveBo = agent.act(sprite);
-                        MoveVo moveVo = spriteActionService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
-                        if (moveVo == null) {
-                            return;
-                        }
-                        WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
+            sprites = spriteService.getOnlineSpritesWithDetailByFrame(Constants.SPRITE_ACTION_FRAMES, curFrame);
+            Concurrent.executeInThreadPool(sprites, (sprite) -> {
+                var agent = typeToAgent.get(sprite.getType());
+                if (agent != null) {
+                    MoveBo moveBo = agent.act(sprite);
+                    MoveVo moveVo = spriteActionService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
+                    if (moveVo == null) {
+                        return;
                     }
-                });
-            }
+                    WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
+                }
+            });
             // 保存坐标
-            if (counter % Constants.SAVE_COORDINATE_FRAMES == 0) {
-                List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetail();
-                Concurrent.executeInThreadPool(sprites, (sprite) -> {
-                    spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());
-                });
-            }
+            sprites = spriteService.getOnlineSpritesWithDetailByFrame(Constants.SAVE_COORDINATE_FRAMES, curFrame);
+            Concurrent.executeInThreadPool(sprites, (sprite) -> {
+                spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());
+            });
             // 减少饱腹值
-            if (counter % Constants.REDUCE_HUNGER_FRAMES == 0) {
+            if (curFrame % Constants.REDUCE_HUNGER_FRAMES == 0) {
                 spriteService.reduceSpritesHunger(spriteService.getOnlineSpritesCache().keySet(), 1);
             }
             // 恢复体力
-            if (counter % Constants.RECOVER_LIFE_FRAMES == 0) {
+            if (curFrame % Constants.RECOVER_LIFE_FRAMES == 0) {
                 spriteService.recoverSpritesLife(spriteService.getOnlineSpritesCache().keySet(), Constants.HUNGER_THRESHOLD, 1);
             }
         } catch (Exception e) {

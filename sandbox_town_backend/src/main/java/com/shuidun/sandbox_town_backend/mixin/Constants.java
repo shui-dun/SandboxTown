@@ -41,22 +41,22 @@ public class Constants {
     public static final int FPS = 1000 / GAME_LOOP_INTERVAL;
 
     /** 执行一次生命效果的帧数 */
-    public static final long EFFECT_FRAMES = 12 * FPS;
+    public static final int LIFE_FRAMES = 12 * FPS;
 
     /** 执行一次烧伤效果的帧率 */
-    public static final long BURN_FRAMES = 2 * FPS;
+    public static final int BURN_FRAMES = 2 * FPS;
 
     /** 执行一次精灵行为的帧数 */
-    public static final long SPRITE_ACTION_FRAMES = 1 * FPS;
+    public static final int SPRITE_ACTION_FRAMES = 1 * FPS;
 
     /** 保存一次坐标的帧数 */
-    public static final long SAVE_COORDINATE_FRAMES = 1 * FPS;
+    public static final int SAVE_COORDINATE_FRAMES = 1 * FPS;
 
     /** 减少饱腹值的帧数 */
-    public static final long REDUCE_HUNGER_FRAMES = 20 * FPS;
+    public static final int REDUCE_HUNGER_FRAMES = 20 * FPS;
 
     /** 恢复体力的帧数 */
-    public static final long RECOVER_LIFE_FRAMES = 13 * FPS;
+    public static final int RECOVER_LIFE_FRAMES = 13 * FPS;
 
     /** 白天时长5分钟（300000ms） */
     public static final long DAY_DURATION = 300000;

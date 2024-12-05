@@ -389,6 +389,20 @@ public class SpriteService {
                 .toList();
     }
 
+    /**
+     * @param n        取1/n的精灵
+     * @param curFrame 当前帧数
+     */
+    public List<SpriteDetailBo> getOnlineSpritesWithDetailByFrame(int n, long curFrame) {
+        List<String> sprites = getOnlineSpritesCache().keySet().stream()
+                .filter(id -> id.hashCode() % n == curFrame % n)
+                .toList();
+        List<SpriteDetailBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectByIdWithDetail);
+        return spriteDetails.stream()
+                .filter(sprite -> sprite != null && sprite.getCache() != null)
+                .toList();
+    }
+
     public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {
         return new MyAndMyPetInfoVo(
                 selectById(ownerId),

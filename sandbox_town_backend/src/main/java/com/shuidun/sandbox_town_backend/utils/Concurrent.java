@@ -8,6 +8,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+// 并发工具类
+// 未来可能直接使用parallelStream进行替换，parallelStream会自动使用ForkJoinPool
 public class Concurrent {
     // 在线程池中执行任务
     public static <T> void executeInThreadPool(Collection<T> items, Consumer<T> consumer) {
