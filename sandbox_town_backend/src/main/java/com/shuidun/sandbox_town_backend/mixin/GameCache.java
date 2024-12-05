@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 
 /**
  * 游戏缓存信息
@@ -40,4 +41,7 @@ public class GameCache {
 
     /** 当前时间段 */
     public static TimeFrameVo timeFrame = new TimeFrameVo();
+
+    /** 线程池 */
+    public static ExecutorService executor;
 }
