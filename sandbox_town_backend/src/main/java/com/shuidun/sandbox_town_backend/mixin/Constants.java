@@ -4,9 +4,6 @@ public class Constants {
     /** 物品的最大生命值 */
     public static final int MAX_ITEM_LIFE = 100;
 
-    /** 地图上一格多少像素 */
-    public static final int PIXELS_PER_GRID = 30;
-
     /** 白天时长5分钟（300000ms） */
     public static final long DAY_DURATION = 300000;
 

@@ -7,7 +7,6 @@ import com.shuidun.sandbox_town_backend.enumeration.MapBitEnum;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
-import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +45,9 @@ public class GameMapService {
      */
     private int[][] buildingsHashCodeMap = new int[0][0];
 
+    /** 地图上一格多少像素 */
+    private final int PIXELS_PER_GRID = 30;
+
     private final GameMapMapper gameMapMapper;
 
     private final BuildingMapper buildingMapper;
@@ -83,8 +85,8 @@ public class GameMapService {
         GameCache.random.setSeed(gameMap.getSeed());
 
         // 初始化地图
-        map = new int[gameMap.getWidth() / Constants.PIXELS_PER_GRID][gameMap.getHeight() / Constants.PIXELS_PER_GRID];
-        buildingsHashCodeMap = new int[gameMap.getWidth() / Constants.PIXELS_PER_GRID][gameMap.getHeight() / Constants.PIXELS_PER_GRID];
+        map = new int[gameMap.getWidth() / PIXELS_PER_GRID][gameMap.getHeight() / PIXELS_PER_GRID];
+        buildingsHashCodeMap = new int[gameMap.getWidth() / PIXELS_PER_GRID][gameMap.getHeight() / PIXELS_PER_GRID];
 
         // 在地图上生成围墙
         generateMaze(map, 0, 0, map.length / 2, map[0].length / 2);
@@ -177,8 +179,8 @@ public class GameMapService {
             // 建筑类型
             BuildingTypeDo buildingType = buildingTypesToBePlaced.get(i);
             // 随机生成建筑的左上角
-            double x = Math.random() * (map.length - 8) * Constants.PIXELS_PER_GRID;
-            double y = Math.random() * (map[0].length - 8) * Constants.PIXELS_PER_GRID;
+            double x = Math.random() * (map.length - 8) * PIXELS_PER_GRID;
+            double y = Math.random() * (map[0].length - 8) * PIXELS_PER_GRID;
             // 随机生成建筑的宽高，在基础宽高的基础上波动（0.8倍到1.2倍）
             double scale = Math.random() * 0.4 + 0.8;
             // 创建建筑对象
@@ -226,11 +228,11 @@ public class GameMapService {
         double buildingWidth = building.getWidth();
         double buildingHeight = building.getHeight();
         // 获取建筑的左上角的逻辑坐标
-        int buildingLogicalX = (int) Math.round(buildingX) / Constants.PIXELS_PER_GRID;
-        int buildingLogicalY = (int) Math.round(buildingY) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalX = (int) Math.round(buildingX) / PIXELS_PER_GRID;
+        int buildingLogicalY = (int) Math.round(buildingY) / PIXELS_PER_GRID;
         // 获取建筑的宽高的逻辑坐标
-        int buildingLogicalWidth = (int) Math.round(buildingWidth) / Constants.PIXELS_PER_GRID;
-        int buildingLogicalHeight = (int) Math.round(buildingHeight) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalWidth = (int) Math.round(buildingWidth) / PIXELS_PER_GRID;
+        int buildingLogicalHeight = (int) Math.round(buildingHeight) / PIXELS_PER_GRID;
         // 判断是否超出边界
         if (buildingLogicalX < 0 || buildingLogicalY < 0 ||
                 buildingLogicalX + buildingLogicalWidth > map.length || buildingLogicalY + buildingLogicalHeight > map[0].length) {
@@ -242,8 +244,8 @@ public class GameMapService {
                 // 如果当前格子已有其他建筑（或者围墙）
                 if (isAnyBitInMap(map, i, j, MapBitEnum.BUILDING, MapBitEnum.WALL)) {
                     // 得到当前格中心的物理坐标
-                    int pixelX = i * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
-                    int pixelY = j * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
+                    int pixelX = i * PIXELS_PER_GRID + PIXELS_PER_GRID / 2;
+                    int pixelY = j * PIXELS_PER_GRID + PIXELS_PER_GRID / 2;
                     // 获取当前格子中心在整个建筑图中的相比于左上角的比例
                     double ratioX = (pixelX - buildingX) / buildingWidth;
                     double ratioY = (pixelY - buildingY) / buildingHeight;
@@ -278,11 +280,11 @@ public class GameMapService {
         double buildingWidth = building.getWidth();
         double buildingHeight = building.getHeight();
         // 获取建筑的左上角的逻辑坐标
-        int buildingLogicalX = (int) Math.round(buildingX) / Constants.PIXELS_PER_GRID;
-        int buildingLogicalY = (int) Math.round(buildingY) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalX = (int) Math.round(buildingX) / PIXELS_PER_GRID;
+        int buildingLogicalY = (int) Math.round(buildingY) / PIXELS_PER_GRID;
         // 获取建筑的宽高的逻辑坐标
-        int buildingLogicalWidth = (int) Math.round(buildingWidth) / Constants.PIXELS_PER_GRID;
-        int buildingLogicalHeight = (int) Math.round(buildingHeight) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalWidth = (int) Math.round(buildingWidth) / PIXELS_PER_GRID;
+        int buildingLogicalHeight = (int) Math.round(buildingHeight) / PIXELS_PER_GRID;
         // 判断是否超出边界
         if (buildingLogicalX < 0 || buildingLogicalY < 0 ||
                 buildingLogicalX + buildingLogicalWidth > map.length || buildingLogicalY + buildingLogicalHeight > map[0].length) {
@@ -315,17 +317,17 @@ public class GameMapService {
         double buildingWidth = building.getWidth();
         double buildingHeight = building.getHeight();
         // 获取建筑的左上角的逻辑坐标
-        int buildingLogicalX = (int) Math.round(buildingX) / Constants.PIXELS_PER_GRID;
-        int buildingLogicalY = (int) Math.round(buildingY) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalX = (int) Math.round(buildingX) / PIXELS_PER_GRID;
+        int buildingLogicalY = (int) Math.round(buildingY) / PIXELS_PER_GRID;
         // 获取建筑的宽高的逻辑坐标
-        int buildingLogicalWidth = (int) Math.round(buildingWidth) / Constants.PIXELS_PER_GRID;
-        int buildingLogicalHeight = (int) Math.round(buildingHeight) / Constants.PIXELS_PER_GRID;
+        int buildingLogicalWidth = (int) Math.round(buildingWidth) / PIXELS_PER_GRID;
+        int buildingLogicalHeight = (int) Math.round(buildingHeight) / PIXELS_PER_GRID;
         // 遍历建筑的每一个格子
         for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
             for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
                 // 得到当前格中心的物理坐标
-                int pixelX = i * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
-                int pixelY = j * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2;
+                int pixelX = i * PIXELS_PER_GRID + PIXELS_PER_GRID / 2;
+                int pixelY = j * PIXELS_PER_GRID + PIXELS_PER_GRID / 2;
                 // 获取当前格子中心在整个建筑图中的相比于左上角的比例
                 double ratioX = (pixelX - buildingX) / buildingWidth;
                 double ratioY = (pixelY - buildingY) / buildingHeight;
@@ -584,8 +586,8 @@ public class GameMapService {
             // 如果目标是精灵
             if (moveBo.getDestSprite() != null) {
                 // 此时重点被修正为精灵中心点
-                logicalX1 = (int) (moveBo.getDestSprite().getX() / Constants.PIXELS_PER_GRID);
-                logicalY1 = (int) (moveBo.getDestSprite().getY() / Constants.PIXELS_PER_GRID);
+                logicalX1 = (int) (moveBo.getDestSprite().getX() / PIXELS_PER_GRID);
+                logicalY1 = (int) (moveBo.getDestSprite().getY() / PIXELS_PER_GRID);
                 // 获取精灵的宽高
                 double destSpritePhysicalWidth = moveBo.getDestSprite().getWidth() * moveBo.getDestSprite().getWidthRatio();
                 double destSpritePhysicalHeight = moveBo.getDestSprite().getHeight() * moveBo.getDestSprite().getHeightRatio();
@@ -838,7 +840,7 @@ public class GameMapService {
             List<Point> points = new ArrayList<>();
             for (double x = physicalX0, y = physicalY0;
                  x1OnTheRight ? x <= physicalX1 : x >= physicalX1;
-                 x += Math.cos(angle) * Constants.PIXELS_PER_GRID / 2, y += Math.sin(angle) * Constants.PIXELS_PER_GRID / 2) {
+                 x += Math.cos(angle) * PIXELS_PER_GRID / 2, y += Math.sin(angle) * PIXELS_PER_GRID / 2) {
                 int logicalX = physicalAxisToLogicalAxis(x);
                 int logicalY = physicalAxisToLogicalAxis(y);
                 // 如何不合法或者是障碍物，那么就不再继续
@@ -856,19 +858,19 @@ public class GameMapService {
 
         /** 将物理坐标转换为逻辑坐标 */
         public int physicalAxisToLogicalAxis(double physicalAxis) {
-            return (int) Math.round(physicalAxis) / Constants.PIXELS_PER_GRID;
+            return (int) Math.round(physicalAxis) / PIXELS_PER_GRID;
         }
 
         /** 将物理高度或宽度转换为逻辑高度或宽度 */
         public int physicalSizeToLogicalSize(double physicalSize) {
-            return (int) Math.ceil(physicalSize / Constants.PIXELS_PER_GRID);
+            return (int) Math.ceil(physicalSize / PIXELS_PER_GRID);
         }
 
         /** 将逻辑点序列转换为物理点序列 */
         public List<Point> logicalPointsToPhysicalPoints(List<Point> path) {
             for (Point point : path) {
-                point.setX(point.getX() * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2);
-                point.setY(point.getY() * Constants.PIXELS_PER_GRID + Constants.PIXELS_PER_GRID / 2);
+                point.setX(point.getX() * PIXELS_PER_GRID + PIXELS_PER_GRID / 2);
+                point.setY(point.getY() * PIXELS_PER_GRID + PIXELS_PER_GRID / 2);
             }
             return path;
         }
