@@ -5,15 +5,16 @@ import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
-import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class TimeService {
+    /** 当前时间段 */
+    private TimeFrameVo timeFrame = new TimeFrameVo(TimeFrameEnum.DAWN, 0L, 0L);
+
     private final SpriteService spriteService;
 
     private final EcosystemService ecosystemService;
@@ -24,7 +25,7 @@ public class TimeService {
     }
 
     public void enterDay() {
-        GameCache.timeFrame = new TimeFrameVo(
+        timeFrame = new TimeFrameVo(
                 TimeFrameEnum.DAY,
                 Constants.DAY_DURATION,
                 System.currentTimeMillis() + Constants.DAY_DURATION
@@ -39,7 +40,7 @@ public class TimeService {
     }
 
     public void enterDusk() {
-        GameCache.timeFrame = new TimeFrameVo(
+        timeFrame = new TimeFrameVo(
                 TimeFrameEnum.DUSK,
                 Constants.DUSK_DURATION,
                 System.currentTimeMillis() + Constants.DUSK_DURATION
@@ -50,7 +51,7 @@ public class TimeService {
     }
 
     public void enterNight() {
-        GameCache.timeFrame = new TimeFrameVo(
+        timeFrame = new TimeFrameVo(
                 TimeFrameEnum.NIGHT,
                 Constants.NIGHT_DURATION,
                 System.currentTimeMillis() + Constants.NIGHT_DURATION
@@ -61,7 +62,7 @@ public class TimeService {
     }
 
     public void enterDawn() {
-        GameCache.timeFrame = new TimeFrameVo(
+        timeFrame = new TimeFrameVo(
                 TimeFrameEnum.DAWN,
                 Constants.DAWN_DURATION,
                 System.currentTimeMillis() + Constants.DAWN_DURATION
@@ -81,6 +82,6 @@ public class TimeService {
 
     /** 得到当前的时间段以及结束时刻 */
     public TimeFrameVo getTimeFrame() {
-        return GameCache.timeFrame;
+        return timeFrame;
     }
 }

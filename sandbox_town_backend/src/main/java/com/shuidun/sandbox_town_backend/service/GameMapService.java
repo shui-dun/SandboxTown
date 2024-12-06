@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 地图相关的服务
@@ -37,6 +38,9 @@ public class GameMapService {
 
     @Value("${mapId}")
     private String mapId;
+
+    /** 建筑类型图片 */
+    private final Map<BuildingTypeEnum, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
     public GameMapService(GameMapMapper gameMapMapper, BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper) {
         this.gameMapMapper = gameMapMapper;
@@ -197,7 +201,7 @@ public class GameMapService {
                         continue;
                     }
                     // 获取当前格子中心在建筑物黑白图中的坐标
-                    BufferedImage bufferedImage = GameCache.buildingTypesImages.get(building.getType());
+                    BufferedImage bufferedImage = buildingTypesImages.get(building.getType());
                     assert bufferedImage != null;
                     int buildingPixelX = (int) (ratioX * bufferedImage.getWidth());
                     int buildingPixelY = (int) (ratioY * bufferedImage.getHeight());
@@ -278,7 +282,7 @@ public class GameMapService {
                 if (ratioX < 0 || ratioX > 1 || ratioY < 0 || ratioY > 1) {
                     continue;
                 }
-                BufferedImage bufferedImage = GameCache.buildingTypesImages.get(building.getType());
+                BufferedImage bufferedImage = buildingTypesImages.get(building.getType());
                 assert bufferedImage != null;
                 // 获取当前格子中心在建筑物黑白图中的坐标
                 int buildingPixelX = (int) (ratioX * bufferedImage.getWidth());
@@ -327,7 +331,7 @@ public class GameMapService {
             String imagePath = buildingType.getImagePath();
             try {
                 BufferedImage image = ImageIO.read(new ClassPathResource(imagePath).getInputStream());
-                GameCache.buildingTypesImages.put(buildingTypeId, image);
+                buildingTypesImages.put(buildingTypeId, image);
             } catch (IOException e) {
                 log.info("读取建筑物黑白图失败", e);
             }

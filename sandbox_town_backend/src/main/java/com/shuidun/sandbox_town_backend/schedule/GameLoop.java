@@ -14,9 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -25,6 +25,36 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Component
 @Slf4j
 public class GameLoop {
+
+    /** 游戏循环的时间间隔 */
+    private final int GAME_LOOP_INTERVAL = 50;
+
+    /** 帧率 */
+    private final int FPS = 1000 / GAME_LOOP_INTERVAL;
+
+    /** 上一帧的时间 */
+    private long lastTime = System.currentTimeMillis();
+
+    /** 执行一次生命效果的帧数 */
+    private final int LIFE_FRAMES = 12 * FPS;
+
+    /** 执行一次烧伤效果的帧率 */
+    private final int BURN_FRAMES = 2 * FPS;
+
+    /** 执行一次精灵行为的帧数 */
+    private final int SPRITE_ACTION_FRAMES = 1 * FPS;
+
+    /** 保存一次坐标的帧数 */
+    private final int SAVE_COORDINATE_FRAMES = 1 * FPS;
+
+    /** 减少饱腹值的帧数 */
+    private final int REDUCE_HUNGER_FRAMES = 20 * FPS;
+
+    /** 恢复体力的帧数 */
+    private final int RECOVER_LIFE_FRAMES = 13 * FPS;
+
+    /** 通知时间段的帧数 */
+    private final int NOTIFY_TIME_FRAME_FRAMES = 5 * FPS;
 
     private final SpriteService spriteService;
 
@@ -51,16 +81,6 @@ public class GameLoop {
         for (SpriteAgent agent : spriteAgents) {
             typeToAgent.put(agent.getType(), agent);
         }
-
-        // 初始化线程池
-        GameCache.executor = new ThreadPoolExecutor(
-                Runtime.getRuntime().availableProcessors(), // 核心线程数
-                Runtime.getRuntime().availableProcessors(), // 最大线程数
-                60L, // 空闲线程存活时间
-                java.util.concurrent.TimeUnit.SECONDS, // 时间单位
-                new LinkedBlockingQueue<>(100) // 阻塞队列
-        );
-
 
         // 获得地图信息
         GameMapDo gameMap = gameMapService.getGameMap();
@@ -89,9 +109,7 @@ public class GameLoop {
         }
     }
 
-    private long lastTime = System.currentTimeMillis();
-
-    @Scheduled(initialDelay = 0, fixedDelay = Constants.GAME_LOOP_INTERVAL)
+    @Scheduled(initialDelay = 0, fixedDelay = GAME_LOOP_INTERVAL)
     public void gameLoop() {
         try {
             curFrame++;
@@ -103,21 +121,17 @@ public class GameLoop {
             eventHandler.handleMessages();
 
             // 生命效果
-            List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetailByFrame(Constants.LIFE_FRAMES, curFrame).stream()
+            List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetailByFrame(LIFE_FRAMES, curFrame).stream()
                     .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE)))
                     .toList();
-            Concurrent.executeInThreadPool(sprites, (sprite) -> {
-                WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1));
-            });
+            Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1)));
             // 烧伤效果
-            sprites = spriteService.getOnlineSpritesWithDetailByFrame(Constants.BURN_FRAMES, curFrame).stream()
+            sprites = spriteService.getOnlineSpritesWithDetailByFrame(BURN_FRAMES, curFrame).stream()
                     .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN)))
                     .toList();
-            Concurrent.executeInThreadPool(sprites, (sprite) -> {
-                WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1));
-            });
+            Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1)));
             // 调用精灵行为
-            sprites = spriteService.getOnlineSpritesWithDetailByFrame(Constants.SPRITE_ACTION_FRAMES, curFrame);
+            sprites = spriteService.getOnlineSpritesWithDetailByFrame(SPRITE_ACTION_FRAMES, curFrame);
             Concurrent.executeInThreadPool(sprites, (sprite) -> {
                 var agent = typeToAgent.get(sprite.getType());
                 if (agent != null) {
@@ -130,21 +144,19 @@ public class GameLoop {
                 }
             });
             // 保存坐标
-            sprites = spriteService.getOnlineSpritesWithDetailByFrame(Constants.SAVE_COORDINATE_FRAMES, curFrame);
-            Concurrent.executeInThreadPool(sprites, (sprite) -> {
-                spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY());
-            });
+            sprites = spriteService.getOnlineSpritesWithDetailByFrame(SAVE_COORDINATE_FRAMES, curFrame);
+            Concurrent.executeInThreadPool(sprites, (sprite) -> spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY()));
             // 减少饱腹值
-            if (curFrame % Constants.REDUCE_HUNGER_FRAMES == 0) {
+            if (curFrame % REDUCE_HUNGER_FRAMES == 0) {
                 spriteService.reduceSpritesHunger(spriteService.getOnlineSpritesCache().keySet(), 1);
             }
             // 恢复体力
-            if (curFrame % Constants.RECOVER_LIFE_FRAMES == 0) {
-                spriteService.recoverSpritesLife(spriteService.getOnlineSpritesCache().keySet(), Constants.HUNGER_THRESHOLD, 1);
+            if (curFrame % RECOVER_LIFE_FRAMES == 0) {
+                spriteService.recoverSpritesLife(spriteService.getOnlineSpritesCache().keySet(), 1);
             }
             // 更新时间
-            if (time > GameCache.timeFrame.getTimeFrameEndTime()) {
-                switch (GameCache.timeFrame.getTimeFrame()) {
+            if (time > timeService.getTimeFrame().getTimeFrameEndTime()) {
+                switch (timeService.getTimeFrame().getTimeFrame()) {
                     case DAY:
                         timeService.enterDusk();
                         break;
@@ -160,7 +172,7 @@ public class GameLoop {
                 }
             }
             // 通知时间段
-            if (curFrame % Constants.NOTIFY_TIME_FRAME_FRAMES == 0) {
+            if (curFrame % NOTIFY_TIME_FRAME_FRAMES == 0) {
                 timeService.notifyTimeFrame();
             }
 

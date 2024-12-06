@@ -1,15 +1,6 @@
 package com.shuidun.sandbox_town_backend.mixin;
 
-import com.shuidun.sandbox_town_backend.bean.SpriteCache;
-import com.shuidun.sandbox_town_backend.bean.TimeFrameVo;
-import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
-import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
-
-import java.awt.image.BufferedImage;
-import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 
 /**
  * 游戏缓存信息
@@ -20,9 +11,6 @@ import java.util.concurrent.ExecutorService;
 public class GameCache {
     /** 随机数产生器 */
     public static Random random = new Random();
-
-    /** 建筑类型图片 */
-    public static Map<BuildingTypeEnum, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
     /**
      * 表示地图上每个点的元素类型
@@ -36,13 +24,4 @@ public class GameCache {
      * 如果地图点不包含建筑物，则该位置的值的后32位为0
      */
     public static int[][] buildingsHashCodeMap = new int[0][0];
-
-    /** 角色缓存信息，保存在内存中，部分信息例如坐标定期写入数据库 */
-    public static Map<String, SpriteCache> spriteCacheMap = new ConcurrentHashMap<>();
-
-    /** 当前时间段 */
-    public static TimeFrameVo timeFrame = new TimeFrameVo(TimeFrameEnum.DAWN, 0L, 0L);
-
-    /** 线程池 */
-    public static ExecutorService executor;
 }

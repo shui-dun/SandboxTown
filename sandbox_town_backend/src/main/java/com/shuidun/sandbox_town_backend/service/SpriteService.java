@@ -17,12 +17,37 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class SpriteService {
+    /** 升级所需经验值的基数 */
+    private final int EXP_PER_LEVEL = 100;
+
+    /** 精灵最大体力值 */
+    private final int MAX_HP = 100;
+
+    /** 精灵最大等级 */
+    private final int MAX_LEVEL = 20;
+
+    /** 精灵最大速度 */
+    private final int MAX_SPEED = 25;
+
+    /** 玩家死亡时失去的金钱值 */
+    private final int MONEY_LOST_ON_DEATH = 120;
+
+    /** 精灵升级时得到的金钱值 */
+    private final int MONEY_GAIN_ON_LEVEL_UP = 50;
+
+    /** 精灵最大饥饿值 */
+    private final int MAX_HUNGER = 100;
+
+    /** 精灵饥饿值的临界点（低于这个值就不会自动恢复体力） */
+    private final int HUNGER_THRESHOLD = 80;
+
     private final SpriteMapper spriteMapper;
 
     private final SpriteTypeMapper spriteTypeMapper;
@@ -47,6 +72,9 @@ public class SpriteService {
     @Value("${mapId}")
     private String mapId;
 
+    /** 角色缓存信息，保存在内存中，部分信息例如坐标定期写入数据库 */
+    private final Map<String, SpriteCache> spriteCacheMap = new ConcurrentHashMap<>();
+
     public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedMapper feedMapper, VictoryAttributeRewardMapper victoryAttributeRewardMapper, VictoryItemRewardMapper victoryItemRewardMapper, EffectService effectService) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
@@ -62,7 +90,7 @@ public class SpriteService {
 
     /** 将cache中的信息赋值给sprite */
     private void assignCacheToSprite(SpriteDo sprite) {
-        var spriteCache = GameCache.spriteCacheMap.get(sprite.getId());
+        var spriteCache = spriteCacheMap.get(sprite.getId());
         if (spriteCache != null) {
             sprite.setX(spriteCache.getX());
             sprite.setY(spriteCache.getY());
@@ -165,19 +193,19 @@ public class SpriteService {
     public Pair<SpriteDo, List<WSResponseVo>> normalizeAndUpdateSprite(SpriteDo sprite) {
         List<WSResponseVo> responseList = new ArrayList<>();
         // 如果精灵已经满级
-        if (sprite.getLevel().equals(Constants.MAX_LEVEL)) {
+        if (sprite.getLevel().equals(MAX_LEVEL)) {
             sprite.setExp(0);
         } else {
             // 如果经验值足够升级，则升级（当精灵等级为n时，升级所需经验值为n*EXP_PER_LEVEL）
             int levelUp = 0;
-            while (sprite.getExp() >= Constants.EXP_PER_LEVEL * sprite.getLevel()) {
+            while (sprite.getExp() >= EXP_PER_LEVEL * sprite.getLevel()) {
                 // 减少经验值
-                sprite.setExp(sprite.getExp() - Constants.EXP_PER_LEVEL * sprite.getLevel());
+                sprite.setExp(sprite.getExp() - EXP_PER_LEVEL * sprite.getLevel());
                 // 升级
                 sprite.setLevel(sprite.getLevel() + 1);
                 levelUp++;
                 // 如果精灵已经满级
-                if (sprite.getLevel().equals(Constants.MAX_LEVEL)) {
+                if (sprite.getLevel().equals(MAX_LEVEL)) {
                     sprite.setExp(0);
                 }
             }
@@ -186,9 +214,9 @@ public class SpriteService {
                 SpriteTypeDo spriteType = spriteTypeMapper.selectById(sprite.getType());
                 assert spriteType != null;
                 // 更新玩家属性
-                sprite.setMoney(sprite.getMoney() + levelUp * Constants.MONEY_GAIN_ON_LEVEL_UP);
-                sprite.setHunger(Constants.MAX_HUNGER);
-                sprite.setHp(Constants.MAX_HP);
+                sprite.setMoney(sprite.getMoney() + levelUp * MONEY_GAIN_ON_LEVEL_UP);
+                sprite.setHunger(MAX_HUNGER);
+                sprite.setHp(MAX_HP);
                 // 每次升级，攻击和防御增加基础属性值的1/4，至少增加1
                 sprite.setAttack(sprite.getAttack() + Math.max(1, spriteType.getBasicAttack() / 4) * levelUp);
                 sprite.setDefense(sprite.getDefense() + Math.max(1, spriteType.getBasicDefense() / 4) * levelUp);
@@ -200,14 +228,14 @@ public class SpriteService {
             }
         }
         // 判断属性是否在合理范围内
-        if (sprite.getHunger() > Constants.MAX_HUNGER) {
-            sprite.setHunger(Constants.MAX_HUNGER);
+        if (sprite.getHunger() > MAX_HUNGER) {
+            sprite.setHunger(MAX_HUNGER);
         }
         if (sprite.getHunger() < 0) {
             sprite.setHunger(0);
         }
-        if (sprite.getHp() > Constants.MAX_HP) {
-            sprite.setHp(Constants.MAX_HP);
+        if (sprite.getHp() > MAX_HP) {
+            sprite.setHp(MAX_HP);
         }
         if (sprite.getHp() < 0) {
             sprite.setHp(0);
@@ -222,8 +250,8 @@ public class SpriteService {
             sprite.setSpeed(0);
         }
         // 速度上限
-        if (sprite.getSpeed() > Constants.MAX_SPEED) {
-            sprite.setSpeed(Constants.MAX_SPEED);
+        if (sprite.getSpeed() > MAX_SPEED) {
+            sprite.setSpeed(MAX_SPEED);
         }
         if (sprite.getVisionRange() < 0) {
             sprite.setVisionRange(0);
@@ -235,10 +263,10 @@ public class SpriteService {
         if (sprite.getHp() == 0) {
             // 如果是玩家，则扣除金钱和清除经验，恢复饱腹值和生命值，并设置坐标为原点
             if (sprite.getType() == SpriteTypeEnum.USER) {
-                sprite.setMoney(Math.max(0, sprite.getMoney() - Constants.MONEY_LOST_ON_DEATH));
+                sprite.setMoney(Math.max(0, sprite.getMoney() - MONEY_LOST_ON_DEATH));
                 sprite.setExp(0);
-                sprite.setHunger(Constants.MAX_HUNGER);
-                sprite.setHp(Constants.MAX_HP);
+                sprite.setHunger(MAX_HUNGER);
+                sprite.setHp(MAX_HP);
                 sprite.setX(0.0);
                 sprite.setY(0.0);
                 spriteMapper.updateById(sprite);
@@ -292,7 +320,7 @@ public class SpriteService {
         sprite.setLevel(spriteType.getBasicLevel());
         // 将等级降为1，全部赋给经验值
         if (sprite.getLevel() > 1) {
-            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * sprite.getLevel() * Constants.EXP_PER_LEVEL / 2);
+            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * sprite.getLevel() * EXP_PER_LEVEL / 2);
             sprite.setLevel(1);
         }
         sprite.setHunger(spriteType.getBasicHunger());
@@ -332,7 +360,7 @@ public class SpriteService {
         sprite.setExp((int) (spriteType.getBasicExp() * scale));
         // 将等级降为1，全部赋给经验值
         if (sprite.getLevel() > 1) {
-            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * sprite.getLevel() * Constants.EXP_PER_LEVEL / 2);
+            sprite.setExp(sprite.getExp() + (sprite.getLevel() - 1) * sprite.getLevel() * EXP_PER_LEVEL / 2);
             sprite.setLevel(1);
         }
         scale = 0.8 + GameCache.random.nextDouble() * 0.4;
@@ -367,10 +395,10 @@ public class SpriteService {
     }
 
     public List<SpriteDo> getOnlineSprites() {
-        if (GameCache.spriteCacheMap.isEmpty()) {
+        if (spriteCacheMap.isEmpty()) {
             return Collections.emptyList();
         }
-        List<SpriteDo> sprites = spriteMapper.selectBatchIds(GameCache.spriteCacheMap.keySet());
+        List<SpriteDo> sprites = spriteMapper.selectBatchIds(spriteCacheMap.keySet());
         // 得到缓存信息
         for (SpriteDo sprite : sprites) {
             assignCacheToSprite(sprite);
@@ -379,7 +407,7 @@ public class SpriteService {
     }
 
     public Map<String, SpriteCache> getOnlineSpritesCache() {
-        return GameCache.spriteCacheMap;
+        return spriteCacheMap;
     }
 
     public List<SpriteDetailBo> getOnlineSpritesWithDetail() {
@@ -508,14 +536,13 @@ public class SpriteService {
      * 恢复精灵生命
      *
      * @param spriteIds 精灵id集合
-     * @param minHunger 最小饱腹值，即饱腹值低于该值时不恢复生命
      * @param incVal    恢复值
      */
-    public void recoverSpritesLife(Collection<String> spriteIds, int minHunger, int incVal) {
+    public void recoverSpritesLife(Collection<String> spriteIds, int incVal) {
         if (spriteIds.isEmpty()) {
             return;
         }
-        spriteMapper.recoverSpritesLife(spriteIds, minHunger, incVal, Constants.MAX_HP);
+        spriteMapper.recoverSpritesLife(spriteIds, HUNGER_THRESHOLD, incVal, MAX_HP);
     }
 
     @Transactional
@@ -601,7 +628,7 @@ public class SpriteService {
         List<String> ids = new ArrayList<>();
         offline(spriteId, ids);
         // 使精灵下线
-        ids.forEach(id -> GameCache.spriteCacheMap.remove(id));
+        ids.forEach(id -> spriteCacheMap.remove(id));
         // 发送下线消息
         return new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(ids));
     }
@@ -640,8 +667,8 @@ public class SpriteService {
             sprite.setHp(0);
         }
         // 如果满血
-        if (sprite.getHp() > Constants.MAX_HP) {
-            sprite.setHp(Constants.MAX_HP);
+        if (sprite.getHp() > MAX_HP) {
+            sprite.setHp(MAX_HP);
         }
         HpChangeVo hpChangeVo = new HpChangeVo(spriteId, originHp, sprite.getHp() - originHp);
         if (hpChangeVo.getHpChange() != 0) {
@@ -712,7 +739,7 @@ public class SpriteService {
      */
     @Nullable
     public SpriteCache getSpriteCache(String id) {
-        return GameCache.spriteCacheMap.get(id);
+        return spriteCacheMap.get(id);
     }
 
     /**
@@ -724,7 +751,7 @@ public class SpriteService {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
         // 将精灵的坐标信息写入缓存
-        SpriteCache cache = GameCache.spriteCacheMap.get(id);
+        SpriteCache cache = spriteCacheMap.get(id);
         if (cache == null) {
             cache = new SpriteCache(
                     sprite.getX(),
@@ -736,7 +763,7 @@ public class SpriteService {
                     SpriteStatus.IDLE,
                     null, null, null, null
             );
-            GameCache.spriteCacheMap.put(id, cache);
+            spriteCacheMap.put(id, cache);
         }
         // 使其宠物上线
         List<SpriteDo> pets = selectByOwner(id);

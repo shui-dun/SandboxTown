@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
 @Service
 public class ItemService {
 
+    /** 物品栏大小 */
+    private final int ITEM_BAR_SIZE = 6;
+
     /**
      * 自注入，使得调用自身的方法时可以走 Spring AOP（使得注解生效）
      * 不加入Lazy会报错：循环依赖
@@ -307,7 +310,7 @@ public class ItemService {
         }
         // 判断物品栏是否已满
         List<ItemWithTypeAndLabelsBo> itemInItemBar = listItemsInItemBarByOwner(spriteId);
-        if (itemInItemBar.size() >= Constants.ITEM_BAR_SIZE
+        if (itemInItemBar.size() >= ITEM_BAR_SIZE
                 && item.getPosition() != ItemPositionEnum.ITEMBAR) {
             throw new BusinessException(StatusCodeEnum.ITEMBAR_FULL);
         }
@@ -355,7 +358,7 @@ public class ItemService {
         }
         // 判断物品栏是否已满
         List<ItemWithTypeAndLabelsBo> itemInItemBar = listItemsInItemBarByOwner(spriteId);
-        if (itemInItemBar.size() >= Constants.ITEM_BAR_SIZE
+        if (itemInItemBar.size() >= ITEM_BAR_SIZE
                 && item.getPosition() != ItemPositionEnum.HANDHELD) {
             throw new BusinessException(StatusCodeEnum.ITEMBAR_FULL);
         }
