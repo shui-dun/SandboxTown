@@ -10,7 +10,6 @@ import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.service.*;
 import com.shuidun.sandbox_town_backend.utils.Concurrent;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
-import com.shuidun.sandbox_town_backend.websocket.WSRequestHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -33,7 +32,7 @@ public class GameLoop {
 
     private final SpriteActionService spriteActionService;
 
-    private final WSRequestHandler wsRequestHandler;
+    private final EventHandler eventHandler;
 
     private final TimeService timeService;
 
@@ -43,11 +42,11 @@ public class GameLoop {
     /** 当前帧数 */
     private long curFrame = 0;
 
-    public GameLoop(List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService, SpriteService spriteService, EcosystemService ecosystemService, WSRequestHandler wsRequestHandler, TimeService timeService) throws InterruptedException {
+    public GameLoop(List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService, SpriteService spriteService, EcosystemService ecosystemService, EventHandler eventHandler, TimeService timeService) throws InterruptedException {
         this.spriteService = spriteService;
         this.gameMapService = gameMapService;
         this.spriteActionService = spriteActionService;
-        this.wsRequestHandler = wsRequestHandler;
+        this.eventHandler = eventHandler;
         this.timeService = timeService;
         for (SpriteAgent agent : spriteAgents) {
             typeToAgent.put(agent.getType(), agent);
@@ -101,7 +100,7 @@ public class GameLoop {
             log.info("time diff between two frames: {}", time - lastTime);
 
             // 处理事件
-            wsRequestHandler.handleMessages();
+            eventHandler.handleMessages();
 
             // 生命效果
             List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetailByFrame(Constants.LIFE_FRAMES, curFrame).stream()

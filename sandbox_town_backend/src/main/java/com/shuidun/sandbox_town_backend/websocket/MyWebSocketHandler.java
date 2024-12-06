@@ -2,6 +2,7 @@ package com.shuidun.sandbox_town_backend.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.EventDto;
+import com.shuidun.sandbox_town_backend.schedule.EventHandler;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,12 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Slf4j
 public class MyWebSocketHandler extends TextWebSocketHandler {
 
-    private final WSRequestHandler wsRequestHandler;
+    private final EventHandler eventHandler;
 
     private final SpriteService spriteService;
 
-    public MyWebSocketHandler(WSRequestHandler wsRequestHandler, SpriteService spriteService) {
-        this.wsRequestHandler = wsRequestHandler;
+    public MyWebSocketHandler(EventHandler eventHandler, SpriteService spriteService) {
+        this.eventHandler = eventHandler;
         this.spriteService = spriteService;
     }
 
@@ -69,7 +70,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         EventDto eventDto = JSONObject.parseObject(messagePayload, EventDto.class);
         eventDto.setInitiator((String) session.getAttributes().get("userName"));
         // 添加到消息队列
-        wsRequestHandler.addMessage(eventDto);
+        eventHandler.addMessage(eventDto);
     }
 
 }

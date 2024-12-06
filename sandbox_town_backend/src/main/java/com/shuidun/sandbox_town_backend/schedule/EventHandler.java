@@ -1,4 +1,4 @@
-package com.shuidun.sandbox_town_backend.websocket;
+package com.shuidun.sandbox_town_backend.schedule;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.agent.UserAgent;
@@ -10,6 +10,7 @@ import com.shuidun.sandbox_town_backend.service.GameMapService;
 import com.shuidun.sandbox_town_backend.service.ItemService;
 import com.shuidun.sandbox_town_backend.service.SpriteActionService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
+import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +28,7 @@ import java.util.function.BiConsumer;
  */
 @Slf4j
 @Component
-public class WSRequestHandler {
+public class EventHandler {
     /** 事件类型 -> 处理函数 */
     private final Map<WSRequestEnum, BiConsumer<String, JSONObject>> eventMap = new HashMap<>();
 
@@ -78,7 +79,7 @@ public class WSRequestHandler {
         return true;
     }
 
-    public WSRequestHandler(SpriteService spriteService, GameMapService gameMapService, SpriteActionService spriteActionService, ItemService itemService, Validator validator, UserAgent userAgent) {
+    public EventHandler(SpriteService spriteService, GameMapService gameMapService, SpriteActionService spriteActionService, ItemService itemService, Validator validator, UserAgent userAgent) {
         this.validator = validator;
 
         // 告知坐标信息
