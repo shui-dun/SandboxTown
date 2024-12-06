@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
-import com.shuidun.sandbox_town_backend.bean.GameMapVo;
+import com.shuidun.sandbox_town_backend.bean.GameMapWithMap;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.GameMapService;
@@ -30,9 +30,8 @@ public class GameMapController {
 
     @Operation(summary = "得到地图的信息")
     @GetMapping("/getGameMap")
-    public RestResponseVo<GameMapVo> getGameMap() {
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                GameMapVo.fromGameMapDo(gameMapService.getGameMap()));
+    public RestResponseVo<GameMapWithMap> getGameMap() {
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, gameMapService.getGameMapWithMap());
     }
 
     @Operation(summary = "建造随机的生态系统")

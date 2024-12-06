@@ -11,17 +11,4 @@ import java.util.Random;
 public class GameCache {
     /** 随机数产生器 */
     public static Random random = new Random();
-
-    /**
-     * 表示地图上每个点的元素类型
-     * 使用位标记来表示每个点可能包含的多种元素
-     * 参见{@link com.shuidun.sandbox_town_backend.enumeration.MapBitEnum}
-     */
-    public static int[][] map = new int[0][0];
-
-    /**
-     * 存储地图上每个点的建筑物hashcode
-     * 如果地图点不包含建筑物，则该位置的值的后32位为0
-     */
-    public static int[][] buildingsHashCodeMap = new int[0][0];
 }
