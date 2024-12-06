@@ -17,11 +17,11 @@ public class TimeService {
 
     private final SpriteService spriteService;
 
-    private final EcosystemService ecosystemService;
+    private final GameMapService gameMapService;
 
-    public TimeService(SpriteService spriteService, EcosystemService ecosystemService) {
+    public TimeService(SpriteService spriteService, GameMapService gameMapService) {
         this.spriteService = spriteService;
-        this.ecosystemService = ecosystemService;
+        this.gameMapService = gameMapService;
     }
 
     public void enterDay() {
@@ -32,7 +32,7 @@ public class TimeService {
         );
         notifyTimeFrame();
         // 刷新所有建筑
-        ecosystemService.refreshAllBuildings();
+        gameMapService.refreshAllBuildings();
         // 刷新动物
         spriteService.refreshSprites(TimeFrameEnum.DAY);
         // 使所有夜行动物（即在晚上出现的动物）都受到烧伤效果

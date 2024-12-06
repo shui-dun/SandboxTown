@@ -10,18 +10,22 @@ import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.PathFinder;
+import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * 地图相关的服务
@@ -42,115 +46,50 @@ public class GameMapService {
     /** 建筑类型图片 */
     private final Map<BuildingTypeEnum, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
-    public GameMapService(GameMapMapper gameMapMapper, BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper) {
+    private final SpriteService spriteService;
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private final Map<BuildingTypeEnum, SpecificBuildingService> specificBuildingServices;
+
+    public GameMapService(GameMapMapper gameMapMapper, BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate, List<SpecificBuildingService> specificBuildingServices) {
         this.gameMapMapper = gameMapMapper;
         this.buildingMapper = buildingMapper;
         this.buildingTypeMapper = buildingTypeMapper;
+        this.spriteService = spriteService;
+        this.redisTemplate = redisTemplate;
+        this.specificBuildingServices = specificBuildingServices.stream().collect(
+                Collectors.toMap(SpecificBuildingService::getType, s -> s)
+        );
     }
 
-    /** 向地图指定位置添加一个bit */
-    private void addBitToMap(int[][] map, int x, int y, MapBitEnum bit) {
-        int bitValue = 1 << bit.ordinal();
-        map[x][y] |= bitValue;
+    public void init() {
+        // 获得地图信息
+        GameMapDo gameMap = getGameMap();
+
+        // 设置随机数种子
+        GameCache.random.setSeed(gameMap.getSeed());
+
+        // 初始化地图
+        GameCache.map = new int[gameMap.getWidth() / Constants.PIXELS_PER_GRID][gameMap.getHeight() / Constants.PIXELS_PER_GRID];
+        GameCache.buildingsHashCodeMap = new int[gameMap.getWidth() / Constants.PIXELS_PER_GRID][gameMap.getHeight() / Constants.PIXELS_PER_GRID];
+
+        // 在地图上生成围墙
+        generateMaze(GameCache.map, 0, 0, GameCache.map.length / 2, GameCache.map[0].length / 2);
+
+        // 在地图上放置建筑
+        boolean containsBuilding = placeAllBuildingsOnMap();
+
+        // 放置没有主人的角色
+        spriteService.getUnownedSprites().forEach(sprite ->
+                spriteService.online(sprite.getId())
+        );
+
+        // 如果没有建筑物，则生成一定数量的建筑物
+        if (!containsBuilding) {
+            createEnvironment(gameMap.getWidth() * gameMap.getHeight() / 300000);
+        }
     }
-
-    /** 从地图指定位置删除一个bit */
-    private void removeBitFromMap(int[][] map, int x, int y, MapBitEnum bit) {
-        int bitValue = 1 << bit.ordinal();
-        map[x][y] &= ~bitValue;
-    }
-
-    /** 判断地图某一点是否为某个bit */
-    private boolean isBitInMap(int[][] map, int x, int y, MapBitEnum bit) {
-        int bitValue = 1 << bit.ordinal();
-        return (map[x][y] & bitValue) != 0;
-    }
-
-    /** 判断地图某一点是否为某些bit中的至少一个 */
-    private boolean isAnyBitInMap(int[][] map, int x, int y, MapBitEnum... bits) {
-        int bitValue = 0;
-        for (MapBitEnum bit : bits) {
-            bitValue |= 1 << bit.ordinal();
-        }
-        return (map[x][y] & bitValue) != 0;
-    }
-
-    /** 画一个2x2的墙 */
-    private void drawWall(int[][] map, int x, int y) {
-        addBitToMap(map, 2 * x, 2 * y, MapBitEnum.WALL);
-        addBitToMap(map, 2 * x + 1, 2 * y, MapBitEnum.WALL);
-        addBitToMap(map, 2 * x, 2 * y + 1, MapBitEnum.WALL);
-        addBitToMap(map, 2 * x + 1, 2 * y + 1, MapBitEnum.WALL);
-    }
-
-    private void unDrawWall(int[][] map, int x, int y) {
-        removeBitFromMap(map, 2 * x, 2 * y, MapBitEnum.WALL);
-        removeBitFromMap(map, 2 * x + 1, 2 * y, MapBitEnum.WALL);
-        removeBitFromMap(map, 2 * x, 2 * y + 1, MapBitEnum.WALL);
-        removeBitFromMap(map, 2 * x + 1, 2 * y + 1, MapBitEnum.WALL);
-    }
-
-    /** 生成迷宫 */
-    public void generateMaze(int[][] map, int x, int y, int w, int h) {
-        if (w < 20 || h < 20) {
-            return;
-        }
-
-        if (w < 40 || h < 40) {
-            if (GameCache.random.nextDouble() < 0.5) {
-                return;
-            }
-        }
-
-        int midX = x + w / 2;
-        int midY = y + h / 2;
-
-        // 画水平墙
-        for (int i = x; i < x + w; i++) {
-            drawWall(map, i, midY);
-        }
-
-        // 拆除一部分，以保证可以通行
-        int holeLen = 6 + GameCache.random.nextInt(5);
-        int beginX = x + GameCache.random.nextInt(w / 2 - holeLen - 1);
-        int endX = beginX + holeLen;
-        for (int i = beginX; i < endX; i++) {
-            unDrawWall(map, i, midY);
-        }
-
-        holeLen = 6 + GameCache.random.nextInt(5);
-        beginX = x + w / 2 + GameCache.random.nextInt(w / 2 - holeLen - 1);
-        endX = beginX + holeLen;
-        for (int i = beginX; i < endX; i++) {
-            unDrawWall(map, i, midY);
-        }
-
-        // 画竖直墙
-        for (int i = y; i < y + h; i++) {
-            drawWall(map, midX, i);
-        }
-
-        holeLen = 6 + GameCache.random.nextInt(5);
-        int beginY = y + GameCache.random.nextInt(h / 2 - holeLen - 1);
-        int endY = beginY + holeLen;
-        for (int i = beginY; i < endY; i++) {
-            unDrawWall(map, midX, i);
-        }
-
-        holeLen = 6 + GameCache.random.nextInt(5);
-        beginY = y + h / 2 + GameCache.random.nextInt(h / 2 - holeLen - 1);
-        endY = beginY + holeLen;
-        for (int i = beginY; i < endY; i++) {
-            unDrawWall(map, midX, i);
-        }
-
-        // Recursively generate maze in each quadrant
-        generateMaze(map, x, y, w / 2, h / 2);
-        generateMaze(map, x + w / 2, y, w / 2, h / 2);
-        generateMaze(map, x, y + h / 2, w / 2, h / 2);
-        generateMaze(map, x + w / 2, y + h / 2, w / 2, h / 2);
-    }
-
 
     /**
      * 寻路算法
@@ -166,8 +105,96 @@ public class GameMapService {
         return new PathFinder(initiator, moveBo, permissions).find();
     }
 
+    /** 刷新所有可刷新的建筑 */
+    public void refreshAllBuildings() {
+        for (SpecificBuildingService specificBuildingService : specificBuildingServices.values()) {
+            specificBuildingService.refreshAll();
+            log.info("refreshAllBuildings: {}", specificBuildingService.getClass().getName());
+        }
+    }
+
+    /** 得到地图信息 */
+    public GameMapDo getGameMap() {
+        GameMapDo gameMap = gameMapMapper.selectById(mapId);
+        assert gameMap != null;
+        return gameMap;
+    }
+
+    /** 随机创建指定数目的建筑以及其附属的生态环境 */
+    public void createEnvironment(int nBuildings) {
+        // 得到所有建筑类型
+        var buildingTypes = buildingTypeMapper.selectList(null);
+        // 首先，所有类型的建筑都有一个
+        List<BuildingTypeDo> buildingTypesToBePlaced = new ArrayList<>(buildingTypes);
+        // 计算总稀有度
+        double totalRarity = 0;
+        for (BuildingTypeDo buildingType : buildingTypes) {
+            totalRarity += buildingType.getRarity();
+        }
+        // 随后，根据建筑类型的稀有度，根据轮盘赌算法，随机生成nBuildings-buildingTypes.size()个建筑
+        for (int i = 0; i < nBuildings - buildingTypes.size(); ++i) {
+            // 计算轮盘赌的随机值
+            double randomValue = Math.random() * totalRarity;
+            // 计算轮盘赌的结果
+            double sum = 0;
+            int index = 0;
+            for (BuildingTypeDo buildingType : buildingTypes) {
+                sum += buildingType.getRarity();
+                if (sum >= randomValue) {
+                    index = buildingTypes.indexOf(buildingType);
+                    break;
+                }
+            }
+            // 将轮盘赌的结果加入建筑列表
+            buildingTypesToBePlaced.add(buildingTypes.get(index));
+        }
+        // 生成建筑
+        for (int i = 0; i < buildingTypesToBePlaced.size(); ++i) {
+            // 建筑类型
+            BuildingTypeDo buildingType = buildingTypesToBePlaced.get(i);
+            // 随机生成建筑的左上角
+            double x = Math.random() * (GameCache.map.length - 8) * Constants.PIXELS_PER_GRID;
+            double y = Math.random() * (GameCache.map[0].length - 8) * Constants.PIXELS_PER_GRID;
+            // 随机生成建筑的宽高，在基础宽高的基础上波动（0.8倍到1.2倍）
+            double scale = Math.random() * 0.4 + 0.8;
+            // 创建建筑对象
+            BuildingDo building = new BuildingDo();
+            building.setId(UUIDNameGenerator.generateItemName(buildingType.getId().name()));
+            building.setType(buildingType.getId());
+            building.setMap(mapId);
+            building.setLevel(1);
+            building.setOriginX(x);
+            building.setOriginY(y);
+            building.setWidth(buildingType.getBasicWidth() * scale);
+            building.setHeight(buildingType.getBasicHeight() * scale);
+            // 判断是否与其他建筑重叠
+            if (!isBuildingOverlapStrict(building)) {
+                // 如果不重叠，添加建筑到数据库
+                buildingMapper.insert(building);
+                // 放置建筑
+                placeBuildingOnMap(building);
+                // 初始化对应的建筑
+                SpecificBuildingService specificBuildingService = specificBuildingServices.get(buildingType.getId());
+                if (specificBuildingService != null) {
+                    specificBuildingService.initBuilding(building);
+                }
+            } else {
+                log.info("建筑重叠，重新生成建筑");
+                // 如果重叠，重新生成建筑
+                --i;
+            }
+        }
+        // 生成精灵
+        spriteService.refreshAllSprites();
+
+        // 删除建筑的缓存
+        // 之所以不直接使用@CacheEvict(value = "building::buildings", key = "#mapId")
+        // 是为了修复GameInitializer的构造方法中调用createEnvironment时，@CacheEvict注解不生效的问题（看起来一个component必须在构造之后才能使用注解）
+        redisTemplate.delete("building::buildings::" + mapId);
+    }
+
     /** 查看某建筑是否与其他建筑有重叠，或者超出边界 */
-    public boolean isBuildingOverlap(BuildingDo building) {
+    private boolean isBuildingOverlap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
         double buildingX = building.getOriginX();
         double buildingY = building.getOriginY();
@@ -219,7 +246,7 @@ public class GameMapService {
     }
 
     /** 严格版本的建筑重叠检测，当前建筑超过边界或者当前建筑所在的矩形区域内有其他建筑，则返回true */
-    public boolean isBuildingOverlapStrict(BuildingDo building) {
+    private boolean isBuildingOverlapStrict(BuildingDo building) {
         // 获取建筑物的左上角的坐标
         double buildingX = building.getOriginX();
         double buildingY = building.getOriginY();
@@ -256,7 +283,7 @@ public class GameMapService {
     );
 
     /** 放置建筑 */
-    public void placeBuildingOnMap(BuildingDo building) {
+    private void placeBuildingOnMap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
         double buildingX = building.getOriginX();
         double buildingY = building.getOriginY();
@@ -323,7 +350,7 @@ public class GameMapService {
      *
      * @return 是否至少存在一个建筑物
      */
-    public boolean placeAllBuildingsOnMap() {
+    private boolean placeAllBuildingsOnMap() {
         // 建筑物的黑白图的字典
         var buildingTypes = buildingTypeMapper.selectList(null);
         for (BuildingTypeDo buildingType : buildingTypes) {
@@ -347,10 +374,107 @@ public class GameMapService {
         return !buildings.isEmpty();
     }
 
-    /** 得到地图信息 */
-    public GameMapDo getGameMap() {
-        GameMapDo gameMap = gameMapMapper.selectById(mapId);
-        assert gameMap != null;
-        return gameMap;
+    /** 向地图指定位置添加一个bit */
+    private void addBitToMap(int[][] map, int x, int y, MapBitEnum bit) {
+        int bitValue = 1 << bit.ordinal();
+        map[x][y] |= bitValue;
     }
+
+    /** 从地图指定位置删除一个bit */
+    private void removeBitFromMap(int[][] map, int x, int y, MapBitEnum bit) {
+        int bitValue = 1 << bit.ordinal();
+        map[x][y] &= ~bitValue;
+    }
+
+    /** 判断地图某一点是否为某个bit */
+    private boolean isBitInMap(int[][] map, int x, int y, MapBitEnum bit) {
+        int bitValue = 1 << bit.ordinal();
+        return (map[x][y] & bitValue) != 0;
+    }
+
+    /** 判断地图某一点是否为某些bit中的至少一个 */
+    private boolean isAnyBitInMap(int[][] map, int x, int y, MapBitEnum... bits) {
+        int bitValue = 0;
+        for (MapBitEnum bit : bits) {
+            bitValue |= 1 << bit.ordinal();
+        }
+        return (map[x][y] & bitValue) != 0;
+    }
+
+    /** 画一个2x2的墙 */
+    private void drawWall(int[][] map, int x, int y) {
+        addBitToMap(map, 2 * x, 2 * y, MapBitEnum.WALL);
+        addBitToMap(map, 2 * x + 1, 2 * y, MapBitEnum.WALL);
+        addBitToMap(map, 2 * x, 2 * y + 1, MapBitEnum.WALL);
+        addBitToMap(map, 2 * x + 1, 2 * y + 1, MapBitEnum.WALL);
+    }
+
+    private void unDrawWall(int[][] map, int x, int y) {
+        removeBitFromMap(map, 2 * x, 2 * y, MapBitEnum.WALL);
+        removeBitFromMap(map, 2 * x + 1, 2 * y, MapBitEnum.WALL);
+        removeBitFromMap(map, 2 * x, 2 * y + 1, MapBitEnum.WALL);
+        removeBitFromMap(map, 2 * x + 1, 2 * y + 1, MapBitEnum.WALL);
+    }
+
+    /** 生成迷宫 */
+    private void generateMaze(int[][] map, int x, int y, int w, int h) {
+        if (w < 20 || h < 20) {
+            return;
+        }
+
+        if (w < 40 || h < 40) {
+            if (GameCache.random.nextDouble() < 0.5) {
+                return;
+            }
+        }
+
+        int midX = x + w / 2;
+        int midY = y + h / 2;
+
+        // 画水平墙
+        for (int i = x; i < x + w; i++) {
+            drawWall(map, i, midY);
+        }
+
+        // 拆除一部分，以保证可以通行
+        int holeLen = 6 + GameCache.random.nextInt(5);
+        int beginX = x + GameCache.random.nextInt(w / 2 - holeLen - 1);
+        int endX = beginX + holeLen;
+        for (int i = beginX; i < endX; i++) {
+            unDrawWall(map, i, midY);
+        }
+
+        holeLen = 6 + GameCache.random.nextInt(5);
+        beginX = x + w / 2 + GameCache.random.nextInt(w / 2 - holeLen - 1);
+        endX = beginX + holeLen;
+        for (int i = beginX; i < endX; i++) {
+            unDrawWall(map, i, midY);
+        }
+
+        // 画竖直墙
+        for (int i = y; i < y + h; i++) {
+            drawWall(map, midX, i);
+        }
+
+        holeLen = 6 + GameCache.random.nextInt(5);
+        int beginY = y + GameCache.random.nextInt(h / 2 - holeLen - 1);
+        int endY = beginY + holeLen;
+        for (int i = beginY; i < endY; i++) {
+            unDrawWall(map, midX, i);
+        }
+
+        holeLen = 6 + GameCache.random.nextInt(5);
+        beginY = y + h / 2 + GameCache.random.nextInt(h / 2 - holeLen - 1);
+        endY = beginY + holeLen;
+        for (int i = beginY; i < endY; i++) {
+            unDrawWall(map, midX, i);
+        }
+
+        // Recursively generate maze in each quadrant
+        generateMaze(map, x, y, w / 2, h / 2);
+        generateMaze(map, x + w / 2, y, w / 2, h / 2);
+        generateMaze(map, x, y + h / 2, w / 2, h / 2);
+        generateMaze(map, x + w / 2, y + h / 2, w / 2, h / 2);
+    }
+
 }

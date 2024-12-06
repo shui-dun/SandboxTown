@@ -1,13 +1,17 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
 import com.shuidun.sandbox_town_backend.agent.SpriteAgent;
-import com.shuidun.sandbox_town_backend.bean.*;
+import com.shuidun.sandbox_town_backend.bean.MoveBo;
+import com.shuidun.sandbox_town_backend.bean.MoveVo;
+import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
+import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
-import com.shuidun.sandbox_town_backend.mixin.Constants;
-import com.shuidun.sandbox_town_backend.mixin.GameCache;
-import com.shuidun.sandbox_town_backend.service.*;
+import com.shuidun.sandbox_town_backend.service.GameMapService;
+import com.shuidun.sandbox_town_backend.service.SpriteActionService;
+import com.shuidun.sandbox_town_backend.service.SpriteService;
+import com.shuidun.sandbox_town_backend.service.TimeService;
 import com.shuidun.sandbox_town_backend.utils.Concurrent;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +76,7 @@ public class GameLoop {
     /** 当前帧数 */
     private long curFrame = 0;
 
-    public GameLoop(List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService, SpriteService spriteService, EcosystemService ecosystemService, EventHandler eventHandler, TimeService timeService) throws InterruptedException {
+    public GameLoop(List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService, SpriteService spriteService, EventHandler eventHandler, TimeService timeService) throws InterruptedException {
         this.spriteService = spriteService;
         this.gameMapService = gameMapService;
         this.spriteActionService = spriteActionService;
@@ -81,32 +85,8 @@ public class GameLoop {
         for (SpriteAgent agent : spriteAgents) {
             typeToAgent.put(agent.getType(), agent);
         }
-
-        // 获得地图信息
-        GameMapDo gameMap = gameMapService.getGameMap();
-
-        // 设置随机数种子
-        GameCache.random.setSeed(gameMap.getSeed());
-
         // 初始化地图
-        GameCache.map = new int[gameMap.getWidth() / Constants.PIXELS_PER_GRID][gameMap.getHeight() / Constants.PIXELS_PER_GRID];
-        GameCache.buildingsHashCodeMap = new int[gameMap.getWidth() / Constants.PIXELS_PER_GRID][gameMap.getHeight() / Constants.PIXELS_PER_GRID];
-
-        // 在地图上生成围墙
-        gameMapService.generateMaze(GameCache.map, 0, 0, GameCache.map.length / 2, GameCache.map[0].length / 2);
-
-        // 在地图上放置建筑
-        boolean containsBuilding = gameMapService.placeAllBuildingsOnMap();
-
-        // 放置没有主人的角色
-        spriteService.getUnownedSprites().forEach(sprite ->
-                spriteService.online(sprite.getId())
-        );
-
-        // 如果没有建筑物，则生成一定数量的建筑物
-        if (!containsBuilding) {
-            ecosystemService.createEnvironment(gameMap.getWidth() * gameMap.getHeight() / 300000);
-        }
+        gameMapService.init();
     }
 
     @Scheduled(initialDelay = 0, fixedDelay = GAME_LOOP_INTERVAL)
