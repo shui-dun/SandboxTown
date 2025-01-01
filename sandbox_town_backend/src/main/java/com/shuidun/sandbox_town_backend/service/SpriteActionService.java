@@ -101,19 +101,19 @@ public class SpriteActionService {
             return Optional.empty();
         }
         // 如果精灵的目标精灵不存在
-        String targetSpriteId = sprite.getOnlineCache().getTargetSpriteId();
+        String targetSpriteId = sprite.getTargetSpriteId();
         if (targetSpriteId == null) {
             return Optional.empty();
         }
         // 如果目标精灵不在线
         SpriteDo targetSprite = spriteService.selectOnlineSpriteById(targetSpriteId);
         if (targetSprite == null || targetSprite.getOnlineCache() == null) {
-            sprite.getOnlineCache().setTargetSpriteId(null);
+            sprite.setTargetSpriteId(null);
             return Optional.empty();
         }
         // 如果目标精灵不在视野范围内
         if (!isInSight(sprite, targetSprite.getX(), targetSprite.getY())) {
-            sprite.getOnlineCache().setTargetSpriteId(null);
+            sprite.setTargetSpriteId(null);
             return Optional.empty();
         }
         return Optional.of(targetSprite);
@@ -129,7 +129,7 @@ public class SpriteActionService {
         // 以一定概率忘记目标
         if (GameCache.random.nextDouble() < forgetProbability) {
             if (sprite.getOnlineCache() != null) {
-                sprite.getOnlineCache().setTargetSpriteId(null);
+                sprite.setTargetSpriteId(null);
             }
             return Optional.empty();
         }

@@ -13,7 +13,7 @@ public class UserAgent implements SpriteAgent {
         assert sprite.getOnlineCache() != null;
         // 一定概率忘记目标（否则玩家的狗会一直追着攻击玩家的目标）
         if (GameCache.random.nextDouble() > 0.8) {
-            sprite.getOnlineCache().setTargetSpriteId(null);
+            sprite.setTargetSpriteId(null);
         }
         return MoveBo.empty();
     }

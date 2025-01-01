@@ -142,8 +142,8 @@ public class EventHandler {
             }
             sprite.setX(data.getX0());
             sprite.setY(data.getY0());
-            sprite.getOnlineCache().setVx(0.0);
-            sprite.getOnlineCache().setVy(0.0);
+            sprite.setVx(0.0);
+            sprite.setVy(0.0);
             // 寻找路径
             MoveBo moveBo = MoveBo.empty();
             if (data.getDestSpriteId() != null) {

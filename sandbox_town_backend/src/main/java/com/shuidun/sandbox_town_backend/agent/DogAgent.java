@@ -43,7 +43,7 @@ public class DogAgent implements SpriteAgent {
             // 5. 如果狗a杀死了狗b，那么狗a接着可能会攻击自己
             SpriteDo ownerTarget = spriteActionService.getValidTarget(owner).orElse(null);
             if (ownerTarget != null) {
-                sprite.getOnlineCache().setTargetSpriteId(ownerTarget.getId());
+                sprite.setTargetSpriteId(ownerTarget.getId());
                 return MoveBo.empty();
             }
             // 否则狗一定概率就跟着主人走

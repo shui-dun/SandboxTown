@@ -257,7 +257,7 @@ public class SpriteService {
                     sprite.setX(0.0);
                     sprite.setY(0.0);
                     // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
-                    sprite.getOnlineCache().setLastMoveTime(System.currentTimeMillis() + 500);
+                    sprite.setLastMoveTime(System.currentTimeMillis() + 500);
                     responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
                             sprite.getId(),
                             0.0, 0.0, 0.0, 0.0
@@ -541,9 +541,9 @@ public class SpriteService {
             responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sourceSprite.getId())));
         }
         // 被攻击者以攻击者为目标
-        targetSprite.getOnlineCache().setTargetSpriteId(sourceSprite.getId());
+        targetSprite.setTargetSpriteId(sourceSprite.getId());
         // 攻击者也以被攻击者为目标
-        sourceSprite.getOnlineCache().setTargetSpriteId(targetSprite.getId());
+        sourceSprite.setTargetSpriteId(targetSprite.getId());
         // 计算伤害
         int damage = sourceSprite.getAttack() + sourceSprite.getAttackInc() -
                 (targetSprite.getDefense() + targetSprite.getDefenseInc());

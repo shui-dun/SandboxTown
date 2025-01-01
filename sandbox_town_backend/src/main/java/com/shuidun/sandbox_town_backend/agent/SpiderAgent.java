@@ -37,7 +37,7 @@ public class SpiderAgent implements SpriteAgent {
             // 随机移动
             return MoveBo.randomMove(sprite).moveWithProb(0.15);
         }
-        sprite.getOnlineCache().setTargetSpriteId(target.getId());
+        sprite.setTargetSpriteId(target.getId());
         return MoveBo.moveToSprite(target);
     }
 

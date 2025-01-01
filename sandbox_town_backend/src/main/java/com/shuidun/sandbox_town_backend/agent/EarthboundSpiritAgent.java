@@ -42,7 +42,7 @@ public class EarthboundSpiritAgent implements SpriteAgent {
                 .map(s -> spriteService.selectOnlineSpriteById(s.getId()))
                 .orElse(null);
         if (target != null) {
-            sprite.getOnlineCache().setTargetSpriteId(target.getId());
+            sprite.setTargetSpriteId(target.getId());
             return MoveBo.moveToSprite(target).moveWithProb(0.85);
         }
         // 否则随机移动
