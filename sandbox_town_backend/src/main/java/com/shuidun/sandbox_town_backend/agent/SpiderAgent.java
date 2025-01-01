@@ -25,7 +25,7 @@ public class SpiderAgent implements SpriteAgent {
         assert sprite.getOnlineCache() != null;
         // 在视觉范围内寻找一个目标
         // 蜘蛛的攻击目标需要满足的条件（必须有主人，并且不是蜘蛛）
-        SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.15)
+        SpriteBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.15)
                 .map(s -> spriteService.selectOnlineSpriteById(s.getId()))
                 .orElse(null);
         if (target == null) {

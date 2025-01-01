@@ -112,7 +112,7 @@ public class GameMapService {
      * @param moveBo    移动信息
      * @return 路径节点列表，如果找不到路径，则返回空列表
      */
-    public List<Point> findPath(SpriteWithTypeBo initiator, MoveBo moveBo,
+    public List<Point> findPath(SpriteBo initiator, MoveBo moveBo,
                                 MapBitsPermissionsBo permissions) {
 
         // 调用寻路算法
@@ -565,7 +565,7 @@ public class GameMapService {
         /** 地图点权限 */
         private final MapBitsPermissionsBo permissions;
 
-        public PathFinder(SpriteWithTypeBo initiator, MoveBo moveBo, MapBitsPermissionsBo permissions) {
+        public PathFinder(SpriteBo initiator, MoveBo moveBo, MapBitsPermissionsBo permissions) {
             physicalX0 = initiator.getX();
             physicalY0 = initiator.getY();
             physicalX1 = moveBo.getX();

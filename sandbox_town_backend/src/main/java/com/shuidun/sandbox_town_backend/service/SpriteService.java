@@ -139,7 +139,7 @@ public class SpriteService {
     }
 
     /** 为精灵设置装备、属性增量信息和效果列表 */
-    private SpriteBo assignEquipmentsAndAttributeIncAndEffectToSprite(SpriteWithTypeBo sprite) {
+    private SpriteBo assignEquipmentsAndAttributeIncAndEffectToSprite(SpriteBo sprite) {
         // 获取装备列表
         List<ItemDetailBo> equipments = itemService.listItemsInEquipmentByOwnerWithDetail(sprite.getId());
         // 设置效果列表
@@ -160,7 +160,7 @@ public class SpriteService {
     @Nullable
     public SpriteBo selectOnlineSpriteById(String id) {
         // 获得带有类型信息的sprite
-        SpriteWithTypeBo sprite = spriteMapper.selectByIdWithType(id);
+        SpriteBo sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
             return null;
         }

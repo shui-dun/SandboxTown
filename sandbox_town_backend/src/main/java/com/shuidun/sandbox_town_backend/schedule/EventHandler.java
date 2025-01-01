@@ -147,7 +147,7 @@ public class EventHandler {
             // 寻找路径
             MoveBo moveBo = MoveBo.empty();
             if (data.getDestSpriteId() != null) {
-                SpriteWithTypeBo destSprite = spriteService.selectOnlineSpriteById(data.getDestSpriteId());
+                SpriteBo destSprite = spriteService.selectOnlineSpriteById(data.getDestSpriteId());
                 if (destSprite != null) {
                     moveBo = MoveBo.moveToSprite(destSprite, data.getX1(), data.getY1());
                 }
@@ -216,7 +216,7 @@ public class EventHandler {
             if (sourceSprite == null || sourceSprite.getOnlineCache() == null) {
                 return;
             }
-            SpriteWithTypeBo targetSprite = spriteActionService.getValidTarget(sourceSprite)
+            SpriteBo targetSprite = spriteActionService.getValidTarget(sourceSprite)
                     .map(s -> spriteService.selectOnlineSpriteById(s.getId()))
                     .orElse(null);
             // 如果目标不合法，则重新选择目标

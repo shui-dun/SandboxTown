@@ -26,7 +26,7 @@ public class MoveBo {
 
     /** 目标精灵（如果目标点是精灵） */
     @Nullable
-    private SpriteWithTypeBo destSprite;
+    private SpriteBo destSprite;
 
     /** 是否与目标保持一定距离 */
     private boolean keepDistance;
@@ -79,12 +79,12 @@ public class MoveBo {
     }
 
     /** 移动到指定精灵 */
-    public static MoveBo moveToSprite(SpriteWithTypeBo sprite) {
+    public static MoveBo moveToSprite(SpriteBo sprite) {
         return new MoveBo(true, sprite.getX(), sprite.getY(), null, sprite, false, false);
     }
 
     /** 移动到指定精灵 */
-    public static MoveBo moveToSprite(SpriteWithTypeBo sprite, double x, double y) {
+    public static MoveBo moveToSprite(SpriteBo sprite, double x, double y) {
         return new MoveBo(true, x, y, null, sprite, false, false);
     }
 

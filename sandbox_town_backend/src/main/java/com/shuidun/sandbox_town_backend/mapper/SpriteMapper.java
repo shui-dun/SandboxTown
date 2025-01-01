@@ -24,7 +24,7 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
             WHERE id = #{id}
             """)
     @Nullable
-    SpriteWithTypeBo selectByIdWithType(String id);
+    SpriteBo selectByIdWithType(String id);
 
     /** 得到某个地图上的所有角色 */
     default List<SpriteDo> selectByMapId(String map) {

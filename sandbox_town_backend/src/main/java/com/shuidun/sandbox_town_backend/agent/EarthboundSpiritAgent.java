@@ -27,7 +27,7 @@ public class EarthboundSpiritAgent implements SpriteAgent {
     public MoveBo act(SpriteBo sprite) {
         assert sprite.getOnlineCache() != null;
         // 如果有目标
-        SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.25)
+        SpriteBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.25)
                 .map(s -> spriteService.selectOnlineSpriteById(s.getId())).orElse(null);
         if (target != null) {
             return MoveBo.moveToSprite(target).moveWithProb(0.85);
