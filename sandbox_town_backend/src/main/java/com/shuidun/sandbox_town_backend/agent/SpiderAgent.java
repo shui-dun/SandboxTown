@@ -2,8 +2,7 @@ package com.shuidun.sandbox_town_backend.agent;
 
 import com.shuidun.sandbox_town_backend.bean.MapBitsPermissionsBo;
 import com.shuidun.sandbox_town_backend.bean.MoveBo;
-import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
-import com.shuidun.sandbox_town_backend.bean.SpriteWithTypeBo;
+import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.enumeration.MapBitEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.service.SpriteActionService;
@@ -22,7 +21,7 @@ public class SpiderAgent implements SpriteAgent {
     }
 
     @Override
-    public MoveBo act(SpriteDetailBo sprite) {
+    public MoveBo act(SpriteBo sprite) {
         assert sprite.getOnlineCache() != null;
         // 在视觉范围内寻找一个目标
         // 蜘蛛的攻击目标需要满足的条件（必须有主人，并且不是蜘蛛）
@@ -51,7 +50,7 @@ public class SpiderAgent implements SpriteAgent {
     private static final int DEFAULT_FORBID = MapBitsPermissionsBo.mapBitArrayToInt(MapBitEnum.SURROUNDING_GREEK_TEMPLE);
 
     @Override
-    public MapBitsPermissionsBo mapBitsPermissions(SpriteDetailBo sprite) {
+    public MapBitsPermissionsBo mapBitsPermissions(SpriteBo sprite) {
         int obstacles = MapBitsPermissionsBo.DEFAULT_OBSTACLES;
         int allow = MapBitsPermissionsBo.DEFAULT_ALLOW;
         // 默认不能在希腊神庙周围移动

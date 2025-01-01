@@ -39,7 +39,7 @@ public class SpriteActionService {
     }
 
     /** 得到随机移动速度 */
-    public Pair<Double, Double> randomVelocity(SpriteDetailBo sprite) {
+    public Pair<Double, Double> randomVelocity(SpriteBo sprite) {
         double coefficient = 0.9;
         double randomVx = coefficient * (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
         double randomVy = coefficient * (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
@@ -161,7 +161,7 @@ public class SpriteActionService {
 
     /** 精灵根据移动目标进行移动 */
     @Nullable
-    public MoveVo move(SpriteDetailBo sprite, MoveBo moveBo, MapBitsPermissionsBo permissions) {
+    public MoveVo move(SpriteBo sprite, MoveBo moveBo, MapBitsPermissionsBo permissions) {
         if (!moveBo.isMove()) {
             return null;
         }

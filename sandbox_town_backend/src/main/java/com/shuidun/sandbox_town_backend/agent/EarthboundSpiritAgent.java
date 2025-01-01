@@ -2,8 +2,7 @@ package com.shuidun.sandbox_town_backend.agent;
 
 import com.shuidun.sandbox_town_backend.bean.MapBitsPermissionsBo;
 import com.shuidun.sandbox_town_backend.bean.MoveBo;
-import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
-import com.shuidun.sandbox_town_backend.bean.SpriteWithTypeBo;
+import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.enumeration.MapBitEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.service.SpriteActionService;
@@ -25,7 +24,7 @@ public class EarthboundSpiritAgent implements SpriteAgent {
     }
 
     @Override
-    public MoveBo act(SpriteDetailBo sprite) {
+    public MoveBo act(SpriteBo sprite) {
         assert sprite.getOnlineCache() != null;
         // 如果有目标
         SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.25)
@@ -62,7 +61,7 @@ public class EarthboundSpiritAgent implements SpriteAgent {
     private static final int DEFAULT_FORBID = MapBitsPermissionsBo.mapBitArrayToInt(MapBitEnum.SURROUNDING_GREEK_TEMPLE);
 
     @Override
-    public MapBitsPermissionsBo mapBitsPermissions(SpriteDetailBo sprite) {
+    public MapBitsPermissionsBo mapBitsPermissions(SpriteBo sprite) {
         int obstacles = MapBitsPermissionsBo.DEFAULT_OBSTACLES;
         // 默认只能在墓碑周围移动
         int allow = DEFAULT_ALLOW;

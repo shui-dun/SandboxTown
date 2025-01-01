@@ -2,7 +2,7 @@ package com.shuidun.sandbox_town_backend.agent;
 
 import com.shuidun.sandbox_town_backend.bean.MapBitsPermissionsBo;
 import com.shuidun.sandbox_town_backend.bean.MoveBo;
-import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
+import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 
 
@@ -19,7 +19,7 @@ public interface SpriteAgent {
      * @param sprite 需要执行操作的精灵
      * @return 精灵的移动操作
      */
-    MoveBo act(SpriteDetailBo sprite);
+    MoveBo act(SpriteBo sprite);
 
     /**
      * 得到精灵的类型
@@ -29,7 +29,7 @@ public interface SpriteAgent {
     /**
      * 用于获取精灵在地图上的移动权限
      */
-    default MapBitsPermissionsBo mapBitsPermissions(SpriteDetailBo sprite) {
+    default MapBitsPermissionsBo mapBitsPermissions(SpriteBo sprite) {
         return MapBitsPermissionsBo.DEFAULT_MAP_BITS_PERMISSIONS;
     }
 }

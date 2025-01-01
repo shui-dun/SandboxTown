@@ -1,10 +1,8 @@
 package com.shuidun.sandbox_town_backend.bean;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -53,31 +51,4 @@ public class SpriteDo {
     private Double height;
 
     private String map;
-
-    @Schema(description = "在线精灵缓存信息，存在代表精灵在线，否则代表精灵离线")
-    @TableField(exist = false)
-    @Nullable
-    SpriteOnlineCache onlineCache;
-
-    public SpriteDo(SpriteDo other) {
-        this.id = other.id;
-        this.type = other.type;
-        this.owner = other.owner;
-        this.money = other.money;
-        this.exp = other.exp;
-        this.level = other.level;
-        this.hunger = other.hunger;
-        this.hp = other.hp;
-        this.attack = other.attack;
-        this.defense = other.defense;
-        this.speed = other.speed;
-        this.visionRange = other.visionRange;
-        this.attackRange = other.attackRange;
-        this.X = other.X;
-        this.Y = other.Y;
-        this.width = other.width;
-        this.height = other.height;
-        this.map = other.map;
-        this.onlineCache = other.onlineCache;
-    }
 }

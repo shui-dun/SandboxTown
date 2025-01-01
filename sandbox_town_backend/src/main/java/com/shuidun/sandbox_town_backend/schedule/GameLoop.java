@@ -3,7 +3,7 @@ package com.shuidun.sandbox_town_backend.schedule;
 import com.shuidun.sandbox_town_backend.agent.SpriteAgent;
 import com.shuidun.sandbox_town_backend.bean.MoveBo;
 import com.shuidun.sandbox_town_backend.bean.MoveVo;
-import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
+import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
@@ -103,7 +103,7 @@ public class GameLoop {
             eventHandler.handleMessages();
 
             // 生命效果
-            List<SpriteDetailBo> sprites = spriteService.getOnlineSpritesWithDetailByFrame(LIFE_FRAMES, curFrame).stream()
+            List<SpriteBo> sprites = spriteService.getOnlineSpritesWithDetailByFrame(LIFE_FRAMES, curFrame).stream()
                     .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE)))
                     .toList();
             Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1)));

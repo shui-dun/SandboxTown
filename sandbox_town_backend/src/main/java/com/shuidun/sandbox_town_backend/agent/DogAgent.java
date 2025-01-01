@@ -1,9 +1,8 @@
 package com.shuidun.sandbox_town_backend.agent;
 
 import com.shuidun.sandbox_town_backend.bean.MoveBo;
-import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
+import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.bean.SpriteDo;
-import com.shuidun.sandbox_town_backend.bean.SpriteWithTypeBo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.service.SpriteActionService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
@@ -22,7 +21,7 @@ public class DogAgent implements SpriteAgent {
     }
 
     @Override
-    public MoveBo act(SpriteDetailBo sprite) {
+    public MoveBo act(SpriteBo sprite) {
         assert sprite.getOnlineCache() != null;
         // 如果狗有目标精灵（并以一定概率忘记目标），那么狗就会攻击目标精灵
         SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.2)

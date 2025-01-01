@@ -89,7 +89,7 @@ public class MoveBo {
     }
 
     /** 精灵随机移动 */
-    public static MoveBo randomMove(SpriteDetailBo sprite) {
+    public static MoveBo randomMove(SpriteBo sprite) {
         int randX = (sprite.getSpeed() + sprite.getSpeedInc()) * (GameCache.random.nextInt(11) - 5);
         int randY = (sprite.getSpeed() + sprite.getSpeedInc()) * (GameCache.random.nextInt(11) - 5);
         return MoveBo.moveToPoint(sprite.getX() + randX, sprite.getY() + randY).straightMove();

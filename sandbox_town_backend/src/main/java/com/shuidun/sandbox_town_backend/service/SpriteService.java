@@ -68,9 +68,9 @@ public class SpriteService {
 
     private final EffectService effectService;
 
-    private final Map<String, SpriteDetailBo> onlineSpriteMap = new ConcurrentHashMap<>();
+    private final Map<String, SpriteBo> onlineSpriteMap = new ConcurrentHashMap<>();
 
-    private final Map<String, Map<String, SpriteDetailBo>> ownerOnlineSpriteMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, SpriteBo>> ownerOnlineSpriteMap = new ConcurrentHashMap<>();
 
     private final List<String> dirtySpriteList = new ArrayList<>();
 
@@ -104,7 +104,7 @@ public class SpriteService {
     /**
      * 获得精灵的属性增量信息
      */
-    private void assignIncToSprite(SpriteDetailBo sprite) {
+    private void assignIncToSprite(SpriteBo sprite) {
         // 首先将属性增强全都设置为0
         sprite.setHungerInc(0);
         sprite.setHpInc(0);
@@ -139,12 +139,12 @@ public class SpriteService {
     }
 
     /** 为精灵设置装备、属性增量信息和效果列表 */
-    private SpriteDetailBo assignEquipmentsAndAttributeIncAndEffectToSprite(SpriteWithTypeBo sprite) {
+    private SpriteBo assignEquipmentsAndAttributeIncAndEffectToSprite(SpriteWithTypeBo sprite) {
         // 获取装备列表
         List<ItemDetailBo> equipments = itemService.listItemsInEquipmentByOwnerWithDetail(sprite.getId());
         // 设置效果列表
         List<SpriteEffectWithEffectBo> effects = effectService.listSpriteEffectsBySpriteIdAndEquipments(sprite.getId(), equipments);
-        SpriteDetailBo spriteDetail = new SpriteDetailBo(sprite);
+        SpriteBo spriteDetail = new SpriteBo(sprite);
         // 设置装备列表
         spriteDetail.setEquipments(equipments);
         // 设置属性增量信息
@@ -155,7 +155,7 @@ public class SpriteService {
 
     /** 根据id获取角色详细信息（带有类型信息、装备信息、属性增量信息、效果列表信息） */
     @Nullable
-    public SpriteDetailBo selectById(String id) {
+    public SpriteBo selectById(String id) {
         // 获得带有类型信息的sprite
         SpriteWithTypeBo sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
@@ -389,9 +389,9 @@ public class SpriteService {
         return spriteCacheMap;
     }
 
-    public List<SpriteDetailBo> getOnlineSpritesWithDetail() {
+    public List<SpriteBo> getOnlineSpritesWithDetail() {
         Set<String> sprites = getOnlineSpritesCache().keySet();
-        List<SpriteDetailBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectById);
+        List<SpriteBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectById);
         return spriteDetails.stream()
                 .filter(sprite -> sprite != null && sprite.getOnlineCache() != null)
                 .toList();
@@ -401,11 +401,11 @@ public class SpriteService {
      * @param n        取1/n的精灵
      * @param curFrame 当前帧数
      */
-    public List<SpriteDetailBo> getOnlineSpritesWithDetailByFrame(int n, long curFrame) {
+    public List<SpriteBo> getOnlineSpritesWithDetailByFrame(int n, long curFrame) {
         List<String> sprites = getOnlineSpritesCache().keySet().stream()
                 .filter(id -> MyMath.safeMod(id.hashCode(), n) == MyMath.safeMod(curFrame, n))
                 .toList();
-        List<SpriteDetailBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectById);
+        List<SpriteBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectById);
         return spriteDetails.stream()
                 .filter(sprite -> sprite != null && sprite.getOnlineCache() != null)
                 .toList();
@@ -525,7 +525,7 @@ public class SpriteService {
     }
 
     @Transactional
-    public List<WSResponseVo> attack(SpriteDetailBo sourceSprite, SpriteDetailBo targetSprite) {
+    public List<WSResponseVo> attack(SpriteBo sourceSprite, SpriteBo targetSprite) {
         // 如果双方有人不在线，则不进行攻击
         if (sourceSprite.getOnlineCache() == null || targetSprite.getOnlineCache() == null) {
             return Collections.emptyList();

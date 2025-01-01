@@ -4,7 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.MyAndMyPetInfoVo;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
-import com.shuidun.sandbox_town_backend.bean.SpriteDetailBo;
+import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
@@ -32,14 +32,14 @@ public class SpriteController {
 
     @Operation(summary = "获取角色详细信息")
     @GetMapping("/list/{id}")
-    public RestResponseVo<SpriteDetailBo> getSpriteById(@PathVariable("id") String id) {
+    public RestResponseVo<SpriteBo> getSpriteById(@PathVariable("id") String id) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 spriteService.selectById(id));
     }
 
     @Operation(summary = "获取当前登陆玩家的详细信息")
     @GetMapping("/listMine")
-    public RestResponseVo<SpriteDetailBo> getMyPlayerInfo() {
+    public RestResponseVo<SpriteBo> getMyPlayerInfo() {
         String username = StpUtil.getLoginIdAsString();
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 spriteService.selectById(username));

@@ -131,7 +131,7 @@ public class EventHandler {
                 return;
             }
             // 更新玩家的坐标信息
-            SpriteDetailBo sprite = spriteService.selectById(initiator);
+            SpriteBo sprite = spriteService.selectById(initiator);
             // 如果精灵不存在
             if (sprite == null) {
                 return;
@@ -211,7 +211,7 @@ public class EventHandler {
 
         // 索敌事件
         eventMap.put(WSRequestEnum.FIND_ENEMY, (initiator, mapData) -> {
-            SpriteDetailBo sourceSprite = spriteService.selectById(initiator);
+            SpriteBo sourceSprite = spriteService.selectById(initiator);
             // 如果精灵不存在或者不在线，则返回
             if (sourceSprite == null || sourceSprite.getOnlineCache() == null) {
                 return;
