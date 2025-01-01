@@ -92,7 +92,7 @@ public class EventHandler {
             if (data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
                 return;
             }
-            var sprite = spriteService.selectById(initiator);
+            var sprite = spriteService.selectById(data.getId());
             assert sprite != null;
             var spriteCache = sprite.getOnlineCache();
             // 如果该角色已被删除，直接返回
