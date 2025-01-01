@@ -153,9 +153,12 @@ public class SpriteService {
         return spriteDetail;
     }
 
-    /** 根据id获取角色详细信息（带有类型信息、装备信息、属性增量信息、效果列表信息） */
+    /**
+     * 根据id获取角色详细信息（带有类型信息、装备信息、属性增量信息、效果列表信息）
+     * 精灵不存在，或者不在线，返回null
+     */
     @Nullable
-    public SpriteBo selectById(String id) {
+    public SpriteBo selectOnlineSpriteById(String id) {
         // 获得带有类型信息的sprite
         SpriteWithTypeBo sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
@@ -391,7 +394,7 @@ public class SpriteService {
 
     public List<SpriteBo> getOnlineSpritesWithDetail() {
         Set<String> sprites = getOnlineSpritesCache().keySet();
-        List<SpriteBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectById);
+        List<SpriteBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectOnlineSpriteById);
         return spriteDetails.stream()
                 .filter(sprite -> sprite != null && sprite.getOnlineCache() != null)
                 .toList();
@@ -405,7 +408,7 @@ public class SpriteService {
         List<String> sprites = getOnlineSpritesCache().keySet().stream()
                 .filter(id -> MyMath.safeMod(id.hashCode(), n) == MyMath.safeMod(curFrame, n))
                 .toList();
-        List<SpriteBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectById);
+        List<SpriteBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectOnlineSpriteById);
         return spriteDetails.stream()
                 .filter(sprite -> sprite != null && sprite.getOnlineCache() != null)
                 .toList();
@@ -413,7 +416,7 @@ public class SpriteService {
 
     public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {
         return new MyAndMyPetInfoVo(
-                selectById(ownerId),
+                selectOnlineSpriteById(ownerId),
                 selectByOwner(ownerId));
     }
 
@@ -445,7 +448,7 @@ public class SpriteService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
         // 判断角色是否存在
-        SpriteDo sprite = selectById(owner);
+        SpriteDo sprite = selectOnlineSpriteById(owner);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
@@ -551,7 +554,7 @@ public class SpriteService {
             if (modifyLifeResponses.stream().anyMatch(response -> response.getType() == WSResponseEnum.OFFLINE)) {
                 // 获得攻击者的主人
                 String ownerId = sourceSprite.getOwner();
-                SpriteDo owner = ownerId == null ? null : selectById(ownerId);
+                SpriteDo owner = ownerId == null ? null : selectOnlineSpriteById(ownerId);
                 // 查询被攻击者死亡后带给攻击者的属性提升（属性提升值不仅与死亡者的类型有关，还与死亡者的等级有关）
                 VictoryAttributeRewardDo attributeReward = victoryAttributeRewardMapper.selectById(targetSprite.getType());
                 if (attributeReward != null) {
@@ -633,7 +636,7 @@ public class SpriteService {
      */
     @Transactional
     public List<WSResponseVo> modifyLife(String spriteId, int val) {
-        SpriteDo sprite = selectById(spriteId);
+        SpriteDo sprite = selectOnlineSpriteById(spriteId);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
@@ -717,7 +720,7 @@ public class SpriteService {
      * 使精灵上线
      */
     public SpriteOnlineCache online(String id) {
-        SpriteDo sprite = selectById(id);
+        SpriteDo sprite = selectOnlineSpriteById(id);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }

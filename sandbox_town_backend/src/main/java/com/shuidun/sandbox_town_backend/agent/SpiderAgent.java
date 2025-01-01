@@ -26,12 +26,12 @@ public class SpiderAgent implements SpriteAgent {
         // 在视觉范围内寻找一个目标
         // 蜘蛛的攻击目标需要满足的条件（必须有主人，并且不是蜘蛛）
         SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.15)
-                .map(s -> spriteService.selectById(s.getId()))
+                .map(s -> spriteService.selectOnlineSpriteById(s.getId()))
                 .orElse(null);
         if (target == null) {
             target = spriteActionService.findAnyTargetInSight(sprite,
                     (s) -> s.getType() != SpriteTypeEnum.SPIDER && (s.getOwner() != null || s.getType() == SpriteTypeEnum.USER)
-            ).map(s -> spriteService.selectById(s.getId())).orElse(null);
+            ).map(s -> spriteService.selectOnlineSpriteById(s.getId())).orElse(null);
         }
         if (target == null) {
             // 随机移动

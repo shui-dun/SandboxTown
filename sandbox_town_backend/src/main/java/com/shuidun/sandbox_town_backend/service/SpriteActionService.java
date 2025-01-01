@@ -106,7 +106,7 @@ public class SpriteActionService {
             return Optional.empty();
         }
         // 如果目标精灵不在线
-        SpriteDo targetSprite = spriteService.selectById(targetSpriteId);
+        SpriteDo targetSprite = spriteService.selectOnlineSpriteById(targetSpriteId);
         if (targetSprite == null || targetSprite.getOnlineCache() == null) {
             sprite.getOnlineCache().setTargetSpriteId(null);
             return Optional.empty();
@@ -148,7 +148,7 @@ public class SpriteActionService {
             return Optional.empty();
         }
         // 如果主人不在线
-        SpriteDo ownerSprite = spriteService.selectById(owner);
+        SpriteDo ownerSprite = spriteService.selectOnlineSpriteById(owner);
         if (ownerSprite == null || ownerSprite.getOnlineCache() == null) {
             return Optional.empty();
         }

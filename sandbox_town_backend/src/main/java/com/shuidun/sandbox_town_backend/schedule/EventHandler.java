@@ -92,12 +92,12 @@ public class EventHandler {
             if (data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
                 return;
             }
-            var sprite = spriteService.selectById(data.getId());
+            var sprite = spriteService.selectOnlineSpriteById(data.getId());
             assert sprite != null;
             var spriteCache = sprite.getOnlineCache();
             // 如果该角色已被删除，直接返回
             if (spriteCache == null
-                    && spriteService.selectById(data.getId()) == null) {
+                    && spriteService.selectOnlineSpriteById(data.getId()) == null) {
                 return;
             }
 
@@ -131,7 +131,7 @@ public class EventHandler {
                 return;
             }
             // 更新玩家的坐标信息
-            SpriteBo sprite = spriteService.selectById(initiator);
+            SpriteBo sprite = spriteService.selectOnlineSpriteById(initiator);
             // 如果精灵不存在
             if (sprite == null) {
                 return;
@@ -147,7 +147,7 @@ public class EventHandler {
             // 寻找路径
             MoveBo moveBo = MoveBo.empty();
             if (data.getDestSpriteId() != null) {
-                SpriteWithTypeBo destSprite = spriteService.selectById(data.getDestSpriteId());
+                SpriteWithTypeBo destSprite = spriteService.selectOnlineSpriteById(data.getDestSpriteId());
                 if (destSprite != null) {
                     moveBo = MoveBo.moveToSprite(destSprite, data.getX1(), data.getY1());
                 }
@@ -169,8 +169,8 @@ public class EventHandler {
                 return;
             }
             // 判断上次交互的时间是否过去了400m秒
-            var sourceSprite = spriteService.selectById(data.getSource());
-            var targetSprite = spriteService.selectById(data.getTarget());
+            var sourceSprite = spriteService.selectOnlineSpriteById(data.getSource());
+            var targetSprite = spriteService.selectOnlineSpriteById(data.getTarget());
             // 如果两者有一个不存在，直接返回
             if (sourceSprite == null || targetSprite == null) {
                 return;
@@ -211,20 +211,20 @@ public class EventHandler {
 
         // 索敌事件
         eventMap.put(WSRequestEnum.FIND_ENEMY, (initiator, mapData) -> {
-            SpriteBo sourceSprite = spriteService.selectById(initiator);
+            SpriteBo sourceSprite = spriteService.selectOnlineSpriteById(initiator);
             // 如果精灵不存在或者不在线，则返回
             if (sourceSprite == null || sourceSprite.getOnlineCache() == null) {
                 return;
             }
             SpriteWithTypeBo targetSprite = spriteActionService.getValidTarget(sourceSprite)
-                    .map(s -> spriteService.selectById(s.getId()))
+                    .map(s -> spriteService.selectOnlineSpriteById(s.getId()))
                     .orElse(null);
             // 如果目标不合法，则重新选择目标
             if (targetSprite == null) {
                 targetSprite = spriteActionService.findNearestTargetInSight(sourceSprite, (s) -> {
                     // 不能攻击自己的宠物
                     return s.getOwner() == null || !s.getOwner().equals(initiator);
-                }).map(s -> spriteService.selectById(s.getId())).orElse(null);
+                }).map(s -> spriteService.selectOnlineSpriteById(s.getId())).orElse(null);
             }
             // 如果找不到目标，直接返回
             if (targetSprite == null) {
