@@ -711,14 +711,6 @@ public class SpriteService {
     }
 
     /**
-     * 得到精灵缓存信息，如果不在线则返回null
-     */
-    @Nullable
-    public SpriteCache getSpriteCache(String id) {
-        return spriteCacheMap.get(id);
-    }
-
-    /**
      * 使精灵上线
      */
     public SpriteCache online(String id) {

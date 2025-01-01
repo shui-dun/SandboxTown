@@ -92,7 +92,9 @@ public class EventHandler {
             if (data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
                 return;
             }
-            var spriteCache = spriteService.getSpriteCache(data.getId());
+            var sprite = spriteService.selectById(initiator);
+            assert sprite != null;
+            var spriteCache = sprite.getCache();
             // 如果该角色已被删除，直接返回
             if (spriteCache == null
                     && spriteService.selectById(data.getId()) == null) {
@@ -169,18 +171,18 @@ public class EventHandler {
                 return;
             }
             // 判断上次交互的时间是否过去了400m秒
-            var spriteCache = spriteService.getSpriteCache(data.getSource());
+            var sourceSprite = spriteService.selectById(data.getSource());
+            var targetSprite = spriteService.selectById(data.getTarget());
+            // 如果两者有一个不存在，直接返回
+            if (sourceSprite == null || targetSprite == null) {
+                return;
+            }
+            var spriteCache = sourceSprite.getCache();
             if (spriteCache == null || (spriteCache.getLastInteractTime() != null && spriteCache.getLastInteractTime() > System.currentTimeMillis() - 400)) {
                 return;
             }
             // 如果上次交互的序列号和本次相同，说明本次交互已经处理过了，直接返回
             if (data.getSn().equals(spriteCache.getLastInteractSn())) {
-                return;
-            }
-            var sourceSprite = spriteService.selectById(data.getSource());
-            var targetSprite = spriteService.selectById(data.getTarget());
-            // 如果两者有一个不存在，直接返回
-            if (sourceSprite == null || targetSprite == null) {
                 return;
             }
             // 如果两者距离较远，直接返回
