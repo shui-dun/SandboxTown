@@ -12,11 +12,6 @@ import org.springframework.lang.Nullable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpriteOnlineCache {
-    @Schema(description = "只有x和y会定期写入数据库，其他的都只在Java内存中")
-    private Double x;
-
-    private Double y;
-
     private Double vx;
 
     private Double vy;

@@ -111,8 +111,8 @@ public class EventHandler {
             if (spriteCache == null) {
                 spriteCache = spriteService.online(data.getId());
             }
-            spriteCache.setX(data.getX());
-            spriteCache.setY(data.getY());
+            sprite.setX(data.getX());
+            sprite.setY(data.getY());
             spriteCache.setLastMoveTime(data.getTime());
             spriteCache.setVx(data.getVx());
             spriteCache.setVy(data.getVy());
@@ -142,8 +142,6 @@ public class EventHandler {
             }
             sprite.setX(data.getX0());
             sprite.setY(data.getY0());
-            sprite.getOnlineCache().setX(data.getX0());
-            sprite.getOnlineCache().setY(data.getY0());
             sprite.getOnlineCache().setVx(0.0);
             sprite.getOnlineCache().setVy(0.0);
             // 寻找路径

@@ -97,8 +97,6 @@ public class SpriteService {
     private void assignCacheToSprite(SpriteDo sprite) {
         var spriteCache = spriteCacheMap.get(sprite.getId());
         if (spriteCache != null) {
-            sprite.setX(spriteCache.getX());
-            sprite.setY(spriteCache.getY());
             sprite.setOnlineCache(spriteCache);
         }
     }
@@ -253,8 +251,8 @@ public class SpriteService {
                 spriteMapper.updateById(sprite);
                 // 如果在线，设置坐标为原点
                 if (sprite.getOnlineCache() != null) {
-                    sprite.getOnlineCache().setX(0.0);
-                    sprite.getOnlineCache().setY(0.0);
+                    sprite.setX(0.0);
+                    sprite.setY(0.0);
                     // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
                     sprite.getOnlineCache().setLastMoveTime(System.currentTimeMillis() + 500);
                     responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
@@ -727,8 +725,6 @@ public class SpriteService {
         SpriteOnlineCache cache = spriteCacheMap.get(id);
         if (cache == null) {
             cache = new SpriteOnlineCache(
-                    sprite.getX(),
-                    sprite.getY(),
                     0.0, 0.0,
                     System.currentTimeMillis(),
                     null,
