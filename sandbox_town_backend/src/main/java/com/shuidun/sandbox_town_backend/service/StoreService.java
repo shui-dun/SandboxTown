@@ -5,7 +5,10 @@ import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
-import com.shuidun.sandbox_town_backend.mapper.*;
+import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
+import com.shuidun.sandbox_town_backend.mapper.ItemMapper;
+import com.shuidun.sandbox_town_backend.mapper.ItemTypeMapper;
+import com.shuidun.sandbox_town_backend.mapper.StoreItemTypeMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +37,6 @@ public class StoreService implements SpecificBuildingService {
 
     private final StoreItemTypeMapper storeItemTypeMapper;
 
-    private final SpriteMapper spriteMapper;
     private final BuildingMapper buildingMapper;
 
     private final ItemTypeMapper itemTypeMapper;
@@ -50,9 +52,8 @@ public class StoreService implements SpecificBuildingService {
     @Value("${mapId}")
     private String mapId;
 
-    public StoreService(StoreItemTypeMapper storeItemTypeMapper, SpriteMapper spriteMapper, BuildingMapper buildingMapper, ItemTypeMapper itemTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate) {
+    public StoreService(StoreItemTypeMapper storeItemTypeMapper, BuildingMapper buildingMapper, ItemTypeMapper itemTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate) {
         this.storeItemTypeMapper = storeItemTypeMapper;
-        this.spriteMapper = spriteMapper;
         this.buildingMapper = buildingMapper;
         this.itemTypeMapper = itemTypeMapper;
         this.itemService = itemService;
@@ -110,7 +111,7 @@ public class StoreService implements SpecificBuildingService {
         }
         // 更新用户金钱
         sprite.setMoney(money - storeItemType.getPrice() * amount);
-        spriteMapper.updateById(sprite);
+        spriteService.normalizeAndUpdateSprite(sprite);
         // 更新商店商品数量
         storeItemType.setCount(storeItemType.getCount() - amount);
         storeItemTypeMapper.update(storeItemType);

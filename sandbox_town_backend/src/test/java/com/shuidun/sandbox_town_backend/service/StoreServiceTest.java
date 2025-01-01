@@ -5,7 +5,6 @@ import com.shuidun.sandbox_town_backend.bean.StoreItemTypeDo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
-import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
 import com.shuidun.sandbox_town_backend.mapper.StoreItemTypeMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,9 +26,6 @@ class StoreServiceTest {
 
     @Mock
     private SpriteService spriteService;
-
-    @Mock
-    private SpriteMapper spriteMapper;
 
     @Mock
     private ItemService itemService;
@@ -61,7 +57,7 @@ class StoreServiceTest {
         // 验证是否向用户添加了商品（由于没有返回值，所以只能验证是否调用了方法）
         verify(itemService, times(1)).add(spriteId, item, amount);
         // 验证是否调用了更新用户的方法
-        verify(spriteMapper, times(1)).updateById(mockSprite);
+        verify(spriteService, times(1)).normalizeAndUpdateSprite(mockSprite);
         // 验证是否调用了更新商品的方法
         verify(storeItemTypeMapper, times(1)).update(mockStoreItemType);
     }

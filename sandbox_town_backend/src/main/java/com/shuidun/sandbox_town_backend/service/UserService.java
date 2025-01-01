@@ -1,11 +1,11 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.bean.UserDo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
-import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
 import com.shuidun.sandbox_town_backend.mapper.UserMapper;
 import com.shuidun.sandbox_town_backend.mapper.UserRoleMapper;
 import com.shuidun.sandbox_town_backend.utils.PasswordEncryptor;
@@ -30,17 +30,14 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserRoleMapper userRoleMapper;
 
-    private final SpriteMapper spriteMapper;
-
     private final SpriteService spriteService;
 
     @Value("${mapId}")
     private String mapId;
 
-    public UserService(UserMapper userMapper, UserRoleMapper userRoleMapper, SpriteMapper spriteMapper, SpriteService spriteService) {
+    public UserService(UserMapper userMapper, UserRoleMapper userRoleMapper, SpriteService spriteService) {
         this.userMapper = userMapper;
         this.userRoleMapper = userRoleMapper;
-        this.spriteMapper = spriteMapper;
         this.spriteService = spriteService;
     }
 
@@ -170,7 +167,10 @@ public class UserService {
         // 获得玩家当前金钱
         int money = sprite.getMoney();
         // 更新玩家金钱
-        spriteMapper.updateAttribute(username, "money", money + reward);
+        SpriteDo spriteDo = spriteService.selectById(username);
+        assert spriteDo != null;
+        spriteDo.setMoney(money + reward);
+        spriteService.normalizeAndUpdateSprite(spriteDo);
         // 更新玩家上次登录时间
         user.setLastOnline(new Date(System.currentTimeMillis()));
         userMapper.updateById(user);
