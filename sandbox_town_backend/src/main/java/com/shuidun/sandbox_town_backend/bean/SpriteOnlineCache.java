@@ -7,11 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 
-/** 精灵缓存信息（只存放在Java内存，而不在数据库&Redis中） */
+/** 在线精灵缓存信息（只存放在Java内存，而不在数据库&Redis中） */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpriteCache {
+public class SpriteOnlineCache {
     @Schema(description = "只有x和y会定期写入数据库，其他的都只在Java内存中")
     private Double x;
 

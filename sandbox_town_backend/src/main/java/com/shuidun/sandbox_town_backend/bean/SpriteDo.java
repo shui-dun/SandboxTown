@@ -54,10 +54,10 @@ public class SpriteDo {
 
     private String map;
 
-    @Schema(description = "精灵缓存信息，存在代表精灵在线，否则代表精灵离线")
+    @Schema(description = "在线精灵缓存信息，存在代表精灵在线，否则代表精灵离线")
     @TableField(exist = false)
     @Nullable
-    SpriteCache cache;
+    SpriteOnlineCache onlineCache;
 
     public SpriteDo(SpriteDo other) {
         this.id = other.id;
@@ -78,6 +78,6 @@ public class SpriteDo {
         this.width = other.width;
         this.height = other.height;
         this.map = other.map;
-        this.cache = other.cache;
+        this.onlineCache = other.onlineCache;
     }
 }

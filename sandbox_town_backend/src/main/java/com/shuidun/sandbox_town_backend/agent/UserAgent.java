@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 public class UserAgent implements SpriteAgent {
     @Override
     public MoveBo act(SpriteDetailBo sprite) {
-        assert sprite.getCache() != null;
+        assert sprite.getOnlineCache() != null;
         // 一定概率忘记目标（否则玩家的狗会一直追着攻击玩家的目标）
         if (GameCache.random.nextDouble() > 0.8) {
-            sprite.getCache().setTargetSpriteId(null);
+            sprite.getOnlineCache().setTargetSpriteId(null);
         }
         return MoveBo.empty();
     }

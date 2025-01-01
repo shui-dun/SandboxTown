@@ -23,7 +23,7 @@ public class SpiderAgent implements SpriteAgent {
 
     @Override
     public MoveBo act(SpriteDetailBo sprite) {
-        assert sprite.getCache() != null;
+        assert sprite.getOnlineCache() != null;
         // 在视觉范围内寻找一个目标
         // 蜘蛛的攻击目标需要满足的条件（必须有主人，并且不是蜘蛛）
         SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.15)
@@ -38,7 +38,7 @@ public class SpiderAgent implements SpriteAgent {
             // 随机移动
             return MoveBo.randomMove(sprite).moveWithProb(0.15);
         }
-        sprite.getCache().setTargetSpriteId(target.getId());
+        sprite.getOnlineCache().setTargetSpriteId(target.getId());
         return MoveBo.moveToSprite(target);
     }
 

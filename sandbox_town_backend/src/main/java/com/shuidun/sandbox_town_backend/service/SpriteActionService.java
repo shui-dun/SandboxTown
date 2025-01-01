@@ -97,23 +97,23 @@ public class SpriteActionService {
     /** 得到精灵合法的目标，即目标精灵必须存在，并且在线，并且在视野范围内。如果不合法，则返回null */
     public Optional<SpriteDo> getValidTarget(SpriteDo sprite) {
         // 如果精灵本身不在线
-        if (sprite.getCache() == null) {
+        if (sprite.getOnlineCache() == null) {
             return Optional.empty();
         }
         // 如果精灵的目标精灵不存在
-        String targetSpriteId = sprite.getCache().getTargetSpriteId();
+        String targetSpriteId = sprite.getOnlineCache().getTargetSpriteId();
         if (targetSpriteId == null) {
             return Optional.empty();
         }
         // 如果目标精灵不在线
         SpriteDo targetSprite = spriteService.selectById(targetSpriteId);
-        if (targetSprite == null || targetSprite.getCache() == null) {
-            sprite.getCache().setTargetSpriteId(null);
+        if (targetSprite == null || targetSprite.getOnlineCache() == null) {
+            sprite.getOnlineCache().setTargetSpriteId(null);
             return Optional.empty();
         }
         // 如果目标精灵不在视野范围内
         if (!isInSight(sprite, targetSprite.getX(), targetSprite.getY())) {
-            sprite.getCache().setTargetSpriteId(null);
+            sprite.getOnlineCache().setTargetSpriteId(null);
             return Optional.empty();
         }
         return Optional.of(targetSprite);
@@ -128,8 +128,8 @@ public class SpriteActionService {
         }
         // 以一定概率忘记目标
         if (GameCache.random.nextDouble() < forgetProbability) {
-            if (sprite.getCache() != null) {
-                sprite.getCache().setTargetSpriteId(null);
+            if (sprite.getOnlineCache() != null) {
+                sprite.getOnlineCache().setTargetSpriteId(null);
             }
             return Optional.empty();
         }
@@ -139,7 +139,7 @@ public class SpriteActionService {
     /** 得到精灵的合法主人，即主人必须存在，并且在线，并且在视野范围内。如果不合法，则返回null */
     public Optional<SpriteDo> getValidOwner(SpriteDo sprite) {
         // 如果精灵本身不在线
-        if (sprite.getCache() == null) {
+        if (sprite.getOnlineCache() == null) {
             return Optional.empty();
         }
         // 如果精灵的主人不存在
@@ -149,7 +149,7 @@ public class SpriteActionService {
         }
         // 如果主人不在线
         SpriteDo ownerSprite = spriteService.selectById(owner);
-        if (ownerSprite == null || ownerSprite.getCache() == null) {
+        if (ownerSprite == null || ownerSprite.getOnlineCache() == null) {
             return Optional.empty();
         }
         // 如果主人不在视野范围内

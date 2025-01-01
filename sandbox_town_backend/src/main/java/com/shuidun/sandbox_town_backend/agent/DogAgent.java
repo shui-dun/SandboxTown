@@ -23,7 +23,7 @@ public class DogAgent implements SpriteAgent {
 
     @Override
     public MoveBo act(SpriteDetailBo sprite) {
-        assert sprite.getCache() != null;
+        assert sprite.getOnlineCache() != null;
         // 如果狗有目标精灵（并以一定概率忘记目标），那么狗就会攻击目标精灵
         SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.2)
                 .map(s -> spriteService.selectById(s.getId()))
@@ -44,7 +44,7 @@ public class DogAgent implements SpriteAgent {
             // 5. 如果狗a杀死了狗b，那么狗a接着可能会攻击自己
             SpriteDo ownerTarget = spriteActionService.getValidTarget(owner).orElse(null);
             if (ownerTarget != null) {
-                sprite.getCache().setTargetSpriteId(ownerTarget.getId());
+                sprite.getOnlineCache().setTargetSpriteId(ownerTarget.getId());
                 return MoveBo.empty();
             }
             // 否则狗一定概率就跟着主人走

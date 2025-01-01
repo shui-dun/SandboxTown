@@ -26,7 +26,7 @@ public class EarthboundSpiritAgent implements SpriteAgent {
 
     @Override
     public MoveBo act(SpriteDetailBo sprite) {
-        assert sprite.getCache() != null;
+        assert sprite.getOnlineCache() != null;
         // 如果有目标
         SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.25)
                 .map(s -> spriteService.selectById(s.getId())).orElse(null);
@@ -43,7 +43,7 @@ public class EarthboundSpiritAgent implements SpriteAgent {
                 .map(s -> spriteService.selectById(s.getId()))
                 .orElse(null);
         if (target != null) {
-            sprite.getCache().setTargetSpriteId(target.getId());
+            sprite.getOnlineCache().setTargetSpriteId(target.getId());
             return MoveBo.moveToSprite(target).moveWithProb(0.85);
         }
         // 否则随机移动

@@ -94,7 +94,7 @@ public class EventHandler {
             }
             var sprite = spriteService.selectById(initiator);
             assert sprite != null;
-            var spriteCache = sprite.getCache();
+            var spriteCache = sprite.getOnlineCache();
             // 如果该角色已被删除，直接返回
             if (spriteCache == null
                     && spriteService.selectById(data.getId()) == null) {
@@ -137,15 +137,15 @@ public class EventHandler {
                 return;
             }
             // 如果精灵不在线，使其在线
-            if (sprite.getCache() == null) {
-                sprite.setCache(spriteService.online(initiator));
+            if (sprite.getOnlineCache() == null) {
+                sprite.setOnlineCache(spriteService.online(initiator));
             }
             sprite.setX(data.getX0());
             sprite.setY(data.getY0());
-            sprite.getCache().setX(data.getX0());
-            sprite.getCache().setY(data.getY0());
-            sprite.getCache().setVx(0.0);
-            sprite.getCache().setVy(0.0);
+            sprite.getOnlineCache().setX(data.getX0());
+            sprite.getOnlineCache().setY(data.getY0());
+            sprite.getOnlineCache().setVx(0.0);
+            sprite.getOnlineCache().setVy(0.0);
             // 寻找路径
             MoveBo moveBo = MoveBo.empty();
             if (data.getDestSpriteId() != null) {
@@ -177,7 +177,7 @@ public class EventHandler {
             if (sourceSprite == null || targetSprite == null) {
                 return;
             }
-            var spriteCache = sourceSprite.getCache();
+            var spriteCache = sourceSprite.getOnlineCache();
             if (spriteCache == null || (spriteCache.getLastInteractTime() != null && spriteCache.getLastInteractTime() > System.currentTimeMillis() - 400)) {
                 return;
             }
@@ -215,7 +215,7 @@ public class EventHandler {
         eventMap.put(WSRequestEnum.FIND_ENEMY, (initiator, mapData) -> {
             SpriteDetailBo sourceSprite = spriteService.selectById(initiator);
             // 如果精灵不存在或者不在线，则返回
-            if (sourceSprite == null || sourceSprite.getCache() == null) {
+            if (sourceSprite == null || sourceSprite.getOnlineCache() == null) {
                 return;
             }
             SpriteWithTypeBo targetSprite = spriteActionService.getValidTarget(sourceSprite)
