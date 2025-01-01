@@ -162,7 +162,7 @@ public class UserService {
                 reward = 40;
             }
         }
-        var sprite = spriteService.selectByIdWithType(username);
+        var sprite = spriteService.selectById(username);
         assert sprite != null;
         // 获得玩家当前金钱
         int money = sprite.getMoney();

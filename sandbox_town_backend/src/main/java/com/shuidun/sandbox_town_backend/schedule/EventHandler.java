@@ -129,7 +129,7 @@ public class EventHandler {
                 return;
             }
             // 更新玩家的坐标信息
-            SpriteDetailBo sprite = spriteService.selectByIdWithDetail(initiator);
+            SpriteDetailBo sprite = spriteService.selectById(initiator);
             // 如果精灵不存在
             if (sprite == null) {
                 return;
@@ -147,7 +147,7 @@ public class EventHandler {
             // 寻找路径
             MoveBo moveBo = MoveBo.empty();
             if (data.getDestSpriteId() != null) {
-                SpriteWithTypeBo destSprite = spriteService.selectByIdWithType(data.getDestSpriteId());
+                SpriteWithTypeBo destSprite = spriteService.selectById(data.getDestSpriteId());
                 if (destSprite != null) {
                     moveBo = MoveBo.moveToSprite(destSprite, data.getX1(), data.getY1());
                 }
@@ -177,8 +177,8 @@ public class EventHandler {
             if (data.getSn().equals(spriteCache.getLastInteractSn())) {
                 return;
             }
-            var sourceSprite = spriteService.selectByIdWithDetail(data.getSource());
-            var targetSprite = spriteService.selectByIdWithDetail(data.getTarget());
+            var sourceSprite = spriteService.selectById(data.getSource());
+            var targetSprite = spriteService.selectById(data.getTarget());
             // 如果两者有一个不存在，直接返回
             if (sourceSprite == null || targetSprite == null) {
                 return;
@@ -211,20 +211,20 @@ public class EventHandler {
 
         // 索敌事件
         eventMap.put(WSRequestEnum.FIND_ENEMY, (initiator, mapData) -> {
-            SpriteDetailBo sourceSprite = spriteService.selectByIdWithDetail(initiator);
+            SpriteDetailBo sourceSprite = spriteService.selectById(initiator);
             // 如果精灵不存在或者不在线，则返回
             if (sourceSprite == null || sourceSprite.getCache() == null) {
                 return;
             }
             SpriteWithTypeBo targetSprite = spriteActionService.getValidTarget(sourceSprite)
-                    .map(s -> spriteService.selectByIdWithType(s.getId()))
+                    .map(s -> spriteService.selectById(s.getId()))
                     .orElse(null);
             // 如果目标不合法，则重新选择目标
             if (targetSprite == null) {
                 targetSprite = spriteActionService.findNearestTargetInSight(sourceSprite, (s) -> {
                     // 不能攻击自己的宠物
                     return s.getOwner() == null || !s.getOwner().equals(initiator);
-                }).map(s -> spriteService.selectByIdWithType(s.getId())).orElse(null);
+                }).map(s -> spriteService.selectById(s.getId())).orElse(null);
             }
             // 如果找不到目标，直接返回
             if (targetSprite == null) {

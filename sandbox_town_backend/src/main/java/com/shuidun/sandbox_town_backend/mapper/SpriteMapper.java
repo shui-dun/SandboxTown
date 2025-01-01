@@ -27,10 +27,6 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
     @Nullable
     SpriteWithTypeBo selectByIdWithType(String id);
 
-
-    @Update("UPDATE sprite SET ${attribute} = #{value} WHERE id = #{id}")
-    void updateAttribute(String id, String attribute, int value);
-
     /** 得到某个地图上的所有角色 */
     default List<SpriteDo> selectByMapId(String map) {
         return selectList(new LambdaQueryWrapper<SpriteDo>()

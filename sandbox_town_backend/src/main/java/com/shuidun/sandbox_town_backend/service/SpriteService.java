@@ -150,33 +150,9 @@ public class SpriteService {
         return spriteDetail;
     }
 
-    /** 根据id获取角色信息 */
-    @Nullable
-    public SpriteDo selectById(String id) {
-        SpriteDo sprite = spriteMapper.selectById(id);
-        if (sprite == null) {
-            return null;
-        }
-        // 看看有没有cached信息
-        assignCacheToSprite(sprite);
-        return sprite;
-    }
-
-    /** 根据id获取角色信息（只带有类型信息） */
-    @Nullable
-    public SpriteWithTypeBo selectByIdWithType(String id) {
-        SpriteWithTypeBo sprite = spriteMapper.selectByIdWithType(id);
-        if (sprite == null) {
-            return null;
-        }
-        // 看看有没有cached信息
-        assignCacheToSprite(sprite);
-        return sprite;
-    }
-
     /** 根据id获取角色详细信息（带有类型信息、装备信息、属性增量信息、效果列表信息） */
     @Nullable
-    public SpriteDetailBo selectByIdWithDetail(String id) {
+    public SpriteDetailBo selectById(String id) {
         // 获得带有类型信息的sprite
         SpriteWithTypeBo sprite = spriteMapper.selectByIdWithType(id);
         if (sprite == null) {
@@ -412,7 +388,7 @@ public class SpriteService {
 
     public List<SpriteDetailBo> getOnlineSpritesWithDetail() {
         Set<String> sprites = getOnlineSpritesCache().keySet();
-        List<SpriteDetailBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectByIdWithDetail);
+        List<SpriteDetailBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectById);
         return spriteDetails.stream()
                 .filter(sprite -> sprite != null && sprite.getCache() != null)
                 .toList();
@@ -426,7 +402,7 @@ public class SpriteService {
         List<String> sprites = getOnlineSpritesCache().keySet().stream()
                 .filter(id -> MyMath.safeMod(id.hashCode(), n) == MyMath.safeMod(curFrame, n))
                 .toList();
-        List<SpriteDetailBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectByIdWithDetail);
+        List<SpriteDetailBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectById);
         return spriteDetails.stream()
                 .filter(sprite -> sprite != null && sprite.getCache() != null)
                 .toList();

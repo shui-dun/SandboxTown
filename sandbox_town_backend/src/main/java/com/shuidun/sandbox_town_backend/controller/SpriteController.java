@@ -34,7 +34,7 @@ public class SpriteController {
     @GetMapping("/list/{id}")
     public RestResponseVo<SpriteDetailBo> getSpriteById(@PathVariable("id") String id) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                spriteService.selectByIdWithDetail(id));
+                spriteService.selectById(id));
     }
 
     @Operation(summary = "获取当前登陆玩家的详细信息")
@@ -42,7 +42,7 @@ public class SpriteController {
     public RestResponseVo<SpriteDetailBo> getMyPlayerInfo() {
         String username = StpUtil.getLoginIdAsString();
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                spriteService.selectByIdWithDetail(username));
+                spriteService.selectById(username));
     }
 
     @Operation(summary = "获取整个地图上的所有角色信息")

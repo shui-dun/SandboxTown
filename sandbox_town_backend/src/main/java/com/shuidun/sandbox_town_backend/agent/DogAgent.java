@@ -26,7 +26,7 @@ public class DogAgent implements SpriteAgent {
         assert sprite.getCache() != null;
         // 如果狗有目标精灵（并以一定概率忘记目标），那么狗就会攻击目标精灵
         SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.2)
-                .map(s -> spriteService.selectByIdWithType(s.getId()))
+                .map(s -> spriteService.selectById(s.getId()))
                 .orElse(null);
         if (target != null) {
             return MoveBo.moveToSprite(target);

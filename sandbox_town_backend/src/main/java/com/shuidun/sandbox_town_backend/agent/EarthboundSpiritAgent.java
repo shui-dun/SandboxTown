@@ -29,7 +29,7 @@ public class EarthboundSpiritAgent implements SpriteAgent {
         assert sprite.getCache() != null;
         // 如果有目标
         SpriteWithTypeBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.25)
-                .map(s -> spriteService.selectByIdWithType(s.getId())).orElse(null);
+                .map(s -> spriteService.selectById(s.getId())).orElse(null);
         if (target != null) {
             return MoveBo.moveToSprite(target).moveWithProb(0.85);
         }
@@ -40,7 +40,7 @@ public class EarthboundSpiritAgent implements SpriteAgent {
                 .map(spriteActionService::getValidTarget)
                 .flatMap(Optional::stream) // 将每个 Optional 对象转换为一个可能为空的流，然后将这些流合并起来
                 .findAny()
-                .map(s -> spriteService.selectByIdWithType(s.getId()))
+                .map(s -> spriteService.selectById(s.getId()))
                 .orElse(null);
         if (target != null) {
             sprite.getCache().setTargetSpriteId(target.getId());
