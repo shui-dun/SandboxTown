@@ -68,6 +68,11 @@ public class SpriteService {
 
     private final EffectService effectService;
 
+    private final Map<String, SpriteDetailBo> onlineSpriteMap = new ConcurrentHashMap<>();
+
+    private final Map<String, Map<String, SpriteDetailBo>> ownerOnlineSpriteMap = new ConcurrentHashMap<>();
+
+    private final List<String> dirtySpriteList = new ArrayList<>();
 
     @Value("${mapId}")
     private String mapId;
