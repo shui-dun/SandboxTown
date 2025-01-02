@@ -5,7 +5,6 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.MyAndMyPetInfoVo;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.bean.SpriteBo;
-import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Collection;
 
 @Validated
 @Slf4j
@@ -34,7 +33,7 @@ public class SpriteController {
     @GetMapping("/list/{id}")
     public RestResponseVo<SpriteBo> getSpriteById(@PathVariable("id") String id) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                spriteService.selectOnlineSpriteById(id));
+                spriteService.selectById(id));
     }
 
     @Operation(summary = "获取当前登陆玩家的详细信息")
@@ -42,20 +41,13 @@ public class SpriteController {
     public RestResponseVo<SpriteBo> getMyPlayerInfo() {
         String username = StpUtil.getLoginIdAsString();
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                spriteService.selectOnlineSpriteById(username));
-    }
-
-    @Operation(summary = "获取整个地图上的所有角色信息")
-    @GetMapping("/listAll")
-    public RestResponseVo<List<SpriteDo>> getAllSprite() {
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                spriteService.getSpritesByMap(mapId));
+                spriteService.selectById(username));
     }
 
     @GetMapping("/listAllOnline")
-    public RestResponseVo<List<SpriteDo>> getAllOnlineSprite() {
+    public RestResponseVo<Collection<SpriteBo>> getAllOnlineSprite() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                spriteService.getOnlineSprites());
+                spriteService.getOnlineSprites().values());
     }
 
     @GetMapping("/myAndMyPetInfo")

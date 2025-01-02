@@ -1,7 +1,6 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.bean.UserDo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
@@ -162,15 +161,13 @@ public class UserService {
                 reward = 40;
             }
         }
-        var sprite = spriteService.selectOnlineSpriteById(username);
+        var sprite = spriteService.selectById(username);
         assert sprite != null;
         // 获得玩家当前金钱
         int money = sprite.getMoney();
         // 更新玩家金钱
-        SpriteDo spriteDo = spriteService.selectOnlineSpriteById(username);
-        assert spriteDo != null;
-        spriteDo.setMoney(money + reward);
-        spriteService.normalizeAndUpdateSprite(spriteDo);
+        sprite.setMoney(money + reward);
+        spriteService.normalizeAndUpdateSprite(sprite);
         // 更新玩家上次登录时间
         user.setLastOnline(new Date(System.currentTimeMillis()));
         userMapper.updateById(user);

@@ -22,16 +22,15 @@ public class SpiderAgent implements SpriteAgent {
 
     @Override
     public MoveBo act(SpriteBo sprite) {
-        assert sprite.getOnlineCache() != null;
         // 在视觉范围内寻找一个目标
         // 蜘蛛的攻击目标需要满足的条件（必须有主人，并且不是蜘蛛）
         SpriteBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.15)
-                .map(s -> spriteService.selectOnlineSpriteById(s.getId()))
+                .map(s -> spriteService.selectOnlineById(s.getId()))
                 .orElse(null);
         if (target == null) {
             target = spriteActionService.findAnyTargetInSight(sprite,
                     (s) -> s.getType() != SpriteTypeEnum.SPIDER && (s.getOwner() != null || s.getType() == SpriteTypeEnum.USER)
-            ).map(s -> spriteService.selectOnlineSpriteById(s.getId())).orElse(null);
+            ).map(s -> spriteService.selectOnlineById(s.getId())).orElse(null);
         }
         if (target == null) {
             // 随机移动

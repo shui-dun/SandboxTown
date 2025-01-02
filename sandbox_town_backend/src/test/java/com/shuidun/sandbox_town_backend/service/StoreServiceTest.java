@@ -1,6 +1,6 @@
 package com.shuidun.sandbox_town_backend.service;
 
-import com.shuidun.sandbox_town_backend.bean.SpriteDo;
+import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.bean.StoreItemTypeDo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
@@ -42,11 +42,11 @@ class StoreServiceTest {
         mockStoreItemType.setCount(10); // 假定库存为10
         mockStoreItemType.setPrice(100); // 假定价格为100
 
-        SpriteDo mockSprite = new SpriteDo();
+        SpriteBo mockSprite = new SpriteBo();
         mockSprite.setMoney(500); // 假定用户余额为500
 
         when(storeItemTypeMapper.selectByStoreAndItemType(store, item)).thenReturn(mockStoreItemType);
-        when(spriteService.selectOnlineSpriteById(spriteId)).thenReturn(mockSprite);
+        when(spriteService.selectById(spriteId)).thenReturn(mockSprite);
 
         service.buy(spriteId, store, item, amount);
 
@@ -105,7 +105,7 @@ class StoreServiceTest {
         mockStoreItemType.setCount(10);
 
         when(storeItemTypeMapper.selectByStoreAndItemType(store, item)).thenReturn(mockStoreItemType);
-        when(spriteService.selectOnlineSpriteById(spriteId)).thenReturn(null);
+        when(spriteService.selectById(spriteId)).thenReturn(null);
 
         BusinessException thrown = assertThrows(BusinessException.class, () -> service.buy(spriteId, store, item, amount));
         assertSame(thrown.getStatusCode(), StatusCodeEnum.SPRITE_NOT_FOUND, "Status code should be SPRITE_NOT_FOUND");
@@ -123,11 +123,11 @@ class StoreServiceTest {
         mockStoreItemType.setCount(10);
         mockStoreItemType.setPrice(200);
 
-        SpriteDo mockSprite = new SpriteDo();
+        SpriteBo mockSprite = new SpriteBo();
         mockSprite.setMoney(500);
 
         when(storeItemTypeMapper.selectByStoreAndItemType(store, item)).thenReturn(mockStoreItemType);
-        when(spriteService.selectOnlineSpriteById(spriteId)).thenReturn(mockSprite);
+        when(spriteService.selectById(spriteId)).thenReturn(mockSprite);
 
         BusinessException thrown = assertThrows(BusinessException.class, () -> service.buy(spriteId, store, item, amount));
         assertSame(thrown.getStatusCode(), StatusCodeEnum.MONEY_NOT_ENOUGH, "Status code should be MONEY_NOT_ENOUGH");
@@ -145,11 +145,11 @@ class StoreServiceTest {
         mockStoreItemType.setCount(10); // 设置库存数量
         mockStoreItemType.setPrice(100); // 假设价格为100
 
-        SpriteDo mockSprite = new SpriteDo();
+        SpriteBo mockSprite = new SpriteBo();
         mockSprite.setMoney(1000); // 假设用户余额足以支付
 
         when(storeItemTypeMapper.selectByStoreAndItemType(store, item)).thenReturn(mockStoreItemType);
-        when(spriteService.selectOnlineSpriteById(spriteId)).thenReturn(mockSprite);
+        when(spriteService.selectById(spriteId)).thenReturn(mockSprite);
 
         service.buy(spriteId, store, item, amount); // 执行购买操作
 
@@ -173,11 +173,11 @@ class StoreServiceTest {
         mockStoreItemType.setCount(10); // 库存足够
         mockStoreItemType.setPrice(100); // 商品单价
 
-        SpriteDo mockSprite = new SpriteDo();
+        SpriteBo mockSprite = new SpriteBo();
         mockSprite.setMoney(500); // 用户余额恰好等于所需支付的总金额
 
         when(storeItemTypeMapper.selectByStoreAndItemType(store, item)).thenReturn(mockStoreItemType);
-        when(spriteService.selectOnlineSpriteById(spriteId)).thenReturn(mockSprite);
+        when(spriteService.selectById(spriteId)).thenReturn(mockSprite);
 
         service.buy(spriteId, store, item, amount); // 执行购买操作
 

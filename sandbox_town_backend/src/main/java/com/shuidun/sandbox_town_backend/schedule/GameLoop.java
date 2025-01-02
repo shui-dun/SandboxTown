@@ -103,17 +103,17 @@ public class GameLoop {
             eventHandler.handleMessages();
 
             // 生命效果
-            List<SpriteBo> sprites = spriteService.getOnlineSpritesWithDetailByFrame(LIFE_FRAMES, curFrame).stream()
+            List<SpriteBo> sprites = spriteService.getOnlineSpritesByFrame(LIFE_FRAMES, curFrame).stream()
                     .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE)))
                     .toList();
             Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1)));
             // 烧伤效果
-            sprites = spriteService.getOnlineSpritesWithDetailByFrame(BURN_FRAMES, curFrame).stream()
+            sprites = spriteService.getOnlineSpritesByFrame(BURN_FRAMES, curFrame).stream()
                     .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN)))
                     .toList();
             Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1)));
             // 调用精灵行为
-            sprites = spriteService.getOnlineSpritesWithDetailByFrame(SPRITE_ACTION_FRAMES, curFrame);
+            sprites = spriteService.getOnlineSpritesByFrame(SPRITE_ACTION_FRAMES, curFrame);
             Concurrent.executeInThreadPool(sprites, (sprite) -> {
                 var agent = typeToAgent.get(sprite.getType());
                 if (agent != null) {
@@ -126,15 +126,15 @@ public class GameLoop {
                 }
             });
             // 保存坐标
-            sprites = spriteService.getOnlineSpritesWithDetailByFrame(SAVE_COORDINATE_FRAMES, curFrame);
+            sprites = spriteService.getOnlineSpritesByFrame(SAVE_COORDINATE_FRAMES, curFrame);
             Concurrent.executeInThreadPool(sprites, (sprite) -> spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY()));
             // 减少饱腹值
             if (curFrame % REDUCE_HUNGER_FRAMES == 0) {
-                spriteService.reduceSpritesHunger(spriteService.getOnlineSpritesCache().keySet(), 1);
+                spriteService.reduceSpritesHunger(spriteService.getOnlineSprites().keySet(), 1);
             }
             // 恢复体力
             if (curFrame % RECOVER_LIFE_FRAMES == 0) {
-                spriteService.recoverSpritesLife(spriteService.getOnlineSpritesCache().keySet(), 1);
+                spriteService.recoverSpritesLife(spriteService.getOnlineSprites().keySet(), 1);
             }
             // 更新时间
             if (time > timeService.getTimeFrame().getTimeFrameEndTime()) {

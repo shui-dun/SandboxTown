@@ -53,8 +53,8 @@ public class SpriteActionService {
      * @param condition 条件，满足该条件的精灵才可能被返回
      * @return 找到的目标精灵
      */
-    public Optional<SpriteDo> findAnyTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
-        return spriteService.getOnlineSprites().stream()
+    public Optional<SpriteBo> findAnyTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        return spriteService.getOnlineSprites().values().stream()
                 .filter(x -> isInSight(sprite, x.getX(), x.getY()))
                 .filter(x -> !x.getId().equals(sprite.getId()))
                 .filter(condition)
@@ -68,8 +68,8 @@ public class SpriteActionService {
      * @param condition 条件，满足该条件的精灵才可能被返回
      * @return 找到的目标精灵
      */
-    public Optional<SpriteDo> findNearestTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
-        return spriteService.getOnlineSprites().stream()
+    public Optional<SpriteBo> findNearestTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        return spriteService.getOnlineSprites().values().stream()
                 .filter(x -> isInSight(sprite, x.getX(), x.getY()))
                 .filter(x -> !x.getId().equals(sprite.getId()))
                 .filter(condition)
@@ -79,8 +79,8 @@ public class SpriteActionService {
     /**
      * 在视觉范围内寻找所有的满足条件的目标
      */
-    public List<SpriteDo> findAllTargetsInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
-        return spriteService.getOnlineSprites().stream()
+    public List<SpriteBo> findAllTargetsInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        return spriteService.getOnlineSprites().values().stream()
                 .filter(x -> isInSight(sprite, x.getX(), x.getY()))
                 .filter(x -> !x.getId().equals(sprite.getId()))
                 .filter(condition)
@@ -95,9 +95,9 @@ public class SpriteActionService {
     }
 
     /** 得到精灵合法的目标，即目标精灵必须存在，并且在线，并且在视野范围内。如果不合法，则返回null */
-    public Optional<SpriteDo> getValidTarget(SpriteDo sprite) {
+    public Optional<SpriteBo> getValidTarget(SpriteBo sprite) {
         // 如果精灵本身不在线
-        if (sprite.getOnlineCache() == null) {
+        if (!spriteService.isOnline(sprite.getId())) {
             return Optional.empty();
         }
         // 如果精灵的目标精灵不存在
@@ -106,8 +106,8 @@ public class SpriteActionService {
             return Optional.empty();
         }
         // 如果目标精灵不在线
-        SpriteDo targetSprite = spriteService.selectOnlineSpriteById(targetSpriteId);
-        if (targetSprite == null || targetSprite.getOnlineCache() == null) {
+        SpriteBo targetSprite = spriteService.selectOnlineById(targetSpriteId);
+        if (targetSprite == null) {
             sprite.setTargetSpriteId(null);
             return Optional.empty();
         }
@@ -120,26 +120,24 @@ public class SpriteActionService {
     }
 
     /** 得到精灵合法的目标，并且以一定概率忘记目标 */
-    public Optional<SpriteDo> getValidTargetWithRandomForget(SpriteDo sprite, double forgetProbability) {
-        Optional<SpriteDo> targetSprite = getValidTarget(sprite);
+    public Optional<SpriteBo> getValidTargetWithRandomForget(SpriteBo sprite, double forgetProbability) {
+        Optional<SpriteBo> targetSprite = getValidTarget(sprite);
         // 如果目标精灵不合法
         if (targetSprite.isEmpty()) {
             return Optional.empty();
         }
         // 以一定概率忘记目标
         if (GameCache.random.nextDouble() < forgetProbability) {
-            if (sprite.getOnlineCache() != null) {
-                sprite.setTargetSpriteId(null);
-            }
+            sprite.setTargetSpriteId(null);
             return Optional.empty();
         }
         return targetSprite;
     }
 
     /** 得到精灵的合法主人，即主人必须存在，并且在线，并且在视野范围内。如果不合法，则返回null */
-    public Optional<SpriteDo> getValidOwner(SpriteDo sprite) {
+    public Optional<SpriteBo> getValidOwner(SpriteBo sprite) {
         // 如果精灵本身不在线
-        if (sprite.getOnlineCache() == null) {
+        if (!spriteService.isOnline(sprite.getId())) {
             return Optional.empty();
         }
         // 如果精灵的主人不存在
@@ -148,8 +146,8 @@ public class SpriteActionService {
             return Optional.empty();
         }
         // 如果主人不在线
-        SpriteDo ownerSprite = spriteService.selectOnlineSpriteById(owner);
-        if (ownerSprite == null || ownerSprite.getOnlineCache() == null) {
+        SpriteBo ownerSprite = spriteService.selectOnlineById(owner);
+        if (ownerSprite == null) {
             return Optional.empty();
         }
         // 如果主人不在视野范围内

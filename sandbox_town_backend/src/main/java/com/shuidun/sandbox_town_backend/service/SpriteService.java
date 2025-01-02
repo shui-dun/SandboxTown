@@ -6,7 +6,6 @@ import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.*;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
-import com.shuidun.sandbox_town_backend.utils.Concurrent;
 import com.shuidun.sandbox_town_backend.utils.MyMath;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -68,17 +67,17 @@ public class SpriteService {
 
     private final EffectService effectService;
 
+    /** 在线精灵信息 */
     private final Map<String, SpriteBo> onlineSpriteMap = new ConcurrentHashMap<>();
 
-    private final Map<String, Map<String, SpriteBo>> ownerOnlineSpriteMap = new ConcurrentHashMap<>();
+    /** 在线精灵 <- 主人 */
+    private final Map<String, List<String>> ownerOnlineSpriteMap = new ConcurrentHashMap<>();
 
+    /** 需要写入数据库的精灵列表 */
     private final List<String> dirtySpriteList = new ArrayList<>();
 
     @Value("${mapId}")
     private String mapId;
-
-    /** 角色缓存信息，保存在内存中，部分信息例如坐标定期写入数据库 */
-    private final Map<String, SpriteOnlineCache> spriteCacheMap = new ConcurrentHashMap<>();
 
     public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedMapper feedMapper, VictoryAttributeRewardMapper victoryAttributeRewardMapper, VictoryItemRewardMapper victoryItemRewardMapper, EffectService effectService) {
         this.spriteMapper = spriteMapper;
@@ -93,18 +92,16 @@ public class SpriteService {
         this.effectService = effectService;
     }
 
-    /** 将cache中的信息赋值给sprite */
-    private void assignCacheToSprite(SpriteDo sprite) {
-        var spriteCache = spriteCacheMap.get(sprite.getId());
-        if (spriteCache != null) {
-            sprite.setOnlineCache(spriteCache);
-        }
-    }
-
-    /**
-     * 获得精灵的属性增量信息
-     */
-    private void assignIncToSprite(SpriteBo sprite) {
+    /** 为精灵设置缓存信息，包含类型信息、装备、属性增量信息和效果列表 */
+    private SpriteBo assignCacheToSprite(SpriteBo sprite) {
+        sprite.setSpriteTypeDo(spriteTypeMapper.selectById(sprite.getType()));
+        // 获取装备列表
+        List<ItemDetailBo> equipments = itemService.listItemsInEquipmentByOwnerWithDetail(sprite.getId());
+        // 设置效果列表
+        List<SpriteEffectWithEffectBo> effects = effectService.listSpriteEffectsBySpriteIdAndEquipments(sprite.getId(), equipments);
+        // 设置装备列表
+        sprite.setEquipments(equipments);
+        // 设置属性增量信息
         // 首先将属性增强全都设置为0
         sprite.setHungerInc(0);
         sprite.setHpInc(0);
@@ -136,38 +133,60 @@ public class SpriteService {
             sprite.setVisionRangeInc(sprite.getVisionRangeInc() + attributesInc.getVisionRangeInc());
             sprite.setAttackRangeInc(sprite.getAttackRangeInc() + attributesInc.getAttackRangeInc());
         }
-    }
-
-    /** 为精灵设置装备、属性增量信息和效果列表 */
-    private SpriteBo assignEquipmentsAndAttributeIncAndEffectToSprite(SpriteBo sprite) {
-        // 获取装备列表
-        List<ItemDetailBo> equipments = itemService.listItemsInEquipmentByOwnerWithDetail(sprite.getId());
-        // 设置效果列表
-        List<SpriteEffectWithEffectBo> effects = effectService.listSpriteEffectsBySpriteIdAndEquipments(sprite.getId(), equipments);
-        SpriteBo spriteDetail = new SpriteBo(sprite);
-        // 设置装备列表
-        spriteDetail.setEquipments(equipments);
-        // 设置属性增量信息
-        assignIncToSprite(spriteDetail);
-        spriteDetail.setEffects(effects);
-        return spriteDetail;
+        sprite.setEffects(effects);
+        // 设置在线相关缓存
+        if (sprite.getVx() == null) {
+            sprite.setVx(0.0);
+        }
+        if (sprite.getVy() == null) {
+            sprite.setVy(0.0);
+        }
+        if (sprite.getLastMoveTime() == null) {
+            sprite.setLastMoveTime(System.currentTimeMillis());
+        }
+        // 设置缓存为有效
+        sprite.setValid(true);
+        return sprite;
     }
 
     /**
      * 根据id获取角色详细信息（带有类型信息、装备信息、属性增量信息、效果列表信息）
-     * 精灵不存在，或者不在线，返回null
+     * 精灵不存在，返回null
      */
     @Nullable
-    public SpriteBo selectOnlineSpriteById(String id) {
-        // 获得带有类型信息的sprite
-        SpriteBo sprite = spriteMapper.selectByIdWithType(id);
+    public SpriteBo selectById(String id) {
+        SpriteBo sprite = onlineSpriteMap.get(id);
+
         if (sprite == null) {
+            SpriteDo spriteDo = spriteMapper.selectById(id);
+            if (spriteDo == null) {
+                return null;
+            }
+            sprite = SpriteBo.fromSpriteDo(spriteDo);
+        }
+
+        if (!sprite.isValid()) {
+            // 缓存失效了，重新获取缓存
+            return assignCacheToSprite(sprite);
+        }
+        return sprite;
+    }
+
+    /**
+     * 根据id获取角色详细信息（带有类型信息、装备信息、属性增量信息、效果列表信息）
+     * 精灵不在线，返回null
+     */
+    @Nullable
+    public SpriteBo selectOnlineById(String id) {
+        SpriteBo spriteBo = onlineSpriteMap.get(id);
+        if (spriteBo == null) {
             return null;
         }
-        // 看看有没有cached信息
-        assignCacheToSprite(sprite);
-        // 获取装备信息、属性增量信息、效果列表
-        return assignEquipmentsAndAttributeIncAndEffectToSprite(sprite);
+        if (!spriteBo.isValid()) {
+            // 缓存失效了，重新获取缓存
+            return assignCacheToSprite(spriteBo);
+        }
+        return spriteBo;
     }
 
     /** 判断角色属性值是否在合理范围内（包含升级操作） */
@@ -241,6 +260,10 @@ public class SpriteService {
         if (sprite.getAttackRange() < 0) {
             sprite.setAttackRange(0);
         }
+        // 如果精灵不存在，则写入数据库
+        if (spriteMapper.selectById(sprite.getId()) == null) {
+            spriteMapper.insert(sprite);
+        }
         // 判断是否死亡
         if (sprite.getHp() == 0) {
             // 如果是玩家，则扣除金钱和清除经验，恢复饱腹值和生命值，并设置坐标为原点
@@ -251,41 +274,28 @@ public class SpriteService {
                 sprite.setHp(MAX_HP);
                 sprite.setX(0.0);
                 sprite.setY(0.0);
-                spriteMapper.updateById(sprite);
                 // 如果在线，设置坐标为原点
-                if (sprite.getOnlineCache() != null) {
+                if (onlineSpriteMap.containsKey(sprite.getId())) {
                     sprite.setX(0.0);
                     sprite.setY(0.0);
                     // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
-                    sprite.setLastMoveTime(System.currentTimeMillis() + 500);
+                    var spriteBo = selectById(sprite.getId());
+                    assert spriteBo != null;
+                    spriteBo.setLastMoveTime(System.currentTimeMillis() + 500);
                     responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
                             sprite.getId(),
                             0.0, 0.0, 0.0, 0.0
                     )));
                 }
+                dirtySpriteList.add(sprite.getId());
             } else { // 否则，删除
-                // 修改精灵的所有建筑的主人设置为null
-                buildingMapper.updateOwnerByOwner(sprite.getId(), null);
-                // 使精灵下线（同时递归下线它的宠物）
+                // 使精灵下线（同时下线它的宠物）
                 responseList.add(offline(sprite.getId()));
-                // 删除精灵（同时递归删除它的宠物）
-                spriteMapper.deleteById(sprite.getId());
             }
         } else {
-            // 如果精灵存在，则更新精灵，否则添加精灵
-            spriteMapper.insertOrUpdateById(sprite);
+            dirtySpriteList.add(sprite.getId());
         }
         return Pair.of(sprite, responseList);
-    }
-
-    /** 得到某个地图上的所有角色 */
-    public List<SpriteDo> getSpritesByMap(String map) {
-        var list = spriteMapper.selectByMapId(map);
-        // 得到缓存信息
-        for (SpriteDo sprite : list) {
-            assignCacheToSprite(sprite);
-        }
-        return list;
     }
 
     /** 生成固定的（即各属性值严格等于其精灵类型的基础属性值）指定类型的角色，并写入数据库 */
@@ -376,55 +386,32 @@ public class SpriteService {
         return generateRandomSprite(type, id, owner, x, y);
     }
 
-    public List<SpriteDo> getOnlineSprites() {
-        if (spriteCacheMap.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<SpriteDo> sprites = spriteMapper.selectBatchIds(spriteCacheMap.keySet());
-        // 得到缓存信息
-        for (SpriteDo sprite : sprites) {
-            assignCacheToSprite(sprite);
-        }
-        return sprites;
-    }
-
-    public Map<String, SpriteOnlineCache> getOnlineSpritesCache() {
-        return spriteCacheMap;
-    }
-
-    public List<SpriteBo> getOnlineSpritesWithDetail() {
-        Set<String> sprites = getOnlineSpritesCache().keySet();
-        List<SpriteBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectOnlineSpriteById);
-        return spriteDetails.stream()
-                .filter(sprite -> sprite != null && sprite.getOnlineCache() != null)
-                .toList();
+    public Map<String, SpriteBo> getOnlineSprites() {
+        return onlineSpriteMap;
     }
 
     /**
      * @param n        取1/n的精灵
      * @param curFrame 当前帧数
      */
-    public List<SpriteBo> getOnlineSpritesWithDetailByFrame(int n, long curFrame) {
-        List<String> sprites = getOnlineSpritesCache().keySet().stream()
-                .filter(id -> MyMath.safeMod(id.hashCode(), n) == MyMath.safeMod(curFrame, n))
-                .toList();
-        List<SpriteBo> spriteDetails = Concurrent.executeInThreadPoolWithOutput(sprites, this::selectOnlineSpriteById);
-        return spriteDetails.stream()
-                .filter(sprite -> sprite != null && sprite.getOnlineCache() != null)
+    public List<SpriteBo> getOnlineSpritesByFrame(int n, long curFrame) {
+        return getOnlineSprites().values().stream()
+                .filter(s -> MyMath.safeMod(s.getId().hashCode(), n) == MyMath.safeMod(curFrame, n))
                 .toList();
     }
 
     public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {
         return new MyAndMyPetInfoVo(
-                selectOnlineSpriteById(ownerId),
+                selectById(ownerId),
                 selectByOwner(ownerId));
     }
 
     /** 得到玩家的所有宠物 */
-    public List<SpriteDo> selectByOwner(String ownerId) {
-        List<SpriteDo> sprites = spriteMapper.selectByOwner(ownerId);
-        sprites.forEach(this::assignCacheToSprite);
-        return sprites;
+    public List<SpriteBo> selectByOwner(String ownerId) {
+        return ownerOnlineSpriteMap.getOrDefault(ownerId, new ArrayList<>()).stream()
+                .map(this::selectById)
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     /** 得到所有未被玩家拥有的角色 */
@@ -448,7 +435,7 @@ public class SpriteService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
         // 判断角色是否存在
-        SpriteDo sprite = selectOnlineSpriteById(owner);
+        SpriteDo sprite = selectById(owner);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
@@ -508,10 +495,14 @@ public class SpriteService {
      * @param val       减少值
      */
     public void reduceSpritesHunger(Collection<String> spriteIds, int val) {
-        if (spriteIds.isEmpty()) {
-            return;
+        for (String spriteId : spriteIds) {
+            SpriteBo sprite = selectOnlineById(spriteId);
+            if (sprite == null) {
+                continue;
+            }
+            sprite.setHunger(Math.max(0, sprite.getHunger() - val));
+            normalizeAndUpdateSprite(sprite);
         }
-        spriteMapper.reduceSpritesHunger(spriteIds, val);
     }
 
     /**
@@ -521,16 +512,20 @@ public class SpriteService {
      * @param incVal    恢复值
      */
     public void recoverSpritesLife(Collection<String> spriteIds, int incVal) {
-        if (spriteIds.isEmpty()) {
-            return;
+        for (String spriteId : spriteIds) {
+            SpriteBo sprite = selectOnlineById(spriteId);
+            if (sprite == null) {
+                continue;
+            }
+            sprite.setHp(Math.min(sprite.getHp() + incVal, MAX_HP));
+            normalizeAndUpdateSprite(sprite);
         }
-        spriteMapper.recoverSpritesLife(spriteIds, HUNGER_THRESHOLD, incVal, MAX_HP);
     }
 
     @Transactional
     public List<WSResponseVo> attack(SpriteBo sourceSprite, SpriteBo targetSprite) {
         // 如果双方有人不在线，则不进行攻击
-        if (sourceSprite.getOnlineCache() == null || targetSprite.getOnlineCache() == null) {
+        if (!onlineSpriteMap.containsKey(sourceSprite.getId()) || !onlineSpriteMap.containsKey(targetSprite.getId())) {
             return Collections.emptyList();
         }
         List<WSResponseVo> responses = new ArrayList<>();
@@ -554,7 +549,7 @@ public class SpriteService {
             if (modifyLifeResponses.stream().anyMatch(response -> response.getType() == WSResponseEnum.OFFLINE)) {
                 // 获得攻击者的主人
                 String ownerId = sourceSprite.getOwner();
-                SpriteDo owner = ownerId == null ? null : selectOnlineSpriteById(ownerId);
+                SpriteDo owner = ownerId == null ? null : selectById(ownerId);
                 // 查询被攻击者死亡后带给攻击者的属性提升（属性提升值不仅与死亡者的类型有关，还与死亡者的等级有关）
                 VictoryAttributeRewardDo attributeReward = victoryAttributeRewardMapper.selectById(targetSprite.getType());
                 if (attributeReward != null) {
@@ -607,28 +602,47 @@ public class SpriteService {
      * 使精灵下线
      */
     public WSResponseVo offline(String spriteId) {
-        List<String> ids = new ArrayList<>();
-        offline(spriteId, ids);
+        List<SpriteBo> sprites = offlineSprites(spriteId);
         // 使精灵下线
-        ids.forEach(id -> spriteCacheMap.remove(id));
+        sprites.forEach(s -> {
+            onlineSpriteMap.remove(s.getId());
+            String owner = s.getOwner();
+            if (owner != null) {
+                ownerOnlineSpriteMap.computeIfPresent(owner, (key, map) -> {
+                    map.remove(s.getId());
+                    return map;
+                });
+            }
+            // 精灵下线，信息需要立即写入数据库
+            spriteMapper.updateById(s);
+        });
         // 发送下线消息
-        return new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(ids));
+        return new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(sprites.stream().map(SpriteBo::getId).toList()));
     }
 
-    private void offline(String spriteId, List<String> ids) {
-        ids.add(spriteId);
+    /** 当一个精灵下线时，同时下线它的所有非USER宠物 */
+    private List<SpriteBo> offlineSprites(String spriteId) {
+        List<SpriteBo> sprites = new ArrayList<>();
+        sprites.add(selectById(spriteId));
         // 读取精灵的所有宠物
-        List<SpriteDo> pets = selectByOwner(spriteId);
-        for (SpriteDo pet : pets) {
+        Collection<SpriteBo> pets = selectByOwner(spriteId);
+        for (SpriteBo pet : pets) {
             if (pet.getType() == SpriteTypeEnum.USER) {
                 continue;
             }
-            ids.add(pet.getId());
+            sprites.add(pet);
         }
+        return sprites;
     }
 
     public void updatePosition(String id, double x, double y) {
-        spriteMapper.updatePosition(id, x, y);
+        SpriteBo sprite = selectById(id);
+        if (sprite == null) {
+            return;
+        }
+        sprite.setX(x);
+        sprite.setY(y);
+        dirtySpriteList.add(id);
     }
 
     /**
@@ -636,7 +650,7 @@ public class SpriteService {
      */
     @Transactional
     public List<WSResponseVo> modifyLife(String spriteId, int val) {
-        SpriteDo sprite = selectOnlineSpriteById(spriteId);
+        SpriteDo sprite = selectById(spriteId);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
@@ -717,28 +731,26 @@ public class SpriteService {
     }
 
     /**
-     * 使精灵上线
+     * 使精灵上线（如果已经上线，则不做任何操作）
+     * 如果精灵不存在，返回null
      */
-    public SpriteOnlineCache online(String id) {
-        SpriteDo sprite = selectOnlineSpriteById(id);
+    @Nullable
+    public SpriteBo online(String id) {
+        SpriteBo sprite = onlineSpriteMap.get(id);
+        if (sprite != null) {
+            return sprite;
+        }
+        sprite = selectById(id);
         if (sprite == null) {
-            throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
+            return null;
         }
-        // 将精灵的坐标信息写入缓存
-        SpriteOnlineCache cache = spriteCacheMap.get(id);
-        if (cache == null) {
-            cache = new SpriteOnlineCache(
-                    0.0, 0.0,
-                    System.currentTimeMillis(),
-                    null,
-                    null,
-                    SpriteStatus.IDLE,
-                    null, null, null, null
-            );
-            spriteCacheMap.put(id, cache);
+        onlineSpriteMap.put(id, sprite);
+        if (sprite.getOwner() != null) {
+            ownerOnlineSpriteMap.computeIfAbsent(sprite.getOwner(), k -> new ArrayList<>()).add(sprite.getId());
         }
+
         // 使其宠物上线
-        List<SpriteDo> pets = selectByOwner(id);
+        Collection<SpriteBo> pets = selectByOwner(id);
         pets.forEach(pet -> {
             // 如果宠物是玩家，那么不需要上线
             if (pet.getType() == SpriteTypeEnum.USER) {
@@ -746,7 +758,7 @@ public class SpriteService {
             }
             online(pet.getId());
         });
-        return cache;
+        return sprite;
     }
 
     /**
@@ -834,4 +846,7 @@ public class SpriteService {
         return spriteName.startsWith(type.name());
     }
 
+    public boolean isOnline(String id) {
+        return onlineSpriteMap.containsKey(id);
+    }
 }

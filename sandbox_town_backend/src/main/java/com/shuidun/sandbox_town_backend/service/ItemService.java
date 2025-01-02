@@ -425,7 +425,7 @@ public class ItemService {
         item.setPosition(itemPosition);
         itemMapper.updateById(item);
 
-        // 如果原先在物品栏，发射物品栏通知
+        // 如果原先在物品栏，发送物品栏通知
         if (originalPosition == ItemPositionEnum.ITEMBAR || originalPosition == ItemPositionEnum.HANDHELD) {
             responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, new ItemBarNotifyVo(spriteId)));
         }

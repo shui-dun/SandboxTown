@@ -25,10 +25,9 @@ public class EarthboundSpiritAgent implements SpriteAgent {
 
     @Override
     public MoveBo act(SpriteBo sprite) {
-        assert sprite.getOnlineCache() != null;
         // 如果有目标
         SpriteBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.25)
-                .map(s -> spriteService.selectOnlineSpriteById(s.getId())).orElse(null);
+                .map(s -> spriteService.selectOnlineById(s.getId())).orElse(null);
         if (target != null) {
             return MoveBo.moveToSprite(target).moveWithProb(0.85);
         }
@@ -39,7 +38,7 @@ public class EarthboundSpiritAgent implements SpriteAgent {
                 .map(spriteActionService::getValidTarget)
                 .flatMap(Optional::stream) // 将每个 Optional 对象转换为一个可能为空的流，然后将这些流合并起来
                 .findAny()
-                .map(s -> spriteService.selectOnlineSpriteById(s.getId()))
+                .map(s -> spriteService.selectOnlineById(s.getId()))
                 .orElse(null);
         if (target != null) {
             sprite.setTargetSpriteId(target.getId());

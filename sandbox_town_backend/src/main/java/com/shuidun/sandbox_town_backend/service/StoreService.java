@@ -100,7 +100,7 @@ public class StoreService implements SpecificBuildingService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_ENOUGH);
         }
         // 得到用户的金钱
-        SpriteDo sprite = spriteService.selectOnlineSpriteById(spriteId);
+        SpriteDo sprite = spriteService.selectById(spriteId);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
@@ -255,7 +255,7 @@ public class StoreService implements SpecificBuildingService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_ENOUGH);
         }
         // 得到用户信息
-        SpriteDo sprite = spriteService.selectOnlineSpriteById(spriteId);
+        SpriteDo sprite = spriteService.selectById(spriteId);
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }

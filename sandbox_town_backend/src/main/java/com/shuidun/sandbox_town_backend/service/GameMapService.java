@@ -576,8 +576,8 @@ public class GameMapService {
             logicalX1 = physicalAxisToLogicalAxis(physicalX1);
             logicalY1 = physicalAxisToLogicalAxis(physicalY1);
             initiatorId = initiator.getId();
-            double initiatorPhysicalWidth = initiator.getWidth() * initiator.getWidthRatio();
-            double initiatorPhysicalHeight = initiator.getHeight() * initiator.getHeightRatio();
+            double initiatorPhysicalWidth = initiator.getWidth() * initiator.getSpriteTypeDo().getWidthRatio();
+            double initiatorPhysicalHeight = initiator.getHeight() * initiator.getSpriteTypeDo().getHeightRatio();
             // 将物品宽高的像素转换为地图坐标
             initiatorHalfLogicalWidth = physicalSizeToLogicalSize(initiatorPhysicalWidth) / 2;
             initiatorHalfLogicalHeight = physicalSizeToLogicalSize(initiatorPhysicalHeight) / 2;
@@ -589,8 +589,8 @@ public class GameMapService {
                 logicalX1 = (int) (moveBo.getDestSprite().getX() / PIXELS_PER_GRID);
                 logicalY1 = (int) (moveBo.getDestSprite().getY() / PIXELS_PER_GRID);
                 // 获取精灵的宽高
-                double destSpritePhysicalWidth = moveBo.getDestSprite().getWidth() * moveBo.getDestSprite().getWidthRatio();
-                double destSpritePhysicalHeight = moveBo.getDestSprite().getHeight() * moveBo.getDestSprite().getHeightRatio();
+                double destSpritePhysicalWidth = moveBo.getDestSprite().getWidth() * moveBo.getDestSprite().getSpriteTypeDo().getWidthRatio();
+                double destSpritePhysicalHeight = moveBo.getDestSprite().getHeight() * moveBo.getDestSprite().getSpriteTypeDo().getHeightRatio();
                 // 将物品宽高的像素转换为地图坐标
                 destSpriteHalfLogicalWidth = physicalSizeToLogicalSize(destSpritePhysicalWidth) / 2;
                 destSpriteHalfLogicalHeight = physicalSizeToLogicalSize(destSpritePhysicalHeight) / 2;

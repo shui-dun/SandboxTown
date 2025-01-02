@@ -15,6 +15,9 @@ import java.util.List;
 public class SpriteBo extends SpriteDo {
     SpriteTypeDo spriteTypeDo;
 
+    /** valid表示精灵缓存是否有效 */
+    private boolean valid;
+
     @Schema(description = """
             xxInc是查询精灵的装备和效果等信息后得到的字段
             玩家最后的属性值等于原先的属性值加上增量（装备或手持装备导致的属性变化）
@@ -72,4 +75,27 @@ public class SpriteBo extends SpriteDo {
     @Schema(description = "目标（既非精灵也非建筑）的y坐标")
     @Nullable
     private Double targetY;
+
+    public static SpriteBo fromSpriteDo(SpriteDo spriteDo) {
+        SpriteBo b = new SpriteBo();
+        b.setId(spriteDo.getId());
+        b.setType(spriteDo.getType());
+        b.setOwner(spriteDo.getOwner());
+        b.setMoney(spriteDo.getMoney());
+        b.setExp(spriteDo.getExp());
+        b.setLevel(spriteDo.getLevel());
+        b.setHunger(spriteDo.getHunger());
+        b.setHp(spriteDo.getHp());
+        b.setAttack(spriteDo.getAttack());
+        b.setDefense(spriteDo.getDefense());
+        b.setSpeed(spriteDo.getSpeed());
+        b.setVisionRange(spriteDo.getVisionRange());
+        b.setAttackRange(spriteDo.getAttackRange());
+        b.setX(spriteDo.getX());
+        b.setY(spriteDo.getY());
+        b.setWidth(spriteDo.getWidth());
+        b.setHeight(spriteDo.getHeight());
+        b.setMap(spriteDo.getMap());
+        return b;
+    }
 }
