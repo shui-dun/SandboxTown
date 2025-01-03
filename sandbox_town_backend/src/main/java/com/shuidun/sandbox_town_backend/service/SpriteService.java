@@ -67,14 +67,11 @@ public class SpriteService {
 
     private final EffectService effectService;
 
-    /** 在线精灵信息 */
+    /**
+     * 在线精灵信息
+     * 用户只有在登录后才会在线，其他精灵只要存在就会在线
+     */
     private final Map<String, SpriteBo> onlineSpriteMap = new ConcurrentHashMap<>();
-
-    /** 在线精灵 <- 主人 */
-    private final Map<String, List<String>> ownerOnlineSpriteMap = new ConcurrentHashMap<>();
-
-    /** 需要写入数据库的精灵列表 */
-    private final List<String> dirtySpriteList = new ArrayList<>();
 
     @Value("${mapId}")
     private String mapId;
@@ -287,13 +284,10 @@ public class SpriteService {
                             0.0, 0.0, 0.0, 0.0
                     )));
                 }
-                dirtySpriteList.add(sprite.getId());
             } else { // 否则，删除
-                // 使精灵下线（同时下线它的宠物）
+                // 使精灵下线
                 responseList.add(offline(sprite.getId()));
             }
-        } else {
-            dirtySpriteList.add(sprite.getId());
         }
         return Pair.of(sprite, responseList);
     }
@@ -400,23 +394,12 @@ public class SpriteService {
                 .toList();
     }
 
-    public MyAndMyPetInfoVo getMyAndMyPetInfo(String ownerId) {
-        return new MyAndMyPetInfoVo(
-                selectById(ownerId),
-                selectByOwner(ownerId));
-    }
-
-    /** 得到玩家的所有宠物 */
-    public List<SpriteBo> selectByOwner(String ownerId) {
-        return ownerOnlineSpriteMap.getOrDefault(ownerId, new ArrayList<>()).stream()
-                .map(this::selectById)
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
-    /** 得到所有未被玩家拥有的角色 */
-    public List<SpriteDo> getUnownedSprites() {
-        return spriteMapper.selectUnownedSprites();
+    /** 将NPC精灵上线 */
+    public void onlineNPCs() {
+        List<SpriteDo> npcs = spriteMapper.selectNPCs();
+        for (SpriteDo sprite : npcs) {
+            online(sprite.getId());
+        }
     }
 
     /**
@@ -600,39 +583,19 @@ public class SpriteService {
 
     /**
      * 使精灵下线
+     * 精灵下线只会下线自己，不会下线自己的宠物
      */
     public WSResponseVo offline(String spriteId) {
-        List<SpriteBo> sprites = offlineSprites(spriteId);
-        // 使精灵下线
-        sprites.forEach(s -> {
-            onlineSpriteMap.remove(s.getId());
-            String owner = s.getOwner();
-            if (owner != null) {
-                ownerOnlineSpriteMap.computeIfPresent(owner, (key, map) -> {
-                    map.remove(s.getId());
-                    return map;
-                });
-            }
-            // 精灵下线，信息需要立即写入数据库
-            spriteMapper.updateById(s);
-        });
-        // 发送下线消息
-        return new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(sprites.stream().map(SpriteBo::getId).toList()));
-    }
-
-    /** 当一个精灵下线时，同时下线它的所有非USER宠物 */
-    private List<SpriteBo> offlineSprites(String spriteId) {
-        List<SpriteBo> sprites = new ArrayList<>();
-        sprites.add(selectById(spriteId));
-        // 读取精灵的所有宠物
-        Collection<SpriteBo> pets = selectByOwner(spriteId);
-        for (SpriteBo pet : pets) {
-            if (pet.getType() == SpriteTypeEnum.USER) {
-                continue;
-            }
-            sprites.add(pet);
+        var msg = new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(List.of(spriteId)));
+        SpriteBo s = onlineSpriteMap.get(spriteId);
+        if (s == null) {
+            return msg;
         }
-        return sprites;
+        onlineSpriteMap.remove(s.getId());
+        // 精灵下线，信息需要立即写入数据库
+        spriteMapper.updateById(s);
+        // 发送下线消息
+        return msg;
     }
 
     public void updatePosition(String id, double x, double y) {
@@ -642,7 +605,6 @@ public class SpriteService {
         }
         sprite.setX(x);
         sprite.setY(y);
-        dirtySpriteList.add(id);
     }
 
     /**
@@ -745,19 +707,6 @@ public class SpriteService {
             return null;
         }
         onlineSpriteMap.put(id, sprite);
-        if (sprite.getOwner() != null) {
-            ownerOnlineSpriteMap.computeIfAbsent(sprite.getOwner(), k -> new ArrayList<>()).add(sprite.getId());
-        }
-
-        // 使其宠物上线
-        Collection<SpriteBo> pets = selectByOwner(id);
-        pets.forEach(pet -> {
-            // 如果宠物是玩家，那么不需要上线
-            if (pet.getType() == SpriteTypeEnum.USER) {
-                return;
-            }
-            online(pet.getId());
-        });
         return sprite;
     }
 

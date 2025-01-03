@@ -15,7 +15,7 @@ import java.util.List;
 public class SpriteBo extends SpriteDo {
     SpriteTypeDo spriteTypeDo;
 
-    /** valid表示精灵缓存是否有效 */
+    /** 精灵缓存是否有效 */
     private boolean valid;
 
     @Schema(description = """

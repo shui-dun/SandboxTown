@@ -2,7 +2,6 @@ package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
-import com.shuidun.sandbox_town_backend.bean.MyAndMyPetInfoVo;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
@@ -50,11 +49,11 @@ public class SpriteController {
                 spriteService.getOnlineSprites().values());
     }
 
-    @GetMapping("/myAndMyPetInfo")
-    public RestResponseVo<MyAndMyPetInfoVo> getMyAndMyPetInfo() {
+    @PostMapping("/online")
+    public RestResponseVo<SpriteBo> online() {
         String username = StpUtil.getLoginIdAsString();
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                spriteService.getMyAndMyPetInfo(username));
+        SpriteBo spriteBo = spriteService.online(username);
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, spriteBo);
     }
 
     @SaCheckRole("ADMIN")

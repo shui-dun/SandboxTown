@@ -95,9 +95,7 @@ public class GameMapService {
         boolean containsBuilding = placeAllBuildingsOnMap();
 
         // 放置没有主人的角色
-        spriteService.getUnownedSprites().forEach(sprite ->
-                spriteService.online(sprite.getId())
-        );
+        spriteService.onlineNPCs();
 
         // 如果没有建筑物，则生成一定数量的建筑物
         if (!containsBuilding) {

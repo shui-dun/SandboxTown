@@ -195,16 +195,11 @@ class MainScene extends Phaser.Scene {
         // 得到地图信息
         this.gameMap = await mixin.myGET('/rest/gamemap/getGameMap');
 
-        // 得到自己以及自己宠物的信息
-        let myAndMyPetInfo = await mixin.myGET('/rest/sprite/myAndMyPetInfo');
-        // 得到当前用户的用户名
-        this.myUsername = myAndMyPetInfo.me.id;
+        let mySpriteInfo = await mixin.myPOST('/rest/sprite/online');
+        this.myUsername = mySpriteInfo.id;
 
         // 得到当前在线的角色列表
         let spriteList = await mixin.myGET('/rest/sprite/listAllOnline');
-        // 将自己和自己的宠物加入角色列表
-        spriteList.push(myAndMyPetInfo.me);
-        spriteList.push(...myAndMyPetInfo.myPets);
 
         // 创建所有角色
         for (let i = 0; i < spriteList.length; i++) {
