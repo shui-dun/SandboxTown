@@ -15,9 +15,6 @@ import java.util.List;
 public class SpriteBo extends SpriteDo {
     SpriteTypeDo spriteTypeDo;
 
-    /** 精灵缓存是否有效 */
-    private boolean valid;
-
     @Schema(description = """
             xxInc是查询精灵的装备和效果等信息后得到的字段
             玩家最后的属性值等于原先的属性值加上增量（装备或手持装备导致的属性变化）

@@ -96,6 +96,7 @@ public class GameLoop {
 
             var time = System.currentTimeMillis();
             var diff = time - lastTime;
+            log.info("curFrame: {}, diff: {}", curFrame, diff);
             if (diff > GAME_LOOP_INTERVAL * 2) {
                 log.info("time diff between two frames is too large: {}", diff);
             }

@@ -142,8 +142,6 @@ public class SpriteService {
         if (sprite.getLastMoveTime() == null) {
             sprite.setLastMoveTime(System.currentTimeMillis());
         }
-        // 设置缓存为有效
-        sprite.setValid(true);
         return sprite;
     }
 
@@ -162,12 +160,7 @@ public class SpriteService {
             }
             sprite = SpriteBo.fromSpriteDo(spriteDo);
         }
-
-        if (!sprite.isValid()) {
-            // 缓存失效了，重新获取缓存
-            return assignCacheToSprite(sprite);
-        }
-        return sprite;
+        return assignCacheToSprite(sprite);
     }
 
     /**
@@ -180,11 +173,7 @@ public class SpriteService {
         if (spriteBo == null) {
             return null;
         }
-        if (!spriteBo.isValid()) {
-            // 缓存失效了，重新获取缓存
-            return assignCacheToSprite(spriteBo);
-        }
-        return spriteBo;
+        return assignCacheToSprite(spriteBo);
     }
 
     /** 判断角色属性值是否在合理范围内（包含升级操作） */
