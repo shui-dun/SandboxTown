@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.lang.Nullable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -807,5 +808,13 @@ public class SpriteService {
 
     public boolean isOnline(String id) {
         return onlineSpriteMap.containsKey(id);
+    }
+
+    /** 定期写入数据库 */
+    @Scheduled(fixedRate = 1000)
+    public void saveOnlineSprites() {
+        for (SpriteBo sprite : onlineSpriteMap.values()) {
+            spriteMapper.updateById(sprite);
+        }
     }
 }
