@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuidun.sandbox_town_backend.bean.SpriteDo;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -17,18 +18,11 @@ public interface SpriteMapper extends BaseMapper<SpriteDo> {
                 .ne(SpriteDo::getType, SpriteTypeEnum.USER));
     }
 
-    /** 根据精灵类型和地图id得到精灵数量 */
-    default long countByTypeAndMap(SpriteTypeEnum type, String map) {
-        return selectCount(new LambdaQueryWrapper<SpriteDo>()
-                .eq(SpriteDo::getType, type)
-                .eq(SpriteDo::getMap, map));
-    }
-
-    /** 根据精灵类型列表和地图id得到精灵 */
-    default List<SpriteDo> selectByTypesAndMap(List<SpriteTypeEnum> types, String map) {
-        return selectList(new LambdaQueryWrapper<SpriteDo>()
-                .in(SpriteDo::getType, types)
-                .eq(SpriteDo::getMap, map));
-    }
-
+    @Insert("""
+            INSERT INTO sprite
+            VALUES (#{id}, #{type}, #{owner}, #{money}, #{exp}, #{level}, #{hunger}, #{hp}, #{attack}, #{defense}, #{speed}, #{visionRange}, #{attackRange}, #{X}, #{Y}, #{width}, #{height}, #{map})
+            ON DUPLICATE KEY UPDATE
+            type = #{type}, owner = #{owner}, money = #{money}, exp = #{exp}, level = #{level}, hunger = #{hunger}, hp = #{hp}, attack = #{attack}, defense = #{defense}, speed = #{speed}, vision_range = #{visionRange}, attack_range = #{attackRange}, x = #{X}, y = #{Y}, width = #{width}, height = #{height}, map = #{map}
+            """)
+    void insertOrUpdateById(SpriteDo sprite);
 }

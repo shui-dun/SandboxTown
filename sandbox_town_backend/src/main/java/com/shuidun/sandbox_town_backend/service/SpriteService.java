@@ -257,9 +257,9 @@ public class SpriteService {
         if (sprite.getAttackRange() < 0) {
             sprite.setAttackRange(0);
         }
-        // 如果精灵不存在，则写入数据库
-        if (spriteMapper.selectById(sprite.getId()) == null) {
-            spriteMapper.insert(sprite);
+        // 如果精灵不在线，则写入数据库
+        if (!onlineSpriteMap.containsKey(sprite.getId())) {
+            spriteMapper.insertOrUpdateById(sprite);
         }
         // 判断是否死亡
         if (sprite.getHp() == 0) {
@@ -276,7 +276,7 @@ public class SpriteService {
                     sprite.setX(0.0);
                     sprite.setY(0.0);
                     // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
-                    var spriteBo = selectById(sprite.getId());
+                    var spriteBo = selectOnlineById(sprite.getId());
                     assert spriteBo != null;
                     spriteBo.setLastMoveTime(System.currentTimeMillis() + 500);
                     responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
@@ -593,18 +593,14 @@ public class SpriteService {
         }
         onlineSpriteMap.remove(s.getId());
         // 精灵下线，信息需要立即写入数据库
-        spriteMapper.updateById(s);
+        if (s.getHp() != 0 || s.getType() == SpriteTypeEnum.USER) {
+            spriteMapper.updateById(s);
+        } else {
+            // 删除精灵
+            spriteMapper.deleteById(spriteId);
+        }
         // 发送下线消息
         return msg;
-    }
-
-    public void updatePosition(String id, double x, double y) {
-        SpriteBo sprite = selectById(id);
-        if (sprite == null) {
-            return;
-        }
-        sprite.setX(x);
-        sprite.setY(y);
     }
 
     /**
@@ -725,7 +721,7 @@ public class SpriteService {
         // 对于每一种精灵
         for (var entry : spriteRefreshMap.entrySet()) {
             // 得到目前的数目
-            int curNum = (int) spriteMapper.countByTypeAndMap(entry.getKey(), mapId);
+            int curNum = (int) countByType(entry.getKey());
             // 将刷新信息按照建筑物类型分组
             Map<BuildingTypeEnum, SpriteRefreshDo> buildingTypeMap = entry.getValue().stream()
                     .collect(Collectors.toMap(SpriteRefreshDo::getBuildingType, Function.identity()));
@@ -764,6 +760,20 @@ public class SpriteService {
         }
     }
 
+    /** 根据精灵类型得到精灵数量 */
+    private long countByType(SpriteTypeEnum type) {
+        return onlineSpriteMap.values().stream()
+                .filter(s -> s.getType() == type)
+                .count();
+    }
+
+    /** 得到指定类型的精灵 */
+    private List<SpriteBo> selectByTypes(List<SpriteTypeEnum> types) {
+        return onlineSpriteMap.values().stream()
+                .filter(s -> types.contains(s.getType()))
+                .toList();
+    }
+
     /** 刷新所有时间段的精灵 */
     @Transactional
     public void refreshAllSprites() {
@@ -777,7 +787,7 @@ public class SpriteService {
         // 得到所有夜行动物类型
         List<SpriteTypeEnum> spriteTypes = spriteRefreshMapper.selectSpriteTypesByTime(TimeFrameEnum.NIGHT);
         // 得到所有夜行动物
-        List<SpriteDo> sprites = spriteMapper.selectByTypesAndMap(spriteTypes, mapId);
+        List<SpriteBo> sprites = selectByTypes(spriteTypes);
         // 为所有夜行动物添加烧伤效果
         for (SpriteDo sprite : sprites) {
             effectService.addEffect(sprite.getId(), EffectEnum.BURN, (int) (Constants.DAY_DURATION / 1000L));

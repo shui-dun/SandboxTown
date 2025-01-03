@@ -125,9 +125,6 @@ public class GameLoop {
                     WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
                 }
             });
-            // 保存坐标
-            sprites = spriteService.getOnlineSpritesByFrame(SAVE_COORDINATE_FRAMES, curFrame);
-            Concurrent.executeInThreadPool(sprites, (sprite) -> spriteService.updatePosition(sprite.getId(), sprite.getX(), sprite.getY()));
             // 减少饱腹值
             if (curFrame % REDUCE_HUNGER_FRAMES == 0) {
                 spriteService.reduceSpritesHunger(spriteService.getOnlineSprites().keySet(), 1);
