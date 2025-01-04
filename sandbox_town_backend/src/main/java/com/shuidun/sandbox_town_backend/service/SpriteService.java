@@ -9,7 +9,9 @@ import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.MyMath;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -67,6 +69,8 @@ public class SpriteService {
     private final VictoryItemRewardMapper victoryItemRewardMapper;
 
     private final EffectService effectService;
+
+    private MapService mapService;
 
     /**
      * 在线精灵信息
@@ -805,5 +809,82 @@ public class SpriteService {
         for (SpriteBo sprite : onlineSpriteMap.values()) {
             spriteMapper.updateById(sprite);
         }
+    }
+
+    /** 得到随机移动速度 */
+    public Pair<Double, Double> randomVelocity(SpriteBo sprite) {
+        double coefficient = 0.9;
+        double randomVx = coefficient * (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
+        double randomVy = coefficient * (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
+        return Pair.of(randomVx, randomVy);
+    }
+
+    /** 得到精灵合法的目标，即目标精灵必须存在，并且在线，并且在视野范围内。如果不合法，则返回null */
+    public Optional<SpriteBo> getValidTarget(SpriteBo sprite) {
+        // 如果精灵本身不在线
+        if (!isOnline(sprite.getId())) {
+            return Optional.empty();
+        }
+        // 如果精灵的目标精灵不存在
+        String targetSpriteId = sprite.getTargetSpriteId();
+        if (targetSpriteId == null) {
+            return Optional.empty();
+        }
+        // 如果目标精灵不在线
+        SpriteBo targetSprite = selectOnlineById(targetSpriteId);
+        if (targetSprite == null) {
+            sprite.setTargetSpriteId(null);
+            return Optional.empty();
+        }
+        // 如果目标精灵不在视野范围内
+        if (!mapService.isInSight(sprite, targetSprite.getX(), targetSprite.getY())) {
+            sprite.setTargetSpriteId(null);
+            return Optional.empty();
+        }
+        return Optional.of(targetSprite);
+    }
+
+    /** 得到精灵合法的目标，并且以一定概率忘记目标 */
+    public Optional<SpriteBo> getValidTargetWithRandomForget(SpriteBo sprite, double forgetProbability) {
+        Optional<SpriteBo> targetSprite = getValidTarget(sprite);
+        // 如果目标精灵不合法
+        if (targetSprite.isEmpty()) {
+            return Optional.empty();
+        }
+        // 以一定概率忘记目标
+        if (GameCache.random.nextDouble() < forgetProbability) {
+            sprite.setTargetSpriteId(null);
+            return Optional.empty();
+        }
+        return targetSprite;
+    }
+
+    /** 得到精灵的合法主人，即主人必须存在，并且在线，并且在视野范围内。如果不合法，则返回null */
+    public Optional<SpriteBo> getValidOwner(SpriteBo sprite) {
+        // 如果精灵本身不在线
+        if (!isOnline(sprite.getId())) {
+            return Optional.empty();
+        }
+        // 如果精灵的主人不存在
+        String owner = sprite.getOwner();
+        if (owner == null) {
+            return Optional.empty();
+        }
+        // 如果主人不在线
+        SpriteBo ownerSprite = selectOnlineById(owner);
+        if (ownerSprite == null) {
+            return Optional.empty();
+        }
+        // 如果主人不在视野范围内
+        if (!mapService.isInSight(sprite, ownerSprite.getX(), ownerSprite.getY())) {
+            return Optional.empty();
+        }
+        return Optional.of(ownerSprite);
+    }
+
+    @Autowired
+    @Lazy
+    public void setMapService(MapService mapService) {
+        this.mapService = mapService;
     }
 }

@@ -8,8 +8,7 @@ import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
-import com.shuidun.sandbox_town_backend.service.GameMapService;
-import com.shuidun.sandbox_town_backend.service.SpriteActionService;
+import com.shuidun.sandbox_town_backend.service.MapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.service.TimeService;
 import com.shuidun.sandbox_town_backend.utils.Concurrent;
@@ -62,9 +61,7 @@ public class GameLoop {
 
     private final SpriteService spriteService;
 
-    private final GameMapService gameMapService;
-
-    private final SpriteActionService spriteActionService;
+    private final MapService mapService;
 
     private final EventHandler eventHandler;
 
@@ -76,17 +73,16 @@ public class GameLoop {
     /** 当前帧数 */
     private long curFrame = 0;
 
-    public GameLoop(List<SpriteAgent> spriteAgents, GameMapService gameMapService, SpriteActionService spriteActionService, SpriteService spriteService, EventHandler eventHandler, TimeService timeService) throws InterruptedException {
+    public GameLoop(List<SpriteAgent> spriteAgents, MapService mapService, SpriteService spriteService, EventHandler eventHandler, TimeService timeService) throws InterruptedException {
         this.spriteService = spriteService;
-        this.gameMapService = gameMapService;
-        this.spriteActionService = spriteActionService;
+        this.mapService = mapService;
         this.eventHandler = eventHandler;
         this.timeService = timeService;
         for (SpriteAgent agent : spriteAgents) {
             typeToAgent.put(agent.getType(), agent);
         }
         // 初始化地图
-        gameMapService.init();
+        mapService.init();
     }
 
     @Scheduled(initialDelay = 0, fixedDelay = GAME_LOOP_INTERVAL)
@@ -119,7 +115,7 @@ public class GameLoop {
                 var agent = typeToAgent.get(sprite.getType());
                 if (agent != null) {
                     MoveBo moveBo = agent.act(sprite);
-                    MoveVo moveVo = spriteActionService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
+                    MoveVo moveVo = mapService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
                     if (moveVo == null) {
                         return;
                     }

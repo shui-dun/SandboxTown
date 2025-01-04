@@ -4,7 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import com.shuidun.sandbox_town_backend.bean.GameMapWithMap;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
-import com.shuidun.sandbox_town_backend.service.GameMapService;
+import com.shuidun.sandbox_town_backend.service.MapService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -19,26 +19,26 @@ import javax.validation.constraints.NotNull;
 @Slf4j
 @RestController
 @RequestMapping("/gamemap")
-public class GameMapController {
+public class MapController {
 
-    private final GameMapService gameMapService;
+    private final MapService mapService;
 
-    public GameMapController(GameMapService gameMapService) {
-        this.gameMapService = gameMapService;
+    public MapController(MapService mapService) {
+        this.mapService = mapService;
     }
 
 
     @Operation(summary = "得到地图的信息")
     @GetMapping("/getGameMap")
     public RestResponseVo<GameMapWithMap> getGameMap() {
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, gameMapService.getGameMapWithMap());
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, mapService.getGameMapWithMap());
     }
 
     @Operation(summary = "建造随机的生态系统")
     @SaCheckRole("ADMIN")
     @GetMapping("/createEnvironment")
     public RestResponseVo<Void> createEnvironment(@NotNull @RequestParam int nBuildings) {
-        gameMapService.createEnvironment(nBuildings);
+        mapService.createEnvironment(nBuildings);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 }

@@ -5,7 +5,7 @@ import com.shuidun.sandbox_town_backend.bean.MoveBo;
 import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.enumeration.MapBitEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
-import com.shuidun.sandbox_town_backend.service.SpriteActionService;
+import com.shuidun.sandbox_town_backend.service.MapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import org.springframework.stereotype.Component;
 
@@ -16,26 +16,26 @@ public class EarthboundSpiritAgent implements SpriteAgent {
 
     private final SpriteService spriteService;
 
-    private final SpriteActionService spriteActionService;
+    private final MapService mapService;
 
-    public EarthboundSpiritAgent(SpriteService spriteService, SpriteActionService spriteActionService) {
+    public EarthboundSpiritAgent(SpriteService spriteService, MapService mapService) {
         this.spriteService = spriteService;
-        this.spriteActionService = spriteActionService;
+        this.mapService = mapService;
     }
 
     @Override
     public MoveBo act(SpriteBo sprite) {
         // 如果有目标
-        SpriteBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.25)
+        SpriteBo target = spriteService.getValidTargetWithRandomForget(sprite, 0.25)
                 .map(s -> spriteService.selectOnlineById(s.getId())).orElse(null);
         if (target != null) {
             return MoveBo.moveToSprite(target).moveWithProb(0.85);
         }
         // 如果有其他视野范围内的地缚灵有目标，则同样以这个目标为目标
-        target = spriteActionService.findAllTargetsInSight(sprite, (s) ->
+        target = mapService.findAllTargetsInSight(sprite, (s) ->
                         s.getType() == SpriteTypeEnum.EARTHBOUND_SPIRIT)
                 .stream()
-                .map(spriteActionService::getValidTarget)
+                .map(spriteService::getValidTarget)
                 .flatMap(Optional::stream) // 将每个 Optional 对象转换为一个可能为空的流，然后将这些流合并起来
                 .findAny()
                 .map(s -> spriteService.selectOnlineById(s.getId()))

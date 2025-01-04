@@ -5,7 +5,7 @@ import com.shuidun.sandbox_town_backend.bean.MoveBo;
 import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.enumeration.MapBitEnum;
 import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
-import com.shuidun.sandbox_town_backend.service.SpriteActionService;
+import com.shuidun.sandbox_town_backend.service.MapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import org.springframework.stereotype.Component;
 
@@ -13,22 +13,22 @@ import org.springframework.stereotype.Component;
 public class SpiderAgent implements SpriteAgent {
     private final SpriteService spriteService;
 
-    private final SpriteActionService spriteActionService;
+    private final MapService mapService;
 
-    public SpiderAgent(SpriteService spriteService, SpriteActionService spriteActionService) {
+    public SpiderAgent(SpriteService spriteService, MapService mapService) {
         this.spriteService = spriteService;
-        this.spriteActionService = spriteActionService;
+        this.mapService = mapService;
     }
 
     @Override
     public MoveBo act(SpriteBo sprite) {
         // 在视觉范围内寻找一个目标
         // 蜘蛛的攻击目标需要满足的条件（必须有主人，并且不是蜘蛛）
-        SpriteBo target = spriteActionService.getValidTargetWithRandomForget(sprite, 0.15)
+        SpriteBo target = spriteService.getValidTargetWithRandomForget(sprite, 0.15)
                 .map(s -> spriteService.selectOnlineById(s.getId()))
                 .orElse(null);
         if (target == null) {
-            target = spriteActionService.findAnyTargetInSight(sprite,
+            target = mapService.findAnyTargetInSight(sprite,
                     (s) -> s.getType() != SpriteTypeEnum.SPIDER && (s.getOwner() != null || s.getType() == SpriteTypeEnum.USER)
             ).map(s -> spriteService.selectOnlineById(s.getId())).orElse(null);
         }

@@ -8,9 +8,12 @@ import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
+import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.Nullable;
@@ -23,14 +26,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * 地图相关的服务
+ * 管理地图，以及其上的建筑、精灵
  */
 @Slf4j
 @Service
-public class GameMapService {
+public class MapService {
 
     /**
      * 表示地图上每个点的元素类型
@@ -60,17 +64,16 @@ public class GameMapService {
     /** 建筑类型图片 */
     private final Map<BuildingTypeEnum, BufferedImage> buildingTypesImages = new ConcurrentHashMap<>();
 
-    private final SpriteService spriteService;
+    private SpriteService spriteService;
 
     private final RedisTemplate<String, Object> redisTemplate;
 
     private final Map<BuildingTypeEnum, SpecificBuildingService> specificBuildingServices;
 
-    public GameMapService(GameMapMapper gameMapMapper, BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate, List<SpecificBuildingService> specificBuildingServices) {
+    public MapService(GameMapMapper gameMapMapper, BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, RedisTemplate<String, Object> redisTemplate, List<SpecificBuildingService> specificBuildingServices) {
         this.gameMapMapper = gameMapMapper;
         this.buildingMapper = buildingMapper;
         this.buildingTypeMapper = buildingTypeMapper;
-        this.spriteService = spriteService;
         this.redisTemplate = redisTemplate;
         this.specificBuildingServices = specificBuildingServices.stream().collect(
                 Collectors.toMap(SpecificBuildingService::getType, s -> s)
@@ -501,6 +504,12 @@ public class GameMapService {
         generateMaze(map, x + w / 2, y + h / 2, w / 2, h / 2);
     }
 
+    @Autowired
+    @Lazy
+    public void setSpriteService(SpriteService spriteService) {
+        this.spriteService = spriteService;
+    }
+
     private class PathFinder {
 
         /** 定义八个方向的移动，包括斜向 */
@@ -746,10 +755,8 @@ public class GameMapService {
             // 如果终点是精灵
             if (destSpriteHalfLogicalWidth != null && destSpriteHalfLogicalHeight != null) {
                 // 如果发起者精灵和目标精灵稍稍碰撞，则视作到达终点
-                if (Math.abs(x - logicalX1) <= (initiatorHalfLogicalWidth + destSpriteHalfLogicalWidth) - 1
-                        && Math.abs(y - logicalY1) <= (initiatorHalfLogicalHeight + destSpriteHalfLogicalHeight) - 1) {
-                    return true;
-                }
+                return Math.abs(x - logicalX1) <= (initiatorHalfLogicalWidth + destSpriteHalfLogicalWidth) - 1
+                        && Math.abs(y - logicalY1) <= (initiatorHalfLogicalHeight + destSpriteHalfLogicalHeight) - 1;
             }
             return false;
         }
@@ -872,5 +879,87 @@ public class GameMapService {
             }
             return path;
         }
+    }
+
+
+    /** 计算两点之间的距离 */
+    private double calcDistance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+    }
+
+    /** 目标精灵是否在源精灵的视野内 */
+    public boolean isInSight(SpriteDo source, double targetX, double targetY) {
+        return calcDistance(source.getX(), source.getY(), targetX, targetY) <= source.getVisionRange() + source.getVisionRange();
+    }
+
+    /**
+     * 在视觉范围内寻找任意一个满足条件的目标
+     *
+     * @param sprite    源精灵
+     * @param condition 条件，满足该条件的精灵才可能被返回
+     * @return 找到的目标精灵
+     */
+    public Optional<SpriteBo> findAnyTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        return spriteService.getOnlineSprites().values().stream()
+                .filter(x -> isInSight(sprite, x.getX(), x.getY()))
+                .filter(x -> !x.getId().equals(sprite.getId()))
+                .filter(condition)
+                .findAny();
+    }
+
+    /**
+     * 在视觉范围内寻找最近的一个满足条件的目标
+     *
+     * @param sprite    源精灵
+     * @param condition 条件，满足该条件的精灵才可能被返回
+     * @return 找到的目标精灵
+     */
+    public Optional<SpriteBo> findNearestTargetInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        return spriteService.getOnlineSprites().values().stream()
+                .filter(x -> isInSight(sprite, x.getX(), x.getY()))
+                .filter(x -> !x.getId().equals(sprite.getId()))
+                .filter(condition)
+                .min((x, y) -> (int) (calcDistance(sprite.getX(), sprite.getY(), x.getX(), x.getY()) - calcDistance(sprite.getX(), sprite.getY(), y.getX(), y.getY())));
+    }
+
+    /**
+     * 在视觉范围内寻找所有的满足条件的目标
+     */
+    public List<SpriteBo> findAllTargetsInSight(SpriteDo sprite, Predicate<SpriteDo> condition) {
+        return spriteService.getOnlineSprites().values().stream()
+                .filter(x -> isInSight(sprite, x.getX(), x.getY()))
+                .filter(x -> !x.getId().equals(sprite.getId()))
+                .filter(condition)
+                .toList();
+    }
+
+    /** 判断两个精灵是否接近（即快要碰撞） */
+    public boolean isNear(SpriteDo sprite1, SpriteDo sprite2) {
+        // 之所以这里不乘以widthRatio和heightRatio，是因为这里是检测是否接近而不是检测是否碰撞，因此放宽一点要求
+        return Math.abs(sprite1.getX() - sprite2.getX()) < (sprite1.getWidth() + sprite2.getWidth()) / 2 &&
+                Math.abs(sprite1.getY() - sprite2.getY()) < (sprite1.getHeight() + sprite2.getHeight()) / 2;
+    }
+
+    /** 精灵根据移动目标进行移动 */
+    @Nullable
+    public MoveVo move(SpriteBo sprite, MoveBo moveBo, MapBitsPermissionsBo permissions) {
+        if (!moveBo.isMove()) {
+            return null;
+        }
+        // 寻找路径
+        List<Point> path = findPath(sprite, moveBo, permissions);
+        // 如果路径为空，那么就不移动
+        if (path.isEmpty()) {
+            return null;
+        }
+        // 发送移动事件
+        return new MoveVo(
+                sprite.getId(),
+                sprite.getSpeed() + sprite.getSpeedInc(),
+                DataCompressor.compressPath(path),
+                moveBo.getDestBuildingId(),
+                moveBo.getDestSprite() == null ? null : moveBo.getDestSprite().getId(),
+                moveBo.getDestSprite() == null ? null : GameCache.random.nextInt()
+        );
     }
 }
