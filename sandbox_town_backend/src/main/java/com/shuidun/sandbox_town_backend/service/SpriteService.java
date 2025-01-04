@@ -62,7 +62,7 @@ public class SpriteService {
 
     private final SpriteRefreshMapper spriteRefreshMapper;
 
-    private final FeedMapper feedMapper;
+    private final FeedService feedService;
 
     private final VictoryRewardService victoryRewardService;
 
@@ -79,14 +79,14 @@ public class SpriteService {
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedMapper feedMapper, VictoryRewardService victoryRewardService, EffectService effectService) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedService feedService, VictoryRewardService victoryRewardService, EffectService effectService) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
         this.itemService = itemService;
         this.itemMapper = itemMapper;
         this.buildingMapper = buildingMapper;
         this.spriteRefreshMapper = spriteRefreshMapper;
-        this.feedMapper = feedMapper;
+        this.feedService = feedService;
         this.victoryRewardService = victoryRewardService;
         this.effectService = effectService;
     }
@@ -644,7 +644,7 @@ public class SpriteService {
     @Transactional
     public FeedResultEnum feed(SpriteDo sourceSprite, SpriteDo targetSprite) {
         // 判断是否可驯服
-        List<FeedDo> feedList = feedMapper.selectBySpriteType(targetSprite.getType());
+        List<FeedDo> feedList = feedService.selectBySpriteType(targetSprite.getType());
         if (feedList.isEmpty()) {
             return FeedResultEnum.CANNOT_TAMED;
         }
