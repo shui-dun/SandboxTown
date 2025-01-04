@@ -97,7 +97,7 @@ public class MapService {
         // 在地图上放置建筑
         boolean containsBuilding = placeAllBuildingsOnMap();
 
-        // 放置没有主人的角色
+        // 放置NPC
         spriteService.onlineNPCs();
 
         // 如果没有建筑物，则生成一定数量的建筑物

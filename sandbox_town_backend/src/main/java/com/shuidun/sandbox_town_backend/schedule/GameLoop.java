@@ -1,12 +1,9 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
-import com.shuidun.sandbox_town_backend.agent.SpriteAgent;
-import com.shuidun.sandbox_town_backend.bean.MoveBo;
 import com.shuidun.sandbox_town_backend.bean.MoveVo;
 import com.shuidun.sandbox_town_backend.bean.SpriteBo;
 import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
-import com.shuidun.sandbox_town_backend.enumeration.SpriteTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.service.MapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
@@ -17,9 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -45,10 +40,10 @@ public class GameLoop {
     private final int BURN_FRAMES = 2 * FPS;
 
     /** 执行一次精灵行为的帧数 */
-    private final int SPRITE_ACTION_FRAMES = 1 * FPS;
+    private final int SPRITE_ACTION_FRAMES = FPS;
 
     /** 保存一次坐标的帧数 */
-    private final int SAVE_COORDINATE_FRAMES = 1 * FPS;
+    private final int SAVE_COORDINATE_FRAMES = FPS;
 
     /** 减少饱腹值的帧数 */
     private final int REDUCE_HUNGER_FRAMES = 20 * FPS;
@@ -67,20 +62,14 @@ public class GameLoop {
 
     private final TimeService timeService;
 
-    /** 精灵类型到精灵Agent的映射 */
-    private final Map<SpriteTypeEnum, SpriteAgent> typeToAgent = new HashMap<>();
-
     /** 当前帧数 */
     private long curFrame = 0;
 
-    public GameLoop(List<SpriteAgent> spriteAgents, MapService mapService, SpriteService spriteService, EventHandler eventHandler, TimeService timeService) throws InterruptedException {
+    public GameLoop(MapService mapService, SpriteService spriteService, EventHandler eventHandler, TimeService timeService) throws InterruptedException {
         this.spriteService = spriteService;
         this.mapService = mapService;
         this.eventHandler = eventHandler;
         this.timeService = timeService;
-        for (SpriteAgent agent : spriteAgents) {
-            typeToAgent.put(agent.getType(), agent);
-        }
         // 初始化地图
         mapService.init();
     }
@@ -111,14 +100,10 @@ public class GameLoop {
             Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1)));
             // 调用精灵行为
             sprites = spriteService.getOnlineSpritesByFrame(SPRITE_ACTION_FRAMES, curFrame);
+            sprites.addAll(spriteService.onlineUsers());
             Concurrent.executeInThreadPool(sprites, (sprite) -> {
-                var agent = typeToAgent.get(sprite.getType());
-                if (agent != null) {
-                    MoveBo moveBo = agent.act(sprite);
-                    MoveVo moveVo = mapService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
-                    if (moveVo == null) {
-                        return;
-                    }
+                MoveVo moveVo = spriteService.move(sprite);
+                if (moveVo != null) {
                     WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
                 }
             });

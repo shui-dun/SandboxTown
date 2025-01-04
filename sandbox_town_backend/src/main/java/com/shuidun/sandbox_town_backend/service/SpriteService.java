@@ -385,7 +385,14 @@ public class SpriteService {
     public List<SpriteBo> getOnlineSpritesByFrame(int n, long curFrame) {
         return getOnlineSprites().values().stream()
                 .filter(s -> MyMath.safeMod(s.getId().hashCode(), n) == MyMath.safeMod(curFrame, n))
-                .toList();
+                .collect(Collectors.toList());
+    }
+
+    /** 得到所有在线的用户 */
+    public List<SpriteBo> onlineUsers() {
+        return onlineSpriteMap.values().stream()
+                .filter(s -> s.getType() == SpriteTypeEnum.USER)
+                .collect(Collectors.toList());
     }
 
     /** 将NPC精灵上线 */
@@ -512,10 +519,11 @@ public class SpriteService {
             effectService.addEffect(sourceSprite.getId(), EffectEnum.BURN, 8);
             responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sourceSprite.getId())));
         }
-        // 被攻击者以攻击者为目标
-        targetSprite.setTargetSpriteId(sourceSprite.getId());
-        // 攻击者也以被攻击者为目标
-        sourceSprite.setTargetSpriteId(targetSprite.getId());
+        // 被攻击者进行反应
+        var targetAgent = spriteAgentMap.get(targetSprite.getType());
+        if (targetAgent != null) {
+            targetAgent.onAttacked(targetSprite, sourceSprite);
+        }
         // 计算伤害
         int damage = sourceSprite.getAttack() + sourceSprite.getAttackInc() -
                 (targetSprite.getDefense() + targetSprite.getDefenseInc());
@@ -887,4 +895,207 @@ public class SpriteService {
     public void setMapService(MapService mapService) {
         this.mapService = mapService;
     }
+
+    @Nullable
+    public MoveVo move(SpriteBo sprite) {
+        var agent = spriteAgentMap.get(sprite.getType());
+        if (agent == null) {
+            return null;
+        }
+        MoveBo moveBo = agent.act(sprite);
+        return mapService.move(sprite, moveBo, agent.mapBitsPermissions(sprite));
+    }
+
+    /**
+     * 该接口定义了游戏中不同类型精灵行为的基础框架。
+     * 每种精灵类型（如玩家、狗、蜘蛛等）都应该有一个对应的实现类，
+     * 在这个实现类中具体定义了该类型精灵的行为逻辑。
+     */
+    private interface SpriteAgent {
+        /**
+         * act 方法是每个精灵行动逻辑的核心。
+         * 它定义了当游戏循环每次迭代时，精灵应该执行的操作。
+         *
+         * @param sprite 需要执行操作的精灵
+         * @return 精灵的移动操作
+         */
+        MoveBo act(SpriteBo sprite);
+
+        /**
+         * 用于获取精灵在地图上的移动权限
+         */
+        default MapBitsPermissionsBo mapBitsPermissions(SpriteBo sprite) {
+            return MapBitsPermissionsBo.DEFAULT_MAP_BITS_PERMISSIONS;
+        }
+
+        /** 被攻击后的行为 */
+        default void onAttacked(SpriteBo me, SpriteBo attacker) {
+            me.setTargetSpriteId(attacker.getId());
+        }
+    }
+
+    private class DogAgent implements SpriteAgent {
+        @Override
+        public MoveBo act(SpriteBo sprite) {
+            // 如果狗有目标精灵（并以一定概率忘记目标），那么狗就会攻击目标精灵
+            SpriteBo target = getValidTargetWithRandomForget(sprite, 0.2)
+                    .map(s -> selectOnlineById(s.getId()))
+                    .orElse(null);
+            if (target != null) {
+                return MoveBo.moveToSprite(target);
+            }
+            // 如果狗有主人
+            SpriteBo owner = getValidOwner(sprite).orElse(null);
+            if (owner != null) {
+                // 一定概率就跟着主人走
+                return MoveBo.moveToPoint(owner.getX(), owner.getY())
+                        .keepDistance()
+                        .moveWithProb(0.75);
+            }
+            // 一定概率随机移动
+            return MoveBo.randomMove(sprite).moveWithProb(0.25);
+        }
+    }
+
+    private class EarthboundSpiritAgent implements SpriteAgent {
+        @Override
+        public MoveBo act(SpriteBo sprite) {
+            // 如果有目标
+            SpriteBo target = getValidTargetWithRandomForget(sprite, 0.25)
+                    .map(s -> selectOnlineById(s.getId())).orElse(null);
+            if (target != null) {
+                return MoveBo.moveToSprite(target).moveWithProb(0.85);
+            }
+            // 如果有其他视野范围内的地缚灵有目标，则同样以这个目标为目标
+            target = mapService.findAllTargetsInSight(sprite, (s) ->
+                            s.getType() == SpriteTypeEnum.EARTHBOUND_SPIRIT)
+                    .stream()
+                    .map(x -> getValidTarget(x))
+                    .flatMap(Optional::stream) // 将每个 Optional 对象转换为一个可能为空的流，然后将这些流合并起来
+                    .findAny()
+                    .map(s -> selectOnlineById(s.getId()))
+                    .orElse(null);
+            if (target != null) {
+                sprite.setTargetSpriteId(target.getId());
+                return MoveBo.moveToSprite(target).moveWithProb(0.85);
+            }
+            // 否则随机移动
+            return MoveBo.randomMove(sprite).moveWithProb(0.25);
+        }
+
+        /** 默认只能在墓碑周围移动 */
+        private static final int DEFAULT_ALLOW = MapBitsPermissionsBo.mapBitArrayToInt(MapBitEnum.SURROUNDING_TOMBSTONE);
+
+        /** 默认不能在希腊神庙周围移动 */
+        private static final int DEFAULT_FORBID = MapBitsPermissionsBo.mapBitArrayToInt(MapBitEnum.SURROUNDING_GREEK_TEMPLE);
+
+        @Override
+        public MapBitsPermissionsBo mapBitsPermissions(SpriteBo sprite) {
+            int obstacles = MapBitsPermissionsBo.DEFAULT_OBSTACLES;
+            // 默认只能在墓碑周围移动
+            int allow = DEFAULT_ALLOW;
+            // 如果体力小于一定值，则允许在任意地方移动
+            if (sprite.getHp() < 50) {
+                allow = MapBitsPermissionsBo.DEFAULT_ALLOW;
+            }
+            // 默认不能在希腊神庙周围移动
+            int forbid = DEFAULT_FORBID;
+            // 如果等级大于一定值，则可以在希腊神庙周围移动
+            if (sprite.getLevel() > 5) {
+                forbid = MapBitsPermissionsBo.DEFAULT_FORBID;
+            }
+            return new MapBitsPermissionsBo(obstacles, allow, forbid);
+        }
+    }
+
+    private class SpiderAgent implements SpriteAgent {
+        @Override
+        public MoveBo act(SpriteBo sprite) {
+            // 在视觉范围内寻找一个目标
+            // 蜘蛛的攻击目标需要满足的条件（必须有主人，并且不是蜘蛛）
+            SpriteBo target = getValidTargetWithRandomForget(sprite, 0.15)
+                    .map(s -> selectOnlineById(s.getId()))
+                    .orElse(null);
+            if (target == null) {
+                target = mapService.findAnyTargetInSight(sprite,
+                        (s) -> s.getType() != SpriteTypeEnum.SPIDER && (s.getOwner() != null || s.getType() == SpriteTypeEnum.USER)
+                ).map(s -> selectOnlineById(s.getId())).orElse(null);
+            }
+            if (target == null) {
+                // 随机移动
+                return MoveBo.randomMove(sprite).moveWithProb(0.15);
+            }
+            sprite.setTargetSpriteId(target.getId());
+            return MoveBo.moveToSprite(target);
+        }
+
+        /** 默认不能在希腊神庙周围移动 */
+        private static final int DEFAULT_FORBID = MapBitsPermissionsBo.mapBitArrayToInt(MapBitEnum.SURROUNDING_GREEK_TEMPLE);
+
+        @Override
+        public MapBitsPermissionsBo mapBitsPermissions(SpriteBo sprite) {
+            int obstacles = MapBitsPermissionsBo.DEFAULT_OBSTACLES;
+            int allow = MapBitsPermissionsBo.DEFAULT_ALLOW;
+            // 默认不能在希腊神庙周围移动
+            int forbid = DEFAULT_FORBID;
+            // 如果等级大于一定值，则可以在希腊神庙周围移动
+            if (sprite.getLevel() > 5) {
+                forbid = MapBitsPermissionsBo.DEFAULT_FORBID;
+            }
+            return new MapBitsPermissionsBo(obstacles, allow, forbid);
+        }
+    }
+
+    private class UserAgent implements SpriteAgent {
+        @Override
+        public MoveBo act(SpriteBo sprite) {
+            // 如果有精灵目标
+            SpriteBo target = getValidTarget(sprite)
+                    .map(s -> selectOnlineById(s.getId()))
+                    .orElse(null);
+            if (target != null) {
+                sprite.setTargetSpriteId(null);
+                return MoveBo.moveToSprite(target);
+            }
+            var x = sprite.getTargetX();
+            var y = sprite.getTargetY();
+            // 如果有建筑目标
+            String targetBuildingId = sprite.getTargetBuildingId();
+            if (targetBuildingId != null) {
+                assert x != null;
+                assert y != null;
+                sprite.setTargetBuildingId(null);
+                sprite.setTargetX(null);
+                sprite.setTargetY(null);
+                return MoveBo.moveToBuilding(targetBuildingId, x, y);
+            }
+            // 如果有目标点
+            if (x != null && y != null) {
+                sprite.setTargetX(null);
+                sprite.setTargetY(null);
+                return MoveBo.moveToPoint(x, y);
+            }
+            // 否则不移动
+            return MoveBo.empty();
+        }
+
+        @Override
+        public void onAttacked(SpriteBo me, SpriteBo attacker) {
+            // 使自己的宠物把攻击者当作目标
+            for (SpriteBo sprite : onlineSpriteMap.values()) {
+                if (sprite.getOwner() != null && sprite.getOwner().equals(me.getId())) {
+                    sprite.setTargetSpriteId(attacker.getId());
+                }
+            }
+        }
+    }
+
+    /** 精灵类型到agent的映射 */
+    private final Map<SpriteTypeEnum, SpriteAgent> spriteAgentMap = Map.of(
+            SpriteTypeEnum.DOG, new DogAgent(),
+            SpriteTypeEnum.EARTHBOUND_SPIRIT, new EarthboundSpiritAgent(),
+            SpriteTypeEnum.SPIDER, new SpiderAgent(),
+            SpriteTypeEnum.USER, new UserAgent()
+    );
+
 }

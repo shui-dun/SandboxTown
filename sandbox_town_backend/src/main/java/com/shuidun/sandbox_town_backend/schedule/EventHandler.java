@@ -1,7 +1,6 @@
 package com.shuidun.sandbox_town_backend.schedule;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.shuidun.sandbox_town_backend.agent.UserAgent;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.FeedResultEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
@@ -78,7 +77,7 @@ public class EventHandler {
         return true;
     }
 
-    public EventHandler(SpriteService spriteService, MapService mapService, ItemService itemService, Validator validator, UserAgent userAgent) {
+    public EventHandler(SpriteService spriteService, MapService mapService, ItemService itemService, Validator validator) {
         this.validator = validator;
 
         // 告知坐标信息
@@ -133,20 +132,21 @@ public class EventHandler {
             sprite.setVx(0.0);
             sprite.setVy(0.0);
             // 寻找路径
-            MoveBo moveBo = MoveBo.empty();
             if (data.getDestSpriteId() != null) {
                 SpriteBo destSprite = spriteService.selectOnlineById(data.getDestSpriteId());
                 if (destSprite != null) {
-                    moveBo = MoveBo.moveToSprite(destSprite, data.getX1(), data.getY1());
+                    sprite.setTargetSpriteId(destSprite.getId());
                 }
             } else if (data.getDestBuildingId() != null) {
-                moveBo = MoveBo.moveToBuilding(data.getDestBuildingId(), data.getX1(), data.getY1());
+                sprite.setTargetSpriteId(null);
+                sprite.setTargetBuildingId(data.getDestBuildingId());
+                sprite.setTargetX(data.getX1());
+                sprite.setTargetY(data.getY1());
             } else {
-                moveBo = MoveBo.moveToPoint(data.getX1(), data.getY1());
-            }
-            MoveVo moveVo = mapService.move(sprite, moveBo, userAgent.mapBitsPermissions(sprite));
-            if (moveVo != null) {
-                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
+                sprite.setTargetSpriteId(null);
+                sprite.setTargetBuildingId(null);
+                sprite.setTargetX(data.getX1());
+                sprite.setTargetY(data.getY1());
             }
         });
 
@@ -200,7 +200,7 @@ public class EventHandler {
         eventMap.put(WSRequestEnum.FIND_ENEMY, (initiator, mapData) -> {
             SpriteBo sourceSprite = spriteService.selectOnlineById(initiator);
             // 如果精灵不在线，则返回
-            if (sourceSprite == null || spriteService.isOnline(sourceSprite.getId())) {
+            if (sourceSprite == null) {
                 return;
             }
             SpriteBo targetSprite = spriteService.getValidTarget(sourceSprite)
@@ -218,10 +218,7 @@ public class EventHandler {
                 return;
             }
             // 寻找路径
-            MoveVo moveVo = mapService.move(sourceSprite, MoveBo.moveToSprite(targetSprite), userAgent.mapBitsPermissions(sourceSprite));
-            if (moveVo != null) {
-                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
-            }
+            sourceSprite.setTargetSpriteId(targetSprite.getId());
         });
     }
 
