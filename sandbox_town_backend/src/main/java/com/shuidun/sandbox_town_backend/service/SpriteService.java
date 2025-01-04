@@ -64,9 +64,7 @@ public class SpriteService {
 
     private final FeedMapper feedMapper;
 
-    private final VictoryAttributeRewardMapper victoryAttributeRewardMapper;
-
-    private final VictoryItemRewardMapper victoryItemRewardMapper;
+    private final VictoryRewardService victoryRewardService;
 
     private final EffectService effectService;
 
@@ -81,7 +79,7 @@ public class SpriteService {
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedMapper feedMapper, VictoryAttributeRewardMapper victoryAttributeRewardMapper, VictoryItemRewardMapper victoryItemRewardMapper, EffectService effectService) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedMapper feedMapper, VictoryRewardService victoryRewardService, EffectService effectService) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeMapper = spriteTypeMapper;
         this.itemService = itemService;
@@ -89,8 +87,7 @@ public class SpriteService {
         this.buildingMapper = buildingMapper;
         this.spriteRefreshMapper = spriteRefreshMapper;
         this.feedMapper = feedMapper;
-        this.victoryAttributeRewardMapper = victoryAttributeRewardMapper;
-        this.victoryItemRewardMapper = victoryItemRewardMapper;
+        this.victoryRewardService = victoryRewardService;
         this.effectService = effectService;
     }
 
@@ -535,8 +532,10 @@ public class SpriteService {
                 // 获得攻击者的主人
                 String ownerId = sourceSprite.getOwner();
                 SpriteDo owner = ownerId == null ? null : selectById(ownerId);
-                // 查询被攻击者死亡后带给攻击者的属性提升（属性提升值不仅与死亡者的类型有关，还与死亡者的等级有关）
-                VictoryAttributeRewardDo attributeReward = victoryAttributeRewardMapper.selectById(targetSprite.getType());
+                // 查询奖励
+                VictoryRewardBo victoryReward = victoryRewardService.selectBySpriteType(targetSprite.getType());
+                // 被攻击者死亡后带给攻击者的属性提升（属性提升值不仅与死亡者的类型有关，还与死亡者的等级有关）
+                VictoryAttributeRewardDo attributeReward = victoryReward.getAttributeReward();
                 if (attributeReward != null) {
                     // 死亡者的等级带来的属性增益因数
                     double levelFactor = 1 + (targetSprite.getLevel() - 1) * 0.2;
@@ -564,8 +563,8 @@ public class SpriteService {
                         }
                     }
                 }
-                // 查询被攻击者死亡后带来的物品奖励
-                List<VictoryItemRewardDo> itemRewards = victoryItemRewardMapper.selectBySpriteType(targetSprite.getType());
+                // 被攻击者死亡后带来的物品奖励
+                List<VictoryItemRewardDo> itemRewards = victoryReward.getItemRewards();
                 // 如果攻击者没有主人，物品归攻击者所有，否则归主人所有
                 String itemOwner = (owner == null ? sourceSprite.getId() : owner.getId());
                 for (VictoryItemRewardDo itemReward : itemRewards) {

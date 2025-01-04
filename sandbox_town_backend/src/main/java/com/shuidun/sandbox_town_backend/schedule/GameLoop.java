@@ -18,7 +18,7 @@ import java.util.List;
 
 
 /**
- * 游戏初始化器
+ * 游戏循环
  */
 @Component
 @Slf4j
