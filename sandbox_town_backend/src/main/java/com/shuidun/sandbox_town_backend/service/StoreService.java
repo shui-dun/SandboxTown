@@ -6,8 +6,6 @@ import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
-import com.shuidun.sandbox_town_backend.mapper.ItemMapper;
-import com.shuidun.sandbox_town_backend.mapper.ItemTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.StoreItemTypeMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import lombok.extern.slf4j.Slf4j;
@@ -30,20 +28,13 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class StoreService implements SpecificBuildingService {
-
-    @Lazy
-    @Autowired
     private StoreService self;
 
     private final StoreItemTypeMapper storeItemTypeMapper;
 
     private final BuildingMapper buildingMapper;
 
-    private final ItemTypeMapper itemTypeMapper;
-
     private final ItemService itemService;
-
-    private final ItemMapper itemMapper;
 
     private final SpriteService spriteService;
 
@@ -52,12 +43,10 @@ public class StoreService implements SpecificBuildingService {
     @Value("${mapId}")
     private String mapId;
 
-    public StoreService(StoreItemTypeMapper storeItemTypeMapper, BuildingMapper buildingMapper, ItemTypeMapper itemTypeMapper, ItemService itemService, ItemMapper itemMapper, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate) {
+    public StoreService(StoreItemTypeMapper storeItemTypeMapper, BuildingMapper buildingMapper, ItemService itemService, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate) {
         this.storeItemTypeMapper = storeItemTypeMapper;
         this.buildingMapper = buildingMapper;
-        this.itemTypeMapper = itemTypeMapper;
         this.itemService = itemService;
-        this.itemMapper = itemMapper;
         this.spriteService = spriteService;
         this.redisTemplate = redisTemplate;
     }
@@ -125,8 +114,8 @@ public class StoreService implements SpecificBuildingService {
     public void initBuilding(BuildingDo building) {
         // 删除原有的商店商品
         storeItemTypeMapper.deleteByStore(building.getId());
-        // 获取所有物品信息
-        List<ItemTypeDo> itemTypes = itemTypeMapper.selectList(null);
+        // 获取所有物品类型
+        List<ItemTypeDo> itemTypes = itemService.listAllItemTypes();
         // 进货随机数目种类的商品
         int count = (int) (Math.random() * 6) + 3;
         if (count > itemTypes.size()) {
@@ -245,7 +234,7 @@ public class StoreService implements SpecificBuildingService {
     @Transactional
     public void sell(String spriteId, String store, String itemId, Integer amount, Integer perPrice) {
         // 得到物品信息
-        ItemDo item = itemMapper.selectById(itemId);
+        ItemDo item = itemService.getItemById(itemId);
         // 检查物品是否存在
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
@@ -293,5 +282,11 @@ public class StoreService implements SpecificBuildingService {
         // 删除缓存
         redisTemplate.delete("store::listByStore::" + store);
         redisTemplate.delete("store::storeItemTypeDetail::%s_%s".formatted(store, item.getItemType()));
+    }
+
+    @Lazy
+    @Autowired
+    public void setSelf(StoreService self) {
+        this.self = self;
     }
 }

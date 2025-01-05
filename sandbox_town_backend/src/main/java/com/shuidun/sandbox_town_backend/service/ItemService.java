@@ -136,6 +136,13 @@ public class ItemService {
         return setItemTypeAndLabelsForItems(itemMapper.selectByOwnerAndPosition(owner, position));
     }
 
+
+    /** 根据主人以及位置查询物品 */
+    public List<ItemDo> listItemsByOwnerAndPosition(String owner, ItemPositionEnum position) {
+        return itemMapper.selectByOwnerAndPosition(owner, position);
+    }
+
+
     /** 根据主人查询背包中的物品（带有物品类型信息和标签信息） */
     public List<ItemWithTypeAndLabelsBo> listItemsInBackpackByOwner(String owner) {
         return listItemsByOwnerAndPositionWithTypeAndLabel(owner, ItemPositionEnum.BACKPACK);
@@ -278,6 +285,12 @@ public class ItemService {
         assert itemType != null;
         // 设置物品类型
         return new ItemWithTypeBo(item, itemType);
+    }
+
+    /** 根据物品id查询物品信息 */
+    @Nullable
+    public ItemDo getItemById(String itemId) {
+        return itemMapper.selectById(itemId);
     }
 
 
@@ -467,5 +480,10 @@ public class ItemService {
         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
 
         return responses;
+    }
+
+    /** 获取所有物品类型 */
+    public List<ItemTypeDo> listAllItemTypes() {
+        return itemTypeMapper.selectList(null);
     }
 }

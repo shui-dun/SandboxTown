@@ -4,7 +4,6 @@ import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.*;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
-import com.shuidun.sandbox_town_backend.mapper.ItemMapper;
 import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
 import com.shuidun.sandbox_town_backend.mapper.SpriteRefreshMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
@@ -59,8 +58,6 @@ public class SpriteService {
 
     private final ItemService itemService;
 
-    private final ItemMapper itemMapper;
-
     private final BuildingMapper buildingMapper;
 
     private final SpriteRefreshMapper spriteRefreshMapper;
@@ -82,11 +79,10 @@ public class SpriteService {
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeService spriteTypeService, ItemService itemService, ItemMapper itemMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedService feedService, VictoryRewardService victoryRewardService, EffectService effectService) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeService spriteTypeService, ItemService itemService, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedService feedService, VictoryRewardService victoryRewardService, EffectService effectService) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeService = spriteTypeService;
         this.itemService = itemService;
-        this.itemMapper = itemMapper;
         this.buildingMapper = buildingMapper;
         this.spriteRefreshMapper = spriteRefreshMapper;
         this.feedService = feedService;
@@ -650,7 +646,7 @@ public class SpriteService {
             return FeedResultEnum.CANNOT_TAMED;
         }
         // 是否手持了驯服所需物品
-        List<ItemDo> handHeldItems = itemMapper.selectByOwnerAndPosition(sourceSprite.getId(), ItemPositionEnum.HANDHELD);
+        List<ItemDo> handHeldItems = itemService.listItemsByOwnerAndPosition(sourceSprite.getId(), ItemPositionEnum.HANDHELD);
         if (handHeldItems.isEmpty()) {
             return FeedResultEnum.NO_ITEM;
         }
