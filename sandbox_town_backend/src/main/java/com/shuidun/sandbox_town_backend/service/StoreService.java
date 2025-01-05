@@ -36,6 +36,8 @@ public class StoreService implements SpecificBuildingService {
 
     private final ItemService itemService;
 
+    private final ItemTypeService itemTypeService;
+
     private final SpriteService spriteService;
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -43,10 +45,11 @@ public class StoreService implements SpecificBuildingService {
     @Value("${mapId}")
     private String mapId;
 
-    public StoreService(StoreItemTypeMapper storeItemTypeMapper, BuildingMapper buildingMapper, ItemService itemService, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate) {
+    public StoreService(StoreItemTypeMapper storeItemTypeMapper, BuildingMapper buildingMapper, ItemService itemService, ItemTypeService itemTypeService, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate) {
         this.storeItemTypeMapper = storeItemTypeMapper;
         this.buildingMapper = buildingMapper;
         this.itemService = itemService;
+        this.itemTypeService = itemTypeService;
         this.spriteService = spriteService;
         this.redisTemplate = redisTemplate;
     }
@@ -62,7 +65,7 @@ public class StoreService implements SpecificBuildingService {
         // 得到所有的物品类型枚举
         List<ItemTypeEnum> itemTypes = storeItemTypes.stream().map(StoreItemTypeDo::getItemType).toList();
         // 得到所有的物品类型（带有标签）
-        List<ItemTypeWithLabelsBo> itemTypeWithLabelsBo = itemService.listItemTypeWithLabels(itemTypes);
+        List<ItemTypeDetailBo> itemTypeWithLabelsBo = itemTypes.stream().map(itemTypeService::getItemTypeById).toList();
         Map<ItemTypeEnum, ItemTypeWithLabelsBo> itemTypeWithLabelsMap = itemTypeWithLabelsBo.stream().collect(Collectors.toMap(ItemTypeWithLabelsBo::getId, x -> x));
         // 为所有商店商品设置物品类型
         return storeItemTypes.stream().map(storeItemType -> {
@@ -115,7 +118,9 @@ public class StoreService implements SpecificBuildingService {
         // 删除原有的商店商品
         storeItemTypeMapper.deleteByStore(building.getId());
         // 获取所有物品类型
-        List<ItemTypeDo> itemTypes = itemService.listAllItemTypes();
+        List<ItemTypeDetailBo> itemTypes = itemTypeService.listAllItemTypes().stream()
+                .map(itemTypeService::getItemTypeById)
+                .toList();
         // 进货随机数目种类的商品
         int count = (int) (Math.random() * 6) + 3;
         if (count > itemTypes.size()) {
@@ -203,13 +208,13 @@ public class StoreService implements SpecificBuildingService {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
         // 得到标签信息、属性增益信息、效果信息等
-        return new StoreItemTypeDetailBo(storeItemType, itemService.getItemTypeDetailById(itemType));
+        return new StoreItemTypeDetailBo(storeItemType, itemTypeService.getItemTypeById(itemType));
     }
 
     public Integer soldPrice(String store, String itemId) {
         int price;
         // 得到物品信息（带有类型信息）
-        ItemWithTypeBo item = itemService.getItemWithTypeById(itemId);
+        ItemDetailBo item = itemService.getItemDetailById(itemId);
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }

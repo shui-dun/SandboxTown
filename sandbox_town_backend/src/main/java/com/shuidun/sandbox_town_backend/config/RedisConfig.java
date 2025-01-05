@@ -3,6 +3,10 @@ package com.shuidun.sandbox_town_backend.config;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +26,25 @@ import java.time.Duration;
  */
 @Configuration
 public class RedisConfig extends CachingConfigurerSupport {
+    /**
+     * 配置Jackson2JsonRedisSerializer
+     * Java默认的序列化方式序列化后的数据占用空间小，但是可读性差
+     * 因此，使用Jackson2JsonRedisSerializer来序列化和反序列化redis的value值
+     * 这样，存储在redis中的数据就是json格式的，可读性好
+     */
+    private Jackson2JsonRedisSerializer<Object> createJackson2JsonRedisSerializer() {
+        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder().
+                allowIfBaseType(Object.class).build();
+        mapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.EVERYTHING);
+        mapper.registerModule(new JavaTimeModule());
+        // 添加不可变集合的支持，不然在序列化 List.of 等不可变集合时会报错
+        mapper.registerModule(new Jdk8Module());
+        serializer.setObjectMapper(mapper);
+        return serializer;
+    }
 
     /**
      * 自定义redisTemplate
@@ -35,22 +58,8 @@ public class RedisConfig extends CachingConfigurerSupport {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
 
-        // Java默认的序列化方式序列化后的数据占用空间小，但是可读性差
-        // 因此，使用Jackson2JsonRedisSerializer来序列化和反序列化redis的value值
-        // 这样，存储在redis中的数据就是json格式的，可读性好
-        // 先配置一下Jackson2JsonRedisSerializer
-        Jackson2JsonRedisSerializer serializer = new Jackson2JsonRedisSerializer(Object.class);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        // 根据GPT4的建议，使用BasicPolymorphicTypeValidator来防止反序列化漏洞
-        // PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder().allowIfBaseType(Object.class).build();
-        // mapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL);
-        serializer.setObjectMapper(mapper);
-
-        // 设置key和value的序列化方式
-        // key使用StringRedisSerializer
-        // value使用Jackson2JsonRedisSerializer
+        // 配置序列化器
+        Jackson2JsonRedisSerializer<Object> serializer = createJackson2JsonRedisSerializer();
         template.setValueSerializer(serializer);
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
@@ -66,13 +75,8 @@ public class RedisConfig extends CachingConfigurerSupport {
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         // 定义字符串序列化方式（用作key的序列化方式）
         RedisSerializer<String> strSerializer = new StringRedisSerializer();
-        // 定义Jackson2JsonRedisSerializer（用作value的序列化方式）
-        Jackson2JsonRedisSerializer objectJackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        // 解决查询缓存转换异常的问题
-        ObjectMapper om = new ObjectMapper();
-        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        objectJackson2JsonRedisSerializer.setObjectMapper(om);
+        Jackson2JsonRedisSerializer<Object> objectJackson2JsonRedisSerializer = createJackson2JsonRedisSerializer();
+
         // 定制缓存序列化方式
         RedisCacheConfiguration config =
                 RedisCacheConfiguration.defaultCacheConfig()
@@ -85,8 +89,6 @@ public class RedisConfig extends CachingConfigurerSupport {
                         .serializeValuesWith(RedisSerializationContext.SerializationPair
                                 .fromSerializer(objectJackson2JsonRedisSerializer));
         // 使用自定义的缓存配置初始化一个RedisCacheManager
-        RedisCacheManager cacheManager = RedisCacheManager
-                .builder(redisConnectionFactory).cacheDefaults(config).build();
-        return cacheManager;
+        return RedisCacheManager.builder(redisConnectionFactory).cacheDefaults(config).build();
     }
 }

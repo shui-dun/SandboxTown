@@ -94,7 +94,7 @@ public class SpriteService {
     private SpriteBo assignCacheToSprite(SpriteBo sprite) {
         sprite.setSpriteTypeDo(spriteTypeService.selectById(sprite.getType()));
         // 获取装备列表
-        List<ItemDetailBo> equipments = itemService.listItemsInEquipmentByOwnerWithDetail(sprite.getId());
+        List<ItemDetailBo> equipments = itemService.listItemsInEquipmentByOwner(sprite.getId());
         // 设置效果列表
         List<SpriteEffectWithEffectBo> effects = effectService.listSpriteEffectsBySpriteIdAndEquipments(sprite.getId(), equipments);
         // 设置装备列表
@@ -646,7 +646,7 @@ public class SpriteService {
             return FeedResultEnum.CANNOT_TAMED;
         }
         // 是否手持了驯服所需物品
-        List<ItemDo> handHeldItems = itemService.listItemsByOwnerAndPosition(sourceSprite.getId(), ItemPositionEnum.HANDHELD);
+        List<ItemDetailBo> handHeldItems = itemService.listByOwnerAndPositions(sourceSprite.getId(), List.of(ItemPositionEnum.HANDHELD));
         if (handHeldItems.isEmpty()) {
             return FeedResultEnum.NO_ITEM;
         }

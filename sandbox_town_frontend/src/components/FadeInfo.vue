@@ -87,7 +87,7 @@ export default {
             } else {
                 id = mixin.hashName(id);
             }
-            mixin.myGET('/rest/item/itemTypeBrief',
+            mixin.myGET('/rest/item/itemTypeDetail',
                 new URLSearchParams({
                     itemType: msg.item,
                 }),
