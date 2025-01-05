@@ -3,7 +3,10 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.*;
 import com.shuidun.sandbox_town_backend.exception.BusinessException;
-import com.shuidun.sandbox_town_backend.mapper.*;
+import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
+import com.shuidun.sandbox_town_backend.mapper.ItemMapper;
+import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
+import com.shuidun.sandbox_town_backend.mapper.SpriteRefreshMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.MyMath;
@@ -52,7 +55,7 @@ public class SpriteService {
 
     private final SpriteMapper spriteMapper;
 
-    private final SpriteTypeMapper spriteTypeMapper;
+    private final SpriteTypeService spriteTypeService;
 
     private final ItemService itemService;
 
@@ -79,9 +82,9 @@ public class SpriteService {
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeMapper spriteTypeMapper, ItemService itemService, ItemMapper itemMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedService feedService, VictoryRewardService victoryRewardService, EffectService effectService) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeService spriteTypeService, ItemService itemService, ItemMapper itemMapper, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedService feedService, VictoryRewardService victoryRewardService, EffectService effectService) {
         this.spriteMapper = spriteMapper;
-        this.spriteTypeMapper = spriteTypeMapper;
+        this.spriteTypeService = spriteTypeService;
         this.itemService = itemService;
         this.itemMapper = itemMapper;
         this.buildingMapper = buildingMapper;
@@ -93,7 +96,7 @@ public class SpriteService {
 
     /** 为精灵设置缓存信息，包含类型信息、装备、属性增量信息和效果列表 */
     private SpriteBo assignCacheToSprite(SpriteBo sprite) {
-        sprite.setSpriteTypeDo(spriteTypeMapper.selectById(sprite.getType()));
+        sprite.setSpriteTypeDo(spriteTypeService.selectById(sprite.getType()));
         // 获取装备列表
         List<ItemDetailBo> equipments = itemService.listItemsInEquipmentByOwnerWithDetail(sprite.getId());
         // 设置效果列表
@@ -200,7 +203,7 @@ public class SpriteService {
             }
             if (levelUp > 0) {
                 // 得到类型信息
-                SpriteTypeDo spriteType = spriteTypeMapper.selectById(sprite.getType());
+                SpriteTypeDo spriteType = spriteTypeService.selectById(sprite.getType());
                 assert spriteType != null;
                 // 更新玩家属性
                 sprite.setMoney(sprite.getMoney() + levelUp * MONEY_GAIN_ON_LEVEL_UP);
@@ -287,8 +290,7 @@ public class SpriteService {
     @Transactional
     public SpriteDo generateFixedSprite(SpriteTypeEnum type, String id, @Nullable String owner, double x, double y) {
         SpriteDo sprite = new SpriteDo();
-        SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
-        assert spriteType != null;
+        SpriteTypeDo spriteType = spriteTypeService.selectById(type);
         sprite.setId(id);
         sprite.setType(type);
         sprite.setOwner(owner);
@@ -320,8 +322,7 @@ public class SpriteService {
     @Transactional
     public SpriteDo generateRandomSprite(SpriteTypeEnum type, String id, @Nullable String owner, double x, double y) {
         SpriteDo sprite = new SpriteDo();
-        SpriteTypeDo spriteType = spriteTypeMapper.selectById(type);
-        assert spriteType != null;
+        SpriteTypeDo spriteType = spriteTypeService.selectById(type);
         sprite.setId(id);
         sprite.setType(type);
         sprite.setOwner(owner);
