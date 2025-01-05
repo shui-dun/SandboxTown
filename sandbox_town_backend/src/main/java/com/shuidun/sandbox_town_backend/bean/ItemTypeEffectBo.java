@@ -7,11 +7,11 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpriteEffectWithEffectBo extends SpriteEffectDo {
+public class ItemTypeEffectBo extends ItemTypeEffectDo {
     private EffectDo effectObj;
 
-    public SpriteEffectWithEffectBo(SpriteEffectDo spriteEffectDo, EffectDo effectDo) {
-        super(spriteEffectDo);
-        this.effectObj = effectDo;
+    public ItemTypeEffectBo(ItemTypeEffectDo itemTypeEffectDo, EffectDo effectObj) {
+        super(itemTypeEffectDo);
+        this.effectObj = effectObj;
     }
 }

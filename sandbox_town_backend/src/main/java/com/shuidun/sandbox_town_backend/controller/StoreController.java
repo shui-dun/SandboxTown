@@ -3,8 +3,7 @@ package com.shuidun.sandbox_town_backend.controller;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
-import com.shuidun.sandbox_town_backend.bean.StoreItemTypeDetailBo;
-import com.shuidun.sandbox_town_backend.bean.StoreItemTypeWithTypeAndLabelsBo;
+import com.shuidun.sandbox_town_backend.bean.StoreItemTypeBo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.StoreService;
@@ -30,7 +29,7 @@ public class StoreController {
 
     @Operation(summary = "得到某个商店的所有商品列表")
     @GetMapping("/listByStore")
-    public RestResponseVo<List<StoreItemTypeWithTypeAndLabelsBo>> listByStore(@NotNull @RequestParam String store) {
+    public RestResponseVo<List<StoreItemTypeBo>> listByStore(@NotNull @RequestParam String store) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 storeService.listByStore(store));
     }
@@ -49,10 +48,10 @@ public class StoreController {
 
     @Operation(summary = "得到某个商店的某个商品的详细信息")
     @GetMapping("/getByStoreAndItemType")
-    public RestResponseVo<StoreItemTypeDetailBo> getByStoreAndItem(@NotNull @RequestParam String store,
-                                                                   @NotNull @RequestParam ItemTypeEnum itemType) {
+    public RestResponseVo<StoreItemTypeBo> getByStoreAndItem(@NotNull @RequestParam String store,
+                                                             @NotNull @RequestParam ItemTypeEnum itemType) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
-                storeService.detailByStoreAndItemType(store, itemType));
+                storeService.getByStoreAndItemType(store, itemType));
     }
 
     @Operation(summary = "得到用户向商店出售时的售价")

@@ -35,10 +35,10 @@ public class SpriteBo extends SpriteDo {
     private Integer attackRangeInc;
 
     @Schema(description = "效果列表")
-    private List<SpriteEffectWithEffectBo> effects;
+    private List<SpriteEffectBo> effects;
 
     @Schema(description = "装备列表")
-    private List<ItemDetailBo> equipments;
+    private List<ItemBo> equipments;
 
     private Double vx;
 

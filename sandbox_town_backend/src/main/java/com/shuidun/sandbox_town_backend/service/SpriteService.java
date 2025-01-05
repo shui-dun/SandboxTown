@@ -94,9 +94,9 @@ public class SpriteService {
     private SpriteBo assignCacheToSprite(SpriteBo sprite) {
         sprite.setSpriteTypeDo(spriteTypeService.selectById(sprite.getType()));
         // 获取装备列表
-        List<ItemDetailBo> equipments = itemService.listItemsInEquipmentByOwner(sprite.getId());
+        List<ItemBo> equipments = itemService.listItemsInEquipmentByOwner(sprite.getId());
         // 设置效果列表
-        List<SpriteEffectWithEffectBo> effects = effectService.listSpriteEffectsBySpriteIdAndEquipments(sprite.getId(), equipments);
+        List<SpriteEffectBo> effects = effectService.listSpriteEffectsBySpriteIdAndEquipments(sprite.getId(), equipments);
         // 设置装备列表
         sprite.setEquipments(equipments);
         // 设置属性增量信息
@@ -109,7 +109,7 @@ public class SpriteService {
         sprite.setVisionRangeInc(0);
         sprite.setAttackRangeInc(0);
         // 对于所有装备，计算属性增量
-        for (ItemDetailBo item : sprite.getEquipments()) {
+        for (ItemBo item : sprite.getEquipments()) {
             // 判断物品的位置
             ItemPositionEnum position = item.getPosition();
             // 增益信息
@@ -408,7 +408,7 @@ public class SpriteService {
     public List<WSResponseVo> useItem(String owner, String itemId) {
         List<WSResponseVo> responseList = new ArrayList<>();
         // 判断物品是否存在
-        ItemDetailBo item = itemService.getItemDetailById(itemId);
+        ItemBo item = itemService.getItemDetailById(itemId);
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
@@ -646,7 +646,7 @@ public class SpriteService {
             return FeedResultEnum.CANNOT_TAMED;
         }
         // 是否手持了驯服所需物品
-        List<ItemDetailBo> handHeldItems = itemService.listByOwnerAndPositions(sourceSprite.getId(), List.of(ItemPositionEnum.HANDHELD));
+        List<ItemBo> handHeldItems = itemService.listByOwnerAndPositions(sourceSprite.getId(), List.of(ItemPositionEnum.HANDHELD));
         if (handHeldItems.isEmpty()) {
             return FeedResultEnum.NO_ITEM;
         }

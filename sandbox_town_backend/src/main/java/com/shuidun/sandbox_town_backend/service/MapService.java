@@ -136,15 +136,15 @@ public class MapService {
     }
 
     /** 得到地图信息，并带有地图网格数据 */
-    public GameMapWithMap getGameMapWithMap() {
+    public GameMapBo getGameMapWithMap() {
         GameMapDo gameMap = getGameMap();
-        GameMapWithMap gameMapWithMap = new GameMapWithMap();
-        gameMapWithMap.setId(gameMap.getId());
-        gameMapWithMap.setName(gameMap.getName());
-        gameMapWithMap.setWidth(gameMap.getWidth());
-        gameMapWithMap.setHeight(gameMap.getHeight());
-        gameMapWithMap.setData(map);
-        return gameMapWithMap;
+        GameMapBo gameMapBo = new GameMapBo();
+        gameMapBo.setId(gameMap.getId());
+        gameMapBo.setName(gameMap.getName());
+        gameMapBo.setWidth(gameMap.getWidth());
+        gameMapBo.setHeight(gameMap.getHeight());
+        gameMapBo.setData(map);
+        return gameMapBo;
     }
 
     /** 随机创建指定数目的建筑以及其附属的生态环境 */

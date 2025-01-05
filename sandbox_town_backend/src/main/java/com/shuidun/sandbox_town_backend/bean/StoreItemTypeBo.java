@@ -7,10 +7,10 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StoreItemTypeDetailBo extends StoreItemTypeDo {
-    private ItemTypeDetailBo itemTypeObj;
+public class StoreItemTypeBo extends StoreItemTypeDo {
+    private ItemTypeBo itemTypeObj;
 
-    public StoreItemTypeDetailBo(StoreItemTypeDo storeItemTypeDo, ItemTypeDetailBo itemTypeObj) {
+    public StoreItemTypeBo(StoreItemTypeDo storeItemTypeDo, ItemTypeBo itemTypeObj) {
         super(storeItemTypeDo);
         this.itemTypeObj = itemTypeObj;
     }

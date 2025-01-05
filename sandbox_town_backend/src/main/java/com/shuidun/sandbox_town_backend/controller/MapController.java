@@ -1,7 +1,7 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
-import com.shuidun.sandbox_town_backend.bean.GameMapWithMap;
+import com.shuidun.sandbox_town_backend.bean.GameMapBo;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.service.MapService;
@@ -30,7 +30,7 @@ public class MapController {
 
     @Operation(summary = "得到地图的信息")
     @GetMapping("/getGameMap")
-    public RestResponseVo<GameMapWithMap> getGameMap() {
+    public RestResponseVo<GameMapBo> getGameMap() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS, mapService.getGameMapWithMap());
     }
 

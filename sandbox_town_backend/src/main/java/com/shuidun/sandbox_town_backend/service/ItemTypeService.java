@@ -45,25 +45,23 @@ public class ItemTypeService {
 
     /** 根据物品类型id查询物品类型详细信息（即包含标签信息、属性增益信息、效果信息） */
     @Cacheable(value = "itemType::itemType", key = "#itemTypeId")
-    public ItemTypeDetailBo getItemTypeById(ItemTypeEnum itemTypeId) {
+    public ItemTypeBo getItemTypeById(ItemTypeEnum itemTypeId) {
         // 找到物品类型
         ItemTypeDo itemType = itemTypeMapper.selectById(itemTypeId);
         assert itemType != null;
         // 设置物品类型的标签
         Set<ItemLabelEnum> itemTypeLabels = itemTypeLabelMapper.selectByItemType(itemTypeId);
-        ItemTypeWithLabelsBo itemTypeWithLabelsBo = new ItemTypeWithLabelsBo(itemType, itemTypeLabels);
         // 找到物品类型的属性增益
         List<ItemTypeAttributeDo> itemTypeAttribute = itemTypeAttributeMapper.selectByItemType(itemTypeId);
         // 将物品品类型的属性增益按照操作类型分组
         Map<ItemOperationEnum, ItemTypeAttributeDo> itemTypeAttributeMap = itemTypeAttribute.stream()
                 .collect(Collectors.toMap(ItemTypeAttributeDo::getOperation, itemTypeAttribute1 -> itemTypeAttribute1));
-
         // 找到物品类型的效果
-        Set<ItemTypeEffectWithEffectBo> itemTypeEffects = effectService.selectEffectsByItemType(itemTypeId);
+        Set<ItemTypeEffectBo> itemTypeEffects = effectService.selectEffectsByItemType(itemTypeId);
         // 根据操作和效果名称组装成map
-        Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectWithEffectBo>> itemTypeEffectMap = itemTypeEffects.stream()
+        Map<ItemOperationEnum, Map<EffectEnum, ItemTypeEffectBo>> itemTypeEffectMap = itemTypeEffects.stream()
                 .collect(Collectors.groupingBy(ItemTypeEffectDo::getOperation, Collectors.toMap(ItemTypeEffectDo::getEffect, x -> x)));
         // 设置物品类型的效果以及属性增益
-        return new ItemTypeDetailBo(itemTypeWithLabelsBo, itemTypeAttributeMap, itemTypeEffectMap);
+        return new ItemTypeBo(itemType, itemTypeLabels, itemTypeAttributeMap, itemTypeEffectMap);
     }
 }

@@ -36,12 +36,12 @@ public class EffectService {
      * @param spriteId   精灵id
      * @param equipments 精灵的装备列表
      */
-    public List<SpriteEffectWithEffectBo> listSpriteEffectsBySpriteIdAndEquipments(String spriteId, List<ItemDetailBo> equipments) {
+    public List<SpriteEffectBo> listSpriteEffectsBySpriteIdAndEquipments(String spriteId, List<ItemBo> equipments) {
         // 从数据库中获取精灵的效果列表 （但注意这不包含装备的效果）
         Map<EffectEnum, SpriteEffectDo> spriteEffectMap = selectEffectsAndDeleteExpiredEffects(spriteId).stream().collect(Collectors.toMap(SpriteEffectDo::getEffect, Function.identity()));
         // 获得装备的效果列表
         List<ItemTypeEffectDo> equipmentEffectList = new ArrayList<>();
-        for (ItemDetailBo item : equipments) {
+        for (ItemBo item : equipments) {
             // 判断物品的位置
             ItemPositionEnum position = item.getPosition();
             // 如果是手持
@@ -77,7 +77,7 @@ public class EffectService {
                 spriteEffectDo.setExpire(-1L);
             }
         }
-        var ans = new ArrayList<SpriteEffectWithEffectBo>();
+        var ans = new ArrayList<SpriteEffectBo>();
         // 添加效果详细信息到spriteEffectMap
         if (!spriteEffectMap.isEmpty()) {
             List<EffectDo> effectList = effectMapper.selectBatchIds(spriteEffectMap.keySet());
@@ -87,7 +87,7 @@ public class EffectService {
             for (SpriteEffectDo spriteEffectDo : spriteEffectMap.values()) {
                 EffectDo effect = effectMap.get(spriteEffectDo.getEffect());
                 assert effect != null;
-                ans.add(new SpriteEffectWithEffectBo(spriteEffectDo, effect));
+                ans.add(new SpriteEffectBo(spriteEffectDo, effect));
             }
         }
         return ans;
@@ -147,7 +147,7 @@ public class EffectService {
     }
 
     /** 获得物品类型的效果列表 */
-    public Set<ItemTypeEffectWithEffectBo> selectEffectsByItemType(ItemTypeEnum itemType) {
+    public Set<ItemTypeEffectBo> selectEffectsByItemType(ItemTypeEnum itemType) {
         Set<ItemTypeEffectDo> itemTypeEffects = new HashSet<>(itemTypeEffectMapper.selectByItemType(itemType));
         // 得到效果的详细信息，例如效果的描述
         Set<EffectEnum> effectEnums = itemTypeEffects.stream().map(ItemTypeEffectDo::getEffect).collect(Collectors.toSet());
@@ -158,7 +158,7 @@ public class EffectService {
         return itemTypeEffects.stream().map(itemTypeEffect -> {
             EffectDo effect = effectMap.get(itemTypeEffect.getEffect());
             assert effect != null;
-            return new ItemTypeEffectWithEffectBo(itemTypeEffect, effect);
+            return new ItemTypeEffectBo(itemTypeEffect, effect);
         }).collect(Collectors.toSet());
     }
 }

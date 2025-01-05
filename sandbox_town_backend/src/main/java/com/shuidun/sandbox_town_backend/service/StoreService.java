@@ -11,18 +11,12 @@ import com.shuidun.sandbox_town_backend.mixin.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,47 +34,33 @@ public class StoreService implements SpecificBuildingService {
 
     private final SpriteService spriteService;
 
-    private final RedisTemplate<String, Object> redisTemplate;
-
     @Value("${mapId}")
     private String mapId;
 
-    public StoreService(StoreItemTypeMapper storeItemTypeMapper, BuildingMapper buildingMapper, ItemService itemService, ItemTypeService itemTypeService, SpriteService spriteService, RedisTemplate<String, Object> redisTemplate) {
+    public StoreService(StoreItemTypeMapper storeItemTypeMapper, BuildingMapper buildingMapper, ItemService itemService, ItemTypeService itemTypeService, SpriteService spriteService) {
         this.storeItemTypeMapper = storeItemTypeMapper;
         this.buildingMapper = buildingMapper;
         this.itemService = itemService;
         this.itemTypeService = itemTypeService;
         this.spriteService = spriteService;
-        this.redisTemplate = redisTemplate;
     }
 
     /** 列出商店的所有商品（带有标签信息） */
     // TODO: 未来应该分页
-    @Cacheable(value = "store::listByStore", key = "#store")
-    public List<StoreItemTypeWithTypeAndLabelsBo> listByStore(String store) {
+    public List<StoreItemTypeBo> listByStore(String store) {
         List<StoreItemTypeDo> storeItemTypes = storeItemTypeMapper.selectByStore(store);
         if (storeItemTypes.isEmpty()) {
-            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+            return List.of();
         }
-        // 得到所有的物品类型枚举
-        List<ItemTypeEnum> itemTypes = storeItemTypes.stream().map(StoreItemTypeDo::getItemType).toList();
-        // 得到所有的物品类型（带有标签）
-        List<ItemTypeDetailBo> itemTypeWithLabelsBo = itemTypes.stream().map(itemTypeService::getItemTypeById).toList();
-        Map<ItemTypeEnum, ItemTypeWithLabelsBo> itemTypeWithLabelsMap = itemTypeWithLabelsBo.stream().collect(Collectors.toMap(ItemTypeWithLabelsBo::getId, x -> x));
         // 为所有商店商品设置物品类型
-        return storeItemTypes.stream().map(storeItemType -> {
-            ItemTypeWithLabelsBo itemTypeWithLabels = itemTypeWithLabelsMap.get(storeItemType.getItemType());
-            assert itemTypeWithLabels != null;
-            return new StoreItemTypeWithTypeAndLabelsBo(storeItemType, itemTypeWithLabels);
-        }).collect(Collectors.toList());
+        return storeItemTypes.stream().map(
+                storeItemType -> new StoreItemTypeBo(storeItemType,
+                        itemTypeService.getItemTypeById(storeItemType.getItemType()))
+        ).collect(Collectors.toList());
     }
 
     /** 买入商品 */
     @Transactional
-    // 如果有多个CacheEvict，则使用@Caching注解
-    @Caching(evict = {
-            @CacheEvict(value = "store::listByStore", key = "#store"),
-            @CacheEvict(value = "store::storeItemTypeDetail", key = "#store + '_' + #item")})
     public void buy(String spriteId, String store, ItemTypeEnum item, Integer amount) {
         StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item);
         // 检查商品是否存在
@@ -118,7 +98,7 @@ public class StoreService implements SpecificBuildingService {
         // 删除原有的商店商品
         storeItemTypeMapper.deleteByStore(building.getId());
         // 获取所有物品类型
-        List<ItemTypeDetailBo> itemTypes = itemTypeService.listAllItemTypes().stream()
+        List<ItemTypeBo> itemTypes = itemTypeService.listAllItemTypes().stream()
                 .map(itemTypeService::getItemTypeById)
                 .toList();
         // 进货随机数目种类的商品
@@ -164,12 +144,6 @@ public class StoreService implements SpecificBuildingService {
                 }
             }
         }
-        // 删除缓存
-        redisTemplate.delete("store::listByStore::" + building.getId());
-        Set<String> keys = redisTemplate.keys("store::storeItemTypeDetail::%s*".formatted(building.getId()));
-        if (keys != null) {
-            redisTemplate.delete(keys);
-        }
     }
 
     @Override
@@ -201,20 +175,19 @@ public class StoreService implements SpecificBuildingService {
     }
 
     /** 列出指定商店中指定商品的信息（包含标签信息、属性增益信息、效果信息等） */
-    @Cacheable(value = "store::storeItemTypeDetail", key = "#store + '_' + #itemType")
-    public StoreItemTypeDetailBo detailByStoreAndItemType(String store, ItemTypeEnum itemType) {
+    public StoreItemTypeBo getByStoreAndItemType(String store, ItemTypeEnum itemType) {
         StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, itemType);
         if (storeItemType == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
         // 得到标签信息、属性增益信息、效果信息等
-        return new StoreItemTypeDetailBo(storeItemType, itemTypeService.getItemTypeById(itemType));
+        return new StoreItemTypeBo(storeItemType, itemTypeService.getItemTypeById(itemType));
     }
 
     public Integer soldPrice(String store, String itemId) {
         int price;
         // 得到物品信息（带有类型信息）
-        ItemDetailBo item = itemService.getItemDetailById(itemId);
+        ItemBo item = itemService.getItemDetailById(itemId);
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
@@ -284,9 +257,6 @@ public class StoreService implements SpecificBuildingService {
                 storeItemTypeMapper.update(storeItemType);
             }
         }
-        // 删除缓存
-        redisTemplate.delete("store::listByStore::" + store);
-        redisTemplate.delete("store::storeItemTypeDetail::%s_%s".formatted(store, item.getItemType()));
     }
 
     @Lazy

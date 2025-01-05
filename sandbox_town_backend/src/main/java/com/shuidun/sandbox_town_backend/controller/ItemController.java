@@ -1,8 +1,8 @@
 package com.shuidun.sandbox_town_backend.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.shuidun.sandbox_town_backend.bean.ItemDetailBo;
-import com.shuidun.sandbox_town_backend.bean.ItemTypeDetailBo;
+import com.shuidun.sandbox_town_backend.bean.ItemBo;
+import com.shuidun.sandbox_town_backend.bean.ItemTypeBo;
 import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemPositionEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
@@ -39,7 +39,7 @@ public class ItemController {
 
     @Operation(summary = "获取当前登陆玩家的所有物品信息")
     @GetMapping("/listMyItems")
-    public RestResponseVo<List<ItemDetailBo>> listMyItems() {
+    public RestResponseVo<List<ItemBo>> listMyItems() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.listByOwner(StpUtil.getLoginIdAsString()).stream()
                         .map(itemService::getItemDetailById)
@@ -48,7 +48,7 @@ public class ItemController {
 
     @Operation(summary = "获取当前登陆玩家的背包中的所有物品信息")
     @GetMapping("/listMyItemsInBackpack")
-    public RestResponseVo<List<ItemDetailBo>> listMyItemsInBackpack() {
+    public RestResponseVo<List<ItemBo>> listMyItemsInBackpack() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.listByOwnerAndPositions(StpUtil.getLoginIdAsString(),
                         List.of(ItemPositionEnum.BACKPACK)));
@@ -56,14 +56,14 @@ public class ItemController {
 
     @Operation(summary = "获取当前登陆玩家的装备栏中的所有物品信息")
     @GetMapping("/listMyItemsInEquipment")
-    public RestResponseVo<List<ItemDetailBo>> listMyItemsInEquipment() {
+    public RestResponseVo<List<ItemBo>> listMyItemsInEquipment() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.listItemsInEquipmentByOwner(StpUtil.getLoginIdAsString()));
     }
 
     @Operation(summary = "获取当前登陆玩家的物品栏中的所有物品信息")
     @GetMapping("/listMyItemsInItemBar")
-    public RestResponseVo<List<ItemDetailBo>> listMyItemsInItemBar() {
+    public RestResponseVo<List<ItemBo>> listMyItemsInItemBar() {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.listItemsInItemBarByOwner(StpUtil.getLoginIdAsString()));
     }
@@ -81,14 +81,14 @@ public class ItemController {
 
     @Operation(summary = "显示某个物品的详细信息")
     @GetMapping("/itemDetail")
-    public RestResponseVo<ItemDetailBo> detail(@NotNull @RequestParam String itemId) {
+    public RestResponseVo<ItemBo> detail(@NotNull @RequestParam String itemId) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemService.getItemDetailById(itemId));
     }
 
     @Operation(summary = "显示某个物品类型的详细信息")
     @GetMapping("/itemTypeDetail")
-    public RestResponseVo<ItemTypeDetailBo> detailByItemType(@NotNull @RequestParam ItemTypeEnum itemType) {
+    public RestResponseVo<ItemTypeBo> detailByItemType(@NotNull @RequestParam ItemTypeEnum itemType) {
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS,
                 itemTypeService.getItemTypeById(itemType));
     }

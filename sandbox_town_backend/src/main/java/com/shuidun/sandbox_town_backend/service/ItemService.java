@@ -56,16 +56,16 @@ public class ItemService {
 
     /** 根据物品id查询物品详细信息（即包含物品类型信息、标签信息、属性增益信息、效果信息） */
     @Nullable
-    public ItemDetailBo getItemDetailById(String itemId) {
+    public ItemBo getItemDetailById(String itemId) {
         // 找到物品
         ItemDo item = self.getItemById(itemId);
         if (item == null) {
             return null;
         }
         // 找到物品类型
-        ItemTypeDetailBo itemType = itemTypeService.getItemTypeById(item.getItemType());
+        ItemTypeBo itemType = itemTypeService.getItemTypeById(item.getItemType());
         // 设置物品类型
-        return new ItemDetailBo(item, itemType);
+        return new ItemBo(item, itemType);
     }
 
     /** 根据主人查询物品 */
@@ -83,7 +83,7 @@ public class ItemService {
      * 根据主人以及位置列表查询物品
      * 物品的位置在列表中的任意一个即可
      */
-    public List<ItemDetailBo> listByOwnerAndPositions(String owner, List<ItemPositionEnum> positions) {
+    public List<ItemBo> listByOwnerAndPositions(String owner, List<ItemPositionEnum> positions) {
         return self.listByOwner(owner)
                 .stream()
                 .map(self::getItemDetailById)
@@ -95,7 +95,7 @@ public class ItemService {
      * 根据主人查询装备栏中的物品
      * 注意：这里的装备栏还包括手持
      */
-    public List<ItemDetailBo> listItemsInEquipmentByOwner(String owner) {
+    public List<ItemBo> listItemsInEquipmentByOwner(String owner) {
         return listByOwnerAndPositions(owner,
                 Arrays.asList(
                         ItemPositionEnum.HELMET,
@@ -108,7 +108,7 @@ public class ItemService {
     }
 
     /** 根据主人查询物品栏（包括手持）中的物品 */
-    public List<ItemDetailBo> listItemsInItemBarByOwner(String owner) {
+    public List<ItemBo> listItemsInItemBarByOwner(String owner) {
         return listByOwnerAndPositions(owner, Arrays.asList(
                 ItemPositionEnum.ITEMBAR, ItemPositionEnum.HANDHELD
         ));
@@ -137,7 +137,7 @@ public class ItemService {
     public List<WSResponseVo> equip(String spriteId, String itemId) {
         List<WSResponseVo> responses = new ArrayList<>();
         // 查询该物品详细信息
-        ItemDetailBo item = self.getItemDetailById(itemId);
+        ItemBo item = self.getItemDetailById(itemId);
         // 判断该物品是否存在
         if (item == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
@@ -170,7 +170,7 @@ public class ItemService {
         // 找到该物品的装备位置
         ItemPositionEnum itemPosition = ItemPositionEnum.valueOf(itemLabel.name());
         // 将之前的装备放入背包
-        List<ItemDetailBo> equippedItems = listByOwnerAndPositions(spriteId, List.of(itemPosition));
+        List<ItemBo> equippedItems = listByOwnerAndPositions(spriteId, List.of(itemPosition));
         if (!equippedItems.isEmpty()) {
             ItemDo equippedItem = equippedItems.get(0);
             equippedItem.setPosition(ItemPositionEnum.BACKPACK);
@@ -203,7 +203,7 @@ public class ItemService {
         List<WSResponseVo> responses = new ArrayList<>();
 
         // 物品是否存在
-        ItemDetailBo itemDetail = self.getItemDetailById(itemId);
+        ItemBo itemDetail = self.getItemDetailById(itemId);
         if (itemDetail == null) {
             throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
         }
@@ -214,9 +214,9 @@ public class ItemService {
         // 原先物品位置
         ItemPositionEnum originalPosition = itemDetail.getPosition();
         // 物品栏信息
-        List<ItemDetailBo> itemBarItems = listItemsInItemBarByOwner(spriteId);
+        List<ItemBo> itemBarItems = listItemsInItemBarByOwner(spriteId);
         // 手持的物品
-        ItemDetailBo handHeldItem = listByOwnerAndPositions(spriteId,
+        ItemBo handHeldItem = listByOwnerAndPositions(spriteId,
                 List.of(ItemPositionEnum.HANDHELD)).stream()
                 .findFirst().orElse(null);
         // 若目标位置和当前相同，直接返回

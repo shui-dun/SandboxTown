@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GameMapWithMap {
+public class GameMapBo {
 
     private String id;
 
