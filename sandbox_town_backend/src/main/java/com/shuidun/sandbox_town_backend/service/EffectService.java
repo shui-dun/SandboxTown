@@ -9,6 +9,7 @@ import com.shuidun.sandbox_town_backend.mapper.EffectMapper;
 import com.shuidun.sandbox_town_backend.mapper.ItemTypeEffectMapper;
 import com.shuidun.sandbox_town_backend.mapper.SpriteEffectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,10 +25,13 @@ public class EffectService {
 
     private final ItemTypeEffectMapper itemTypeEffectMapper;
 
-    public EffectService(SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, ItemTypeEffectMapper itemTypeEffectMapper) {
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    public EffectService(SpriteEffectMapper spriteEffectMapper, EffectMapper effectMapper, ItemTypeEffectMapper itemTypeEffectMapper, RedisTemplate<String, Object> redisTemplate) {
         this.spriteEffectMapper = spriteEffectMapper;
         this.effectMapper = effectMapper;
         this.itemTypeEffectMapper = itemTypeEffectMapper;
+        this.redisTemplate = redisTemplate;
     }
 
     /**
@@ -37,6 +41,18 @@ public class EffectService {
      * @param equipments 精灵的装备列表
      */
     public List<SpriteEffectBo> listSpriteEffectsBySpriteIdAndEquipments(String spriteId, List<ItemBo> equipments) {
+        // 先尝试从缓存中获取精灵的效果列表
+        String key = "effect::sprite::" + spriteId;
+        List<SpriteEffectBo> cachedEffects = (List<SpriteEffectBo>) redisTemplate.opsForValue().get(key);
+        if (cachedEffects != null) {
+            // 过滤掉过期的
+            List<SpriteEffectBo> unexpiredEffects = cachedEffects.stream().filter(e -> e.getExpire() == -1 || e.getExpire() >= System.currentTimeMillis()).toList();
+            if (unexpiredEffects.size() != cachedEffects.size()) {
+                // 如果有过期的效果，更新缓存
+                redisTemplate.opsForValue().set(key, unexpiredEffects);
+            }
+            return unexpiredEffects;
+        }
         // 从数据库中获取精灵的效果列表 （但注意这不包含装备的效果）
         Map<EffectEnum, SpriteEffectDo> spriteEffectMap = selectEffectsAndDeleteExpiredEffects(spriteId).stream().collect(Collectors.toMap(SpriteEffectDo::getEffect, Function.identity()));
         // 获得装备的效果列表
@@ -90,7 +106,14 @@ public class EffectService {
                 ans.add(new SpriteEffectBo(spriteEffectDo, effect));
             }
         }
+        // 更新缓存
+        redisTemplate.opsForValue().set(key, ans);
         return ans;
+    }
+
+    /** 使精灵的效果缓存失效 */
+    public void invalidateSpriteEffectCache(String spriteId) {
+        redisTemplate.delete("effect::sprite::" + spriteId);
     }
 
     /**
@@ -118,6 +141,8 @@ public class EffectService {
      * @param duration 效果持续时间
      */
     public void addEffect(String spriteId, EffectEnum effectId, int duration) {
+        // 删除缓存
+        invalidateSpriteEffectCache(spriteId);
         // 精灵原先是否有该效果
         SpriteEffectDo spriteEffect = spriteEffectMapper.selectBySpriteAndEffect(spriteId, effectId);
         if (spriteEffect != null) {
