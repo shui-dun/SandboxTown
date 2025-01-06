@@ -90,12 +90,12 @@ public class GameLoop {
 
             // 生命效果
             List<SpriteBo> sprites = spriteService.getOnlineSpritesByFrame(LIFE_FRAMES, curFrame).stream()
-                    .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.LIFE)))
+                    .filter(sprite -> spriteService.hasEffect(sprite.getId(), EffectEnum.LIFE))
                     .toList();
             Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1)));
             // 烧伤效果
             sprites = spriteService.getOnlineSpritesByFrame(BURN_FRAMES, curFrame).stream()
-                    .filter(sprite -> sprite.getEffects().stream().anyMatch(x -> x.getEffect().equals(EffectEnum.BURN)))
+                    .filter(sprite -> spriteService.hasEffect(sprite.getId(), EffectEnum.BURN))
                     .toList();
             Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1)));
             // 调用精灵行为

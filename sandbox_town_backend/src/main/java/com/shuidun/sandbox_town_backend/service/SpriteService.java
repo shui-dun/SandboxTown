@@ -66,7 +66,9 @@ public class SpriteService {
 
     private final VictoryRewardService victoryRewardService;
 
-    private final EffectService effectService;
+    @Lazy
+    @Autowired
+    private EffectService effectService;
 
     private MapService mapService;
 
@@ -79,7 +81,7 @@ public class SpriteService {
     @Value("${mapId}")
     private String mapId;
 
-    public SpriteService(SpriteMapper spriteMapper, SpriteTypeService spriteTypeService, ItemService itemService, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedService feedService, VictoryRewardService victoryRewardService, EffectService effectService) {
+    public SpriteService(SpriteMapper spriteMapper, SpriteTypeService spriteTypeService, ItemService itemService, BuildingMapper buildingMapper, SpriteRefreshMapper spriteRefreshMapper, FeedService feedService, VictoryRewardService victoryRewardService) {
         this.spriteMapper = spriteMapper;
         this.spriteTypeService = spriteTypeService;
         this.itemService = itemService;
@@ -87,11 +89,18 @@ public class SpriteService {
         this.spriteRefreshMapper = spriteRefreshMapper;
         this.feedService = feedService;
         this.victoryRewardService = victoryRewardService;
-        this.effectService = effectService;
     }
 
     /** 为精灵设置缓存信息，包含类型信息、装备、属性增量信息和效果列表 */
     private SpriteBo assignCacheToSprite(SpriteBo sprite) {
+        if (!sprite.isDirty()) {
+            // 去掉过期的效果
+            sprite.setEffects(sprite.getEffects().stream()
+                    .filter(e -> e.getExpire() == -1 || e.getExpire() >= System.currentTimeMillis())
+                    .toList()
+            );
+            return sprite;
+        }
         sprite.setSpriteTypeDo(spriteTypeService.selectById(sprite.getType()));
         // 获取装备列表
         List<ItemBo> equipments = itemService.listItemsInEquipmentByOwner(sprite.getId());
@@ -142,6 +151,7 @@ public class SpriteService {
         if (sprite.getLastMoveTime() == null) {
             sprite.setLastMoveTime(System.currentTimeMillis());
         }
+        sprite.setDirty(false);
         return sprite;
     }
 
@@ -508,7 +518,7 @@ public class SpriteService {
         }
         List<WSResponseVo> responses = new ArrayList<>();
         // 如果被攻击者有火焰护体效果，则攻击者烧伤
-        if (targetSprite.getEffects().stream().anyMatch(effect -> effect.getEffect() == EffectEnum.FLAME_BODY)) {
+        if (hasEffect(targetSprite.getId(), EffectEnum.FLAME_BODY)) {
             // 添加8秒的烧伤效果
             effectService.addEffect(sourceSprite.getId(), EffectEnum.BURN, 8);
             responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sourceSprite.getId())));
@@ -1094,4 +1104,21 @@ public class SpriteService {
             SpriteTypeEnum.USER, new UserAgent()
     );
 
+    /** 精灵是否含有某效果 */
+    public boolean hasEffect(String spriteId, EffectEnum effect) {
+        SpriteBo sprite = selectOnlineById(spriteId);
+        if (sprite == null) {
+            return false;
+        }
+        return sprite.getEffects().stream()
+                .anyMatch(e -> e.getEffect() == effect);
+    }
+
+    /** 无效化精灵的缓存 */
+    public void invalidateSpriteCache(String spriteId) {
+        SpriteBo sprite = onlineSpriteMap.get(spriteId);
+        if (sprite != null) {
+            sprite.setDirty(true);
+        }
+    }
 }

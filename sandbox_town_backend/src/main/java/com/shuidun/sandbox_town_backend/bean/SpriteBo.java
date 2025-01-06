@@ -15,6 +15,9 @@ import java.util.List;
 public class SpriteBo extends SpriteDo {
     SpriteTypeDo spriteTypeDo;
 
+    /** 缓存是否dirty */
+    private boolean dirty;
+
     @Schema(description = """
             xxInc是查询精灵的装备和效果等信息后得到的字段
             玩家最后的属性值等于原先的属性值加上增量（装备或手持装备导致的属性变化）
@@ -75,6 +78,8 @@ public class SpriteBo extends SpriteDo {
 
     public static SpriteBo fromSpriteDo(SpriteDo spriteDo) {
         SpriteBo b = new SpriteBo();
+        // 一开始是dirty的
+        b.setDirty(true);
         b.setId(spriteDo.getId());
         b.setType(spriteDo.getType());
         b.setOwner(spriteDo.getOwner());

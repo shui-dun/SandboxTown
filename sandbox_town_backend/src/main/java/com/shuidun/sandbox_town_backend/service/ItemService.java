@@ -41,13 +41,14 @@ public class ItemService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private final EffectService effectService;
+    @Lazy
+    @Autowired
+    private SpriteService spriteService;
 
-    public ItemService(ItemMapper itemMapper, ItemTypeService itemTypeService, RedisTemplate<String, Object> redisTemplate, EffectService effectService) {
+    public ItemService(ItemMapper itemMapper, ItemTypeService itemTypeService, RedisTemplate<String, Object> redisTemplate) {
         this.itemMapper = itemMapper;
         this.itemTypeService = itemTypeService;
         this.redisTemplate = redisTemplate;
-        this.effectService = effectService;
     }
 
     /** 根据物品id查询物品基本信息 */
@@ -189,8 +190,7 @@ public class ItemService {
         }
         // 可能有精灵效果变化
         responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
-        // 使精灵的效果缓存失效
-        effectService.invalidateSpriteEffectCache(spriteId);
+        spriteService.invalidateSpriteCache(spriteId);
         return responses;
     }
 
@@ -266,8 +266,7 @@ public class ItemService {
         // 有可能物品栏物品变化了
         responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
                 new ItemBarNotifyVo(spriteId)));
-        // 使精灵的效果缓存失效
-        effectService.invalidateSpriteEffectCache(spriteId);
+        spriteService.invalidateSpriteCache(spriteId);
         return responses;
     }
 
