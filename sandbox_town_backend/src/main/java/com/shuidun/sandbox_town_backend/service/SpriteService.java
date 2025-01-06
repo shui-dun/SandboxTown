@@ -478,36 +478,27 @@ public class SpriteService {
 
     /**
      * 减少精灵饱腹值
-     *
-     * @param spriteIds 精灵id集合
-     * @param val       减少值
      */
-    public void reduceSpritesHunger(Collection<String> spriteIds, int val) {
-        for (String spriteId : spriteIds) {
-            SpriteBo sprite = selectOnlineById(spriteId);
-            if (sprite == null) {
-                continue;
-            }
-            sprite.setHunger(Math.max(0, sprite.getHunger() - val));
+    public void reduceSpritesHunger() {
+        for (SpriteBo sprite : onlineSpriteMap.values()) {
+            sprite.setHunger(Math.max(0, sprite.getHunger() - 1));
             normalizeAndUpdateSprite(sprite);
         }
     }
 
     /**
      * 恢复精灵生命
-     *
-     * @param spriteIds 精灵id集合
-     * @param incVal    恢复值
      */
-    public void recoverSpritesLife(Collection<String> spriteIds, int incVal) {
-        for (String spriteId : spriteIds) {
-            SpriteBo sprite = selectOnlineById(spriteId);
-            if (sprite == null) {
+    public List<WSResponseVo> recoverSpritesLife() {
+        List<WSResponseVo> responses = new ArrayList<>();
+        int incVal = 1;
+        for (SpriteBo sprite : onlineSpriteMap.values()) {
+            if (sprite.getHunger() < HUNGER_THRESHOLD) {
                 continue;
             }
-            sprite.setHp(Math.min(sprite.getHp() + incVal, MAX_HP));
-            normalizeAndUpdateSprite(sprite);
+            responses.addAll(modifyLife(sprite.getId(), incVal));
         }
+        return responses;
     }
 
     @Transactional

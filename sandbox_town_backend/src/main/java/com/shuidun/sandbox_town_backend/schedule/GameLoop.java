@@ -109,11 +109,11 @@ public class GameLoop {
             });
             // 减少饱腹值
             if (curFrame % REDUCE_HUNGER_FRAMES == 0) {
-                spriteService.reduceSpritesHunger(spriteService.getOnlineSprites().keySet(), 1);
+                spriteService.reduceSpritesHunger();
             }
             // 恢复体力
             if (curFrame % RECOVER_LIFE_FRAMES == 0) {
-                spriteService.recoverSpritesLife(spriteService.getOnlineSprites().keySet(), 1);
+                WSMessageSender.addResponses(spriteService.recoverSpritesLife());
             }
             // 更新时间
             if (time > timeService.getTimeFrame().getTimeFrameEndTime()) {
