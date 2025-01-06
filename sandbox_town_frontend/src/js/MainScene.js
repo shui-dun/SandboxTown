@@ -308,7 +308,6 @@ class MainScene extends Phaser.Scene {
 
         // 由于精灵被推动时，或是播放补间动画tween时，它的物理引擎不会更新其速度，速度都是0，因此在找到方法前，只同步位置，不同步速度
         // 每一段时间向服务器发送一次角色位置信息
-        // 只发送自己、主人是自己、公共NPC（例如蜘蛛）的角色的坐标信息
         // 记录上一次发送的位置
         let lastAxisMap = {}
         this.timerList.push(setInterval(() => {
@@ -509,6 +508,10 @@ class MainScene extends Phaser.Scene {
 
         // 坐标通知事件
         emitter.on('COORDINATE', async (data) => {
+            // 如果是自己，除非是死亡回到原点，否则无视
+            if (data.id === this.myUsername && (data.x != 0 || data.y != 0)) {
+                return;
+            }
             // 如果坐标通知带有速度，说明该角色在直接地移动，而非通过补间动画在移动（因为补间动画时速度为0）
             // 因此要停止补间动画
             if (data.vx != 0 || data.vy != 0) {
