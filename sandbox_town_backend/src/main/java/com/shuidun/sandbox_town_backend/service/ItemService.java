@@ -271,6 +271,7 @@ public class ItemService {
     }
 
     /** 给玩家添加物品 */
+    @CacheEvict(value = "item::listByOwner", key = "#spriteId")
     @Transactional
     public void add(String spriteId, ItemTypeEnum itemTypeId, int count) {
         ItemTypeDo itemType = itemTypeService.getItemTypeById(itemTypeId);
@@ -315,6 +316,7 @@ public class ItemService {
 
     /** 给角色减少物品 */
     @Transactional
+    @CacheEvict(value = "item::listByOwner", key = "#spriteId")
     public void reduce(String spriteId, String itemId, int count) {
         // 查询玩家拥有的该物品
         ItemDo item = self.getItemById(itemId);
