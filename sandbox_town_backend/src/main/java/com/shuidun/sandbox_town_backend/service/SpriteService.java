@@ -8,6 +8,7 @@ import com.shuidun.sandbox_town_backend.mapper.SpriteMapper;
 import com.shuidun.sandbox_town_backend.mapper.SpriteRefreshMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
+import com.shuidun.sandbox_town_backend.utils.Concurrent;
 import com.shuidun.sandbox_town_backend.utils.MyMath;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -479,25 +480,24 @@ public class SpriteService {
     /**
      * 减少精灵饱腹值
      */
-    public void reduceSpritesHunger() {
-        for (SpriteBo sprite : onlineSpriteMap.values()) {
+    public void reduceSpritesHunger(Collection<SpriteBo> sprites) {
+        Concurrent.executeInThreadPool(sprites, (sprite) -> {
             sprite.setHunger(Math.max(0, sprite.getHunger() - 1));
             normalizeAndUpdateSprite(sprite);
-        }
+        });
     }
 
     /**
      * 恢复精灵生命
      */
-    public List<WSResponseVo> recoverSpritesLife() {
+    public List<WSResponseVo> recoverSpritesLife(Collection<SpriteBo> sprites) {
         List<WSResponseVo> responses = new ArrayList<>();
-        int incVal = 1;
-        for (SpriteBo sprite : onlineSpriteMap.values()) {
+        Concurrent.executeInThreadPool(sprites, (sprite) -> {
             if (sprite.getHunger() < HUNGER_THRESHOLD) {
-                continue;
+                return;
             }
-            responses.addAll(modifyLife(sprite.getId(), incVal));
-        }
+            responses.addAll(modifyLife(sprite.getId(), 1));
+        });
         return responses;
     }
 
@@ -685,6 +685,27 @@ public class SpriteService {
             normalizeAndUpdateSprite(targetSprite);
             return FeedResultEnum.TAME_FAIL;
         }
+    }
+
+    @Transactional
+    public List<WSResponseVo> interact(SpriteBo sourceSprite, SpriteBo targetSprite) {
+        // 先尝试驯服/喂养
+        FeedResultEnum feedResult = feed(sourceSprite, targetSprite);
+        // 如果驯服结果是“已经有主人”或者“驯服成功”或者“驯服失败”或者“喂养成功”，说明本次交互的目的的确是驯服/喂养，而非攻击
+        if (feedResult == FeedResultEnum.ALREADY_TAMED || feedResult == FeedResultEnum.TAME_SUCCESS
+                || feedResult == FeedResultEnum.TAME_FAIL || feedResult == FeedResultEnum.FEED_SUCCESS) {
+            // 发送驯服/喂养结果通知
+            List<WSResponseVo> responses = new ArrayList<>();
+            responses.add(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
+                    sourceSprite.getId(), targetSprite.getId(), feedResult
+            )));
+            // 驯服会消耗物品，因此发送通知栏变化通知
+            responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
+                    new ItemBarNotifyVo(sourceSprite.getId())));
+            return responses;
+        }
+        // 否则本次交互的目的是进行攻击
+        return attack(sourceSprite, targetSprite);
     }
 
     /**

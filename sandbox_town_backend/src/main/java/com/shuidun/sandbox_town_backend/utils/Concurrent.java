@@ -19,7 +19,17 @@ public class Concurrent {
             new LinkedBlockingQueue<>(100) // 阻塞队列
     );
 
-    // 在线程池中执行任务
+    /** 在线程池中执行单个任务 */
+    public static void submitTask(Runnable task) {
+        executor.submit(task);
+    }
+
+    /** 提交单个带返回值的任务到线程池 */
+    public static <R> Future<R> submitTaskWithResult(Callable<R> task) {
+        return executor.submit(task);
+    }
+
+    /** 在线程池中执行任务列表 */
     public static <T> void executeInThreadPool(Collection<T> items, Consumer<T> consumer) {
         List<CompletableFuture<Void>> futures = items.stream()
                 .map(item -> CompletableFuture.runAsync(() -> consumer.accept(item), executor))
@@ -27,7 +37,7 @@ public class Concurrent {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
-    // 在线程池中执行任务并收集结果
+    /** 在线程池中执行任务列表并收集结果 */
     public static <T, R> List<R> executeInThreadPoolWithOutput(Collection<T> items, Function<T, R> function) {
         List<CompletableFuture<R>> futures = items.stream()
                 .map(item -> CompletableFuture.supplyAsync(() -> function.apply(item), executor))

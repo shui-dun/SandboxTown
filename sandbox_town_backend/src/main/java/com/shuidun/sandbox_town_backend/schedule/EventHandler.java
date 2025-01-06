@@ -2,19 +2,18 @@ package com.shuidun.sandbox_town_backend.schedule;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.*;
-import com.shuidun.sandbox_town_backend.enumeration.FeedResultEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.service.ItemService;
 import com.shuidun.sandbox_town_backend.service.MapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
+import com.shuidun.sandbox_town_backend.utils.Concurrent;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Validator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.BiConsumer;
@@ -60,7 +59,8 @@ public class EventHandler {
                 }
                 var consumer = eventMap.get(eventDto.getType());
                 assert consumer != null;
-                consumer.accept(eventDto.getInitiator(), eventDto.getData());
+                EventDto finalEventDto = eventDto;
+                Concurrent.submitTask(() -> consumer.accept(finalEventDto.getInitiator(), finalEventDto.getData()));
             } catch (Exception e) {
                 log.error("handle {} event error", eventDto, e);
             }
@@ -131,7 +131,6 @@ public class EventHandler {
             sprite.setY(data.getY0());
             sprite.setVx(0.0);
             sprite.setVy(0.0);
-            // 寻找路径
             if (data.getDestSpriteId() != null) {
                 SpriteBo destSprite = spriteService.selectOnlineById(data.getDestSpriteId());
                 if (destSprite != null) {
@@ -174,26 +173,10 @@ public class EventHandler {
             if (!mapService.isNear(sourceSprite, targetSprite)) {
                 return;
             }
-            // 更新上次交互的时间和序列号
+            // 更新交互对象、上次交互的时间和序列号
+            sourceSprite.setInteractSpriteId(targetSprite.getId());
             sourceSprite.setLastInteractTime(System.currentTimeMillis());
             sourceSprite.setLastInteractSn(data.getSn());
-            // 先尝试驯服/喂养
-            FeedResultEnum feedResult = spriteService.feed(sourceSprite, targetSprite);
-            // 如果驯服结果是“已经有主人”或者“驯服成功”或者“驯服失败”或者“喂养成功”，说明本次交互的目的的确是驯服/喂养，而非攻击
-            if (feedResult == FeedResultEnum.ALREADY_TAMED || feedResult == FeedResultEnum.TAME_SUCCESS
-                    || feedResult == FeedResultEnum.TAME_FAIL || feedResult == FeedResultEnum.FEED_SUCCESS) {
-                // 发送驯服/喂养结果通知
-                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
-                        sourceSprite.getId(), targetSprite.getId(), feedResult
-                )));
-                // 驯服会消耗物品，因此发送通知栏变化通知
-                WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
-                        new ItemBarNotifyVo(sourceSprite.getId())));
-                return;
-            }
-            // 否则本次交互的目的是进行攻击
-            List<WSResponseVo> responses = spriteService.attack(sourceSprite, targetSprite);
-            WSMessageSender.addResponses(responses);
         });
 
         // 索敌事件

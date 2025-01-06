@@ -81,15 +81,34 @@ public class GameLoop {
 
             var time = System.currentTimeMillis();
             var diff = time - lastTime;
-            log.info("curFrame: {}, diff: {}", curFrame, diff);
+            // log.info("curFrame: {}, diff: {}", curFrame, diff);
             if (diff > GAME_LOOP_INTERVAL * 2) {
                 log.info("time diff between two frames is too large: {}", diff);
             }
-            // 处理事件
+            // 处理事件（用户输入）
             eventHandler.handleMessages();
-
+            // 精灵交互行为（由于相互影响，无法并行处理）
+            for (SpriteBo spriteBo : spriteService.getOnlineSprites().values()) {
+                if (spriteBo.getInteractSpriteId() == null) {
+                    continue;
+                }
+                SpriteBo targetSprite = spriteService.selectOnlineById(spriteBo.getInteractSpriteId());
+                assert targetSprite != null;
+                WSMessageSender.addResponses(spriteService.interact(spriteBo, targetSprite));
+                spriteBo.setInteractSpriteId(null);
+            }
+            // 精灵决策
+            List<SpriteBo> sprites = spriteService.getOnlineSpritesByFrame(SPRITE_ACTION_FRAMES, curFrame);
+            sprites.addAll(spriteService.onlineUsers());
+            Concurrent.executeInThreadPool(sprites, (sprite) -> {
+                MoveVo moveVo = spriteService.move(sprite);
+                if (moveVo != null) {
+                    WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
+                }
+            });
+            // 处理被动效果
             // 生命效果
-            List<SpriteBo> sprites = spriteService.getOnlineSpritesByFrame(LIFE_FRAMES, curFrame).stream()
+            sprites = spriteService.getOnlineSpritesByFrame(LIFE_FRAMES, curFrame).stream()
                     .filter(sprite -> spriteService.hasEffect(sprite.getId(), EffectEnum.LIFE))
                     .toList();
             Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1)));
@@ -98,23 +117,12 @@ public class GameLoop {
                     .filter(sprite -> spriteService.hasEffect(sprite.getId(), EffectEnum.BURN))
                     .toList();
             Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1)));
-            // 调用精灵行为
-            sprites = spriteService.getOnlineSpritesByFrame(SPRITE_ACTION_FRAMES, curFrame);
-            sprites.addAll(spriteService.onlineUsers());
-            Concurrent.executeInThreadPool(sprites, (sprite) -> {
-                MoveVo moveVo = spriteService.move(sprite);
-                if (moveVo != null) {
-                    WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
-                }
-            });
             // 减少饱腹值
-            if (curFrame % REDUCE_HUNGER_FRAMES == 0) {
-                spriteService.reduceSpritesHunger();
-            }
+            sprites = spriteService.getOnlineSpritesByFrame(REDUCE_HUNGER_FRAMES, curFrame);
+            spriteService.reduceSpritesHunger(sprites);
             // 恢复体力
-            if (curFrame % RECOVER_LIFE_FRAMES == 0) {
-                WSMessageSender.addResponses(spriteService.recoverSpritesLife());
-            }
+            sprites = spriteService.getOnlineSpritesByFrame(RECOVER_LIFE_FRAMES, curFrame);
+            WSMessageSender.addResponses(spriteService.recoverSpritesLife(sprites));
             // 更新时间
             if (time > timeService.getTimeFrame().getTimeFrameEndTime()) {
                 switch (timeService.getTimeFrame().getTimeFrame()) {

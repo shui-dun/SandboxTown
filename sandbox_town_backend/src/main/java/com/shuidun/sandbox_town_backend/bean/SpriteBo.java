@@ -76,6 +76,10 @@ public class SpriteBo extends SpriteDo {
     @Nullable
     private Double targetY;
 
+    @Schema(description = "交互目标精灵id")
+    @Nullable
+    private String interactSpriteId;
+
     public static SpriteBo fromSpriteDo(SpriteDo spriteDo) {
         SpriteBo b = new SpriteBo();
         // 一开始是dirty的
