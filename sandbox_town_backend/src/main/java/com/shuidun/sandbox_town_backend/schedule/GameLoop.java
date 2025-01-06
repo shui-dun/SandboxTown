@@ -93,9 +93,11 @@ public class GameLoop {
                     continue;
                 }
                 SpriteBo targetSprite = spriteService.selectOnlineById(spriteBo.getInteractSpriteId());
-                assert targetSprite != null;
-                WSMessageSender.addResponses(spriteService.interact(spriteBo, targetSprite));
                 spriteBo.setInteractSpriteId(null);
+                if (targetSprite == null) {
+                    continue;
+                }
+                WSMessageSender.addResponses(spriteService.interact(spriteBo, targetSprite));
             }
             // 精灵决策
             List<SpriteBo> sprites = spriteService.getOnlineSpritesByFrame(SPRITE_ACTION_FRAMES, curFrame);
