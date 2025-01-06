@@ -144,12 +144,6 @@ public class SpriteService {
         }
         sprite.setEffects(effects);
         // 设置在线相关缓存
-        if (sprite.getVx() == null) {
-            sprite.setVx(0.0);
-        }
-        if (sprite.getVy() == null) {
-            sprite.setVy(0.0);
-        }
         if (sprite.getLastMoveTime() == null) {
             sprite.setLastMoveTime(System.currentTimeMillis());
         }
@@ -838,14 +832,6 @@ public class SpriteService {
         for (SpriteBo sprite : onlineSpriteMap.values()) {
             spriteMapper.updateById(sprite);
         }
-    }
-
-    /** 得到随机移动速度 */
-    public Pair<Double, Double> randomVelocity(SpriteBo sprite) {
-        double coefficient = 0.9;
-        double randomVx = coefficient * (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
-        double randomVy = coefficient * (sprite.getSpeed() + sprite.getSpeedInc()) * (Math.random() - 0.5);
-        return Pair.of(randomVx, randomVy);
     }
 
     /** 得到精灵合法的目标，即目标精灵必须存在，并且在线，并且在视野范围内。如果不合法，则返回null */

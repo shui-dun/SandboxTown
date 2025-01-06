@@ -18,9 +18,4 @@ public class CoordinateDto {
     private Double y;
     @NotNull
     private Long time;
-    // 这两个变量还没有被用到过
-    @NotNull
-    private Double vx;
-    @NotNull
-    private Double vy;
 }

@@ -104,8 +104,6 @@ public class EventHandler {
             sprite.setX(data.getX());
             sprite.setY(data.getY());
             sprite.setLastMoveTime(data.getTime());
-            sprite.setVx(data.getVx());
-            sprite.setVy(data.getVy());
         });
 
         // 想要移动
@@ -121,8 +119,6 @@ public class EventHandler {
             }
             sprite.setX(data.getX0());
             sprite.setY(data.getY0());
-            sprite.setVx(0.0);
-            sprite.setVy(0.0);
             if (data.getDestSpriteId() != null) {
                 SpriteBo destSprite = spriteService.selectOnlineById(data.getDestSpriteId());
                 if (destSprite != null) {

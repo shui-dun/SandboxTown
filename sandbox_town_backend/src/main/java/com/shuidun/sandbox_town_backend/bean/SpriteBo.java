@@ -43,10 +43,6 @@ public class SpriteBo extends SpriteDo {
     @Schema(description = "装备列表")
     private List<ItemBo> equipments;
 
-    private Double vx;
-
-    private Double vy;
-
     @Schema(description = "上次更新坐标时间")
     private Long lastMoveTime;
 
