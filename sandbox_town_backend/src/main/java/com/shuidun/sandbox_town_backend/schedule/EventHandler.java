@@ -3,12 +3,10 @@ package com.shuidun.sandbox_town_backend.schedule;
 import com.alibaba.fastjson2.JSONObject;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.WSRequestEnum;
-import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.service.ItemService;
 import com.shuidun.sandbox_town_backend.service.MapService;
 import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.utils.Concurrent;
-import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -108,12 +106,6 @@ public class EventHandler {
             sprite.setLastMoveTime(data.getTime());
             sprite.setVx(data.getVx());
             sprite.setVy(data.getVy());
-
-            // 广播给其他玩家
-            WSMessageSender.addResponse(
-                    new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
-                            data.getId(), data.getX(), data.getY(), data.getVx(), data.getVy()
-                    )));
         });
 
         // 想要移动

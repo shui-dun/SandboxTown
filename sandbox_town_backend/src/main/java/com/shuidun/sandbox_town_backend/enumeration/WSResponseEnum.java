@@ -2,8 +2,6 @@ package com.shuidun.sandbox_town_backend.enumeration;
 
 /** 服务器向客户端发送的事件类型 */
 public enum WSResponseEnum {
-    /** 更新坐标 */
-    COORDINATE,
     /** 移动 */
     MOVE,
     /** 下线 */

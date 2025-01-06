@@ -143,7 +143,6 @@ public class WSMessageSender {
 
     /** 响应类型 -> 发送函数 */
     private static final Map<WSResponseEnum, Consumer<WSResponseVo>> responseSendFunctionMap = Map.ofEntries(
-            entry(WSResponseEnum.COORDINATE, WSMessageSender::sendMessageToAllUsers),
             entry(WSResponseEnum.MOVE, WSMessageSender::sendMessageToAllUsers),
             entry(WSResponseEnum.OFFLINE, WSMessageSender::sendMessageToAllUsers),
             entry(WSResponseEnum.TIME_FRAME_NOTIFY, WSMessageSender::sendMessageToAllUsers),

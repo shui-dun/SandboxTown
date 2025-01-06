@@ -506,27 +506,6 @@ class MainScene extends Phaser.Scene {
             this.id2tween[data.id] = tween;
         });
 
-        // 坐标通知事件
-        emitter.on('COORDINATE', async (data) => {
-            // 如果是自己，除非是死亡回到原点，否则无视
-            if (data.id === this.myUsername && (data.x != 0 || data.y != 0)) {
-                return;
-            }
-            // 如果坐标通知带有速度，说明该角色在直接地移动，而非通过补间动画在移动（因为补间动画时速度为0）
-            // 因此要停止补间动画
-            if (data.vx != 0 || data.vy != 0) {
-                if (this.id2tween[data.id] != null) {
-                    this.id2tween[data.id].stop();
-                }
-            }
-            // 游戏对象
-            let gameObject = await this.getGameObjectById(data.id);
-            // 更新其坐标
-            gameObject.setPosition(data.x, data.y);
-            // 更新速度
-            this.matter.body.setVelocity(gameObject.body, { x: data.vx, y: data.vy });
-        });
-
         // 下线通知事件
         // TODO: 如果下线消息丢失了该怎么办？
         emitter.on('OFFLINE', async (data) => {

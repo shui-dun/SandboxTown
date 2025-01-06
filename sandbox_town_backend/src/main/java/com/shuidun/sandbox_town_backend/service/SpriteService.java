@@ -9,6 +9,7 @@ import com.shuidun.sandbox_town_backend.mapper.SpriteRefreshMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.Concurrent;
+import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.utils.MyMath;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -280,9 +281,11 @@ public class SpriteService {
                     var spriteBo = selectOnlineById(sprite.getId());
                     assert spriteBo != null;
                     spriteBo.setLastMoveTime(System.currentTimeMillis() + 500);
-                    responseList.add(new WSResponseVo(WSResponseEnum.COORDINATE, new CoordinateVo(
+                    responseList.add(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
                             sprite.getId(),
-                            0.0, 0.0, 0.0, 0.0
+                            1,
+                            DataCompressor.compressPath(List.of(new Point(0, 0), new Point(0, 0))),
+                            null, null, null
                     )));
                 }
             } else { // 否则，删除
