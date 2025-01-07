@@ -405,7 +405,7 @@ List of all bodies:
             isSensor:            NO
             filter_groupIndex:   0
             filter_categoryBits: 1
-            filter_maskBits:     65535
+            filter_maskBits:     0
 
 
         Hull polygon:

@@ -278,7 +278,7 @@
 		"collisionFilter": {
 			"group": 0,
 			"category": 1,
-			"mask": 255
+			"mask": 0
 		},
 		"fixtures": [
 			{
