@@ -12,6 +12,7 @@ import com.shuidun.sandbox_town_backend.utils.Concurrent;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.utils.MyMath;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
+import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -269,18 +270,13 @@ public class SpriteService {
                 sprite.setY(0.0);
                 // 如果在线，设置坐标为原点
                 if (onlineSpriteMap.containsKey(sprite.getId())) {
-                    sprite.setX(0.0);
-                    sprite.setY(0.0);
                     // 修复玩家死亡之后有可能位置不变，没有回到出生点的bug
                     var spriteBo = selectOnlineById(sprite.getId());
                     assert spriteBo != null;
+                    spriteBo.setX(0.0);
+                    spriteBo.setY(0.0);
                     spriteBo.setLastMoveTime(System.currentTimeMillis() + 500);
-                    responseList.add(new WSResponseVo(WSResponseEnum.MOVE, new MoveVo(
-                            sprite.getId(),
-                            1,
-                            DataCompressor.compressPath(List.of(new Point(0, 0), new Point(0, 0))),
-                            null, null, null
-                    )));
+                    responseList.add(coordinate(spriteBo));
                 }
             } else { // 否则，删除
                 // 使精灵下线
@@ -720,7 +716,25 @@ public class SpriteService {
             return null;
         }
         onlineSpriteMap.put(id, sprite);
+        // 按照之前的设计，controller层负责发送消息，service层不能直接发送消息，只返回消息
+        // 但为了方便，这里直接发送消息
+        WSMessageSender.addResponse(coordinate(sprite));
         return sprite;
+    }
+
+    /** 坐标通知 */
+    private WSResponseVo coordinate(SpriteDo sprite) {
+        return new WSResponseVo(
+                WSResponseEnum.MOVE,
+                new MoveVo(sprite.getId(),
+                        1,
+                        DataCompressor.compressPath(List.of(
+                                new Point(sprite.getX().intValue(), sprite.getY().intValue()),
+                                new Point(sprite.getX().intValue(), sprite.getY().intValue()) // 移动至少要有两个点
+                        )),
+                        null, null, null
+                )
+        );
     }
 
     /**
