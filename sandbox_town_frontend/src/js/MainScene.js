@@ -345,7 +345,7 @@ class MainScene extends Phaser.Scene {
                     }
                 }
             }
-        }, 200));
+        }, 50));
 
 
         // 碰撞检测
