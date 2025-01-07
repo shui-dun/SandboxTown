@@ -124,6 +124,7 @@ public class EffectService {
      * @param duration 效果持续时间
      */
     public void addEffect(String spriteId, EffectEnum effectId, int duration) {
+        spriteService.invalidateSpriteCache(spriteId);
         // 精灵原先是否有该效果
         SpriteEffectDo spriteEffect = spriteEffectMapper.selectBySpriteAndEffect(spriteId, effectId);
         if (spriteEffect != null) {
@@ -149,7 +150,6 @@ public class EffectService {
                 duration == -1 ? -1L : System.currentTimeMillis() + duration * 1000L
         );
         spriteEffectMapper.insertOrUpdate(spriteEffect);
-        spriteService.invalidateSpriteCache(spriteId);
     }
 
     /** 获得物品类型的效果列表 */

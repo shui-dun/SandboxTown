@@ -618,9 +618,6 @@ public class MapService {
             } else {
                 path = findAStarPath();
             }
-            if (path.isEmpty()) {
-                log.info("找不到路径，发起者：{}, 起点：x={}, y={}，终点：x={}, y={}", initiatorId, logicalX0, logicalY0, logicalX1, logicalY1);
-            }
             return path;
         }
 
