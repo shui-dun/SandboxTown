@@ -101,6 +101,10 @@ export default {
             );
 
         });
+        // 监听自定义通知
+        emitter.on("CUSTOM_NOTIFICATION", msg => {
+            this.showInfo(msg.msg);
+        });
     },
     methods: {
         showInfo(msg) {

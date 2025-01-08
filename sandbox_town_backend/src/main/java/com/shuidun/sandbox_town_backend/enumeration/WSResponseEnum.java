@@ -20,4 +20,6 @@ public enum WSResponseEnum {
     ITEM_GAIN,
     /** 聊天消息通知 */
     CHAT_MESSAGE,
+    /** 自定义通知 */
+    CUSTOM_NOTIFICATION,
 }

@@ -452,6 +452,11 @@ public class SpriteService {
         if (!onlineSpriteMap.containsKey(sourceSprite.getId()) || !onlineSpriteMap.containsKey(targetSprite.getId())) {
             return Collections.emptyList();
         }
+        // 如果双方有主仆关系，则不进行攻击
+        if (sourceSprite.getOwner() != null && sourceSprite.getOwner().equals(targetSprite.getId())
+                || targetSprite.getOwner() != null && targetSprite.getOwner().equals(sourceSprite.getId())) {
+            return List.of(new WSResponseVo(WSResponseEnum.CUSTOM_NOTIFICATION, new CustomNotificationVo(sourceSprite.getId(), "不能攻击自己的伙伴")));
+        }
         List<WSResponseVo> responses = new ArrayList<>();
         // 如果被攻击者有火焰护体效果，则攻击者烧伤
         if (hasEffect(targetSprite.getId(), EffectEnum.FLAME_BODY)) {
