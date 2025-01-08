@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpriteEffectChangeVo {
+public class SpriteCacheInvalidateVo {
     @Schema(description = "精灵id")
     private String id;
 }

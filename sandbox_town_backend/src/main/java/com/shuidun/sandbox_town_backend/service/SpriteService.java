@@ -1080,6 +1080,6 @@ public class SpriteService {
         if (sprite != null) {
             sprite.setDirty(true);
         }
-        WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.SPRITE_CACHE_INVALIDATE, new SpriteEffectChangeVo(spriteId)));
+        WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.SPRITE_CACHE_INVALIDATE, new SpriteCacheInvalidateVo(spriteId)));
     }
 }
