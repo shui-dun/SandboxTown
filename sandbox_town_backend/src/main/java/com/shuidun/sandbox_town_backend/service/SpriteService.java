@@ -94,24 +94,29 @@ public class SpriteService {
         this.victoryRewardService = victoryRewardService;
     }
 
-    /** 为精灵设置缓存信息，包含类型信息、装备、属性增量信息和效果列表 */
-    private SpriteBo assignCacheToSprite(SpriteBo sprite) {
-        // 异常情况检测
+    /** 检测异常缓存 */
+    private void checkAbnormalCache(SpriteBo sprite) {
+        if (sprite.isDirty()) {
+            return;
+        }
         // 在程序出现错误时，非常极端的情况下，可能会出现有多个手持物品的情况
         // 这里将删掉所有手持物品，并标记缓存无效
-        {
-            List<ItemBo> handHeldItems = sprite.getEquipments().stream()
-                    .filter(item -> item.getPosition() == ItemPositionEnum.HANDHELD)
-                    .toList();
-            if (handHeldItems.size() > 1) {
-                log.error("精灵{}有多个手持物品：{}", sprite.getId(), handHeldItems);
-                for (ItemBo item : handHeldItems) {
-                    item.setPosition(ItemPositionEnum.BACKPACK);
-                    itemService.updateItem(item);
-                }
-                sprite.setDirty(true);
+        List<ItemBo> handHeldItems = sprite.getEquipments().stream()
+                .filter(item -> item.getPosition() == ItemPositionEnum.HANDHELD)
+                .toList();
+        if (handHeldItems.size() > 1) {
+            log.error("精灵{}有多个手持物品：{}", sprite.getId(), handHeldItems);
+            for (ItemBo item : handHeldItems) {
+                item.setPosition(ItemPositionEnum.BACKPACK);
+                itemService.updateItem(item);
             }
+            sprite.setDirty(true);
         }
+    }
+
+    /** 为精灵设置缓存信息，包含类型信息、装备、属性增量信息和效果列表 */
+    private SpriteBo assignCacheToSprite(SpriteBo sprite) {
+        checkAbnormalCache(sprite);
         if (!sprite.isDirty()) {
             // 去掉过期的效果
             sprite.setEffects(sprite.getEffects().stream()
@@ -1096,7 +1101,6 @@ public class SpriteService {
         if (sprite != null) {
             sprite.setDirty(true);
         }
-        log.info("invalidate sprite cache: {}", spriteId);
         WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.SPRITE_CACHE_INVALIDATE, new SpriteCacheInvalidateVo(spriteId)));
     }
 }

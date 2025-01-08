@@ -54,6 +54,9 @@ public class GameLoop {
     /** 通知时间段的帧数 */
     private final int NOTIFY_TIME_FRAME_FRAMES = 5 * FPS;
 
+    /** 使精灵缓存失效的帧数 */
+    private final int INVALIDATE_CACHE_FRAMES = 60 * FPS;
+
     private final SpriteService spriteService;
 
     private final MapService mapService;
@@ -85,6 +88,11 @@ public class GameLoop {
             if (diff > GAME_LOOP_INTERVAL * 2) {
                 log.info("time diff between two frames is too large: {}", diff);
             }
+            // 定期使缓存失效
+            List<SpriteBo> sprites = spriteService.getOnlineSpritesByFrame(INVALIDATE_CACHE_FRAMES, curFrame);
+            for (SpriteBo sprite : sprites) {
+                spriteService.invalidateSpriteCache(sprite.getId());
+            }
             // 处理事件（用户输入）
             eventHandler.handleMessages();
             // 精灵交互行为（由于相互影响，无法并行处理）
@@ -100,7 +108,7 @@ public class GameLoop {
                 WSMessageSender.addResponses(spriteService.interact(spriteBo, targetSprite));
             }
             // 精灵决策
-            List<SpriteBo> sprites = spriteService.getOnlineSpritesByFrame(SPRITE_ACTION_FRAMES, curFrame);
+            sprites = spriteService.getOnlineSpritesByFrame(SPRITE_ACTION_FRAMES, curFrame);
             sprites.addAll(spriteService.onlineUsers());
             Concurrent.executeInThreadPool(sprites, (sprite) -> {
                 MoveVo moveVo = spriteService.move(sprite);
