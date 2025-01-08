@@ -92,7 +92,11 @@ export default {
                     itemType: msg.item,
                 }),
                 (data) => {
-                    this.showInfo(`${id}获得了${msg.count}个${data.name}`);
+                    if (msg.count > 0) {
+                        this.showInfo(`${id}获得了${msg.count}个${data.name}`);
+                    } else {
+                        this.showInfo(`${id}失去了${-msg.count}个${data.name}`);
+                    }
                 }
             );
 

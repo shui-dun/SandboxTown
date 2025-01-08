@@ -73,7 +73,6 @@ public class TimeService {
     }
 
     public void notifyTimeFrame() {
-        log.info("notifyTimeFrame: {}", getTimeFrame());
         WSMessageSender.addResponse(new WSResponseVo(
                 WSResponseEnum.TIME_FRAME_NOTIFY,
                 getTimeFrame()

@@ -238,7 +238,8 @@ public class StoreService implements SpecificBuildingService {
         sprite.setMoney(sprite.getMoney() + perPrice * amount);
         spriteService.normalizeAndUpdateSprite(sprite);
         // 更新物品数量
-        itemService.reduce(spriteId, itemId, amount);
+        item.setItemCount(item.getItemCount() - amount);
+        itemService.updateItem(item);
         // 更新商店商品数量（只有全新物品商店才会再次出售）
         if (item.getLife() == Constants.MAX_ITEM_LIFE) {
             StoreItemTypeDo storeItemType = storeItemTypeMapper.selectByStoreAndItemType(store, item.getItemType());

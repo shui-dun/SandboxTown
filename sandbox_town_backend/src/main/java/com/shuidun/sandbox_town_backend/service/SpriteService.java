@@ -402,75 +402,6 @@ public class SpriteService {
     }
 
     /**
-     * 使用物品
-     * 按理来说，这个函数应该在ItemService中，但是对物品的使用也会对角色（例如精灵的属性）产生影响
-     * 如果将这个函数放在ItemService中，ItemService就会依赖SpriteService对精灵（例如精灵属性）进行修改
-     * 而SpriteService又依赖ItemService来查看精灵的物品
-     * 这样就会造成循环依赖，因此在找到更好地解决方法前，将这个函数放在SpriteService中
-     */
-    @Transactional
-    public List<WSResponseVo> useItem(String owner, String itemId) {
-        List<WSResponseVo> responseList = new ArrayList<>();
-        // 判断物品是否存在
-        ItemBo item = itemService.getItemDetailById(itemId);
-        if (item == null) {
-            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
-        }
-        // 判断角色是否存在
-        SpriteDo sprite = selectById(owner);
-        if (sprite == null) {
-            throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
-        }
-        // 判断角色是否拥有该物品
-        if (!item.getOwner().equals(owner)) {
-            throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
-        }
-        // 判断物品是否可用
-        Set<ItemLabelEnum> labels = item.getItemTypeObj().getLabels();
-        if (!labels.contains(ItemLabelEnum.FOOD) && !labels.contains(ItemLabelEnum.USABLE)) {
-            throw new BusinessException(StatusCodeEnum.ITEM_NOT_USABLE);
-        }
-        // 得到物品带来的属性变化
-        ItemTypeAttributeDo itemTypeAttribute = item.getItemTypeObj().getAttributes().get(ItemOperationEnum.USE);
-        if (itemTypeAttribute != null) {
-            // TODO: 根据物品等级计算属性变化
-            // 得到角色原先属性
-            SpriteAttributeChangeVo spriteAttributeChange = new SpriteAttributeChangeVo();
-            spriteAttributeChange.setOriginal(sprite);
-            // 更新角色属性
-            sprite.setMoney(sprite.getMoney() + itemTypeAttribute.getMoneyInc());
-            sprite.setExp(sprite.getExp() + itemTypeAttribute.getExpInc());
-            sprite.setHunger(sprite.getHunger() + itemTypeAttribute.getHungerInc());
-            sprite.setHp(sprite.getHp() + itemTypeAttribute.getHpInc());
-            sprite.setAttack(sprite.getAttack() + itemTypeAttribute.getAttackInc());
-            sprite.setDefense(sprite.getDefense() + itemTypeAttribute.getDefenseInc());
-            sprite.setSpeed(sprite.getSpeed() + itemTypeAttribute.getSpeedInc());
-            sprite.setVisionRange(sprite.getVisionRange() + itemTypeAttribute.getVisionRangeInc());
-            sprite.setAttackRange(sprite.getAttackRange() + itemTypeAttribute.getAttackRangeInc());
-            // 判断新属性是否在合理范围内（包含升级操作），随后写入数据库
-            sprite = normalizeAndUpdateSprite(sprite).getFirst();
-            if (spriteAttributeChange.setChanged(sprite)) {
-                responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
-            }
-        }
-        // 向角色施加效果
-        // var newEffects = item.getItemTypeObj().getEffects().get(ItemOperationEnum.USE).values();
-        // 为避免空指针异常，改为：
-        var newEffects = item.getItemTypeObj().getEffects().getOrDefault(ItemOperationEnum.USE, new HashMap<>()).values();
-        for (ItemTypeEffectDo effect : newEffects) {
-            effectService.addEffect(owner, effect.getEffect(), effect.getDuration());
-        }
-
-        // 物品数目减1
-        itemService.reduce(owner, itemId, 1);
-
-        // 可能有精灵效果变化
-        responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(owner)));
-
-        return responseList;
-    }
-
-    /**
      * 减少精灵饱腹值
      */
     public void reduceSpritesHunger(Collection<SpriteBo> sprites) {
@@ -633,20 +564,23 @@ public class SpriteService {
      * @return 驯服结果
      */
     @Transactional
-    public FeedResultEnum feed(SpriteDo sourceSprite, SpriteDo targetSprite) {
+    public FeedResultEnum feed(SpriteBo sourceSprite, SpriteBo targetSprite) {
         // 判断是否可驯服
         List<FeedDo> feedList = feedService.selectBySpriteType(targetSprite.getType());
         if (feedList.isEmpty()) {
             return FeedResultEnum.CANNOT_TAMED;
         }
         // 是否手持了驯服所需物品
-        List<ItemBo> handHeldItems = itemService.listByOwnerAndPositions(sourceSprite.getId(), List.of(ItemPositionEnum.HANDHELD));
-        if (handHeldItems.isEmpty()) {
+        ItemBo handHeldItem = sourceSprite.getEquipments().stream()
+                .filter(item -> item.getPosition() == ItemPositionEnum.HANDHELD)
+                .findFirst()
+                .orElse(null);
+        if (handHeldItem == null) {
             return FeedResultEnum.NO_ITEM;
         }
         // 得到当前手持物品对应的驯服信息
         FeedDo feed = feedList.stream()
-                .filter(f -> f.getItemType() == handHeldItems.get(0).getItemType())
+                .filter(f -> f.getItemType() == handHeldItem.getItemType())
                 .findFirst()
                 .orElse(null);
         if (feed == null) {
@@ -656,7 +590,8 @@ public class SpriteService {
         targetSprite.setHunger(targetSprite.getHunger() + feed.getHungerInc());
         targetSprite.setExp(targetSprite.getExp() + feed.getExpInc());
         // 从手持物品栏减少1个物品（如果是最后一个物品，则删除）
-        itemService.reduce(sourceSprite.getId(), handHeldItems.get(0).getId(), 1);
+        handHeldItem.setItemCount(handHeldItem.getItemCount() - 1);
+        itemService.updateItem(handHeldItem);
         // 判断是否已经有主人
         if (targetSprite.getOwner() != null && !targetSprite.getOwner().equals(sourceSprite.getId())) {
             normalizeAndUpdateSprite(targetSprite);
@@ -696,6 +631,17 @@ public class SpriteService {
             responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
                     new ItemBarNotifyVo(sourceSprite.getId())));
             return responses;
+        }
+        // 尝试给目标精灵使用物品
+        ItemBo handItem = sourceSprite.getEquipments().stream()
+                .filter(item -> item.getPosition() == ItemPositionEnum.HANDHELD)
+                .findFirst()
+                .orElse(null);
+        if (handItem != null) {
+            var result = itemService.useItem(targetSprite, handItem);
+            if (result.getFirst() == UseItemResultEnum.ITEM_USE_SUCCESS) {
+                return result.getSecond();
+            }
         }
         // 否则本次交互的目的是进行攻击
         return attack(sourceSprite, targetSprite);

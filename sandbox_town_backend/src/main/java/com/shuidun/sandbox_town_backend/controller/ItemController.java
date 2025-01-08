@@ -7,9 +7,9 @@ import com.shuidun.sandbox_town_backend.bean.RestResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.ItemPositionEnum;
 import com.shuidun.sandbox_town_backend.enumeration.ItemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
+import com.shuidun.sandbox_town_backend.enumeration.UseItemResultEnum;
 import com.shuidun.sandbox_town_backend.service.ItemService;
 import com.shuidun.sandbox_town_backend.service.ItemTypeService;
-import com.shuidun.sandbox_town_backend.service.SpriteService;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -29,12 +29,9 @@ public class ItemController {
 
     private final ItemTypeService itemTypeService;
 
-    private final SpriteService spriteService;
-
-    public ItemController(ItemService itemService, ItemTypeService itemTypeService, SpriteService spriteService) {
+    public ItemController(ItemService itemService, ItemTypeService itemTypeService) {
         this.itemService = itemService;
         this.itemTypeService = itemTypeService;
-        this.spriteService = spriteService;
     }
 
     @Operation(summary = "获取当前登陆玩家的所有物品信息")
@@ -71,12 +68,13 @@ public class ItemController {
 
     @Operation(summary = "使用物品")
     @PostMapping("/use")
-    public RestResponseVo<Void> use(@NotNull @RequestParam String itemId) {
+    public RestResponseVo<UseItemResultEnum> use(@NotNull @RequestParam String itemId) {
         // 之所以这里要以websocket而非http的方式发送消息，
         // 是因为http的方式发送消息，只能发送给当前请求的用户，
         // 而websocket的方式发送消息，可以发送给需要该消息的所有用户
-        WSMessageSender.addResponses(spriteService.useItem(StpUtil.getLoginIdAsString(), itemId));
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
+        var result = itemService.useItem(StpUtil.getLoginIdAsString(), itemId);
+        WSMessageSender.addResponses(result.getSecond());
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, result.getFirst());
     }
 
     @Operation(summary = "显示某个物品的详细信息")

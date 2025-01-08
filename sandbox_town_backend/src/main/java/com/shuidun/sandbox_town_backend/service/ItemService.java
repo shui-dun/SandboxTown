@@ -12,13 +12,12 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.util.Pair;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -39,15 +38,18 @@ public class ItemService {
 
     private final ItemTypeService itemTypeService;
 
+    private final EffectService effectService;
+
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Lazy
     @Autowired
     private SpriteService spriteService;
 
-    public ItemService(ItemMapper itemMapper, ItemTypeService itemTypeService, RedisTemplate<String, Object> redisTemplate) {
+    public ItemService(ItemMapper itemMapper, ItemTypeService itemTypeService, EffectService effectService, RedisTemplate<String, Object> redisTemplate) {
         this.itemMapper = itemMapper;
         this.itemTypeService = itemTypeService;
+        this.effectService = effectService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -118,12 +120,13 @@ public class ItemService {
         ));
     }
 
-    /** 更新物品 */
+    /** 更新或删除物品 */
     @Transactional
     @CacheEvict(value = "item::itemDetail", key = "#item.id")
     public void updateItem(ItemDo item) {
-        if (item.getItemCount() == 0) {
+        if (item.getItemCount() <= 0) {
             itemMapper.deleteById(item);
+            redisTemplate.delete("item::listByOwner::" + item.getOwner());
         } else {
             itemMapper.updateById(item);
         }
@@ -134,6 +137,7 @@ public class ItemService {
     @Cacheable(value = "item::itemDetail", key = "#item.id")
     public void addItem(ItemDo item) {
         itemMapper.insert(item);
+        redisTemplate.delete("item::listByOwner::" + item.getOwner());
     }
 
     /** 装备物品 */
@@ -193,7 +197,6 @@ public class ItemService {
         spriteService.invalidateSpriteCache(spriteId);
         return responses;
     }
-
 
     /**
      * 变更物品位置变更
@@ -271,7 +274,6 @@ public class ItemService {
     }
 
     /** 给玩家添加物品 */
-    @CacheEvict(value = "item::listByOwner", key = "#spriteId")
     @Transactional
     public void add(String spriteId, ItemTypeEnum itemTypeId, int count) {
         ItemTypeDo itemType = itemTypeService.getItemTypeById(itemTypeId);
@@ -307,33 +309,83 @@ public class ItemService {
                 self.addItem(item);
             } else {
                 ItemDo item = self.getItemById(items.getFirst());
+                assert item != null;
                 // 玩家有该物品，更新数量
                 item.setItemCount(item.getItemCount() + count);
-                updateItem(item);
+                self.updateItem(item);
             }
         }
     }
 
-    /** 给角色减少物品 */
     @Transactional
-    @CacheEvict(value = "item::listByOwner", key = "#spriteId")
-    public void reduce(String spriteId, String itemId, int count) {
-        // 查询玩家拥有的该物品
-        ItemDo item = self.getItemById(itemId);
+    public Pair<UseItemResultEnum, List<WSResponseVo>> useItem(String spriteId, String itemId) {
         // 判断物品是否存在
+        ItemBo item = getItemDetailById(itemId);
         if (item == null) {
-            throw new BusinessException(StatusCodeEnum.ITEM_NOT_FOUND);
+            return Pair.of(UseItemResultEnum.ITEM_NOT_FOUND, Collections.emptyList());
         }
-        // 判断物品是否属于该玩家
+        // 判断角色是否存在
+        SpriteBo sprite = spriteService.selectById(spriteId);
+        if (sprite == null) {
+            return Pair.of(UseItemResultEnum.SPRITE_NOT_FOUND, Collections.emptyList());
+        }
+        // 判断物品是否属于角色
         if (!item.getOwner().equals(spriteId)) {
-            throw new BusinessException(StatusCodeEnum.NO_PERMISSION);
+            return Pair.of(UseItemResultEnum.NO_PERMISSION, Collections.emptyList());
         }
-        // 判断物品数量是否足够
-        if (item.getItemCount() < count) {
-            throw new BusinessException(StatusCodeEnum.ITEM_NOT_ENOUGH);
+        return useItem(sprite, item);
+    }
+
+    /** 注意该接口没有校验物品是否属于角色，需要谨慎使用 */
+    @Transactional
+    public Pair<UseItemResultEnum, List<WSResponseVo>> useItem(SpriteBo sprite, ItemBo item) {
+        List<WSResponseVo> responseList = new ArrayList<>();
+        // 判断物品是否可用
+        Set<ItemLabelEnum> labels = item.getItemTypeObj().getLabels();
+        if (!labels.contains(ItemLabelEnum.FOOD) && !labels.contains(ItemLabelEnum.USABLE)) {
+            return Pair.of(UseItemResultEnum.ITEM_NOT_USEABLE, responseList);
         }
-        item.setItemCount(item.getItemCount() - count);
+        // 得到物品带来的属性变化
+        ItemTypeAttributeDo itemTypeAttribute = item.getItemTypeObj().getAttributes().get(ItemOperationEnum.USE);
+        if (itemTypeAttribute != null) {
+            // TODO: 根据物品等级计算属性变化
+            // 得到角色原先属性
+            SpriteAttributeChangeVo spriteAttributeChange = new SpriteAttributeChangeVo();
+            spriteAttributeChange.setOriginal(sprite);
+            // 更新角色属性
+            sprite.setMoney(sprite.getMoney() + itemTypeAttribute.getMoneyInc());
+            sprite.setExp(sprite.getExp() + itemTypeAttribute.getExpInc());
+            sprite.setHunger(sprite.getHunger() + itemTypeAttribute.getHungerInc());
+            sprite.setHp(sprite.getHp() + itemTypeAttribute.getHpInc());
+            sprite.setAttack(sprite.getAttack() + itemTypeAttribute.getAttackInc());
+            sprite.setDefense(sprite.getDefense() + itemTypeAttribute.getDefenseInc());
+            sprite.setSpeed(sprite.getSpeed() + itemTypeAttribute.getSpeedInc());
+            sprite.setVisionRange(sprite.getVisionRange() + itemTypeAttribute.getVisionRangeInc());
+            sprite.setAttackRange(sprite.getAttackRange() + itemTypeAttribute.getAttackRangeInc());
+            // 判断新属性是否在合理范围内（包含升级操作），随后写入数据库
+            spriteService.normalizeAndUpdateSprite(sprite);
+            if (spriteAttributeChange.setChanged(sprite)) {
+                responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
+            }
+        }
+        // 向角色施加效果
+        // var newEffects = item.getItemTypeObj().getEffects().get(ItemOperationEnum.USE).values();
+        // 为避免空指针异常，改为：
+        var newEffects = item.getItemTypeObj().getEffects().getOrDefault(ItemOperationEnum.USE, new HashMap<>()).values();
+        for (ItemTypeEffectDo effect : newEffects) {
+            effectService.addEffect(sprite.getId(), effect.getEffect(), effect.getDuration());
+        }
+
+        // 物品数目减1
+        item.setItemCount(item.getItemCount() - 1);
         self.updateItem(item);
+
+        spriteService.invalidateSpriteCache(sprite.getId());
+        responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sprite.getId())));
+        responseList.add(new WSResponseVo(WSResponseEnum.ITEM_GAIN, new ItemGainVo(item.getOwner(), item.getItemType(), -1)));
+        responseList.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, new ItemBarNotifyVo(item.getOwner())));
+
+        return Pair.of(UseItemResultEnum.ITEM_USE_SUCCESS, responseList);
     }
 
     /** 判断某个物品是否是某类型 */

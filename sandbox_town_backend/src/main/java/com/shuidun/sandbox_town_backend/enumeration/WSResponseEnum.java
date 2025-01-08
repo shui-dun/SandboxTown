@@ -18,7 +18,7 @@ public enum WSResponseEnum {
     SPRITE_HP_CHANGE,
     /** 驯服结果通知 */
     FEED_RESULT,
-    /** 获得物品通知 */
+    /** 获得或消耗物品通知 */
     ITEM_GAIN,
     /** 聊天消息通知 */
     CHAT_MESSAGE,
