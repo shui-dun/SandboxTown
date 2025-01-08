@@ -332,6 +332,13 @@ public class ItemService {
         if (!labels.contains(ItemLabelEnum.FOOD) && !labels.contains(ItemLabelEnum.USABLE)) {
             return Pair.of(UseItemResultEnum.ITEM_NOT_USEABLE, responseList);
         }
+        // 包含FOOD、USABLE以外标签的物品，只能给自己用，不能给别人用
+        // 因为对于法棍等既可食用又可手持的物品，如果不加这个判断，就无法用来攻击别人，会变为给别人使用
+        if (!item.getOwner().equals(sprite.getId())) {
+            if (!labels.stream().allMatch(e -> e == ItemLabelEnum.FOOD || e == ItemLabelEnum.USABLE)) {
+                return Pair.of(UseItemResultEnum.ITEM_NOT_USEABLE, responseList);
+            }
+        }
         // 得到物品带来的属性变化
         ItemTypeAttributeDo itemTypeAttribute = item.getItemTypeObj().getAttributes().get(ItemOperationEnum.USE);
         if (itemTypeAttribute != null) {
