@@ -436,7 +436,6 @@ public class SpriteService {
         if (hasEffect(targetSprite.getId(), EffectEnum.FLAME_BODY)) {
             // 添加8秒的烧伤效果
             effectService.addEffect(sourceSprite.getId(), EffectEnum.BURN, 8);
-            responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sourceSprite.getId())));
         }
         // 被攻击者进行反应
         var targetAgent = spriteAgentMap.get(targetSprite.getType());
@@ -564,11 +563,11 @@ public class SpriteService {
      * @return 驯服结果
      */
     @Transactional
-    public FeedResultEnum feed(SpriteBo sourceSprite, SpriteBo targetSprite) {
+    public Pair<FeedResultEnum, List<WSResponseVo>> feed(SpriteBo sourceSprite, SpriteBo targetSprite) {
         // 判断是否可驯服
         List<FeedDo> feedList = feedService.selectBySpriteType(targetSprite.getType());
         if (feedList.isEmpty()) {
-            return FeedResultEnum.CANNOT_TAMED;
+            return Pair.of(FeedResultEnum.CANNOT_TAMED, Collections.emptyList());
         }
         // 是否手持了驯服所需物品
         ItemBo handHeldItem = sourceSprite.getEquipments().stream()
@@ -576,7 +575,7 @@ public class SpriteService {
                 .findFirst()
                 .orElse(null);
         if (handHeldItem == null) {
-            return FeedResultEnum.NO_ITEM;
+            return Pair.of(FeedResultEnum.NO_ITEM, Collections.emptyList());
         }
         // 得到当前手持物品对应的驯服信息
         FeedDo feed = feedList.stream()
@@ -584,7 +583,7 @@ public class SpriteService {
                 .findFirst()
                 .orElse(null);
         if (feed == null) {
-            return FeedResultEnum.NO_ITEM;
+            return Pair.of(FeedResultEnum.NO_ITEM, Collections.emptyList());
         }
         // 喂养目标精灵
         targetSprite.setHunger(targetSprite.getHunger() + feed.getHungerInc());
@@ -592,45 +591,45 @@ public class SpriteService {
         // 从手持物品栏减少1个物品（如果是最后一个物品，则删除）
         handHeldItem.setItemCount(handHeldItem.getItemCount() - 1);
         itemService.updateItem(handHeldItem);
+        // 驯服会消耗物品，因此使缓存失效
+        invalidateSpriteCache(sourceSprite.getId());
         // 判断是否已经有主人
         if (targetSprite.getOwner() != null && !targetSprite.getOwner().equals(sourceSprite.getId())) {
             normalizeAndUpdateSprite(targetSprite);
-            return FeedResultEnum.ALREADY_TAMED;
+            return Pair.of(FeedResultEnum.ALREADY_TAMED, Collections.emptyList());
         }
         // 如果已经被自己驯服，那就直接返回喂养成功
         if (targetSprite.getOwner() != null) {
             normalizeAndUpdateSprite(targetSprite);
-            return FeedResultEnum.FEED_SUCCESS;
+            return Pair.of(FeedResultEnum.FEED_SUCCESS, List.of(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
+                    sourceSprite.getId(), targetSprite.getId(), FeedResultEnum.FEED_SUCCESS
+            ))));
         }
         // 否则是野生的，以一定概率驯服宠物
         if (GameCache.random.nextDouble() < feed.getTameProb()) {
             // 驯服成功
             targetSprite.setOwner(sourceSprite.getId());
             normalizeAndUpdateSprite(targetSprite);
-            return FeedResultEnum.TAME_SUCCESS;
+            return Pair.of(FeedResultEnum.TAME_SUCCESS, List.of(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
+                    sourceSprite.getId(), targetSprite.getId(), FeedResultEnum.TAME_SUCCESS
+            ))));
         } else {
             // 驯服失败
             normalizeAndUpdateSprite(targetSprite);
-            return FeedResultEnum.TAME_FAIL;
+            return Pair.of(FeedResultEnum.TAME_FAIL, List.of(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
+                    sourceSprite.getId(), targetSprite.getId(), FeedResultEnum.TAME_FAIL
+            ))));
         }
     }
 
     @Transactional
     public List<WSResponseVo> interact(SpriteBo sourceSprite, SpriteBo targetSprite) {
         // 先尝试驯服/喂养
-        FeedResultEnum feedResult = feed(sourceSprite, targetSprite);
+        var feedResult = feed(sourceSprite, targetSprite);
         // 如果驯服结果是“已经有主人”或者“驯服成功”或者“驯服失败”或者“喂养成功”，说明本次交互的目的的确是驯服/喂养，而非攻击
-        if (feedResult == FeedResultEnum.ALREADY_TAMED || feedResult == FeedResultEnum.TAME_SUCCESS
-                || feedResult == FeedResultEnum.TAME_FAIL || feedResult == FeedResultEnum.FEED_SUCCESS) {
-            // 发送驯服/喂养结果通知
-            List<WSResponseVo> responses = new ArrayList<>();
-            responses.add(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
-                    sourceSprite.getId(), targetSprite.getId(), feedResult
-            )));
-            // 驯服会消耗物品，因此发送通知栏变化通知
-            responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
-                    new ItemBarNotifyVo(sourceSprite.getId())));
-            return responses;
+        if (feedResult.getFirst() == FeedResultEnum.ALREADY_TAMED || feedResult.getFirst() == FeedResultEnum.TAME_SUCCESS
+                || feedResult.getFirst() == FeedResultEnum.TAME_FAIL || feedResult.getFirst() == FeedResultEnum.FEED_SUCCESS) {
+            return feedResult.getSecond();
         }
         // 尝试给目标精灵使用物品
         ItemBo handItem = sourceSprite.getEquipments().stream()
@@ -1081,5 +1080,6 @@ public class SpriteService {
         if (sprite != null) {
             sprite.setDirty(true);
         }
+        WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.SPRITE_CACHE_INVALIDATE, new SpriteEffectChangeVo(spriteId)));
     }
 }

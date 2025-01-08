@@ -78,7 +78,7 @@ export default {
             this.setItems(data);
         });
         // 监听物品栏物品更新事件
-        emitter.on('ITEM_BAR_NOTIFY', () => {
+        emitter.on('SPRITE_CACHE_INVALIDATE', () => {
             mixin.myGET('/rest/item/listMyItemsInItemBar', null, (data) => {
                 this.setItems(data);
             });

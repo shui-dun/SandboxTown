@@ -8,12 +8,10 @@ public enum WSResponseEnum {
     OFFLINE,
     /** 时间段通知 */
     TIME_FRAME_NOTIFY,
-    /** 物品栏通知 */
-    ITEM_BAR_NOTIFY,
     /** 精灵属性变化通知 */
     SPRITE_ATTRIBUTE_CHANGE,
-    /** 精灵效果变化通知 */
-    SPRITE_EFFECT_CHANGE,
+    /** 精灵缓存失效通知 */
+    SPRITE_CACHE_INVALIDATE,
     /** 精灵HP变化通知 */
     SPRITE_HP_CHANGE,
     /** 驯服结果通知 */

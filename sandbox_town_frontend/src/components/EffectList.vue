@@ -46,7 +46,7 @@ export default {
             this.refresh();
         }, 10000);
         // 监听效果变化
-        emitter.on("SPRITE_EFFECT_CHANGE", () => {
+        emitter.on("SPRITE_CACHE_INVALIDATE", () => {
             this.refresh();
         });
     },

@@ -187,13 +187,6 @@ public class ItemService {
         // 将该物品装备
         item.setPosition(itemPosition);
         self.updateItem(item);
-
-        // 如果原先在物品栏，发送物品栏通知
-        if (originalPosition == ItemPositionEnum.ITEMBAR || originalPosition == ItemPositionEnum.HANDHELD) {
-            responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, new ItemBarNotifyVo(spriteId)));
-        }
-        // 可能有精灵效果变化
-        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(spriteId)));
         spriteService.invalidateSpriteCache(spriteId);
         return responses;
     }
@@ -263,12 +256,6 @@ public class ItemService {
             default:
                 throw new BusinessException(StatusCodeEnum.PARAMETER_ERROR);
         }
-        // 可能触发精灵效果变动
-        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE,
-                new SpriteEffectChangeVo(spriteId)));
-        // 有可能物品栏物品变化了
-        responses.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY,
-                new ItemBarNotifyVo(spriteId)));
         spriteService.invalidateSpriteCache(spriteId);
         return responses;
     }
@@ -381,10 +368,8 @@ public class ItemService {
         self.updateItem(item);
 
         spriteService.invalidateSpriteCache(sprite.getId());
-        responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_EFFECT_CHANGE, new SpriteEffectChangeVo(sprite.getId())));
+        spriteService.invalidateSpriteCache(item.getOwner());
         responseList.add(new WSResponseVo(WSResponseEnum.ITEM_GAIN, new ItemGainVo(item.getOwner(), item.getItemType(), -1)));
-        responseList.add(new WSResponseVo(WSResponseEnum.ITEM_BAR_NOTIFY, new ItemBarNotifyVo(item.getOwner())));
-
         return Pair.of(UseItemResultEnum.ITEM_USE_SUCCESS, responseList);
     }
 
