@@ -1012,7 +1012,7 @@ public class SpriteService {
 
         @Override
         public MapBitsPermissionsBo mapBitsPermissions(SpriteBo sprite) {
-            int obstacles = MapBitsPermissionsBo.DEFAULT_OBSTACLES;
+            int obstacles = 0; // 幽灵可以穿过任何障碍物
             // 默认只能在墓碑周围移动
             int allow = DEFAULT_ALLOW;
             // 如果体力小于一定值，则允许在任意地方移动
