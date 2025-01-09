@@ -6,18 +6,21 @@ import com.shuidun.sandbox_town_backend.exception.BusinessException;
 import com.shuidun.sandbox_town_backend.mapper.ItemMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
+import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.util.Pair;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -142,8 +145,7 @@ public class ItemService {
 
     /** 装备物品 */
     @Transactional
-    public List<WSResponseVo> equip(String spriteId, String itemId) {
-        List<WSResponseVo> responses = new ArrayList<>();
+    public void equip(String spriteId, String itemId) {
         // 查询该物品详细信息
         ItemBo item = self.getItemDetailById(itemId);
         // 判断该物品是否存在
@@ -165,7 +167,7 @@ public class ItemService {
         // 判断该物品是否已经装备
         ItemPositionEnum originalPosition = item.getPosition();
         if (equipmentPositions.contains(originalPosition)) {
-            return responses;
+            return;
         }
         // 判断该物品是否是装备（判断labels是否包含数组equipmentLabels的任一元素）
         ItemLabelEnum itemLabel = item.getItemTypeObj().getLabels().stream()
@@ -188,7 +190,6 @@ public class ItemService {
         item.setPosition(itemPosition);
         self.updateItem(item);
         spriteService.invalidateSpriteCache(spriteId);
-        return responses;
     }
 
     /**
@@ -199,9 +200,7 @@ public class ItemService {
      * @param targetPosition 目标位置，注意不支持装备位置，装备参见 {@link #equip}
      */
     @Transactional
-    public List<WSResponseVo> changeItemPosition(String spriteId, String itemId, ItemPositionEnum targetPosition) {
-        List<WSResponseVo> responses = new ArrayList<>();
-
+    public void changeItemPosition(String spriteId, String itemId, ItemPositionEnum targetPosition) {
         // 物品是否存在
         ItemBo itemDetail = self.getItemDetailById(itemId);
         if (itemDetail == null) {
@@ -221,7 +220,7 @@ public class ItemService {
                 .findFirst().orElse(null);
         // 若目标位置和当前相同，直接返回
         if (originalPosition == targetPosition) {
-            return responses;
+            return;
         }
         switch (targetPosition) {
             case HANDHELD:
@@ -257,7 +256,6 @@ public class ItemService {
                 throw new BusinessException(StatusCodeEnum.PARAMETER_ERROR);
         }
         spriteService.invalidateSpriteCache(spriteId);
-        return responses;
     }
 
     /** 给玩家添加物品 */
@@ -305,38 +303,37 @@ public class ItemService {
     }
 
     @Transactional
-    public Pair<UseItemResultEnum, List<WSResponseVo>> useItem(String spriteId, String itemId) {
+    public UseItemResultEnum useItem(String spriteId, String itemId) {
         // 判断物品是否存在
         ItemBo item = getItemDetailById(itemId);
         if (item == null) {
-            return Pair.of(UseItemResultEnum.ITEM_NOT_FOUND, Collections.emptyList());
+            return UseItemResultEnum.ITEM_NOT_FOUND;
         }
         // 判断角色是否存在
         SpriteBo sprite = spriteService.selectById(spriteId);
         if (sprite == null) {
-            return Pair.of(UseItemResultEnum.SPRITE_NOT_FOUND, Collections.emptyList());
+            return UseItemResultEnum.SPRITE_NOT_FOUND;
         }
         // 判断物品是否属于角色
         if (!item.getOwner().equals(spriteId)) {
-            return Pair.of(UseItemResultEnum.NO_PERMISSION, Collections.emptyList());
+            return UseItemResultEnum.NO_PERMISSION;
         }
         return useItem(sprite, item);
     }
 
     /** 注意该接口没有校验物品是否属于角色，需要谨慎使用 */
     @Transactional
-    public Pair<UseItemResultEnum, List<WSResponseVo>> useItem(SpriteBo sprite, ItemBo item) {
-        List<WSResponseVo> responseList = new ArrayList<>();
+    public UseItemResultEnum useItem(SpriteBo sprite, ItemBo item) {
         // 判断物品是否可用
         Set<ItemLabelEnum> labels = item.getItemTypeObj().getLabels();
         if (!labels.contains(ItemLabelEnum.FOOD) && !labels.contains(ItemLabelEnum.USABLE)) {
-            return Pair.of(UseItemResultEnum.ITEM_NOT_USEABLE, responseList);
+            return UseItemResultEnum.ITEM_NOT_USEABLE;
         }
         // 包含FOOD、USABLE以外标签的物品，只能给自己用，不能给别人用
         // 因为对于法棍等既可食用又可手持的物品，如果不加这个判断，就无法用来攻击别人，会变为给别人使用
         if (!item.getOwner().equals(sprite.getId())) {
             if (!labels.stream().allMatch(e -> e == ItemLabelEnum.FOOD || e == ItemLabelEnum.USABLE)) {
-                return Pair.of(UseItemResultEnum.ITEM_NOT_USEABLE, responseList);
+                return UseItemResultEnum.ITEM_NOT_USEABLE;
             }
         }
         // 得到物品带来的属性变化
@@ -359,7 +356,7 @@ public class ItemService {
             // 判断新属性是否在合理范围内（包含升级操作），随后写入数据库
             spriteService.normalizeAndUpdateSprite(sprite);
             if (spriteAttributeChange.setChanged(sprite)) {
-                responseList.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
+                WSMessageSender.addResponse(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange);
             }
         }
         // 向角色施加效果
@@ -376,8 +373,8 @@ public class ItemService {
 
         spriteService.invalidateSpriteCache(sprite.getId());
         spriteService.invalidateSpriteCache(item.getOwner());
-        responseList.add(new WSResponseVo(WSResponseEnum.ITEM_GAIN, new ItemGainVo(item.getOwner(), item.getItemType(), -1)));
-        return Pair.of(UseItemResultEnum.ITEM_USE_SUCCESS, responseList);
+        WSMessageSender.addResponse(WSResponseEnum.ITEM_GAIN, new ItemGainVo(item.getOwner(), item.getItemType(), -1));
+        return UseItemResultEnum.ITEM_USE_SUCCESS;
     }
 
     /** 判断某个物品是否是某类型 */

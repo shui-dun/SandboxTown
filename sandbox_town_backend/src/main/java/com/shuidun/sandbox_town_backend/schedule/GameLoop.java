@@ -2,7 +2,6 @@ package com.shuidun.sandbox_town_backend.schedule;
 
 import com.shuidun.sandbox_town_backend.bean.MoveVo;
 import com.shuidun.sandbox_town_backend.bean.SpriteBo;
-import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.EffectEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.service.MapService;
@@ -105,7 +104,7 @@ public class GameLoop {
                 if (targetSprite == null) {
                     continue;
                 }
-                WSMessageSender.addResponses(spriteService.interact(spriteBo, targetSprite));
+                spriteService.interact(spriteBo, targetSprite);
             }
             // 精灵决策
             sprites = spriteService.getOnlineSpritesByFrame(SPRITE_ACTION_FRAMES, curFrame);
@@ -113,7 +112,7 @@ public class GameLoop {
             Concurrent.executeInThreadPool(sprites, (sprite) -> {
                 MoveVo moveVo = spriteService.move(sprite);
                 if (moveVo != null) {
-                    WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.MOVE, moveVo));
+                    WSMessageSender.addResponse(WSResponseEnum.MOVE, moveVo);
                 }
             });
             // 处理被动效果
@@ -121,18 +120,18 @@ public class GameLoop {
             sprites = spriteService.getOnlineSpritesByFrame(LIFE_FRAMES, curFrame).stream()
                     .filter(sprite -> spriteService.hasEffect(sprite.getId(), EffectEnum.LIFE))
                     .toList();
-            Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), 1)));
+            Concurrent.executeInThreadPool(sprites, (sprite) -> spriteService.modifyLife(sprite.getId(), 1));
             // 烧伤效果
             sprites = spriteService.getOnlineSpritesByFrame(BURN_FRAMES, curFrame).stream()
                     .filter(sprite -> spriteService.hasEffect(sprite.getId(), EffectEnum.BURN))
                     .toList();
-            Concurrent.executeInThreadPool(sprites, (sprite) -> WSMessageSender.addResponses(spriteService.modifyLife(sprite.getId(), -1)));
+            Concurrent.executeInThreadPool(sprites, (sprite) -> spriteService.modifyLife(sprite.getId(), -1));
             // 减少饱腹值
             sprites = spriteService.getOnlineSpritesByFrame(REDUCE_HUNGER_FRAMES, curFrame);
             spriteService.reduceSpritesHunger(sprites);
             // 恢复体力
             sprites = spriteService.getOnlineSpritesByFrame(RECOVER_LIFE_FRAMES, curFrame);
-            WSMessageSender.addResponses(spriteService.recoverSpritesLife(sprites));
+            spriteService.recoverSpritesLife(sprites);
             // 更新时间
             if (time > timeService.getTimeFrame().getTimeFrameEndTime()) {
                 switch (timeService.getTimeFrame().getTimeFrame()) {

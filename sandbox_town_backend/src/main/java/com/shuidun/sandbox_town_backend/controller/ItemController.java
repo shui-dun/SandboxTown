@@ -10,7 +10,6 @@ import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.UseItemResultEnum;
 import com.shuidun.sandbox_town_backend.service.ItemService;
 import com.shuidun.sandbox_town_backend.service.ItemTypeService;
-import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -72,9 +71,7 @@ public class ItemController {
         // 之所以这里要以websocket而非http的方式发送消息，
         // 是因为http的方式发送消息，只能发送给当前请求的用户，
         // 而websocket的方式发送消息，可以发送给需要该消息的所有用户
-        var result = itemService.useItem(StpUtil.getLoginIdAsString(), itemId);
-        WSMessageSender.addResponses(result.getSecond());
-        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, result.getFirst());
+        return new RestResponseVo<>(StatusCodeEnum.SUCCESS, itemService.useItem(StpUtil.getLoginIdAsString(), itemId));
     }
 
     @Operation(summary = "显示某个物品的详细信息")
@@ -94,28 +91,28 @@ public class ItemController {
     @Operation(summary = "手持物品")
     @PostMapping("/hold")
     public RestResponseVo<Void> hold(@NotNull @RequestParam String itemId) {
-        WSMessageSender.addResponses(itemService.changeItemPosition(StpUtil.getLoginIdAsString(), itemId, ItemPositionEnum.HANDHELD));
+        itemService.changeItemPosition(StpUtil.getLoginIdAsString(), itemId, ItemPositionEnum.HANDHELD);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
     @Operation(summary = "放入物品栏")
     @PostMapping("/putInItemBar")
     public RestResponseVo<Void> putInItemBar(@NotNull @RequestParam String itemId) {
-        WSMessageSender.addResponses(itemService.changeItemPosition(StpUtil.getLoginIdAsString(), itemId, ItemPositionEnum.ITEMBAR));
+        itemService.changeItemPosition(StpUtil.getLoginIdAsString(), itemId, ItemPositionEnum.ITEMBAR);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
     @Operation(summary = "装备物品")
     @PostMapping("/equip")
     public RestResponseVo<Void> equip(@NotNull @RequestParam String itemId) {
-        WSMessageSender.addResponses(itemService.equip(StpUtil.getLoginIdAsString(), itemId));
+        itemService.equip(StpUtil.getLoginIdAsString(), itemId);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 
     @Operation(summary = "放入背包")
     @PostMapping("/putInBackpack")
     public RestResponseVo<Void> putInBackpack(@NotNull @RequestParam String itemId) {
-        WSMessageSender.addResponses(itemService.changeItemPosition(StpUtil.getLoginIdAsString(), itemId, ItemPositionEnum.BACKPACK));
+        itemService.changeItemPosition(StpUtil.getLoginIdAsString(), itemId, ItemPositionEnum.BACKPACK);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 }

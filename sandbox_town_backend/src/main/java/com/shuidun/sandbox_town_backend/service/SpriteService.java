@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.util.Pair;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -206,8 +205,7 @@ public class SpriteService {
 
     /** 判断角色属性值是否在合理范围内（包含升级操作） */
     @Transactional
-    public Pair<SpriteDo, List<WSResponseVo>> normalizeAndUpdateSprite(SpriteDo sprite) {
-        List<WSResponseVo> responseList = new ArrayList<>();
+    public SpriteDo normalizeAndUpdateSprite(SpriteDo sprite) {
         // 如果精灵已经满级
         if (sprite.getLevel().equals(MAX_LEVEL)) {
             sprite.setExp(0);
@@ -228,7 +226,6 @@ public class SpriteService {
             if (levelUp > 0) {
                 // 得到类型信息
                 SpriteTypeDo spriteType = spriteTypeService.selectById(sprite.getType());
-                assert spriteType != null;
                 // 更新玩家属性
                 sprite.setMoney(sprite.getMoney() + levelUp * MONEY_GAIN_ON_LEVEL_UP);
                 sprite.setHunger(MAX_HUNGER);
@@ -297,14 +294,14 @@ public class SpriteService {
                     spriteBo.setX(0.0);
                     spriteBo.setY(0.0);
                     spriteBo.setLastMoveTime(System.currentTimeMillis() + 500);
-                    responseList.add(coordinate(spriteBo));
+                    coordinate(spriteBo);
                 }
             } else { // 否则，删除
                 // 使精灵下线
-                responseList.add(offline(sprite.getId()));
+                offline(sprite.getId());
             }
         }
-        return Pair.of(sprite, responseList);
+        return sprite;
     }
 
     /** 生成固定的（即各属性值严格等于其精灵类型的基础属性值）指定类型的角色，并写入数据库 */
@@ -435,29 +432,28 @@ public class SpriteService {
     /**
      * 恢复精灵生命
      */
-    public List<WSResponseVo> recoverSpritesLife(Collection<SpriteBo> sprites) {
-        List<WSResponseVo> responses = new ArrayList<>();
+    public void recoverSpritesLife(Collection<SpriteBo> sprites) {
         Concurrent.executeInThreadPool(sprites, (sprite) -> {
             if (sprite.getHunger() < HUNGER_THRESHOLD) {
                 return;
             }
-            responses.addAll(modifyLife(sprite.getId(), 1));
+            modifyLife(sprite.getId(), 1);
         });
-        return responses;
     }
 
     @Transactional
-    public List<WSResponseVo> attack(SpriteBo sourceSprite, SpriteBo targetSprite) {
+    public void attack(SpriteBo sourceSprite, SpriteBo targetSprite) {
         // 如果双方有人不在线，则不进行攻击
         if (!onlineSpriteMap.containsKey(sourceSprite.getId()) || !onlineSpriteMap.containsKey(targetSprite.getId())) {
-            return Collections.emptyList();
+            return;
         }
         // 如果双方有主仆关系，则不进行攻击
         if (sourceSprite.getOwner() != null && sourceSprite.getOwner().equals(targetSprite.getId())
                 || targetSprite.getOwner() != null && targetSprite.getOwner().equals(sourceSprite.getId())) {
-            return List.of(new WSResponseVo(WSResponseEnum.CUSTOM_NOTIFICATION, new CustomNotificationVo(sourceSprite.getId(), "不能攻击自己的伙伴")));
+            WSMessageSender.addResponse(WSResponseEnum.CUSTOM_NOTIFICATION,
+                    new CustomNotificationVo(sourceSprite.getId(), "不能攻击自己的伙伴"));
+            return;
         }
-        List<WSResponseVo> responses = new ArrayList<>();
         // 如果被攻击者有火焰护体效果，则攻击者烧伤
         if (hasEffect(targetSprite.getId(), EffectEnum.FLAME_BODY)) {
             // 添加8秒的烧伤效果
@@ -472,10 +468,9 @@ public class SpriteService {
         int damage = sourceSprite.getAttack() + sourceSprite.getAttackInc() -
                 (targetSprite.getDefense() + targetSprite.getDefenseInc());
         if (damage > 0) {
-            var modifyLifeResponses = modifyLife(targetSprite.getId(), -damage);
-            responses.addAll(modifyLifeResponses);
+            boolean dead = modifyLife(targetSprite.getId(), -damage);
             // 如果包含offline消息，则说明被攻击者死亡
-            if (modifyLifeResponses.stream().anyMatch(response -> response.getType() == WSResponseEnum.OFFLINE)) {
+            if (dead) {
                 // 获得攻击者的主人
                 String ownerId = sourceSprite.getOwner();
                 SpriteDo owner = ownerId == null ? null : selectById(ownerId);
@@ -494,9 +489,9 @@ public class SpriteService {
                     spriteAttributeChange.setOriginal(sourceSprite);
                     sourceSprite.setMoney(sourceSprite.getMoney() + moneyInc);
                     sourceSprite.setExp(sourceSprite.getExp() + expInc);
-                    SpriteDo newSourceSprite = normalizeAndUpdateSprite(sourceSprite).getFirst();
+                    SpriteDo newSourceSprite = normalizeAndUpdateSprite(sourceSprite);
                     if (spriteAttributeChange.setChanged(newSourceSprite)) {
-                        responses.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange));
+                        WSMessageSender.addResponse(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, spriteAttributeChange);
                     }
                     // 攻击者主人的属性也得到同样的提升
                     if (owner != null) {
@@ -504,9 +499,9 @@ public class SpriteService {
                         ownerAttributeChange.setOriginal(owner);
                         owner.setMoney(owner.getMoney() + moneyInc);
                         owner.setExp(owner.getExp() + expInc);
-                        owner = normalizeAndUpdateSprite(owner).getFirst();
+                        owner = normalizeAndUpdateSprite(owner);
                         if (ownerAttributeChange.setChanged(owner)) {
-                            responses.add(new WSResponseVo(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, ownerAttributeChange));
+                            WSMessageSender.addResponse(WSResponseEnum.SPRITE_ATTRIBUTE_CHANGE, ownerAttributeChange);
                         }
                     }
                 }
@@ -522,22 +517,22 @@ public class SpriteService {
                     }
                     itemService.add(itemOwner, itemReward.getItemType(), cnt);
                     // 获得物品的通知
-                    responses.add(new WSResponseVo(WSResponseEnum.ITEM_GAIN, new ItemGainVo(itemOwner, itemReward.getItemType(), cnt)));
+                    WSMessageSender.addResponse(WSResponseEnum.ITEM_GAIN, new ItemGainVo(itemOwner, itemReward.getItemType(), cnt));
                 }
             }
         }
-        return responses;
     }
 
     /**
      * 使精灵下线
      * 精灵下线只会下线自己，不会下线自己的宠物
      */
-    public WSResponseVo offline(String spriteId) {
-        var msg = new WSResponseVo(WSResponseEnum.OFFLINE, new OfflineVo(List.of(spriteId)));
+    public void offline(String spriteId) {
+        // 发送下线消息
+        WSMessageSender.addResponse(WSResponseEnum.OFFLINE, new OfflineVo(List.of(spriteId)));
         SpriteBo s = onlineSpriteMap.get(spriteId);
         if (s == null) {
-            return msg;
+            return;
         }
         onlineSpriteMap.remove(s.getId());
         // 精灵下线，信息需要立即写入数据库
@@ -547,26 +542,27 @@ public class SpriteService {
             // 删除精灵
             spriteMapper.deleteById(spriteId);
         }
-        // 发送下线消息
-        return msg;
     }
 
     /**
      * 修改精灵生命
+     *
+     * @return 精灵是否死亡
      */
     @Transactional
-    public List<WSResponseVo> modifyLife(String spriteId, int val) {
+    public boolean modifyLife(String spriteId, int val) {
         SpriteDo sprite = selectById(spriteId);
+        boolean dead = false;
         if (sprite == null) {
             throw new BusinessException(StatusCodeEnum.SPRITE_NOT_FOUND);
         }
-        List<WSResponseVo> responses = new ArrayList<>();
         int originHp = sprite.getHp();
         // 扣除目标精灵生命
         sprite.setHp(sprite.getHp() + val);
         // 判断目标精灵是否死亡
         if (sprite.getHp() <= 0) {
             sprite.setHp(0);
+            dead = true;
         }
         // 如果满血
         if (sprite.getHp() > MAX_HP) {
@@ -574,11 +570,11 @@ public class SpriteService {
         }
         HpChangeVo hpChangeVo = new HpChangeVo(spriteId, originHp, sprite.getHp() - originHp);
         if (hpChangeVo.getHpChange() != 0) {
-            responses.add(new WSResponseVo(WSResponseEnum.SPRITE_HP_CHANGE, hpChangeVo));
+            WSMessageSender.addResponse(WSResponseEnum.SPRITE_HP_CHANGE, hpChangeVo);
             // 更新目标精灵
-            responses.addAll(normalizeAndUpdateSprite(sprite).getSecond());
+            normalizeAndUpdateSprite(sprite);
         }
-        return responses;
+        return dead;
     }
 
     /**
@@ -589,11 +585,11 @@ public class SpriteService {
      * @return 驯服结果
      */
     @Transactional
-    public Pair<FeedResultEnum, List<WSResponseVo>> feed(SpriteBo sourceSprite, SpriteBo targetSprite) {
+    public FeedResultEnum feed(SpriteBo sourceSprite, SpriteBo targetSprite) {
         // 判断是否可驯服
         List<FeedDo> feedList = feedService.selectBySpriteType(targetSprite.getType());
         if (feedList.isEmpty()) {
-            return Pair.of(FeedResultEnum.CANNOT_TAMED, Collections.emptyList());
+            return FeedResultEnum.CANNOT_TAMED;
         }
         // 是否手持了驯服所需物品
         ItemBo handHeldItem = sourceSprite.getEquipments().stream()
@@ -601,7 +597,7 @@ public class SpriteService {
                 .findFirst()
                 .orElse(null);
         if (handHeldItem == null) {
-            return Pair.of(FeedResultEnum.NO_ITEM, Collections.emptyList());
+            return FeedResultEnum.NO_ITEM;
         }
         // 得到当前手持物品对应的驯服信息
         FeedDo feed = feedList.stream()
@@ -609,7 +605,7 @@ public class SpriteService {
                 .findFirst()
                 .orElse(null);
         if (feed == null) {
-            return Pair.of(FeedResultEnum.NO_ITEM, Collections.emptyList());
+            return FeedResultEnum.NO_ITEM;
         }
         // 喂养目标精灵
         targetSprite.setHunger(targetSprite.getHunger() + feed.getHungerInc());
@@ -622,40 +618,43 @@ public class SpriteService {
         // 判断是否已经有主人
         if (targetSprite.getOwner() != null && !targetSprite.getOwner().equals(sourceSprite.getId())) {
             normalizeAndUpdateSprite(targetSprite);
-            return Pair.of(FeedResultEnum.ALREADY_TAMED, Collections.emptyList());
+            return FeedResultEnum.ALREADY_TAMED;
         }
         // 如果已经被自己驯服，那就直接返回喂养成功
         if (targetSprite.getOwner() != null) {
             normalizeAndUpdateSprite(targetSprite);
-            return Pair.of(FeedResultEnum.FEED_SUCCESS, List.of(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
+            WSMessageSender.addResponse(WSResponseEnum.FEED_RESULT, new FeedVo(
                     sourceSprite.getId(), targetSprite.getId(), FeedResultEnum.FEED_SUCCESS
-            ))));
+            ));
+            return FeedResultEnum.FEED_SUCCESS;
         }
         // 否则是野生的，以一定概率驯服宠物
         if (GameCache.random.nextDouble() < feed.getTameProb()) {
             // 驯服成功
             targetSprite.setOwner(sourceSprite.getId());
             normalizeAndUpdateSprite(targetSprite);
-            return Pair.of(FeedResultEnum.TAME_SUCCESS, List.of(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
+            WSMessageSender.addResponse(WSResponseEnum.FEED_RESULT, new FeedVo(
                     sourceSprite.getId(), targetSprite.getId(), FeedResultEnum.TAME_SUCCESS
-            ))));
+            ));
+            return FeedResultEnum.TAME_SUCCESS;
         } else {
             // 驯服失败
             normalizeAndUpdateSprite(targetSprite);
-            return Pair.of(FeedResultEnum.TAME_FAIL, List.of(new WSResponseVo(WSResponseEnum.FEED_RESULT, new FeedVo(
+            WSMessageSender.addResponse(WSResponseEnum.FEED_RESULT, new FeedVo(
                     sourceSprite.getId(), targetSprite.getId(), FeedResultEnum.TAME_FAIL
-            ))));
+            ));
+            return FeedResultEnum.TAME_FAIL;
         }
     }
 
     @Transactional
-    public List<WSResponseVo> interact(SpriteBo sourceSprite, SpriteBo targetSprite) {
+    public void interact(SpriteBo sourceSprite, SpriteBo targetSprite) {
         // 先尝试驯服/喂养
         var feedResult = feed(sourceSprite, targetSprite);
         // 如果驯服结果是“已经有主人”或者“驯服成功”或者“驯服失败”或者“喂养成功”，说明本次交互的目的的确是驯服/喂养，而非攻击
-        if (feedResult.getFirst() == FeedResultEnum.ALREADY_TAMED || feedResult.getFirst() == FeedResultEnum.TAME_SUCCESS
-                || feedResult.getFirst() == FeedResultEnum.TAME_FAIL || feedResult.getFirst() == FeedResultEnum.FEED_SUCCESS) {
-            return feedResult.getSecond();
+        if (feedResult == FeedResultEnum.ALREADY_TAMED || feedResult == FeedResultEnum.TAME_SUCCESS
+                || feedResult == FeedResultEnum.TAME_FAIL || feedResult == FeedResultEnum.FEED_SUCCESS) {
+            return;
         }
         // 尝试给目标精灵使用物品
         ItemBo handItem = sourceSprite.getEquipments().stream()
@@ -664,12 +663,12 @@ public class SpriteService {
                 .orElse(null);
         if (handItem != null) {
             var result = itemService.useItem(targetSprite, handItem);
-            if (result.getFirst() == UseItemResultEnum.ITEM_USE_SUCCESS) {
-                return result.getSecond();
+            if (result == UseItemResultEnum.ITEM_USE_SUCCESS) {
+                return;
             }
         }
         // 否则本次交互的目的是进行攻击
-        return attack(sourceSprite, targetSprite);
+        attack(sourceSprite, targetSprite);
     }
 
     /**
@@ -687,15 +686,13 @@ public class SpriteService {
             return null;
         }
         onlineSpriteMap.put(id, sprite);
-        // 按照之前的设计，controller层负责发送消息，service层不能直接发送消息，只返回消息
-        // 但为了方便，这里直接发送消息
-        WSMessageSender.addResponse(coordinate(sprite));
+        coordinate(sprite);
         return sprite;
     }
 
     /** 坐标通知 */
-    private WSResponseVo coordinate(SpriteDo sprite) {
-        return new WSResponseVo(
+    private void coordinate(SpriteDo sprite) {
+        WSMessageSender.addResponse(
                 WSResponseEnum.MOVE,
                 new MoveVo(sprite.getId(),
                         1,
@@ -1106,6 +1103,6 @@ public class SpriteService {
         if (sprite != null) {
             sprite.setDirty(true);
         }
-        WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.SPRITE_CACHE_INVALIDATE, new SpriteCacheInvalidateVo(spriteId)));
+        WSMessageSender.addResponse(WSResponseEnum.SPRITE_CACHE_INVALIDATE, new SpriteCacheInvalidateVo(spriteId));
     }
 }
