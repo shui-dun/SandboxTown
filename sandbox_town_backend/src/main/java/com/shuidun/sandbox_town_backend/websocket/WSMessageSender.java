@@ -162,12 +162,7 @@ public class WSMessageSender {
         mq.add(response);
     }
 
-    /**
-     * 将多个响应添加到消息队列
-     */
-    public static void addResponses(List<WSResponseVo> responseList) {
-        for (var response : responseList) {
-            addResponse(response);
-        }
+    public static void addResponse(WSResponseEnum type, Object data) {
+        addResponse(new WSResponseVo(type, data));
     }
 }

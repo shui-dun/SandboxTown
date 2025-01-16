@@ -53,7 +53,7 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
         assert userName != null;
         WSMessageSender.usernameSession.remove(userName, session);
         // 发出下线事件
-        WSMessageSender.addResponse(spriteService.offline(userName));
+        spriteService.offline(userName);
         super.afterConnectionClosed(session, status);
     }
 

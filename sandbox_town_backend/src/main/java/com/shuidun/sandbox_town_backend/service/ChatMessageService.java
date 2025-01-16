@@ -3,7 +3,6 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.ChatFriendDo;
 import com.shuidun.sandbox_town_backend.bean.ChatMessageDo;
 import com.shuidun.sandbox_town_backend.bean.ChatMessageVo;
-import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.ChatMsgTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.StatusCodeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
@@ -269,13 +268,13 @@ public class ChatMessageService {
             chatFriendMapper.update(chatFriend2);
         }
         // 使用websocket消息通知目标用户
-        WSMessageSender.addResponse(new WSResponseVo(WSResponseEnum.CHAT_MESSAGE, new ChatMessageVo(
+        WSMessageSender.addResponse(WSResponseEnum.CHAT_MESSAGE, new ChatMessageVo(
                 chatMessage.getId(),
                 chatMessage.getSource(),
                 chatMessage.getTarget(),
                 chatMessage.getType(),
                 chatMessage.getMessage(),
                 chatMessage.getTime()
-        )));
+        ));
     }
 }

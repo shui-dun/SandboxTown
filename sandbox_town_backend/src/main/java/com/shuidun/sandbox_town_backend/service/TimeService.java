@@ -1,7 +1,6 @@
 package com.shuidun.sandbox_town_backend.service;
 
 import com.shuidun.sandbox_town_backend.bean.TimeFrameVo;
-import com.shuidun.sandbox_town_backend.bean.WSResponseVo;
 import com.shuidun.sandbox_town_backend.enumeration.TimeFrameEnum;
 import com.shuidun.sandbox_town_backend.enumeration.WSResponseEnum;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
@@ -73,10 +72,10 @@ public class TimeService {
     }
 
     public void notifyTimeFrame() {
-        WSMessageSender.addResponse(new WSResponseVo(
+        WSMessageSender.addResponse(
                 WSResponseEnum.TIME_FRAME_NOTIFY,
                 getTimeFrame()
-        ));
+        );
     }
 
     /** 得到当前的时间段以及结束时刻 */
