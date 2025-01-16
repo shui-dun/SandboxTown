@@ -10,8 +10,10 @@ services:
       # 在你使用Dockerfile2的同时，需要挂载数据卷./sandbox_town_frontend:/app，另外如果你不使用Linux，宿主机和docker之间的IO特别慢，可以使用命名卷替代目录挂载
       dockerfile: Dockerfile
     ports:
-      - "443:443"
-    # 如果你需要使用HTTPS，那么你需要将下面的注释取消掉
+      - "80:80"
+    # 如果你需要使用HTTPS，那么你需要将上面的port设置替换为下述内容
+    # ports:
+    #   - "443:443"
     # volumes:
     #   # 本地的证书文件挂载到容器内部
     #   # 你需要将路径替换为你自己的证书路径
