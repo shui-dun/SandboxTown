@@ -191,9 +191,30 @@ VALUES ('WOOD', '木头', '建筑的材料，也可处于烤火', 5, 40, -1),
        ('BONE', '骨头', '狗狗的最爱', 20, 10, -1),
        ('IRON_HELMET', '铁质头盔', '坚固耐用,能够抵挡强力击打', 70, 10, 40),
        ('PHOENIX_FEATHER', '凤凰之羽', '凤凰的羽毛具有无比强大的火焰和治愈效果', 100, 4, -1),
-       ('HOLY_GRAIL', '圣杯', '使疲惫的灵魂和肉体重获新生', 240, 2, 100),
-       ('FLAME_LEGGINGS', '火焰护腿', '每一步都踏着烈焰,将敌人化为灰烬', 70, 12, 40),
-       ('BAGUETTE', '法棍', '既可以食用，也可以作为攻击武器', 50, 7, 20);
+       ('HOLY_GRAIL', '圣杯', '使疲惫的灵魂和肉体重获新生', 2400, 1, 100),
+       ('FLAME_LEGGINGS', '火焰护腿', '每一步都踏着烈焰,将敌人化为灰烬', 1400, 1, 40),
+       ('BAGUETTE', '法棍', '既可以食用，也可以作为攻击武器', 50, 7, 20),
+	   ('GOLD', '金', '珍贵的金属，用于制造饰品和高级装备', 100, 5, -1),
+	   ('SILVER', '银', '常见的贵金属，具有较高的延展性', 60, 8, -1),
+	   ('COPPER', '铜', '基础金属，可用于制造工具或武器', 15, 20, -1),
+	   ('IRON', '铁', '坚固的基础金属，是武器和盔甲的主要原料', 15, 15, -1),
+	   ('DIAMOND', '钻石', '稀有而坚硬的矿石，代表永恒', 100, 2, -1),
+	   ('HOLY_GRAIL_FRAGMENT', '圣杯碎片', '圣杯破碎后留下的碎片，神秘且稀有', 500, 5, -1),
+	   ('FLAME_CRYSTAL', '火焰水晶', '蕴含火焰能量的神秘水晶', 400, 4, -1),
+	   ('SHADOW_STONE', '暗影石', '从黑暗深处提炼出的神秘矿石', 350, 5, -1),
+	   ('MAGIC_HERB', '魔法草', '一种生长于隐秘森林的草药，具有奇特的魔力', 100, 10, -1),
+	   ('ANCIENT_WOOD', '远古木材', '坚韧且带有神秘气息的木材', 80, 12, -1),
+	   ('CRYSTAL_SHARD', '水晶碎片', '透明而坚硬的碎片，闪耀着奇异的光辉', 250, 6, -1),
+	   ('BLACK_PEARL', '黑珍珠', '稀有的深海产物，充满神秘气息', 600, 3, -1),
+	   ('MYSTIC_CLAW', '神秘之爪', '未知生物遗留的爪子，充满力量', 500, 5, -1),
+	   ('DRAGON_SCALE', '龙鳞', '传说中的龙鳞片，极其坚固且带有魔法能量', 800, 2, -1),
+       ('LEATHER', '皮革', '柔软且坚韧的材料，用于制作盔甲和其他物品', 25, 30, -1),
+       ('MIRROR_SHARD', '镜子碎片', '破碎的镜子碎片，据说具有神秘力量', 120, 10, -1),
+       ('MAGIC_DUST', '魔法粉尘', '发光的粉尘，常用于魔法道具', 60, 15, -1),
+       ('SILK_THREAD', '丝线', '细腻的线，可以用来缝制高级物品', 30, 25, -1),
+       ('FEATHER', '羽毛', '普通的羽毛，可用于制作装饰品或轻便装备', 15, 40, -1),
+       ('DRAGON_BLOOD', '龙之血', '稀有而强大的材料，传说中用于制作最强大的武器', 800, 2, -1),
+       ('FROST_CRYSTAL', '冰霜水晶', '散发着寒冷气息的神秘水晶', 400, 4, -1);
 
 # 杀死精灵时的属性奖励
 # 该表按理来说可以直接放在精灵类型表中，但这里我将其和sprite_type分开：
@@ -576,3 +597,64 @@ CREATE TABLE chat_message
     CONSTRAINT fk_chat_source FOREIGN KEY (source) REFERENCES sprite (id) ON DELETE CASCADE,
     CONSTRAINT fk_chat_target FOREIGN KEY (target) REFERENCES sprite (id) ON DELETE CASCADE
 );
+
+# 创建融合主表
+CREATE TABLE fusion (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    result_item_id VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_fusion_result_item FOREIGN KEY (result_item_id) REFERENCES item_type (id)
+);
+
+# 创建融合材料表
+CREATE TABLE fusion_material (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    fusion_id INT NOT NULL,
+    item_name VARCHAR(255) NOT NULL,
+    quantity INT NOT NULL,
+    CONSTRAINT fk_fusion_material_fusion FOREIGN KEY (fusion_id) REFERENCES fusion (id) ON DELETE CASCADE,
+    CONSTRAINT fk_fusion_material_item FOREIGN KEY (item_name) REFERENCES item_type (id)
+);
+
+INSERT INTO fusion (id, result_item_id) VALUES (1, 'HOLY_GRAIL');
+INSERT INTO fusion_material (fusion_id, item_name, quantity) VALUES
+    (1, 'HOLY_GRAIL_FRAGMENT', 3),
+    (1, 'GOLD', 2),
+    (1, 'MAGIC_HERB', 1);
+INSERT INTO fusion (id, result_item_id) VALUES (2, 'FLAME_LEGGINGS');
+INSERT INTO fusion_material (fusion_id, item_name, quantity) VALUES
+    (2, 'FLAME_CRYSTAL', 2),
+    (2, 'IRON', 3),
+    (2, 'STICK', 1);
+INSERT INTO fusion (id, result_item_id) VALUES (3, 'FLYING_BOOTS');
+INSERT INTO fusion_material (fusion_id, item_name, quantity) VALUES
+    (3, 'ANCIENT_WOOD', 2),
+    (3, 'GOLD', 1),
+    (3, 'CRYSTAL_SHARD', 1);
+INSERT INTO fusion (id, result_item_id) VALUES (4, 'INVISIBLE_CAP');
+INSERT INTO fusion_material (fusion_id, item_name, quantity) VALUES
+    (4, 'SHADOW_STONE', 2),
+    (4, 'BLACK_PEARL', 1),
+    (4, 'STICK', 2);
+INSERT INTO fusion (id, result_item_id) VALUES (5, 'IRON_HELMET');
+INSERT INTO fusion_material (fusion_id, item_name, quantity) VALUES
+    (5, 'IRON', 4),
+    (5, 'WOOD', 2);
+INSERT INTO fusion (id, result_item_id) VALUES (6, 'TREASURE_CHEST');
+INSERT INTO fusion_material (fusion_id, item_name, quantity) VALUES
+    (6, 'ANCIENT_WOOD', 1),
+    (6, 'STONE', 2);
+INSERT INTO fusion (id, result_item_id) VALUES (7, 'PHOENIX_FEATHER');
+INSERT INTO fusion_material (fusion_id, item_name, quantity) VALUES
+    (7, 'FLAME_CRYSTAL', 1),
+    (7, 'FLYING_BOOTS', 1);
+INSERT INTO fusion (id, result_item_id) VALUES (8, 'LEATHER_CHEST_ARMOR');
+INSERT INTO fusion_material (fusion_id, item_name, quantity) VALUES
+    (8, 'LEATHER', 3),
+    (8, 'SILK_THREAD', 1);
+INSERT INTO fusion (id, result_item_id) VALUES (9, 'BAGUETTE');
+INSERT INTO fusion_material (fusion_id, item_name, quantity) VALUES
+    (9, 'BREAD', 10);
+INSERT INTO fusion (id, result_item_id) VALUES (10, 'SAW');
+INSERT INTO fusion_material (fusion_id, item_name, quantity) VALUES
+    (10, 'IRON', 2),
+    (10, 'STICK', 2);
