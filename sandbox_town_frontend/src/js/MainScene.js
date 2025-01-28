@@ -173,6 +173,7 @@ class MainScene extends Phaser.Scene {
         this.load.image("TREE", require("@/assets/img/TREE.png"));
         this.load.image("TOMBSTONE", require("@/assets/img/TOMBSTONE.png"));
         this.load.image("GREEK_TEMPLE", require("@/assets/img/GREEK_TEMPLE.png"));
+        this.load.image("FACTORY", require("@/assets/img/FACTORY.png"));
 
         // 围墙
         this.load.image("WALL", require("@/assets/img/WALL.png"));
