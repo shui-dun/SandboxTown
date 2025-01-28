@@ -337,5 +337,53 @@
 				]
 			}
 		]
+	},
+	"FACTORY": {
+		"type": "fromPhysicsEditor",
+		"label": "FACTORY",
+		"isStatic": false,
+		"density": 0.10000000149011612,
+		"restitution": 0,
+		"friction": 0.10000000149011612,
+		"frictionAir": 0.009999999776482582,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": [
+			{
+				"label": "",
+				"isSensor": false,
+				"vertices": [
+					[ { "x":664, "y":292 }, { "x":339, "y":307 }, { "x":219, "y":443 }, { "x":221, "y":768 }, { "x":794, "y":767 }, { "x":811, "y":614 } ]
+				]
+			}
+		]
+	},
+	"FACTORY-2": {
+		"type": "fromPhysicsEditor",
+		"label": "FACTORY-2",
+		"isStatic": false,
+		"density": 0.1,
+		"restitution": 0,
+		"friction": 0.1,
+		"frictionAir": 0.01,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": [
+			{
+				"label": "",
+				"isSensor": false,
+				"vertices": [
+					[ { "x":796, "y":777 }, { "x":732, "y":566 }, { "x":269, "y":567 }, { "x":223, "y":768 } ]
+				]
+			}
+		]
 	}
 }

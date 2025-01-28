@@ -485,3 +485,71 @@ List of all bodies:
 
 
 
+
+    Name:               FACTORY
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 512.000,512.000 }
+        Size:           { 1024.000,1024.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (282, 255)  , (-291, 256)  , (-293, -69)  , (-173, -205)  , (152, -220)  , (299, 102) 
+
+        Convex sub polygons:
+
+             (299, 102)  , (282, 255)  , (-291, 256)  , (-293, -69)  , (-173, -205)  , (152, -220) 
+
+
+
+
+    Name:               FACTORY-2
+    Custom values (from the <bodies> section):
+        Identifier:     0
+        FixedRotation:  NO
+
+        AnchorPointRel: { 0.500,0.500 }
+        AnchorPointAbs: { 512.000,512.000 }
+        Size:           { 1024.000,1024.000 }
+    
+    List of all fixtures:
+
+        ----------------------------------------------------------
+        fixtureType:             POLYGON
+
+        Custom values (from the <fixtures> section):
+            density:             2
+            friction:            0
+            restitution:         0
+            isSensor:            NO
+            filter_groupIndex:   0
+            filter_categoryBits: 1
+            filter_maskBits:     65535
+
+
+        Hull polygon:
+             (284, 265)  , (-289, 256)  , (-243, 55)  , (220, 54) 
+
+        Convex sub polygons:
+
+             (-289, 256)  , (-243, 55)  , (220, 54)  , (284, 265) 
+
+
+
