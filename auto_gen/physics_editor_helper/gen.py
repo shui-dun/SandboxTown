@@ -10,10 +10,9 @@ a.txt和a.json都是PhysicsEditor生成的
 而store-2、tree-2这种代表物体只取下面一部分的形状（玩家只与建筑只有下半部分会碰撞，可直接穿过建筑上半部分，显得有立体感）
 """
 
-
 def genCollapseShapes():
     """生成collapseShapes.json：只取下面一部分的凸多面体列表（用于碰撞检测，以及放置建筑时的碰撞检测）"""
-    with open("data/a.json", encoding='utf8') as f:
+    with open("physics_editor_helper/data/a.json", encoding='utf8') as f:
         jsonData = json.load(f)
     needToModify = []
     for key in jsonData.keys():
@@ -24,14 +23,13 @@ def genCollapseShapes():
         jsonData[originKey] = jsonData[key]
         jsonData[originKey]["label"] = originKey
         del jsonData[key]
-    with open("../../sandbox_town_frontend/src/assets/json/collapseShapes.json", 'w', encoding='utf8') as f:
+    with open("../sandbox_town_frontend/src/assets/json/collapseShapes.json", 'w', encoding='utf8') as f:
         # json.dump(jsonData, f, ensure_ascii=False, indent=4)
         json.dump(jsonData, f, ensure_ascii=False)
 
-
 def genClickShape():
     """生成clickShapes.json：完整凹多面体（用于点击） """
-    with open('data/a.txt') as f:
+    with open('physics_editor_helper/data/a.txt') as f:
         s = f.read()
         nameList = re.findall(r'Name:\s+(\S+)', s)
         sizeList = re.findall(r'Size:\s+\{\s*(\S+),(\S+)\s*\}', s)
@@ -55,10 +53,9 @@ def genClickShape():
                 # 也不知道size[0]和size[1]写反了没有，因为目前是正方形
                 jsonData[name].append(axis[0] + int(size[0] / 2))
                 jsonData[name].append(axis[1] + int(size[1] / 2))
-        with open("../../sandbox_town_frontend/src/assets/json/clickShapes.json", 'w', encoding='utf8') as f:
+        with open("../sandbox_town_frontend/src/assets/json/clickShapes.json", 'w', encoding='utf8') as f:
             # json.dump(jsonData, f, ensure_ascii=False, indent=4)
             json.dump(jsonData, f, ensure_ascii=False)
-
 
 def genBitmap():
     """生成bitmap.json：只取下面一部分的凹多面体（用于寻路算法，需要配合下面要将的算法）"""
@@ -79,7 +76,7 @@ def genBitmap():
         # 将bitmap保存图片
         bitmapImg.save(path)
 
-    with open("data/a.txt", encoding='utf8') as f:
+    with open("physics_editor_helper/data/a.txt", encoding='utf8') as f:
         s = f.read()
         nameList = re.findall(r'Name:\s+(\S+)', s)
         sizeList = re.findall(r'Size:\s+\{\s*(\S+),(\S+)\s*\}', s)
@@ -105,13 +102,12 @@ def genBitmap():
             size = sizeList[i]
             polygon = polygonList[i]
             # 生成bitmap
-            foo(size[0], size[1], polygon, '../../sandbox_town_backend/src/main/resources/static/bitmap/' + name + '.png')
+            foo(size[0], size[1], polygon, '../sandbox_town_backend/src/main/resources/static/bitmap/' + name + '.png')
 
-
-
-
-
-if __name__ == "__main__":
+def genAll():
     genCollapseShapes()
     genClickShape()
     genBitmap()
+
+if __name__ == '__main__':
+    genAll()

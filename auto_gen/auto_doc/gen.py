@@ -2,7 +2,7 @@ import re
 
 def parseSql(tableName, columnOfImgName=None):
     # 读取import.sql
-    with open('../../sandbox_town_db/import.sql', encoding='utf-8') as f:
+    with open('../sandbox_town_db/import.sql', encoding='utf-8') as f:
         sql = f.read()
 
 
@@ -81,15 +81,18 @@ def genMdTable(head, data, columns):
 
     return title + header + separator + content
 
-if __name__ == '__main__':
-    with open('../../doc/effect.md', 'w', encoding='utf-8') as f:
+def genAll():
+    with open('../doc/effect.md', 'w', encoding='utf-8') as f:
         f.write(
             genMdTable('效果列表', parseSql('effect', 'id'),
                     {'name': '名称', 'img': '图像', 'description': '描述'})
         )
 
-    with open('../../doc/item.md', 'w', encoding='utf-8') as f:
+    with open('../doc/item.md', 'w', encoding='utf-8') as f:
         f.write(
             genMdTable('物品列表', parseSql('item_type', 'id'),
                     {'name': '名称', 'img': '图像', 'description': '描述'})
         )
+
+if __name__ == '__main__':
+    genAll()
