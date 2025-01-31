@@ -1,7 +1,7 @@
 import re
 import os
 
-def parseSql(tableName, columnOfImgName=None):
+def parseSql(tableName, columnOfImgName=None, imgSize=120):
     """
     从 import.sql 中提取某个表的 INSERT 信息，返回一个 list[dict]。
     例如将
@@ -11,6 +11,7 @@ def parseSql(tableName, columnOfImgName=None):
     (7, 8, 9);
     转化为
     [{a: 1, b: 2, c: 3}, {a: 4, b: 5, c: 6}, {a: 7, b: 8, c: 9}]
+    columnOfImgName表示要生成 img 列的列名（如果需要），imgSize表示图片大小
     """
     with open('../sandbox_town_db/import.sql', encoding='utf-8') as f:
         sql = f.read()
@@ -56,7 +57,7 @@ def parseSql(tableName, columnOfImgName=None):
     if columnOfImgName:
         for row in all_rows:
             # 例如 `<img src="../sandbox_town_frontend/src/assets/img/WOOD.png" width="120" />`
-            row['img'] = f'<img src="../sandbox_town_frontend/src/assets/img/{row[columnOfImgName]}.png" width="120" />'
+            row['img'] = f'<img src="../sandbox_town_frontend/src/assets/img/{row[columnOfImgName]}.png" width="{imgSize}" />'
 
     return all_rows
 
@@ -167,7 +168,7 @@ def genEnum():
 def genFusionDoc():
     """生成物品合成文档 fusion.md"""
     # 1) 先获取所有带图片的物品信息：每个 item 包含 {id, name, description, img, ...}
-    items = parseSql('item_type', 'id')
+    items = parseSql('item_type', 'id', 50)
     item_info = {item['id']: item for item in items}
 
     # 2) 获取所有融合结果 (fusion 表) 和 材料表 (fusion_material)
