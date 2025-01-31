@@ -2,49 +2,63 @@ import re
 import os
 
 def parseSql(tableName, columnOfImgName=None):
-    # 读取import.sql
+    """
+    从 import.sql 中提取某个表的 INSERT 信息，返回一个 list[dict]。
+    例如将
+    INSERT INTO tableName (a, b, c) VALUES 
+    (1, 2, 3),
+    (4, 5, 6),
+    (7, 8, 9);
+    转化为
+    [{a: 1, b: 2, c: 3}, {a: 4, b: 5, c: 6}, {a: 7, b: 8, c: 9}]
+    """
     with open('../sandbox_town_db/import.sql', encoding='utf-8') as f:
         sql = f.read()
 
+    # 注意：要让 tableName 在正则中安全，需要先对其做 re.escape
+    # 这个正则会捕捉:
+    #   1) INSERT INTO tableName (a,b,c) VALUES (1,2,3),(4,5,6);
+    #   2) 可以有多个 INSERT INTO 同一个表，程序会将他们全部捕捉并拼接
+    # group(1) => 字段列表
+    # group(2) => 所有的多行值 (1,2,3),(4,5,6)
+    regex = r'INSERT INTO\s+{}\s*\(([^)]*)\)\s*VALUES\s*((?:\(.*?\)\s*,?\s*)+);'.format(re.escape(tableName))
+    pattern = re.compile(regex, re.IGNORECASE | re.DOTALL)
+    matches = pattern.findall(sql)
 
-    # 从中找到tableName表的数据（忽略大小写）
-    # INSERT INTO tableName (a, b, c) VALUES 
-    # (1, 2, 3),
-    # (4, 5, 6),
-    # (7, 8, 9);
-    regex = r'INSERT INTO {} \((.*?)\)(.*?)\);'.format(tableName)
-    pattern = re.compile(regex, re.IGNORECASE | re.MULTILINE | re.DOTALL)
-    matched = pattern.search(sql).group()
+    all_rows = []
 
-    # 将其转化为python的数据结构: [{a: 1, b: 2, c: 3}, {a: 4, b: 5, c: 6}, {a: 7, b: 8, c: 9}]
-    def convert_sql_to_dict(sql_string):
-        # Splitting the string to extract field names and values
-        field_names_string = sql_string[sql_string.find("(")+1:sql_string.find(")")]
-        field_names = [name.strip() for name in field_names_string.split(",")]
+    for (fields_str, values_str) in matches:
+        # 把字段名字拆开
+        field_names = [fn.strip() for fn in fields_str.split(',')]
 
-        values_string = sql_string[sql_string.find("VALUES")+7:sql_string.rfind(");")]
-        values_lists = values_string.split("),")
+        # 处理 values_str 中的多组 ( ... ), ( ... )
+        # 例如 (1,2,3),(4,5,6)
+        # 用一个 split 或正则切分
+        row_strings = re.split(r'\)\s*,\s*\(', values_str.strip())
+        # 修整一下开头结尾的括号
+        if row_strings:
+            # 如果 row_strings[0] 以 '(' 开头，则去掉 '('
+            if row_strings[0].startswith('('):
+                row_strings[0] = row_strings[0][1:]
+            # 如果 row_strings[-1] 以 ')' 结尾，则去掉 ')'
+            if row_strings[-1].endswith(')'):
+                row_strings[-1] = row_strings[-1][:-1]
 
-        dict_list = []
+        # 将每组数据解析为 dict
+        for row_str in row_strings:
+            # 以逗号切割，并去掉多余的引号
+            values = [v.strip().strip("'") for v in row_str.split(',')]
+            # 拉链成 key-value
+            row_dict = dict(zip(field_names, values))
+            all_rows.append(row_dict)
 
-        # Looping through each set of values and associating them with field names
-        for values in values_lists:
-            values = values[values.find("(")+1:].strip()
-            # Stripping quotes from values
-            values = [value.strip().strip("'") for value in values.split(",")]
-            dict_list.append(dict(zip(field_names, values)))
-
-        return dict_list
-
-    dict_list = convert_sql_to_dict(matched)
-
-    # 添加图片路径
+    # 如果指定了 columnOfImgName，则给每行增加一个 img 字段
     if columnOfImgName:
-        for item in dict_list:
-            item['img'] = '<img src="../sandbox_town_frontend/src/assets/img/{}.png" width="120" />'.format(item[columnOfImgName])
+        for row in all_rows:
+            # 例如 `<img src="../sandbox_town_frontend/src/assets/img/WOOD.png" width="120" />`
+            row['img'] = f'<img src="../sandbox_town_frontend/src/assets/img/{row[columnOfImgName]}.png" width="120" />'
 
-    return dict_list
-
+    return all_rows
 
 def genMdTable(head, data, columns):
     """
@@ -150,10 +164,72 @@ def genEnum():
     sprite_ids = [row['type'] for row in sprite_data]
     write_enum_file('SpriteTypeEnum.java', 'SpriteTypeEnum', sprite_ids)
 
+def genFusionDoc():
+    """生成物品合成文档 fusion.md"""
+    # 1) 先获取所有带图片的物品信息：每个 item 包含 {id, name, description, img, ...}
+    items = parseSql('item_type', 'id')
+    item_info = {item['id']: item for item in items}
+
+    # 2) 获取所有融合结果 (fusion 表) 和 材料表 (fusion_material)
+    fusions = parseSql('fusion')
+    materials = parseSql('fusion_material')
+
+    # 3) 按 fusion_id 对材料分组
+    #   material_groups[fusion_id] = [ "木头<img> x3", "石头<img> x2", ... ]
+    material_groups = {}
+    for mat in materials:
+        fid = mat['fusion_id']
+        if fid not in material_groups:
+            material_groups[fid] = []
+
+        mat_item = item_info.get(mat['item_name'], {})
+        mat_name = mat_item.get('name', mat['item_name'])  # 如果没找到就用原 id
+        mat_img = mat_item.get('img', '')                  # 图片可能为空
+        mat_qty = mat['quantity']
+
+        # 这里既显示名称也显示图片
+        mat_str = f"{mat_name}{mat_img} ×{mat_qty}"
+        material_groups[fid].append(mat_str)
+
+    # 4) 组装合成表
+    #    每一行形如 {'result': 'xxx<img>', 'materials': '原料1<img> x1, 原料2<img> x2', 'description': 'xxx'}
+    fusion_data = []
+    for fusion in fusions:
+        fid = fusion['id']
+        res_item_id = fusion['result_item_id']
+        res_item = item_info.get(res_item_id, {})
+        res_name = res_item.get('name', res_item_id)
+        res_img = res_item.get('img', '')
+        res_desc = res_item.get('description', '')
+
+        # “合成结果”列，包含名称和图片
+        result_str = f"{res_name}{res_img}"
+        # “所需材料”列
+        materials_str = ', '.join(material_groups.get(fid, []))
+
+        fusion_data.append({
+            'result': result_str,
+            'materials': materials_str,
+            'description': res_desc
+        })
+
+    # 5) 写入 ../doc/fusion.md
+    with open('../doc/fusion.md', 'w', encoding='utf-8') as f:
+        f.write(genMdTable(
+            '物品合成表',
+            fusion_data,
+            {
+                'result': '合成结果',
+                'materials': '所需材料',
+                'description': '物品描述'
+            }
+        ))
+
 def genAll():
     genEffectDoc()
     genItemDoc()
     genEnum()
+    genFusionDoc()
 
 if __name__ == '__main__':
     genAll()
