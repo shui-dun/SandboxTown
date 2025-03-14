@@ -34,7 +34,8 @@ public enum StatusCodeEnum {
     MESSAGE_CONTENT_EMPTY(25, "消息内容为空"),
     PARAMETER_ERROR(26, "参数不合法"),
     SPRITE_NOT_FOUND(27, "精灵不存在"),
-    BUILDING_NOT_FOUND(28, "建筑不存在");
+    BUILDING_NOT_FOUND(28, "建筑不存在"),
+    NO_FUSION_RECIPE(29, "没有匹配的合成配方");
 
     private final int code;
     private final String msg;
