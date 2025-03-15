@@ -441,6 +441,8 @@ class MainScene extends Phaser.Scene {
                         emitter.emit('TREE_ARRIVE', { "initator": this.myUsername, "target": targetID });
                     } else if (type === 'STORE') {
                         this.game.events.emit('forward', { name: 'showStore', data: targetID });
+                    } else if (type === 'FACTORY') {
+                        this.game.events.emit('forward', { name: 'showFactory', data: null });
                     }
                 } else if (destSprite != null) {
                     // 发起交互事件

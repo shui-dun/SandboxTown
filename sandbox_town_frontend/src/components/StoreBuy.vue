@@ -7,6 +7,7 @@
 import mixin from '@/js/mixin';
 import GridPanel from './GridPanel.vue';
 import StoreItemBuyDetail from './StoreItemBuyDetail.vue';
+import { ITEM_LABELS } from '@/js/constants.js';
 
 export default {
     props: {
@@ -23,16 +24,8 @@ export default {
         return {
             showStoreItemBuyDetail: false,
             // 用户可以买的物品
-            items: [
-            ],
-            labels: [
-                { 'name': 'ALL', 'prompt': '全部'},
-                { 'name': 'FOOD', 'prompt': '食品' },
-                { 'name': 'USABLE', 'prompt': '用品' },
-                { 'name': 'WEAPON', 'prompt': '武器' },
-                { 'name': 'EQUIPMENT', 'prompt': '装备' },
-                { 'name': 'OTHER', 'prompt': '其他' },
-            ],
+            items: [],
+            labels: ITEM_LABELS,
             // 选择的物品
             selectedItem: null,
             // 想要买入的数目

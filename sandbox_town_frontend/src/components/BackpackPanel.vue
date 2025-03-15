@@ -9,6 +9,7 @@
 import GridPanel from './GridPanel.vue';
 import ItemDetail from './ItemDetail.vue';
 import mixin from '@/js/mixin.js';
+import { ITEM_LABELS } from '@/js/constants.js';
 
 export default {
     components: {
@@ -17,16 +18,8 @@ export default {
     },
     data() {
         return {
-            items: [
-            ],
-            labels: [
-                { 'name': 'ALL', 'prompt': '全部' },
-                { 'name': 'FOOD', 'prompt': '食品' },
-                { 'name': 'USABLE', 'prompt': '用品' },
-                { 'name': 'WEAPON', 'prompt': '武器' },
-                { 'name': 'EQUIPMENT', 'prompt': '装备' },
-                { 'name': 'OTHER', 'prompt': '其他' },
-            ],
+            items: [],
+            labels: ITEM_LABELS,
             showItemDetail: false,
             // 选择的物品
             selectedItem: null,
