@@ -36,11 +36,11 @@ export default {
             }
             this.handheldItemIndex = index;
             // 向后端发送请求，设置手持物品
-            mixin.myPOST(
+            mixin.myPOSTUrlEncoded(
                 '/rest/item/hold',
-                new URLSearchParams({
+                {
                     itemId: item.id,
-                })
+                }
             );
         },
         // 点击右键，查看物品信息

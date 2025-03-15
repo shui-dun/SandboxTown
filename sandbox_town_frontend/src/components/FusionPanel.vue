@@ -138,8 +138,8 @@ export default {
             });
 
             // 调用后端检查融合接口
-            await mixin.myPOST('/rest/fusion/check', 
-                new URLSearchParams({ request: JSON.stringify(items) }), 
+            await mixin.myPOSTUrlEncoded('/rest/fusion/check', 
+                { request: JSON.stringify(items) }, 
                 async (data) => {
                     if (data == null) {
                         console.error('融合检查失败');
@@ -147,7 +147,7 @@ export default {
                     }
                     // 通过后端接口获取物品类型详细信息
                     const itemTypeDetail = await mixin.myGET('/item/itemTypeDetail', 
-                        new URLSearchParams({ itemType: data.resultItem }));
+                        { itemType: data.resultItem });
                     if (itemTypeDetail) {
                         this.fusionResult = {
                             name: itemTypeDetail.name,
@@ -170,8 +170,8 @@ export default {
             });
 
             // 调用后端执行融合接口
-            await mixin.myPOST('/rest/fusion/execute', 
-                new URLSearchParams({ request: JSON.stringify(items) }), 
+            await mixin.myPOSTUrlEncoded('/rest/fusion/execute', 
+                { request: JSON.stringify(items) }, 
                 () => {
                     this.selectedItems = [];
                     this.fusionResult = defaultFusionResult;

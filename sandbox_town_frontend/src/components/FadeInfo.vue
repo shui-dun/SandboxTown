@@ -88,9 +88,9 @@ export default {
                 id = mixin.hashName(id);
             }
             mixin.myGET('/rest/item/itemTypeDetail',
-                new URLSearchParams({
+                {
                     itemType: msg.item,
-                }),
+                },
                 (data) => {
                     if (msg.count > 0) {
                         this.showInfo(`${id}获得了${msg.count}个${data.name}`);

@@ -63,11 +63,11 @@ export default {
     methods: {
         async moveToBackpack() {
             // 向后端发送请求，设置背包物品
-            await mixin.myPOST(
+            await mixin.myPOSTUrlEncoded(
                 '/rest/item/putInBackpack',
-                new URLSearchParams({
+                {
                     itemId: this.itemId,
-                }),
+                },
                 () => {
                     this.$emit('onConfirm', 'BACKPACK');
                 }
@@ -75,11 +75,11 @@ export default {
         },
         async moveToItembar() {
             // 向后端发送请求，设置物品栏物品
-            mixin.myPOST(
+            mixin.myPOSTUrlEncoded(
                 '/rest/item/putInItemBar',
-                new URLSearchParams({
+                {
                     itemId: this.itemId,
-                }),
+                },
                 () => {
                     this.$emit('onConfirm', 'ITEMBAR');
                 }
@@ -87,11 +87,11 @@ export default {
         },
         async hold() {
             // 向后端发送请求，设置手持物品
-            mixin.myPOST(
+            mixin.myPOSTUrlEncoded(
                 '/rest/item/hold',
-                new URLSearchParams({
+                {
                     itemId: this.itemId,
-                }),
+                },
                 () => {
                     this.$emit('onConfirm', 'HAND');
                 }
@@ -100,9 +100,9 @@ export default {
         // 装备
         async equip() {
             // 向后端发送请求，设置装备
-            await mixin.myPOST(
+            await mixin.myPOSTUrlEncoded(
                 "/rest/item/equip",
-                new URLSearchParams({ itemId: this.itemId }),
+                { itemId: this.itemId },
                 () => {
                     this.$emit('onConfirm', 'EQUIP');
                 }
@@ -110,7 +110,7 @@ export default {
         },
         async use() {
             // 使用
-            await mixin.myPOST("/rest/item/use", new URLSearchParams({ itemId: this.itemId }));
+            await mixin.myPOSTUrlEncoded("/rest/item/use", { itemId: this.itemId });
             this.$emit('onConfirm', 'USE');
         },
         cancel() {
@@ -118,7 +118,7 @@ export default {
         }
     },
     async created() { // created比mounted先执行
-        this.item = await mixin.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
+        this.item = await mixin.myGET("/rest/item/itemDetail", { itemId: this.itemId });
         // 设置图片
         this.item.image = require(`@/assets/img/${this.item.itemType}.png`);
         let equipList = ['HELMET', 'CHEST', 'LEG', 'BOOTS'];

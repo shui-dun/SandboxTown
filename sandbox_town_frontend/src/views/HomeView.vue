@@ -117,7 +117,7 @@ export default {
         },
         doLogout() {
             // 向后端发送请求，退出登录
-            mixin.myPOST('/rest/user/logout', null, () => {
+            mixin.myPOSTUrlEncoded('/rest/user/logout', null, () => {
                 this.isLogin = false;
                 this.curTab = 'login';
             });

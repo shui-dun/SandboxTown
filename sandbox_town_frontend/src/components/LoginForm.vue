@@ -40,13 +40,13 @@ export default {
                 mixin.fadeInfoShow('密码不能为空');
                 return;
             }
-            mixin.myPOST(
+            mixin.myPOSTUrlEncoded(
                 '/rest/user/login',
-                new URLSearchParams({
+                {
                     username: 'USER_' + this.username,
                     password: this.password,
                     rememberMe: this.rememberMe,
-                }),
+                },
                 () => {
                     mixin.fadeInfoShow('登录成功');
                     this.$emit('login');

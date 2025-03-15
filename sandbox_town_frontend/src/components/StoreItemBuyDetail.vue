@@ -78,12 +78,12 @@ export default {
         },
         async confirm() {
             // 处理购买请求
-            await mixin.myPOST('/rest/store/buy',
-                new URLSearchParams({
+            await mixin.myPOSTUrlEncoded('/rest/store/buy',
+                {
                     store: this.storeId,
                     item: this.itemType,
                     amount: this.number,
-                }),
+                },
                 () => {
                     // 显示提示信息
                     mixin.fadeInfoShow(`购买${this.number}个${this.storeItemType.itemTypeObj.name}`)
@@ -97,7 +97,7 @@ export default {
         }
     },
     async created() {
-        this.storeItemType = await mixin.myGET("/rest/store/getByStoreAndItemType", new URLSearchParams({ store: this.storeId, itemType: this.itemType }));
+        this.storeItemType = await mixin.myGET("/rest/store/getByStoreAndItemType", { store: this.storeId, itemType: this.itemType });
         this.storeItemType.image = require(`@/assets/img/${this.storeItemType.itemTypeObj.id}.png`);
         // 添加数目
         this.maxNumber = this.storeItemType.count;

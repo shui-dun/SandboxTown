@@ -27,10 +27,8 @@ export default {
         onProgressComplete() {
             this.showProcessBar = false;
             // 向后端发送摘苹果请求
-            mixin.myPOST('/rest/tree/pickApple',
-                new URLSearchParams({
-                    treeId: this.target,
-                }),
+            mixin.myPOSTUrlEncoded('/rest/tree/pickApple',
+                {treeId: this.target},
                 () => {
                     mixin.fadeInfoShow('获得苹果');
                 },
@@ -43,9 +41,9 @@ export default {
             this.initator = data.initator;
             // 首先询问后端，检查是否可以摘苹果
             mixin.myGET('/rest/tree/canPickApple',
-                new URLSearchParams({
+                {
                     treeId: this.target,
-                }),
+                },
                 () => {
                     // 如果可以摘苹果
                     this.showProcessBar = true;

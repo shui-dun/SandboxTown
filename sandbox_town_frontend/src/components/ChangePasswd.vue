@@ -56,12 +56,12 @@ export default {
                 return;
             }
             // 向后端发送修改密码请求
-            await mixin.myPOST(
+            await mixin.myPOSTUrlEncoded(
                 '/rest/user/changePassword',
-                new URLSearchParams({
+                {
                     oldPassword: this.oldpassword,
                     newPassword: this.newpassword,
-                }),
+                },
                 () => {
                     mixin.fadeInfoShow('修改密码成功');
                 },

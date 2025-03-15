@@ -47,12 +47,12 @@ export default {
                 return;
             }
             // 向后端发送注册请求
-            mixin.myPOST(
+            mixin.myPOSTUrlEncoded(
                 '/rest/user/signup',
-                new URLSearchParams({
+                {
                     usernameSuffix: this.username,
                     password: this.password,
-                }),
+                },
                 () => {
                     mixin.fadeInfoShow('注册成功');
                     this.$emit('signup');

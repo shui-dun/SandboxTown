@@ -79,13 +79,13 @@ export default {
         },
         async confirm() {
             // 处理卖出请求
-            await mixin.myPOST('/rest/store/sell',
-                new URLSearchParams({
+            await mixin.myPOSTUrlEncoded('/rest/store/sell',
+                {
                     store: this.storeId,
                     itemId: this.itemId,
                     amount: this.number,
                     perPrice: this.soldPrice,
-                }),
+                },
                 () => {
                     // 显示提示信息
                     mixin.fadeInfoShow(`卖出${this.number}个${this.item.itemTypeObj.name}`)
@@ -100,10 +100,10 @@ export default {
         }
     },
     async created() {
-        this.item = await mixin.myGET("/rest/item/itemDetail", new URLSearchParams({ itemId: this.itemId }));
+        this.item = await mixin.myGET("/rest/item/itemDetail", { itemId: this.itemId });
         this.item.image = require(`@/assets/img/${this.item.itemType}.png`);
         // 评估能买多少钱
-        this.soldPrice = await mixin.myGET("/rest/store/soldPrice", new URLSearchParams({ store: this.storeId, itemId: this.itemId }));
+        this.soldPrice = await mixin.myGET("/rest/store/soldPrice", { store: this.storeId, itemId: this.itemId });
         this.basicInfo = [
             { key: '🔢 数目', value: this.item.itemCount },
             { key: '⭐ 等级', value: this.item.level },

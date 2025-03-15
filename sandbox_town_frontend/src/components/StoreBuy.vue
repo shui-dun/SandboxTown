@@ -35,9 +35,9 @@ export default {
     mounted() {
         // 获得商品列表
         mixin.myGET('/rest/store/listByStore',
-            new URLSearchParams({
+            {
                 store: this.storeId,
-            }),
+            },
         ).then((goods) => {
             let itemLst = [];
             goods.forEach((element) => {

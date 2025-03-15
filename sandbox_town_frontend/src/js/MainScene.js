@@ -196,7 +196,7 @@ class MainScene extends Phaser.Scene {
         // 得到地图信息
         this.gameMap = await mixin.myGET('/rest/gamemap/getGameMap');
 
-        let mySpriteInfo = await mixin.myPOST('/rest/sprite/online');
+        let mySpriteInfo = await mixin.myPOSTUrlEncoded('/rest/sprite/online');
         this.myUsername = mySpriteInfo.id;
 
         // 得到当前在线的角色列表
@@ -248,7 +248,7 @@ class MainScene extends Phaser.Scene {
         }
 
         // 获得登录奖励
-        let loginReward = await mixin.myPOST('/rest/user/enterGameToReceiveReward');
+        let loginReward = await mixin.myPOSTUrlEncoded('/rest/user/enterGameToReceiveReward');
         if (loginReward != 0) {
             mixin.fadeInfoShow('登录奖励: ' + loginReward + '金币💰');
         }
