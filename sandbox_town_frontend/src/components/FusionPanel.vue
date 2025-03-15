@@ -1,30 +1,37 @@
 <template>
     <NavGroup @close="$emit('close')">
         <template v-slot:0>
-            <div class="fusion-container">
-                <h4>🔨 物品融合</h4>
-                <div class="panels-container">
+            <div>
+                <div style="display: flex; align-items: start; gap: 10px;">
                     <!-- 背包中的物品选择区域 -->
-                    <GridPanel title="选择要融合的物品" :items="backpackItems" :labels="labels" @clickGridItem="onClickBackpackItem" />
-                    
-                    <!-- 被选中用于融合的物品区域 -->
-                    <GridPanel title="已选择的物品" :items="selectedItems" :labels="selectedItemLabels" @clickGridItem="removeSelectedItem" />
-                </div>
-                
-                <div class="bottom-row">
-                    <!-- 可以被融合得到的物品 -->
-                    <div v-if="fusionResult" class="fusion-result">
-                        <h5>可融合为：</h5>
-                        <div class="result-item" @click="executeFusion">
-                            <img :src="fusionResult.image" :alt="fusionResult.name" class="fusion-item-image" />
-                            <div class="item-name">{{ fusionResult.name }}</div>
-                            <div class="caption">{{ fusionResult.description }}</div>
-                        </div>
+                    <div>
+                        <GridPanel title="选择要融合的物品" :items="backpackItems" :labels="labels" @clickGridItem="onClickBackpackItem" />
                     </div>
                     
-                    <!-- 融合公式链接 -->
-                    <div class="fusion-formula">
-                        <a href="https://github.com/shui-dun/SandboxTown/blob/master/doc/fusion.md" target="_blank">
+                    <!-- 被选中用于融合的物品区域 -->
+                    <div>
+                        <GridPanel title="已选择的物品" :items="selectedItems" :labels="selectedItemLabels" @clickGridItem="removeSelectedItem" />
+                    </div>
+                </div>
+                <div style="margin-top: 20px; display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                    <div style="margin: 0; background: #f9f9f9; padding: 5px 10px; border-radius: 8px;">
+                        可融合为 {{ fusionResult.name }}
+                    </div>
+                    <div @click="executeFusion" style="cursor: pointer;">
+                        <img
+                            :src="fusionResult.image"
+                            :alt="fusionResult.name"
+                            class="fusion-item-image"
+                            style="max-width: 50px; max-height: 50px; border-radius: 8px;"
+                            :title="fusionResult.description + ' (点击融合)'"
+                        />
+                    </div>
+                    <div>
+                        <a
+                            href="https://github.com/shui-dun/SandboxTown/blob/master/doc/fusion.md"
+                            target="_blank"
+                            style="text-decoration: none; color: #333; background: #f9f9f9; padding: 5px 10px; border-radius: 8px;"
+                        >
                             📖 查看融合公式
                         </a>
                     </div>
@@ -50,7 +57,11 @@ export default {
         return {
             backpackItems: [],
             selectedItems: [],
-            fusionResult: null,
+            fusionResult: {
+                name: '',
+                description: '',
+                image: require("@/assets/img/PLACEHOLDER.jpg"),
+            },
             labels: ITEM_LABELS,
         };
     },
@@ -92,7 +103,7 @@ export default {
         onClickBackpackItem(item) {
             // Add item to selected items
             const selectedItem = {...item};
-            selectedItem.caption = { num: 1 }; // Always add 1 item for fusion
+            selectedItem.caption = { num: 1 }; // todo 怎么会直接加1呢
             this.selectedItems.push(selectedItem);
             
             // Update fusion result
@@ -161,89 +172,4 @@ export default {
 </script>
 
 <style scoped>
-.fusion-container {
-    max-width: 1200px;
-    padding: 20px;
-}
-
-.panels-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.panels-container > * {
-    flex: 1;
-}
-
-.bottom-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 10px;
-    background-color: #f0f0f0;
-    border-radius: 5px;
-}
-
-.fusion-result {
-    text-align: center;
-    flex: 1;
-}
-
-.result-item {
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #fff;
-    transition: background-color 0.2s;
-}
-
-.result-item:hover {
-    background-color: #e0e0e0;
-}
-
-.fusion-item-image {
-    width: 64px;
-    height: 64px;
-}
-
-.item-name {
-    margin-top: 5px;
-    font-weight: bold;
-}
-
-.fusion-formula {
-    margin-left: 20px;
-    padding-top: 30px;
-}
-
-.fusion-formula a {
-    text-decoration: none;
-    color: #1165d5;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 5px;
-    display: inline-block;
-}
-
-f.fusion-formula a:hover {
-    background-color: #e0e0e0;
-}
-
-h4 {
-    margin-bottom: 20px;
-}
-
-h5 {
-    margin-bottom: 10px;
-}
-
-.caption {
-    background-color: #ddd;
-    border-radius: 5px;
-    margin-top: 5px;
-    font-size: 14px;
-    padding: 2px 5px;
-}
 </style>
