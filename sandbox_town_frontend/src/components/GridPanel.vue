@@ -73,10 +73,10 @@ export default {
     },
     mounted() {
         this.filterItems();
-        // 监听items变化
+        // 监听 items 变化(包含 push 等事件)
         this.$watch('items', () => {
             this.filterItems();
-        });
+        }, { deep: true }); // 如果不加 deep: true, 则只能监听到 items 的引用变化，而不是 items 内部元素的变化
     },
     methods: {
         filterItemsByLabel(label) {

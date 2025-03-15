@@ -9,6 +9,8 @@ import com.shuidun.sandbox_town_backend.mapper.FusionMapper;
 import com.shuidun.sandbox_town_backend.mapper.FusionMaterialMapper;
 import com.shuidun.sandbox_town_backend.websocket.WSMessageSender;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ public class FusionService {
     /**
      * Check what would be the result of fusion with given items
      */
+    @Nullable
     public FusionResultVo checkFusion(String spriteId, FusionRequestDto request) {
         // Get all items and their types
         Map<String, ItemBo> items = request.getItems().keySet().stream()
@@ -96,7 +99,7 @@ public class FusionService {
             }
         }
 
-        throw new BusinessException(StatusCodeEnum.NO_FUSION_RECIPE);
+        return null;
     }
 
     /**
@@ -105,6 +108,9 @@ public class FusionService {
     @Transactional
     public void executeFusion(String spriteId, FusionRequestDto request) {
         FusionResultVo result = checkFusion(spriteId, request);
+        if (result == null) {
+            throw new BusinessException(StatusCodeEnum.NO_FUSION_RECIPE);
+        }
         
         // Remove consumed items based on deductedItems
         for (Map.Entry<String, Integer> entry : result.getDeductedItems().entrySet()) {

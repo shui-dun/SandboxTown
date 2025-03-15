@@ -47,6 +47,12 @@ import NavGroup from './NavGroup.vue';
 import mixin from '@/js/mixin.js';
 import { ITEM_LABELS } from '@/js/constants.js';
 
+const defaultFusionResult = {
+    name: '',
+    description: '',
+    image: require("@/assets/img/PLACEHOLDER.jpg"),
+};
+
 export default {
     components: {
         GridPanel,
@@ -57,11 +63,7 @@ export default {
         return {
             backpackItems: [],
             selectedItems: [],
-            fusionResult: {
-                name: '',
-                description: '',
-                image: require("@/assets/img/PLACEHOLDER.jpg"),
-            },
+            fusionResult: defaultFusionResult,
             labels: ITEM_LABELS,
         };
     },
@@ -101,71 +103,80 @@ export default {
             });
         },
         onClickBackpackItem(item) {
-            // Add item to selected items
-            const selectedItem = {...item};
-            selectedItem.caption = { num: 1 }; // todo 怎么会直接加1呢
-            this.selectedItems.push(selectedItem);
-            
-            // Update fusion result
+            if (item.caption.num <= 0) return;
+            item.caption.num--;
+            let selectedItem = this.selectedItems.find(i => i.id === item.id);
+            if (selectedItem) {
+                selectedItem.caption.num++;
+            } else {
+                selectedItem = { ...item};
+                selectedItem.caption = { num: 1 };
+                this.selectedItems.push(selectedItem);
+            }
             this.checkFusion();
         },
         removeSelectedItem(item) {
-            const index = this.selectedItems.findIndex(i => i.id === item.id);
-            if (index !== -1) {
-                this.selectedItems.splice(index, 1);
-                this.checkFusion();
+            let backpackItem = this.backpackItems.find(i => i.id === item.id);
+            backpackItem.caption.num++;
+            item.caption.num--;
+            if (item.caption.num === 0) {
+                this.selectedItems = this.selectedItems.filter(i => i.id !== item.id);
             }
+            this.checkFusion();
         },
+
         async checkFusion() {
             if (this.selectedItems.length === 0) {
-                this.fusionResult = null;
+                this.fusionResult = defaultFusionResult;
                 return;
             }
 
-            // Convert array to comma-separated string
-            const itemIdsString = this.selectedItems.map(item => item.id).join(',');
+            // 准备请求数据: Map<String, Integer>
+            const items = {};
+            this.selectedItems.forEach(item => {
+                items[item.id] = item.caption.num;
+            });
 
-            try {
-                const response = await mixin.myPOST('/rest/fusion/check', 
-                    new URLSearchParams({
-                        itemIds: itemIdsString
-                    })
-                );
-                if (response && response.resultType) {
-                    this.fusionResult = {
-                        name: response.resultTypeName,
-                        description: response.resultTypeDescription,
-                        image: require(`@/assets/img/${response.resultType}.png`)
-                    };
-                } else {
-                    this.fusionResult = null;
-                }
-            } catch (error) {
-                console.error('Failed to check fusion:', error);
-                this.fusionResult = null;
-            }
+            // 调用后端检查融合接口
+            await mixin.myPOST('/rest/fusion/check', 
+                new URLSearchParams({ request: JSON.stringify(items) }), 
+                async (data) => {
+                    if (data == null) {
+                        console.error('融合检查失败');
+                        this.fusionResult = defaultFusionResult;
+                    }
+                    // 通过后端接口获取物品类型详细信息
+                    const itemTypeDetail = await mixin.myGET('/item/itemTypeDetail', 
+                        new URLSearchParams({ itemType: data.resultItem }));
+                    if (itemTypeDetail) {
+                        this.fusionResult = {
+                            name: itemTypeDetail.name,
+                            image: require(`@/assets/img/${data.resultItem}.png`),
+                            description: itemTypeDetail.description
+                        };
+                    }
+                });
         },
+
         async executeFusion() {
-            if (!this.fusionResult) return;
-
-            // Convert array to comma-separated string
-            const itemIdsString = this.selectedItems.map(item => item.id).join(',');
-
-            try {
-                await mixin.myPOST('/rest/fusion/execute',
-                    new URLSearchParams({
-                        itemIds: itemIdsString
-                    })
-                );
-                mixin.fadeInfoShow(`成功融合得到 ${this.fusionResult.name}`);
-                // Reset selection and refresh backpack
-                this.selectedItems = [];
-                this.fusionResult = null;
-                this.refreshBackpack();
-            } catch (error) {
-                console.error('Failed to execute fusion:', error);
-                mixin.fadeInfoShow('融合失败');
+            if (this.fusionResult.name === '') {
+                return;
             }
+
+            // 准备请求数据: Map<String, Integer>
+            const items = {};
+            this.selectedItems.forEach(item => {
+                items[item.id] = item.caption.num;
+            });
+
+            // 调用后端执行融合接口
+            await mixin.myPOST('/rest/fusion/execute', 
+                new URLSearchParams({ request: JSON.stringify(items) }), 
+                () => {
+                    this.selectedItems = [];
+                    this.fusionResult = defaultFusionResult;
+                    this.refreshBackpack();
+                });
         }
     }
 };
