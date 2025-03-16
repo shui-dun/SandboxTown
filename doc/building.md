@@ -4,3 +4,4 @@
 | 商店   | <img src="../sandbox_town_frontend/src/assets/img/STORE.png" width="120" /> | <ul><li>用户可以查看商店的商品，并进行搜索</li><li>玩家可以购买商品</li><li>玩家可以向商店以较低的价格出售商品</li><li>物品具有基础价格，不同商店同一物品的价格虽然不同，但围绕基础价格浮动</li><li>商品每天早上进货，但不同物品具有不同稀有度 </ul> |
 | 墓碑   | <img src="../sandbox_town_frontend/src/assets/img/TOMBSTONE.png" width="120" /> | 周围有幽灵出没 |
 | 希腊神庙 | <img src="../sandbox_town_frontend/src/assets/img/GREEK_TEMPLE.png" width="120" /> | 敌对生物无法靠近 |
+| 工厂  | <img src="../sandbox_town_frontend/src/assets/img/FACTORY.png" width="120" /> | 物品融合的场所 |
