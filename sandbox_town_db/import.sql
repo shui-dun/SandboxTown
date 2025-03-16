@@ -439,7 +439,11 @@ values ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('IRON_HELMET_dkdcclkdfded', 'USER_xixi', 'IRON_HELMET', 1, 100, 1, 'BACKPACK'),
        ('PHOENIX_FEATHER_dkdcclkdfded', 'USER_xixi', 'PHOENIX_FEATHER', 10, 100, 1, 'BACKPACK'),
        ('FLAME_LEGGINGS_dkdcclkdfded', 'USER_xixi', 'FLAME_LEGGINGS', 1, 100, 1, 'BACKPACK'),
-       ('HOLY_GRAIL_dkdcclkdfded', 'USER_xixi', 'HOLY_GRAIL', 1, 100, 1, 'BACKPACK');
+       ('HOLY_GRAIL_dkdcclkdfded', 'USER_xixi', 'HOLY_GRAIL', 1, 100, 1, 'BACKPACK'),
+       ('HOLY_GRAIL_FRAGMENT_jdfdkjf', 'USER_xixi', 'HOLY_GRAIL_FRAGMENT', 100, 100, 1, 'BACKPACK'),
+       ('GOLD_kdklc', 'USER_xixi', 'GOLD', 100, 100, 1, 'BACKPACK'),
+       ('ANCIENT_WOOD_kdfkdmmk', 'USER_xixi', 'ANCIENT_WOOD', 100, 100, 1, 'BACKPACK'),
+       ('CRYSTAL_SHARD_djfkdk', 'USER_xixi', 'CRYSTAL_SHARD', 100, 100, 1, 'BACKPACK');
 
 
 # 创建建筑类型表
