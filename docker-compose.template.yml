@@ -20,7 +20,10 @@ services:
     #   - /path/to/your/cert.pem:/etc/nginx/ssl/cert.pem
     #   - /path/to/your/key.pem:/etc/nginx/ssl/key.pem
     restart: unless-stopped
-
+    environment:
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
+      
   sandboxtown-back:
     build:
       context: sandbox_town_backend
@@ -36,8 +39,10 @@ services:
     volumes:
       - sanboxtown-user-upload:/userUpload
     environment:
-      REDIS_PASSWORD: 123456
-      MYSQL_PASSWORD: root
+      - REDIS_PASSWORD=123456
+      - MYSQL_PASSWORD=root
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
 
   sandboxtown-mysql:
     # image: mysql:8.1
