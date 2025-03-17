@@ -20,9 +20,6 @@ services:
     #   - /path/to/your/cert.pem:/etc/nginx/ssl/cert.pem
     #   - /path/to/your/key.pem:/etc/nginx/ssl/key.pem
     restart: unless-stopped
-    environment:
-      - http_proxy=${http_proxy}
-      - https_proxy=${https_proxy}
       
   sandboxtown-back:
     build:
@@ -41,8 +38,6 @@ services:
     environment:
       - REDIS_PASSWORD=123456
       - MYSQL_PASSWORD=root
-      - http_proxy=${http_proxy}
-      - https_proxy=${https_proxy}
 
   sandboxtown-mysql:
     # image: mysql:8.1

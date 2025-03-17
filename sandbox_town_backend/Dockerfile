@@ -2,6 +2,9 @@
 # AS build 指定了这个阶段的名称为 build，这个名称可以用来在后面的 FROM 指令引用
 FROM maven:3.9.5-eclipse-temurin-21-alpine AS build
 
+# maven如需使用代理，取消下面的注释，并替换其中的代理地址和端口
+# ENV MAVEN_OPTS="-DsocksProxyHost=172.26.48.1 -DsocksProxyPort=1081"
+
 # 设置工作目录
 WORKDIR /app
 
