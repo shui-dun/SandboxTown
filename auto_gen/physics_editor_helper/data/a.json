@@ -385,5 +385,77 @@
 				]
 			}
 		]
+	},
+	"WALL-2": {
+		"type": "fromPhysicsEditor",
+		"label": "WALL-2",
+		"isStatic": false,
+		"density": 0.1,
+		"restitution": 0,
+		"friction": 0.1,
+		"frictionAir": 0.01,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": [
+			{
+				"label": "",
+				"isSensor": false,
+				"vertices": [
+					[ { "x":16, "y":16 }, { "x":16, "y":0 }, { "x":0, "y":0 }, { "x":0, "y":16 } ]
+				]
+			}
+		]
+	},
+	"ROAD": {
+		"type": "fromPhysicsEditor",
+		"label": "ROAD",
+		"isStatic": false,
+		"density": 0.10000000149011612,
+		"restitution": 0,
+		"friction": 0.10000000149011612,
+		"frictionAir": 0.009999999776482582,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": [
+			{
+				"label": "",
+				"isSensor": false,
+				"vertices": [
+					[ { "x":16, "y":16 }, { "x":16, "y":0 }, { "x":0, "y":0 }, { "x":0, "y":16 } ]
+				]
+			}
+		]
+	},
+	"ROAD-2": {
+		"type": "fromPhysicsEditor",
+		"label": "ROAD-2",
+		"isStatic": false,
+		"density": 0.10000000149011612,
+		"restitution": 0,
+		"friction": 0.10000000149011612,
+		"frictionAir": 0.009999999776482582,
+		"frictionStatic": 0.5,
+		"collisionFilter": {
+			"group": 0,
+			"category": 1,
+			"mask": 255
+		},
+		"fixtures": [
+			{
+				"label": "",
+				"isSensor": false,
+				"vertices": [
+					[ { "x":16, "y":16 }, { "x":16, "y":0 }, { "x":0, "y":0 }, { "x":0, "y":16 } ]
+				]
+			}
+		]
 	}
 }

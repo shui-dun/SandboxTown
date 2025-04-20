@@ -495,7 +495,9 @@ VALUES ('STORE', '买卖商品的场所', 200, 'static/bitmap/STORE.png', 400, 4
        ('TOMBSTONE', '墓碑的周围有幽灵出没', 500,
         'static/bitmap/TOMBSTONE.png', 160, 160, 8),
        ('GREEK_TEMPLE', '希腊神庙，敌对生物无法靠近', 2000, 'static/bitmap/GREEK_TEMPLE.png', 400, 400, 4),
-	   ('FACTORY', '生产和制造商品的地方', 500, 'static/bitmap/FACTORY.png', 500, 500, 2);
+	   ('FACTORY', '生产和制造商品的地方', 500, 'static/bitmap/FACTORY.png', 500, 500, 2),
+       ('WALL', '围墙', 5, 'static/bitmap/WALL.png', 16, 16, 20),
+       ('ROAD', '道路', 5, 'static/bitmap/ROAD.png', 16, 16, 20);
 
 
 # 创建建筑表

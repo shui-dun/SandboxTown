@@ -5,3 +5,5 @@
 | 墓碑   | <img src="../sandbox_town_frontend/src/assets/img/TOMBSTONE.png" width="120" /> | 周围有幽灵出没 |
 | 希腊神庙 | <img src="../sandbox_town_frontend/src/assets/img/GREEK_TEMPLE.png" width="120" /> | 敌对生物无法靠近 |
 | 工厂  | <img src="../sandbox_town_frontend/src/assets/img/FACTORY.png" width="120" /> | 物品融合的场所 |
+| 围墙  | <img src="../sandbox_town_frontend/src/assets/img/WALL.png" width="16" /> | |
+| 道路 | <img src="../sandbox_town_frontend/src/assets/img/ROAD.png" width="16" /> | |

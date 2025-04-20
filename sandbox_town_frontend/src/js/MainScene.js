@@ -175,6 +175,7 @@ class MainScene extends Phaser.Scene {
         this.load.image("GREEK_TEMPLE", require("@/assets/img/GREEK_TEMPLE.png"));
         this.load.image("FACTORY", require("@/assets/img/FACTORY.png"));
         this.load.image("WALL", require("@/assets/img/WALL.png"));
+        this.load.image("ROAD", require("@/assets/img/ROAD.png"));
 
         // 加载纹理图片
         this.load.spritesheet("TILES", require("@/assets/img/TILES.png"), { frameWidth: 128, frameHeight: 128, endFrame: 11 });

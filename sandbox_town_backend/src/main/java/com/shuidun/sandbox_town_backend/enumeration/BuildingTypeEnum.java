@@ -5,5 +5,7 @@ public enum BuildingTypeEnum {
     TREE,
     TOMBSTONE,
     GREEK_TEMPLE,
-    FACTORY
+    FACTORY,
+    WALL,
+    ROAD
 }
