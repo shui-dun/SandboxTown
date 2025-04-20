@@ -3,12 +3,16 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.Point;
 import com.shuidun.sandbox_town_backend.bean.*;
 import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
+import com.shuidun.sandbox_town_backend.enumeration.EcosystemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.MapBitEnum;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
 import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
+import com.shuidun.sandbox_town_backend.mapper.EcosystemMapper;
+import com.shuidun.sandbox_town_backend.mapper.EcosystemTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
+import com.shuidun.sandbox_town_backend.utils.MyMath;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +62,10 @@ public class MapService {
 
     private final BuildingTypeMapper buildingTypeMapper;
 
+    private final EcosystemTypeMapper ecosystemTypeMapper;
+
+    private final EcosystemMapper ecosystemMapper;
+
     @Value("${mapId}")
     private String mapId;
 
@@ -70,14 +78,17 @@ public class MapService {
 
     private final Map<BuildingTypeEnum, SpecificBuildingService> specificBuildingServices;
 
-    public MapService(GameMapMapper gameMapMapper, BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper, RedisTemplate<String, Object> redisTemplate, List<SpecificBuildingService> specificBuildingServices) {
+    public MapService(GameMapMapper gameMapMapper, BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper,
+            RedisTemplate<String, Object> redisTemplate, List<SpecificBuildingService> specificBuildingServices,
+            EcosystemTypeMapper ecosystemTypeMapper, EcosystemMapper ecosystemMapper) {
         this.gameMapMapper = gameMapMapper;
         this.buildingMapper = buildingMapper;
         this.buildingTypeMapper = buildingTypeMapper;
         this.redisTemplate = redisTemplate;
         this.specificBuildingServices = specificBuildingServices.stream().collect(
-                Collectors.toMap(SpecificBuildingService::getType, s -> s)
-        );
+                Collectors.toMap(SpecificBuildingService::getType, s -> s));
+        this.ecosystemTypeMapper = ecosystemTypeMapper;
+        this.ecosystemMapper = ecosystemMapper;
     }
 
     public void init() {
@@ -99,8 +110,64 @@ public class MapService {
 
         // 如果没有建筑物，则生成一定数量的建筑物
         if (!containsBuilding) {
-            createEnvironment(gameMap.getWidth() * gameMap.getHeight() / 300000);
+            createNEcosystem(gameMap.getWidth() * gameMap.getHeight() / 300000);
         }
+    }
+
+    /** 生态系统类型到创建者的映射 */
+    private Map<EcosystemTypeEnum, EcosystemCreator> ecosystemTypeToCreator = Map.ofEntries(
+            Map.entry(EcosystemTypeEnum.TOWN, new TownCreator()));
+
+    /** 创建n个生态系统 */
+    public void createNEcosystem(int n) {
+        // 读取生态系统类型
+        var ecosystemTypes = ecosystemTypeMapper.selectList(null);
+        // 根据稀有度使用轮盘赌算法选择n个生态系统
+        List<EcosystemTypeDo> selectedEcosystemTypes = MyMath.rouletteWheelSelect(
+                ecosystemTypes,
+                ecosystemTypes.stream().map(r -> (double) r.getRarity()).collect(Collectors.toList()),
+                n);
+        // 生成生态系统
+        for (EcosystemTypeDo ecosystemType : selectedEcosystemTypes) {
+            String name = UUIDNameGenerator.generateItemName(ecosystemType.getId().name());
+            double width = ecosystemType.getBasicWidth() * (GameCache.random.nextDouble() + 0.5);
+            double height = ecosystemType.getBasicHeight() * (GameCache.random.nextDouble() + 0.5);
+
+            // 创建生态系统对象
+            EcosystemDo ecosystem = new EcosystemDo();
+            ecosystem.setId(name);
+            ecosystem.setType(ecosystemType.getId());
+            ecosystem.setWidth(width);
+            ecosystem.setHeight(height);
+
+            // 尝试放置生态系统
+            boolean placed = false;
+            int maxTries = 50;
+            for (int i = 0; i < maxTries; i++) {
+                double x = GameCache.random.nextDouble() * getGameMap().getWidth();
+                double y = GameCache.random.nextDouble() * getGameMap().getHeight();
+                ecosystem.setCenterX(x);
+                ecosystem.setCenterY(y);
+
+                if (!isEcosystemOverlap(ecosystem)) {
+                    ecosystemMapper.insert(ecosystem);
+                    ecosystemTypeToCreator.get(ecosystemType.getId()).create(ecosystem);
+                    placed = true;
+                    break;
+                }
+            }
+
+            if (!placed) {
+                log.warn("Failed to place ecosystem {}", name);
+            }
+        }
+        // 生成精灵
+        spriteService.refreshAllSprites();
+
+        // 删除建筑的缓存
+        // 之所以不直接使用@CacheEvict(value = "building::buildings", key = "#mapId")
+        // 是为了修复GameInitializer的构造方法中调用createEnvironment时，@CacheEvict注解不生效的问题（看起来一个component必须在构造之后才能使用注解）
+        redisTemplate.delete("building::buildings::" + mapId);
     }
 
     /**
@@ -111,7 +178,7 @@ public class MapService {
      * @return 路径节点列表，如果找不到路径，则返回空列表
      */
     public List<Point> findPath(SpriteBo initiator, MoveBo moveBo,
-                                MapBitsPermissionsBo permissions) {
+            MapBitsPermissionsBo permissions) {
 
         // 调用寻路算法
         return new PathFinder(initiator, moveBo, permissions).find();
@@ -144,80 +211,39 @@ public class MapService {
         return gameMapBo;
     }
 
-    /** 随机创建指定数目的建筑以及其附属的生态环境 */
-    public void createEnvironment(int nBuildings) {
-        // 得到所有建筑类型
-        var buildingTypes = buildingTypeMapper.selectList(null);
-        // 首先，所有类型的建筑都有一个
-        List<BuildingTypeDo> buildingTypesToBePlaced = new ArrayList<>(buildingTypes);
-        // 计算总稀有度
-        double totalRarity = 0;
-        for (BuildingTypeDo buildingType : buildingTypes) {
-            totalRarity += buildingType.getRarity();
+    /** 
+     * 创建建筑对象
+     * @param force 即使建筑物重叠也强制创建
+    */
+    @Nullable
+    private BuildingDo createBuilding(BuildingTypeDo type, double x, double y, double scale, boolean force) {
+        BuildingDo building = new BuildingDo();
+        building.setId(UUIDNameGenerator.generateItemName(type.getId().name()));
+        building.setType(type.getId());
+        building.setMap(mapId);
+        building.setLevel(1);
+        building.setOriginX(x);
+        building.setOriginY(y);
+        building.setWidth(type.getBasicWidth() * scale);
+        building.setHeight(type.getBasicHeight() * scale);
+        // 重叠检测
+        if (!force && isBuildingOverlap(building)) {
+            log.warn("建筑物重叠，无法创建建筑物");
+            return null;
         }
-        // 随后，根据建筑类型的稀有度，根据轮盘赌算法，随机生成nBuildings-buildingTypes.size()个建筑
-        for (int i = 0; i < nBuildings - buildingTypes.size(); ++i) {
-            // 计算轮盘赌的随机值
-            double randomValue = Math.random() * totalRarity;
-            // 计算轮盘赌的结果
-            double sum = 0;
-            int index = 0;
-            for (BuildingTypeDo buildingType : buildingTypes) {
-                sum += buildingType.getRarity();
-                if (sum >= randomValue) {
-                    index = buildingTypes.indexOf(buildingType);
-                    break;
-                }
-            }
-            // 将轮盘赌的结果加入建筑列表
-            buildingTypesToBePlaced.add(buildingTypes.get(index));
+        // 添加建筑到数据库
+        buildingMapper.insert(building);
+        // 放置建筑到地图
+        placeBuildingOnMap(building);
+        // 初始化对应的建筑
+        SpecificBuildingService specificBuildingService = specificBuildingServices.get(type.getId());
+        if (specificBuildingService != null) {
+            specificBuildingService.initBuilding(building);
         }
-        // 生成建筑
-        for (int i = 0; i < buildingTypesToBePlaced.size(); ++i) {
-            // 建筑类型
-            BuildingTypeDo buildingType = buildingTypesToBePlaced.get(i);
-            // 随机生成建筑的左上角
-            double x = Math.random() * (map.length - 8) * PIXELS_PER_GRID;
-            double y = Math.random() * (map[0].length - 8) * PIXELS_PER_GRID;
-            // 随机生成建筑的宽高，在基础宽高的基础上波动（0.8倍到1.2倍）
-            double scale = Math.random() * 0.4 + 0.8;
-            // 创建建筑对象
-            BuildingDo building = new BuildingDo();
-            building.setId(UUIDNameGenerator.generateItemName(buildingType.getId().name()));
-            building.setType(buildingType.getId());
-            building.setMap(mapId);
-            building.setLevel(1);
-            building.setOriginX(x);
-            building.setOriginY(y);
-            building.setWidth(buildingType.getBasicWidth() * scale);
-            building.setHeight(buildingType.getBasicHeight() * scale);
-            // 判断是否与其他建筑重叠
-            if (!isBuildingOverlapStrict(building)) {
-                // 如果不重叠，添加建筑到数据库
-                buildingMapper.insert(building);
-                // 放置建筑
-                placeBuildingOnMap(building);
-                // 初始化对应的建筑
-                SpecificBuildingService specificBuildingService = specificBuildingServices.get(buildingType.getId());
-                if (specificBuildingService != null) {
-                    specificBuildingService.initBuilding(building);
-                }
-            } else {
-                log.info("建筑重叠，重新生成建筑");
-                // 如果重叠，重新生成建筑
-                --i;
-            }
-        }
-        // 生成精灵
-        spriteService.refreshAllSprites();
-
-        // 删除建筑的缓存
-        // 之所以不直接使用@CacheEvict(value = "building::buildings", key = "#mapId")
-        // 是为了修复GameInitializer的构造方法中调用createEnvironment时，@CacheEvict注解不生效的问题（看起来一个component必须在构造之后才能使用注解）
-        redisTemplate.delete("building::buildings::" + mapId);
+        return building;
     }
 
-    /** 查看某建筑是否与其他建筑有重叠，或者超出边界 */
+    /** 建筑重叠检测，当前建筑超过边界或者当前建筑所在的矩形区域内有其他建筑，则返回true */
     private boolean isBuildingOverlap(BuildingDo building) {
         // 获取建筑物的左上角的坐标
         double buildingX = building.getOriginX();
@@ -233,59 +259,8 @@ public class MapService {
         int buildingLogicalHeight = (int) Math.round(buildingHeight) / PIXELS_PER_GRID;
         // 判断是否超出边界
         if (buildingLogicalX < 0 || buildingLogicalY < 0 ||
-                buildingLogicalX + buildingLogicalWidth > map.length || buildingLogicalY + buildingLogicalHeight > map[0].length) {
-            return true;
-        }
-        // 遍历建筑的每一个格子
-        for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
-            for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
-                // 如果当前格子已有其他建筑（或者围墙）
-                if (isAnyBitInMap(map, i, j, MapBitEnum.BUILDING, MapBitEnum.WALL)) {
-                    // 得到当前格中心的物理坐标
-                    int pixelX = i * PIXELS_PER_GRID + PIXELS_PER_GRID / 2;
-                    int pixelY = j * PIXELS_PER_GRID + PIXELS_PER_GRID / 2;
-                    // 获取当前格子中心在整个建筑图中的相比于左上角的比例
-                    double ratioX = (pixelX - buildingX) / buildingWidth;
-                    double ratioY = (pixelY - buildingY) / buildingHeight;
-                    // 如果比例不合法
-                    if (ratioX < 0 || ratioX > 1 || ratioY < 0 || ratioY > 1) {
-                        continue;
-                    }
-                    // 获取当前格子中心在建筑物黑白图中的坐标
-                    BufferedImage bufferedImage = buildingTypesImages.get(building.getType());
-                    assert bufferedImage != null;
-                    int buildingPixelX = (int) (ratioX * bufferedImage.getWidth());
-                    int buildingPixelY = (int) (ratioY * bufferedImage.getHeight());
-                    // 获取当前格子中心的颜色
-                    int color = bufferedImage.getRGB(buildingPixelX, buildingPixelY);
-                    // 如果当前格子中心是黑色
-                    if (color == Color.BLACK.getRGB()) {
-                        // 说明当前格子有重叠建筑
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /** 严格版本的建筑重叠检测，当前建筑超过边界或者当前建筑所在的矩形区域内有其他建筑，则返回true */
-    private boolean isBuildingOverlapStrict(BuildingDo building) {
-        // 获取建筑物的左上角的坐标
-        double buildingX = building.getOriginX();
-        double buildingY = building.getOriginY();
-        // 获取建筑物的宽高（暂时不知道宽和高写反了没有，因为现在的图片都是正方形的）
-        double buildingWidth = building.getWidth();
-        double buildingHeight = building.getHeight();
-        // 获取建筑的左上角的逻辑坐标
-        int buildingLogicalX = (int) Math.round(buildingX) / PIXELS_PER_GRID;
-        int buildingLogicalY = (int) Math.round(buildingY) / PIXELS_PER_GRID;
-        // 获取建筑的宽高的逻辑坐标
-        int buildingLogicalWidth = (int) Math.round(buildingWidth) / PIXELS_PER_GRID;
-        int buildingLogicalHeight = (int) Math.round(buildingHeight) / PIXELS_PER_GRID;
-        // 判断是否超出边界
-        if (buildingLogicalX < 0 || buildingLogicalY < 0 ||
-                buildingLogicalX + buildingLogicalWidth > map.length || buildingLogicalY + buildingLogicalHeight > map[0].length) {
+                buildingLogicalX + buildingLogicalWidth > map.length
+                || buildingLogicalY + buildingLogicalHeight > map[0].length) {
             return true;
         }
         // 遍历建筑的每一个格子
@@ -300,11 +275,54 @@ public class MapService {
         return false;
     }
 
+    /** 生态系统是否重叠 */
+    private boolean isEcosystemOverlap(EcosystemDo ecosystem) {
+        double ecosystemX = ecosystem.getCenterX();
+        double ecosystemY = ecosystem.getCenterY();
+        double ecosystemWidth = ecosystem.getWidth();
+        double ecosystemHeight = ecosystem.getHeight();
+
+        double currentLeft = ecosystemX - ecosystemWidth / 2;
+        double currentRight = ecosystemX + ecosystemWidth / 2;
+        double currentTop = ecosystemY - ecosystemHeight / 2;
+        double currentBottom = ecosystemY + ecosystemHeight / 2;
+
+        // 检验位置是否合法
+        if (currentLeft < 0 || currentRight > getGameMap().getWidth() ||
+                currentTop < 0 || currentBottom > getGameMap().getHeight()) {
+            return true;
+        }
+
+        List<EcosystemDo> ecosystems = ecosystemMapper.selectList(null);
+        for (EcosystemDo existingEcosystem : ecosystems) {
+            if (ecosystem.getId() != null && ecosystem.getId().equals(existingEcosystem.getId())) {
+                continue;
+            }
+
+            double existingX = existingEcosystem.getCenterX();
+            double existingY = existingEcosystem.getCenterY();
+            double existingWidth = existingEcosystem.getWidth();
+            double existingHeight = existingEcosystem.getHeight();
+
+            double existingLeft = existingX - existingWidth / 2;
+            double existingRight = existingX + existingWidth / 2;
+            double existingTop = existingY - existingHeight / 2;
+            double existingBottom = existingY + existingHeight / 2;
+
+            boolean overlapX = currentLeft < existingRight && currentRight > existingLeft;
+            boolean overlapY = currentTop < existingBottom && currentBottom > existingTop;
+
+            if (overlapX && overlapY) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** 建筑类型到“建筑周围”地图点的映射 */
     private static final Map<BuildingTypeEnum, MapBitEnum> BUILDING_TYPE_TO_SURROUNDING_MAP_BIT = Map.of(
             BuildingTypeEnum.TOMBSTONE, MapBitEnum.SURROUNDING_TOMBSTONE,
-            BuildingTypeEnum.GREEK_TEMPLE, MapBitEnum.SURROUNDING_GREEK_TEMPLE
-    );
+            BuildingTypeEnum.GREEK_TEMPLE, MapBitEnum.SURROUNDING_GREEK_TEMPLE);
 
     /** 放置建筑 */
     private void placeBuildingOnMap(BuildingDo building) {
@@ -435,8 +453,8 @@ public class MapService {
 
         /** 定义八个方向的移动，包括斜向 */
         private static final int[][] DIRECTIONS = {
-                {-1, 0}, {1, 0}, {0, -1}, {0, 1}, // 上下左右
-                {-1, -1}, {-1, 1}, {1, -1}, {1, 1} // 斜向
+                { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }, // 上下左右
+                { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } // 斜向
         };
 
         /** 起始点的物理x坐标 */
@@ -517,8 +535,10 @@ public class MapService {
                 logicalX1 = (int) (moveBo.getDestSprite().getX() / PIXELS_PER_GRID);
                 logicalY1 = (int) (moveBo.getDestSprite().getY() / PIXELS_PER_GRID);
                 // 获取精灵的宽高
-                double destSpritePhysicalWidth = moveBo.getDestSprite().getWidth() * moveBo.getDestSprite().getSpriteTypeDo().getWidthRatio();
-                double destSpritePhysicalHeight = moveBo.getDestSprite().getHeight() * moveBo.getDestSprite().getSpriteTypeDo().getHeightRatio();
+                double destSpritePhysicalWidth = moveBo.getDestSprite().getWidth()
+                        * moveBo.getDestSprite().getSpriteTypeDo().getWidthRatio();
+                double destSpritePhysicalHeight = moveBo.getDestSprite().getHeight()
+                        * moveBo.getDestSprite().getSpriteTypeDo().getHeightRatio();
                 // 将物品宽高的像素转换为地图坐标
                 destSpriteHalfLogicalWidth = physicalSizeToLogicalSize(destSpritePhysicalWidth) / 2;
                 destSpriteHalfLogicalHeight = physicalSizeToLogicalSize(destSpritePhysicalHeight) / 2;
@@ -575,8 +595,10 @@ public class MapService {
             @Override
             public boolean equals(Object obj) {
                 // 只比较坐标
-                if (this == obj) return true;
-                if (obj == null || getClass() != obj.getClass()) return false;
+                if (this == obj)
+                    return true;
+                if (obj == null || getClass() != obj.getClass())
+                    return false;
                 Node other = (Node) obj;
                 return x == other.x && y == other.y;
             }
@@ -619,7 +641,8 @@ public class MapService {
         /** 判断给定的坐标是否不能容下物体（严格版本） */
         private boolean isObstacleStrict(int x, int y) {
             // 如果坐标在目标点附近（距离小于物体大小），并且该点本身并非障碍物，那么直接认为可以容下物体
-            if (Math.abs(x - logicalX1) <= initiatorHalfLogicalWidth && Math.abs(y - logicalY1) <= initiatorHalfLogicalHeight
+            if (Math.abs(x - logicalX1) <= initiatorHalfLogicalWidth
+                    && Math.abs(y - logicalY1) <= initiatorHalfLogicalHeight
                     && !isMapBitObstacle(map[x][y])) {
                 return false;
             }
@@ -647,7 +670,8 @@ public class MapService {
                 }
                 // 或者该点是障碍物，并且不是目标建筑，那么不能容下物体
                 boolean isObstacle = isMapBitObstacle(map[point.getX()][point.getY()]);
-                if (isObstacle && (destBuildingHashCode == null || buildingsHashCodeMap[point.getX()][point.getY()] != destBuildingHashCode)) {
+                if (isObstacle && (destBuildingHashCode == null
+                        || buildingsHashCodeMap[point.getX()][point.getY()] != destBuildingHashCode)) {
                     return true;
                 }
             }
@@ -705,7 +729,8 @@ public class MapService {
             PriorityQueue<Node> openList = new PriorityQueue<>();
             Set<Node> closedList = new HashSet<>();
 
-            Node startNode = new Node(logicalX0, logicalY0, null, 0, heuristic(logicalX0, logicalY0, logicalX1, logicalY1));
+            Node startNode = new Node(logicalX0, logicalY0, null, 0,
+                    heuristic(logicalX0, logicalY0, logicalX1, logicalY1));
             openList.add(startNode);
 
             while (!openList.isEmpty()) {
@@ -741,7 +766,8 @@ public class MapService {
                     // 计算新的gCost
                     int gConst = currentNode.gCost + ((direction[0] == 0 || direction[1] == 0) ? 10 : 14);
 
-                    Node neighbor = new Node(newX, newY, currentNode, gConst, heuristic(newX, newY, logicalX1, logicalY1));
+                    Node neighbor = new Node(newX, newY, currentNode, gConst,
+                            heuristic(newX, newY, logicalX1, logicalY1));
 
                     if (closedList.contains(neighbor)) {
                         continue;
@@ -761,9 +787,9 @@ public class MapService {
             boolean x1OnTheRight = physicalX1 > physicalX0;
             // 计算从起点到终点的每个点（每个点之间的x坐标间隔PIXELS_PER_GRID / 2）
             List<Point> points = new ArrayList<>();
-            for (double x = physicalX0, y = physicalY0;
-                 x1OnTheRight ? x <= physicalX1 : x >= physicalX1;
-                 x += Math.cos(angle) * PIXELS_PER_GRID / 2, y += Math.sin(angle) * PIXELS_PER_GRID / 2) {
+            for (double x = physicalX0, y = physicalY0; x1OnTheRight ? x <= physicalX1
+                    : x >= physicalX1; x += Math.cos(angle) * PIXELS_PER_GRID / 2, y += Math.sin(angle)
+                            * PIXELS_PER_GRID / 2) {
                 int logicalX = physicalAxisToLogicalAxis(x);
                 int logicalY = physicalAxisToLogicalAxis(y);
                 // 如何不合法或者是障碍物，那么就不再继续
@@ -799,7 +825,6 @@ public class MapService {
         }
     }
 
-
     /** 计算两点之间的距离 */
     private double calcDistance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
@@ -807,7 +832,8 @@ public class MapService {
 
     /** 目标精灵是否在源精灵的视野内 */
     public boolean isInSight(SpriteDo source, double targetX, double targetY) {
-        return calcDistance(source.getX(), source.getY(), targetX, targetY) <= source.getVisionRange() + source.getVisionRange();
+        return calcDistance(source.getX(), source.getY(), targetX, targetY) <= source.getVisionRange()
+                + source.getVisionRange();
     }
 
     /**
@@ -837,7 +863,8 @@ public class MapService {
                 .filter(x -> isInSight(sprite, x.getX(), x.getY()))
                 .filter(x -> !x.getId().equals(sprite.getId()))
                 .filter(condition)
-                .min((x, y) -> (int) (calcDistance(sprite.getX(), sprite.getY(), x.getX(), x.getY()) - calcDistance(sprite.getX(), sprite.getY(), y.getX(), y.getY())));
+                .min((x, y) -> (int) (calcDistance(sprite.getX(), sprite.getY(), x.getX(), x.getY())
+                        - calcDistance(sprite.getX(), sprite.getY(), y.getX(), y.getY())));
     }
 
     /**
@@ -877,7 +904,24 @@ public class MapService {
                 DataCompressor.compressPath(path),
                 moveBo.getDestBuildingId(),
                 moveBo.getDestSprite() == null ? null : moveBo.getDestSprite().getId(),
-                moveBo.getDestSprite() == null ? null : GameCache.random.nextInt()
-        );
+                moveBo.getDestSprite() == null ? null : GameCache.random.nextInt());
+    }
+
+    private interface EcosystemCreator {
+        void create(EcosystemDo ecosystem);
+    }
+
+    private class TownCreator implements EcosystemCreator {
+        @Override
+        public void create(EcosystemDo ecosystem) {
+            // 在中心创建一个神庙
+            BuildingTypeDo templeType = buildingTypeMapper.selectById(BuildingTypeEnum.GREEK_TEMPLE);
+            BuildingDo centerTemple = createBuilding(
+                    templeType,
+                    ecosystem.getCenterX(),
+                    ecosystem.getCenterY(),
+                    GameCache.random.nextDouble() * 0.5 + 0.5,
+                    true);
+        }
     }
 }

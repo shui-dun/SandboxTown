@@ -38,7 +38,7 @@ public class MapController {
     @SaCheckRole("ADMIN")
     @GetMapping("/createEnvironment")
     public RestResponseVo<Void> createEnvironment(@NotNull @RequestParam int nBuildings) {
-        mapService.createEnvironment(nBuildings);
+        mapService.createNEcosystem(nBuildings);
         return new RestResponseVo<>(StatusCodeEnum.SUCCESS);
     }
 }
