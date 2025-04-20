@@ -6,7 +6,6 @@ package com.shuidun.sandbox_town_backend.enumeration;
  * 一个地图点可以有一个或多个元素
  */
 public enum MapBitEnum {
-    WALL,
     BUILDING,
     SURROUNDING_GREEK_TEMPLE,
     SURROUNDING_TOMBSTONE

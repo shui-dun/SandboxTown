@@ -32,7 +32,7 @@ public class MapBitsPermissionsBo {
     }
 
     /** 默认的obstacles */
-    public static final int DEFAULT_OBSTACLES = mapBitArrayToInt(MapBitEnum.WALL, MapBitEnum.BUILDING);
+    public static final int DEFAULT_OBSTACLES = mapBitArrayToInt(MapBitEnum.BUILDING);
 
     /** 默认的allow */
     public static final int DEFAULT_ALLOW = 0;

@@ -266,8 +266,8 @@ public class MapService {
         // 遍历建筑的每一个格子
         for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
             for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
-                // 如果当前格子已有其他建筑（或者围墙）
-                if (isAnyBitInMap(map, i, j, MapBitEnum.BUILDING, MapBitEnum.WALL)) {
+                // 如果当前格子已有其他建筑
+                if (isAnyBitInMap(map, i, j, MapBitEnum.BUILDING)) {
                     return true;
                 }
             }
@@ -922,6 +922,7 @@ public class MapService {
                     ecosystem.getCenterY(),
                     GameCache.random.nextDouble() * 0.5 + 0.5,
                     true);
+            
         }
     }
 }

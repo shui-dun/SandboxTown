@@ -174,8 +174,6 @@ class MainScene extends Phaser.Scene {
         this.load.image("TOMBSTONE", require("@/assets/img/TOMBSTONE.png"));
         this.load.image("GREEK_TEMPLE", require("@/assets/img/GREEK_TEMPLE.png"));
         this.load.image("FACTORY", require("@/assets/img/FACTORY.png"));
-
-        // 围墙
         this.load.image("WALL", require("@/assets/img/WALL.png"));
 
         // 加载纹理图片
@@ -272,19 +270,6 @@ class MainScene extends Phaser.Scene {
                 let randomNum2 = Math.floor(Math.random() * 21) - 10;
                 const texture = this.add.sprite(i * textureLen + randomNum1, j * textureLen + randomNum2, 'TILES', Math.floor(Math.random() * 12));
                 texture.setDisplaySize(textureLen, textureLen);
-            }
-        }
-
-        // 创建围墙
-        let pixelsPerGrid = 30;
-        for (let x = 0; x < this.gameMap.data.length; ++x) {
-            for (let y = 0; y < this.gameMap.data[0].length; ++y) {
-                // 如果最低位为1，表示该位置有围墙
-                if (this.gameMap.data[x][y] & 1) {
-                    const texture = this.matter.add.sprite(x * pixelsPerGrid + pixelsPerGrid / 2, y * pixelsPerGrid + pixelsPerGrid / 2, 'WALL', null, { isStatic: true, shape: this.collapseShapes["WALL"] })
-                    texture.setAlpha(0.8)
-                    texture.setDisplaySize(pixelsPerGrid, pixelsPerGrid);
-                }
             }
         }
 
