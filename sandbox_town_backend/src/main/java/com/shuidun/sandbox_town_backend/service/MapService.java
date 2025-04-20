@@ -108,9 +108,9 @@ public class MapService {
         // 放置NPC
         spriteService.onlineNPCs();
 
-        // 如果没有建筑物，则生成一定数量的建筑物
+        // 如果没有生态系统，则创建生态系统
         if (!containsBuilding) {
-            createNEcosystem(gameMap.getWidth() * gameMap.getHeight() / 300000);
+            createNEcosystem(gameMap.getWidth() * gameMap.getHeight() / 3000000);
         }
     }
 
@@ -142,7 +142,7 @@ public class MapService {
 
             // 尝试放置生态系统
             boolean placed = false;
-            int maxTries = 50;
+            int maxTries = 10;
             for (int i = 0; i < maxTries; i++) {
                 double x = GameCache.random.nextDouble() * getGameMap().getWidth();
                 double y = GameCache.random.nextDouble() * getGameMap().getHeight();

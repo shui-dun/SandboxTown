@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  sandboxtown-front:
+    # 如果你需要使用HTTPS，那么你需要将上面的port设置替换为下述内容
+    # ports:
+    #   - "443:443"
+    # volumes:
+    #   # 本地的证书文件挂载到容器内部
+    #   # 你需要将路径替换为你自己的证书路径
+    #   - /path/to/your/cert.pem:/etc/nginx/ssl/cert.pem
+    #   - /path/to/your/key.pem:/etc/nginx/ssl/key.pem

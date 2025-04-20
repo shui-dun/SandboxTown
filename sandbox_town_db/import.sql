@@ -59,8 +59,8 @@ CREATE TABLE game_map
 );
 
 INSERT INTO game_map (id, name, width, height, seed)
-VALUES ('1', 'Ⅰ', 4000, 3000, 32784924),
-       ('2', 'Ⅱ', 4000, 3000, 234757802);
+VALUES ('1', 'Ⅰ', 40000, 30000, 32784924),
+       ('2', 'Ⅱ', 40000, 30000, 234757802);
 
 # 创建角色类型表
 CREATE TABLE sprite_type
@@ -456,7 +456,7 @@ CREATE TABLE ecosystem_type
 );
 
 INSERT INTO ecosystem_type (id, name, basic_width, basic_height, rarity)
-VALUES ('TOWN', '城镇', 1000, 1000, 10);
+VALUES ('TOWN', '城镇', 5000, 5000, 10);
 
 # 创建生态系统表
 CREATE TABLE ecosystem

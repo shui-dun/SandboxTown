@@ -36,9 +36,21 @@ cp sandbox_town_backend/src/main/resources/application.template.yml \
 cp sandbox_town_db/customer.template.cnf sandbox_town_db/customer.cnf
 cp sandbox_town_frontend/nginx.template.conf sandbox_town_frontend/nginx.conf
 cp docker-compose.template.yml docker-compose.yml
-# 按需修改上述几个配置文件，例如配置ssl证书位置、配置域名等
-docker-compose up -d
+cp docker-compose.dev.template.yml docker-compose.dev.yml
+cp docker-compose.prod.template.yml docker-compose.prod.yml
 ```
+
+- 按需修改上述配置文件
+- 生产环境：`docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
+- 开发环境：
+   - 在 `sandbox_town_frontend` 目录下执行 `npm install`
+   - 在 `sandbox_town_backend` 目录下执行 `mvn package`
+   - `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d`
+
+开发环境和生产环境的主要区别：
+
+- 开发环境支持热部署
+- 开发环境暴露了MySQL(3306)和Redis(6379)等端口方便调试
 
 ## 游戏截图
 

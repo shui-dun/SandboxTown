@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  sandboxtown-front:
+    build:
+      dockerfile: Dockerfile2
+    volumes:
+      - ./sandbox_town_frontend:/app
+
+  sandboxtown-back:
+    build:
+      dockerfile: Dockerfile2
+    ports:
+      - "8080:8080"
+
+  sandboxtown-mysql:
+    ports:
+      - "3306:3306"
+    
+  sandboxtown-redis:
+    ports:
+      - "6379:6379"
