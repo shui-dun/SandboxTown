@@ -91,9 +91,6 @@ public class MapService {
         map = new int[gameMap.getWidth() / PIXELS_PER_GRID][gameMap.getHeight() / PIXELS_PER_GRID];
         buildingsHashCodeMap = new int[gameMap.getWidth() / PIXELS_PER_GRID][gameMap.getHeight() / PIXELS_PER_GRID];
 
-        // 在地图上生成围墙
-        generateMaze(map, 0, 0, map.length / 2, map[0].length / 2);
-
         // 在地图上放置建筑
         boolean containsBuilding = placeAllBuildingsOnMap();
 
@@ -426,82 +423,6 @@ public class MapService {
             bitValue |= 1 << bit.ordinal();
         }
         return (map[x][y] & bitValue) != 0;
-    }
-
-    /** 画一个2x2的墙 */
-    private void drawWall(int[][] map, int x, int y) {
-        addBitToMap(map, 2 * x, 2 * y, MapBitEnum.WALL);
-        addBitToMap(map, 2 * x + 1, 2 * y, MapBitEnum.WALL);
-        addBitToMap(map, 2 * x, 2 * y + 1, MapBitEnum.WALL);
-        addBitToMap(map, 2 * x + 1, 2 * y + 1, MapBitEnum.WALL);
-    }
-
-    private void unDrawWall(int[][] map, int x, int y) {
-        removeBitFromMap(map, 2 * x, 2 * y, MapBitEnum.WALL);
-        removeBitFromMap(map, 2 * x + 1, 2 * y, MapBitEnum.WALL);
-        removeBitFromMap(map, 2 * x, 2 * y + 1, MapBitEnum.WALL);
-        removeBitFromMap(map, 2 * x + 1, 2 * y + 1, MapBitEnum.WALL);
-    }
-
-    /** 生成迷宫 */
-    private void generateMaze(int[][] map, int x, int y, int w, int h) {
-        if (w < 20 || h < 20) {
-            return;
-        }
-
-        if (w < 40 || h < 40) {
-            if (GameCache.random.nextDouble() < 0.5) {
-                return;
-            }
-        }
-
-        int midX = x + w / 2;
-        int midY = y + h / 2;
-
-        // 画水平墙
-        for (int i = x; i < x + w; i++) {
-            drawWall(map, i, midY);
-        }
-
-        // 拆除一部分，以保证可以通行
-        int holeLen = 6 + GameCache.random.nextInt(5);
-        int beginX = x + GameCache.random.nextInt(w / 2 - holeLen - 1);
-        int endX = beginX + holeLen;
-        for (int i = beginX; i < endX; i++) {
-            unDrawWall(map, i, midY);
-        }
-
-        holeLen = 6 + GameCache.random.nextInt(5);
-        beginX = x + w / 2 + GameCache.random.nextInt(w / 2 - holeLen - 1);
-        endX = beginX + holeLen;
-        for (int i = beginX; i < endX; i++) {
-            unDrawWall(map, i, midY);
-        }
-
-        // 画竖直墙
-        for (int i = y; i < y + h; i++) {
-            drawWall(map, midX, i);
-        }
-
-        holeLen = 6 + GameCache.random.nextInt(5);
-        int beginY = y + GameCache.random.nextInt(h / 2 - holeLen - 1);
-        int endY = beginY + holeLen;
-        for (int i = beginY; i < endY; i++) {
-            unDrawWall(map, midX, i);
-        }
-
-        holeLen = 6 + GameCache.random.nextInt(5);
-        beginY = y + h / 2 + GameCache.random.nextInt(h / 2 - holeLen - 1);
-        endY = beginY + holeLen;
-        for (int i = beginY; i < endY; i++) {
-            unDrawWall(map, midX, i);
-        }
-
-        // Recursively generate maze in each quadrant
-        generateMaze(map, x, y, w / 2, h / 2);
-        generateMaze(map, x + w / 2, y, w / 2, h / 2);
-        generateMaze(map, x, y + h / 2, w / 2, h / 2);
-        generateMaze(map, x + w / 2, y + h / 2, w / 2, h / 2);
     }
 
     @Autowired
