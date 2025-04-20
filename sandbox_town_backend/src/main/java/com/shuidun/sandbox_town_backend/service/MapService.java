@@ -110,7 +110,7 @@ public class MapService {
 
         // 如果没有生态系统，则创建生态系统
         if (!containsBuilding) {
-            createNEcosystem(gameMap.getWidth() * gameMap.getHeight() / 3000000);
+            createNEcosystem(gameMap.getWidth() * gameMap.getHeight() / 300000);
         }
     }
 
