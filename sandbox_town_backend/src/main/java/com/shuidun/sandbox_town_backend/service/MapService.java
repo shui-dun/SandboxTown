@@ -922,7 +922,35 @@ public class MapService {
                     ecosystem.getCenterY(),
                     GameCache.random.nextDouble() * 0.5 + 0.5,
                     true);
-            
+            // 选择一个象限作为森林
+            int quadrant = GameCache.random.nextInt(4) + 1;
+            BuildingTypeDo treeType = buildingTypeMapper.selectById(BuildingTypeEnum.TREE);
+            BuildingTypeDo tombstoneType = buildingTypeMapper.selectById(BuildingTypeEnum.TOMBSTONE);
+            // 一直生成直到累计到一定的碰撞次数
+            int collisionCount = 0;
+            int maxCollisionCount = 50;
+            while (collisionCount < maxCollisionCount) {
+                // 根据稀有度选择一个建筑物
+                BuildingTypeDo selectedType = MyMath.rouletteWheelSelect(
+                        List.of(treeType, tombstoneType),
+                        List.of(treeType.getRarity().doubleValue(), tombstoneType.getRarity().doubleValue()),
+                        1).get(0);
+                // 根据象限确定坐标偏移的正负号
+                int signX = (quadrant == 1 || quadrant == 4) ? 1 : -1;
+                int signY = (quadrant == 1 || quadrant == 2) ? 1 : -1;
+                // 计算位置
+                double x = ecosystem.getCenterX() + signX * GameCache.random.nextDouble() * ecosystem.getWidth() / 2;
+                double y = ecosystem.getCenterY() + signY * GameCache.random.nextDouble() * ecosystem.getHeight() / 2;
+                BuildingDo building = createBuilding(
+                        selectedType,
+                        x,
+                        y,
+                        GameCache.random.nextDouble() * 0.5 + 0.5,
+                        false);
+                if (building == null) {
+                    collisionCount++;
+                }
+            }
         }
     }
 }

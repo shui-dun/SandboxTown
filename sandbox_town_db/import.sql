@@ -485,7 +485,7 @@ CREATE TABLE building_type
     basic_width  DOUBLE       NOT NULL DEFAULT 0,
     # 基础高度（真实高度会在此基础上波动）
     basic_height DOUBLE       NOT NULL DEFAULT 0,
-    # 稀有度 (0-100)，越低越稀有
+    # 稀有度 (0-100)，越低越稀有，由于建筑是由生态系统负责生成，由各个生态系统决定是否考虑这个字段
     rarity       INT          NOT NULL DEFAULT 0
 );
 

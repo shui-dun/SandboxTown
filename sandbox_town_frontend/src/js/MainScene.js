@@ -273,7 +273,7 @@ class MainScene extends Phaser.Scene {
                 texture.setDisplaySize(textureLen, textureLen);
             }
         }
-
+        let pixelsPerGrid = 30;
         // 将神庙周围、墓碑周围用特殊的颜色表示
         for (let x = 0; x < this.gameMap.data.length; ++x) {
             for (let y = 0; y < this.gameMap.data[0].length; ++y) {

@@ -15,7 +15,7 @@ services:
       context: sandbox_town_backend
       dockerfile: Dockerfile
     restart: unless-stopped
-    mem_limit: 500m
+    mem_limit: 1000m
     volumes:
       - sanboxtown-user-upload:/userUpload
     environment:
@@ -44,7 +44,7 @@ services:
       - ./sandbox_town_db/import.sql:/docker-entrypoint-initdb.d/import.sql
     restart: unless-stopped
     # 限制内存，MySQL/MariaDB 的某些配置项会根据内存大小自动调整
-    mem_limit: 200m
+    mem_limit: 500m
     
   sandboxtown-redis:
     image: redis:7.2-alpine
