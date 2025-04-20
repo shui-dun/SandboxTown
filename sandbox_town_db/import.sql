@@ -445,6 +445,30 @@ values ('BREAD_jhddfddffiu', 'USER_haha', 'BREAD', 1, 100, 1, 'BACKPACK'),
        ('ANCIENT_WOOD_kdfkdmmk', 'USER_xixi', 'ANCIENT_WOOD', 100, 100, 1, 'BACKPACK'),
        ('CRYSTAL_SHARD_djfkdk', 'USER_xixi', 'CRYSTAL_SHARD', 100, 100, 1, 'BACKPACK');
 
+# 创建生态系统类型表
+CREATE TABLE ecosystem_type
+(
+    id           VARCHAR(255) NOT NULL PRIMARY KEY,
+    name         VARCHAR(255) NOT NULL,
+    basic_width  DOUBLE       NOT NULL DEFAULT 0,
+    basic_height DOUBLE       NOT NULL DEFAULT 0,
+    rarity       INT          NOT NULL DEFAULT 0
+);
+
+INSERT INTO ecosystem_type (id, name, basic_width, basic_height, rarity)
+VALUES ('TOWN', '城镇', 1000, 1000, 10);
+
+# 创建生态系统表
+CREATE TABLE ecosystem
+(
+    id         VARCHAR(255) NOT NULL PRIMARY KEY,
+    type       VARCHAR(255) NOT NULL,
+    center_x   DOUBLE       NOT NULL,
+    center_y   DOUBLE       NOT NULL,
+    width      DOUBLE       NOT NULL,
+    height     DOUBLE       NOT NULL,
+    CONSTRAINT fk_ecosystem_type FOREIGN KEY (type) REFERENCES ecosystem_type (id)
+);
 
 # 创建建筑类型表
 CREATE TABLE building_type

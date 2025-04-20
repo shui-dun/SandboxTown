@@ -13,7 +13,7 @@ def parseSql(tableName, columnOfImgName=None, imgSize=120):
     [{a: 1, b: 2, c: 3}, {a: 4, b: 5, c: 6}, {a: 7, b: 8, c: 9}]
     columnOfImgName表示要生成 img 列的列名（如果需要），imgSize表示图片大小
     """
-    with open('../sandbox_town_db/import.sql', encoding='utf-8') as f:
+    with open('sandbox_town_db/import.sql', encoding='utf-8') as f:
         sql = f.read()
 
     # 注意：要让 tableName 在正则中安全，需要先对其做 re.escape
@@ -98,14 +98,14 @@ def genMdTable(head, data, columns):
     return title + header + separator + content
 
 def genEffectDoc():
-    with open('../doc/effect.md', 'w', encoding='utf-8') as f:
+    with open('doc/effect.md', 'w', encoding='utf-8') as f:
         f.write(
             genMdTable('效果列表', parseSql('effect', 'id'),
                     {'name': '名称', 'img': '图像', 'description': '描述'})
         )
 
 def genItemDoc():
-    with open('../doc/item.md', 'w', encoding='utf-8') as f:
+    with open('doc/item.md', 'w', encoding='utf-8') as f:
         f.write(
             genMdTable('物品列表', parseSql('item_type', 'id'),
                     {'name': '名称', 'img': '图像', 'description': '描述'})
@@ -113,13 +113,14 @@ def genItemDoc():
 
 def genEnum():
     """
-    读取 import.sql 中的四个表:
-    1. building_type   => BuildingTypeEnum.java (取字段 id)
-    2. effect          => EffectEnum.java        (取字段 id)
-    3. item_type       => ItemTypeEnum.java      (取字段 id)
-    4. sprite_type     => SpriteTypeEnum.java    (取字段 type)
+    读取 import.sql 中的表:
+    - building_type   => BuildingTypeEnum.java (取字段 id)
+    - effect          => EffectEnum.java        (取字段 id)
+    - item_type       => ItemTypeEnum.java      (取字段 id)
+    - sprite_type     => SpriteTypeEnum.java    (取字段 type)
+    - ecosystem_type  => EcosystemTypeEnum.java (取字段 id)
     """
-    base_dir = r"../sandbox_town_backend/src/main/java/com/shuidun/sandbox_town_backend/enumeration"
+    base_dir = r"sandbox_town_backend/src/main/java/com/shuidun/sandbox_town_backend/enumeration"
 
     # 包名
     package_name = "com.shuidun.sandbox_town_backend.enumeration"
@@ -164,6 +165,11 @@ def genEnum():
     sprite_data = parseSql('sprite_type')
     sprite_ids = [row['type'] for row in sprite_data]
     write_enum_file('SpriteTypeEnum.java', 'SpriteTypeEnum', sprite_ids)
+
+    # 5) 生成 EcosystemTypeEnum
+    ecosystem_data = parseSql('ecosystem_type')
+    ecosystem_ids = [row['id'] for row in ecosystem_data]
+    write_enum_file('EcosystemTypeEnum.java', 'EcosystemTypeEnum', ecosystem_ids)
 
 def genFusionDoc():
     """生成物品合成文档 fusion.md"""
@@ -214,8 +220,8 @@ def genFusionDoc():
             'description': res_desc
         })
 
-    # 5) 写入 ../doc/fusion.md
-    with open('../doc/fusion.md', 'w', encoding='utf-8') as f:
+    # 5) 写入 doc/fusion.md
+    with open('doc/fusion.md', 'w', encoding='utf-8') as f:
         f.write(genMdTable(
             '物品合成表',
             fusion_data,
