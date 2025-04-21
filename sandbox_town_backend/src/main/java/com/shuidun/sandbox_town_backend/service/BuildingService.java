@@ -3,7 +3,6 @@ package com.shuidun.sandbox_town_backend.service;
 import com.shuidun.sandbox_town_backend.bean.BuildingDo;
 import com.shuidun.sandbox_town_backend.bean.BuildingTypeDo;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
-import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,20 +23,20 @@ public class BuildingService {
 
     private final BuildingMapper buildingMapper;
 
-    private final BuildingTypeMapper buildingTypeMapper;
+    private final BuildingTypeService buildingTypeService;
 
     @Value("${mapId}")
     private String mapId;
 
-    public BuildingService(BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper) {
+    public BuildingService(BuildingMapper buildingMapper, BuildingTypeService buildingTypeService) {
         this.buildingMapper = buildingMapper;
-        this.buildingTypeMapper = buildingTypeMapper;
+        this.buildingTypeService = buildingTypeService;
     }
 
     /** 获取所有建筑类型 */
     @Cacheable(value = "building::buildingTypes")
     public List<BuildingTypeDo> getAllBuildingTypes() {
-        return buildingTypeMapper.selectList(null);
+        return buildingTypeService.selectAll().values().stream().toList();
     }
 
     @Cacheable(value = "building::buildings", key = "#mapId")

@@ -6,7 +6,6 @@ import com.shuidun.sandbox_town_backend.enumeration.BuildingTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.EcosystemTypeEnum;
 import com.shuidun.sandbox_town_backend.enumeration.MapBitEnum;
 import com.shuidun.sandbox_town_backend.mapper.BuildingMapper;
-import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.EcosystemMapper;
 import com.shuidun.sandbox_town_backend.mapper.EcosystemTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
@@ -61,7 +60,7 @@ public class MapService {
 
     private final BuildingMapper buildingMapper;
 
-    private final BuildingTypeMapper buildingTypeMapper;
+    private final BuildingTypeService buildingTypeService;
 
     private final EcosystemTypeMapper ecosystemTypeMapper;
 
@@ -79,12 +78,13 @@ public class MapService {
 
     private final Map<BuildingTypeEnum, SpecificBuildingService> specificBuildingServices;
 
-    public MapService(GameMapMapper gameMapMapper, BuildingMapper buildingMapper, BuildingTypeMapper buildingTypeMapper,
+    public MapService(GameMapMapper gameMapMapper, BuildingMapper buildingMapper,
+            BuildingTypeService buildingTypeService,
             RedisTemplate<String, Object> redisTemplate, List<SpecificBuildingService> specificBuildingServices,
             EcosystemTypeMapper ecosystemTypeMapper, EcosystemMapper ecosystemMapper) {
         this.gameMapMapper = gameMapMapper;
         this.buildingMapper = buildingMapper;
-        this.buildingTypeMapper = buildingTypeMapper;
+        this.buildingTypeService = buildingTypeService;
         this.redisTemplate = redisTemplate;
         this.specificBuildingServices = specificBuildingServices.stream().collect(
                 Collectors.toMap(SpecificBuildingService::getType, s -> s));
@@ -214,10 +214,12 @@ public class MapService {
 
     /**
      * 创建建筑对象
+     * 
      * @param force 即使建筑物重叠也强制创建
      */
     @Nullable
-    private BuildingDo createBuilding(BuildingTypeDo type, double centerX, double centerY, double scale, boolean force) {
+    private BuildingDo createBuilding(BuildingTypeDo type, double centerX, double centerY, double scale,
+            boolean force) {
         BuildingDo building = new BuildingDo();
         building.setId(UUIDNameGenerator.generateItemName(type.getId().name()));
         building.setType(type.getId());
@@ -270,7 +272,7 @@ public class MapService {
         for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
             for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
                 // 如果当前格子已有其他建筑或者道路
-                if (isAnyBitInMap(map, i, j, MapBitEnum.BUILDING) 
+                if (isAnyBitInMap(map, i, j, MapBitEnum.BUILDING)
                         || isAnyBitInMap(map, i, j, MapBitEnum.ROAD)) {
                     return true;
                 }
@@ -370,6 +372,7 @@ public class MapService {
                 // 如果当前格子中心是黑色
                 if (color == Color.BLACK.getRGB()) {
                     // 将当前格子设置为建筑物的id的哈希码
+                    // todo 这一行很偶尔出现 array index out of bounds，如果再次出现需要看看怎么回事
                     buildingsHashCodeMap[i][j] = building.getId().hashCode();
                     // 设置当前格子为建筑物
                     addBitToMap(map, i, j, mapbit);
@@ -403,7 +406,7 @@ public class MapService {
      */
     private boolean placeAllBuildingsOnMap() {
         // 建筑物的黑白图的字典
-        var buildingTypes = buildingTypeMapper.selectList(null);
+        var buildingTypes = buildingTypeService.selectAll().values();
         for (BuildingTypeDo buildingType : buildingTypes) {
             BuildingTypeEnum buildingTypeId = buildingType.getId();
             String imagePath = buildingType.getImagePath();
@@ -924,7 +927,7 @@ public class MapService {
         @Override
         public void create(EcosystemDo ecosystem) {
             // 在中心创建一个神庙
-            BuildingTypeDo templeType = buildingTypeMapper.selectById(BuildingTypeEnum.GREEK_TEMPLE);
+            BuildingTypeDo templeType = buildingTypeService.selectById(BuildingTypeEnum.GREEK_TEMPLE);
             BuildingDo centerTemple = createBuilding(
                     templeType,
                     ecosystem.getCenterX(),
@@ -933,9 +936,9 @@ public class MapService {
                     true);
             // 选择一个象限作为森林
             int forestQuadrant = GameCache.random.nextInt(4) + 1;
-            BuildingTypeDo treeType = buildingTypeMapper.selectById(BuildingTypeEnum.TREE);
-            BuildingTypeDo tombstoneType = buildingTypeMapper.selectById(BuildingTypeEnum.TOMBSTONE);
-            BuildingTypeDo roadType = buildingTypeMapper.selectById(BuildingTypeEnum.ROAD);
+            BuildingTypeDo treeType = buildingTypeService.selectById(BuildingTypeEnum.TREE);
+            BuildingTypeDo tombstoneType = buildingTypeService.selectById(BuildingTypeEnum.TOMBSTONE);
+            BuildingTypeDo roadType = buildingTypeService.selectById(BuildingTypeEnum.ROAD);
             // 生成森林，一直生成直到累计到一定的碰撞次数
             int collisionCount = 0;
             int maxCollisionCount = 50;
@@ -966,15 +969,18 @@ public class MapService {
             // 从中心点开始生成道路
             for (byte[] direction : Constants.DIRECTIONS) {
                 generateRoad(ecosystem, roadType, scale,
-                        ecosystem.getCenterX() + direction[0] * (templeWidth / 2 + scale * roadType.getBasicWidth() / 2),
-                        ecosystem.getCenterY() + direction[1] * (templeHeight / 2 + scale * roadType.getBasicHeight() / 2),
+                        ecosystem.getCenterX()
+                                + direction[0] * (templeWidth / 2 + scale * roadType.getBasicWidth() / 2),
+                        ecosystem.getCenterY()
+                                + direction[1] * (templeHeight / 2 + scale * roadType.getBasicHeight() / 2),
                         direction,
                         0);
             }
         }
 
         /** 递归生成道路 */
-        private void generateRoad(EcosystemDo ecosystem, BuildingTypeDo roadType, double scale, double x, double y, byte[] direction, int depth) {
+        private void generateRoad(EcosystemDo ecosystem, BuildingTypeDo roadType, double scale, double x, double y,
+                byte[] direction, int depth) {
             // 基线条件：超过最大深度或超出生态系统边界
             if (depth > 400)
                 return;
@@ -990,18 +996,41 @@ public class MapService {
             // 是否进行分叉
             double choice = GameCache.random.nextDouble();
             if (choice > 0.2) { // 不分叉
-                generateRoad(ecosystem, roadType, scale, x + direction[0] * road.getWidth(), y + direction[1] * road.getHeight(), direction, depth + 1);
+                // 延展的同时，一定概率在道路旁放置各种建筑
+                if (GameCache.random.nextDouble() < 0.2) {
+                    // 选择某一侧伸展出一个道路，必须是当前方向的侧方
+                    int val = GameCache.random.nextInt(2) == 0 ? -1 : 1;
+                    double xRoadSide = x + (direction[0] == 0 ? val : 0) * road.getWidth();
+                    double yRoadSide = y + (direction[1] == 0 ? val : 0) * road.getHeight();
+                    var roadSide = createBuilding(roadType, xRoadSide, yRoadSide, scale, true);
+                    // 建筑类型
+                    var storeType = buildingTypeService.selectById(BuildingTypeEnum.STORE);
+                    var factoryType = buildingTypeService.selectById(BuildingTypeEnum.FACTORY);
+                    BuildingTypeDo selectedType = MyMath.rouletteWheelSelect(
+                            List.of(storeType, factoryType),
+                            List.of(storeType.getRarity().doubleValue(),
+                                    factoryType.getRarity().doubleValue()),
+                            1).get(0);
+                    double xBuilding = x + (direction[0] == 0 ? val : 0) * road.getWidth() * 3;
+                    double yBuilding = y + (direction[1] == 0 ? val : 0) * road.getHeight() * 3;
+                    createBuilding(selectedType, xBuilding, yBuilding,
+                            GameCache.random.nextDouble() * 0.5 + 0.5,
+                            true);
+                }
+                generateRoad(ecosystem, roadType, scale, x + direction[0] * road.getWidth(),
+                        y + direction[1] * road.getHeight(), direction, depth + 1);
             } else if (choice > 0.05) { // 分叉
                 // 从当前方向中随机选择1-3个不同的方向作为分叉
                 List<byte[]> branchDirections = Arrays.stream(Constants.DIRECTIONS)
-                    .collect(Collectors.collectingAndThen(
-                        Collectors.toList(),
-                        list -> {
-                            Collections.shuffle(list);
-                            return list.subList(0, 1 + GameCache.random.nextInt(3));
-                        }));
+                        .collect(Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> {
+                                    Collections.shuffle(list);
+                                    return list.subList(0, 1 + GameCache.random.nextInt(3));
+                                }));
                 for (byte[] branchDirection : branchDirections) {
-                    generateRoad(ecosystem, roadType, scale, x + branchDirection[0] * road.getWidth(), y + branchDirection[1] * road.getHeight(), branchDirection, depth + 1);
+                    generateRoad(ecosystem, roadType, scale, x + branchDirection[0] * road.getWidth(),
+                            y + branchDirection[1] * road.getHeight(), branchDirection, depth + 1);
                 }
             } // 否则断掉
         }
