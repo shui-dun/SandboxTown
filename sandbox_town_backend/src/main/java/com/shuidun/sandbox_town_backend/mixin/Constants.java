@@ -18,4 +18,12 @@ public class Constants {
 
     /** 一天总时长 */
     public static final long DAY_TOTAL_DURATION = DAY_DURATION + DUSK_DURATION + NIGHT_DURATION + DAWN_DURATION;
+
+    public static final byte[][] DIRECTIONS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    public static final byte[][] DIAGONAL_DIRECTIONS = {
+            {1, 0}, {-1, 0}, {0, 1}, {0, -1},
+            {1, 1}, {-1, -1}, {1, -1}, {-1, 1}
+    };
+
 }

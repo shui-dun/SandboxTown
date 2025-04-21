@@ -10,6 +10,7 @@ import com.shuidun.sandbox_town_backend.mapper.BuildingTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.EcosystemMapper;
 import com.shuidun.sandbox_town_backend.mapper.EcosystemTypeMapper;
 import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
+import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
 import com.shuidun.sandbox_town_backend.utils.MyMath;
@@ -211,21 +212,23 @@ public class MapService {
         return gameMapBo;
     }
 
-    /** 
+    /**
      * 创建建筑对象
      * @param force 即使建筑物重叠也强制创建
-    */
+     */
     @Nullable
-    private BuildingDo createBuilding(BuildingTypeDo type, double x, double y, double scale, boolean force) {
+    private BuildingDo createBuilding(BuildingTypeDo type, double centerX, double centerY, double scale, boolean force) {
         BuildingDo building = new BuildingDo();
         building.setId(UUIDNameGenerator.generateItemName(type.getId().name()));
         building.setType(type.getId());
         building.setMap(mapId);
         building.setLevel(1);
-        building.setOriginX(x);
-        building.setOriginY(y);
-        building.setWidth(type.getBasicWidth() * scale);
-        building.setHeight(type.getBasicHeight() * scale);
+        double width = type.getBasicWidth() * scale;
+        double height = type.getBasicHeight() * scale;
+        building.setWidth(width);
+        building.setHeight(height);
+        building.setOriginX(centerX - width / 2);
+        building.setOriginY(centerY - height / 2);
         // 重叠检测
         if (!force && isBuildingOverlap(building)) {
             log.warn("建筑物重叠，无法创建建筑物");
@@ -266,8 +269,9 @@ public class MapService {
         // 遍历建筑的每一个格子
         for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
             for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
-                // 如果当前格子已有其他建筑
-                if (isAnyBitInMap(map, i, j, MapBitEnum.BUILDING)) {
+                // 如果当前格子已有其他建筑或者道路
+                if (isAnyBitInMap(map, i, j, MapBitEnum.BUILDING) 
+                        || isAnyBitInMap(map, i, j, MapBitEnum.ROAD)) {
                     return true;
                 }
             }
@@ -326,6 +330,11 @@ public class MapService {
 
     /** 放置建筑 */
     private void placeBuildingOnMap(BuildingDo building) {
+        // 建筑对应的点
+        var mapbit = MapBitEnum.BUILDING;
+        if (building.getType() == BuildingTypeEnum.ROAD) {
+            mapbit = MapBitEnum.ROAD;
+        }
         // 获取建筑物的左上角的坐标
         double buildingX = building.getOriginX();
         double buildingY = building.getOriginY();
@@ -363,7 +372,7 @@ public class MapService {
                     // 将当前格子设置为建筑物的id的哈希码
                     buildingsHashCodeMap[i][j] = building.getId().hashCode();
                     // 设置当前格子为建筑物
-                    addBitToMap(map, i, j, MapBitEnum.BUILDING);
+                    addBitToMap(map, i, j, mapbit);
                 }
             }
         }
@@ -923,10 +932,11 @@ public class MapService {
                     GameCache.random.nextDouble() * 0.5 + 0.5,
                     true);
             // 选择一个象限作为森林
-            int quadrant = GameCache.random.nextInt(4) + 1;
+            int forestQuadrant = GameCache.random.nextInt(4) + 1;
             BuildingTypeDo treeType = buildingTypeMapper.selectById(BuildingTypeEnum.TREE);
             BuildingTypeDo tombstoneType = buildingTypeMapper.selectById(BuildingTypeEnum.TOMBSTONE);
-            // 一直生成直到累计到一定的碰撞次数
+            BuildingTypeDo roadType = buildingTypeMapper.selectById(BuildingTypeEnum.ROAD);
+            // 生成森林，一直生成直到累计到一定的碰撞次数
             int collisionCount = 0;
             int maxCollisionCount = 50;
             while (collisionCount < maxCollisionCount) {
@@ -935,10 +945,8 @@ public class MapService {
                         List.of(treeType, tombstoneType),
                         List.of(treeType.getRarity().doubleValue(), tombstoneType.getRarity().doubleValue()),
                         1).get(0);
-                // 根据象限确定坐标偏移的正负号
-                int signX = (quadrant == 1 || quadrant == 4) ? 1 : -1;
-                int signY = (quadrant == 1 || quadrant == 2) ? 1 : -1;
-                // 计算位置
+                int signX = (forestQuadrant == 1 || forestQuadrant == 4) ? 1 : -1;
+                int signY = (forestQuadrant == 1 || forestQuadrant == 2) ? 1 : -1;
                 double x = ecosystem.getCenterX() + signX * GameCache.random.nextDouble() * ecosystem.getWidth() / 2;
                 double y = ecosystem.getCenterY() + signY * GameCache.random.nextDouble() * ecosystem.getHeight() / 2;
                 BuildingDo building = createBuilding(
@@ -949,6 +957,50 @@ public class MapService {
                         false);
                 if (building == null) {
                     collisionCount++;
+                }
+            }
+
+            double scale = 8.0;
+            double templeHeight = centerTemple.getHeight();
+            double templeWidth = centerTemple.getWidth();
+            // 从中心点开始生成道路
+            for (byte[] direction : Constants.DIRECTIONS) {
+                generateRoad(ecosystem, roadType, scale,
+                        ecosystem.getCenterX() + direction[0] * (templeWidth / 2 + scale * roadType.getBasicWidth() / 2),
+                        ecosystem.getCenterY() + direction[1] * (templeHeight / 2 + scale * roadType.getBasicHeight() / 2),
+                        direction,
+                        0);
+            }
+        }
+
+        /** 递归生成道路 */
+        private void generateRoad(EcosystemDo ecosystem, BuildingTypeDo roadType, double scale, double x, double y, byte[] direction, int depth) {
+            // 基线条件：超过最大深度或超出生态系统边界
+            if (depth > 100)
+                return;
+            if (Math.abs(x - ecosystem.getCenterX()) > ecosystem.getWidth() / 2 ||
+                    Math.abs(y - ecosystem.getCenterY()) > ecosystem.getHeight() / 2)
+                return;
+
+            // 在当前位置创建道路
+            BuildingDo road = createBuilding(roadType, x, y, scale, false);
+            if (road == null)
+                return; // 如果创建失败（可能是碰到了其他建筑），就停止这个分支
+
+            // 是否进行分叉
+            if (GameCache.random.nextDouble() > 0.2) { // 不分叉
+                generateRoad(ecosystem, roadType, scale, x + direction[0] * road.getWidth(), y + direction[1] * road.getHeight(), direction, depth + 1);
+            } else { // 分叉
+                // 从当前方向中随机选择1-3个不同的方向作为分叉
+                List<byte[]> branchDirections = Arrays.stream(Constants.DIRECTIONS)
+                    .collect(Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        list -> {
+                            Collections.shuffle(list);
+                            return list.subList(0, 1 + GameCache.random.nextInt(3));
+                        }));
+                for (byte[] branchDirection : branchDirections) {
+                    generateRoad(ecosystem, roadType, scale, x + branchDirection[0] * road.getWidth(), y + branchDirection[1] * road.getHeight(), branchDirection, depth + 1);
                 }
             }
         }

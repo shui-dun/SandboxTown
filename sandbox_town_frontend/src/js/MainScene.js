@@ -221,7 +221,12 @@ class MainScene extends Phaser.Scene {
             let axis = this.convertToCenter(buildingSprite, building.originX, building.originY);
             buildingSprite.setPosition(axis.x, axis.y);
             // 设置建筑物层级
-            this.setDepth(buildingSprite);
+            // 某些建筑例如道路始终在最底层
+            if (building.type === 'ROAD') {
+                buildingSprite.setDepth(0);
+            } else {
+                this.setDepth(buildingSprite);
+            }
             // 设置点击建筑物的事件
             buildingSprite.setInteractive({ hitArea: new Phaser.Geom.Polygon(this.clickShapes[building.type]), hitAreaCallback: Phaser.Geom.Polygon.Contains, useHandCursor: true });
             buildingSprite.on('pointerdown', (pointer, _localX, _localY, event) => {
@@ -271,6 +276,8 @@ class MainScene extends Phaser.Scene {
                 let randomNum2 = Math.floor(Math.random() * 21) - 10;
                 const texture = this.add.sprite(i * textureLen + randomNum1, j * textureLen + randomNum2, 'TILES', Math.floor(Math.random() * 12));
                 texture.setDisplaySize(textureLen, textureLen);
+                // 纹理的优先级应比道路等特殊建筑还要低
+                texture.setDepth(-1);
             }
         }
         let pixelsPerGrid = 30;
