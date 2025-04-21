@@ -254,8 +254,8 @@ List of all bodies:
         FixedRotation:  NO
 
         AnchorPointRel: { 0.500,0.500 }
-        AnchorPointAbs: { 8.000,8.000 }
-        Size:           { 16.000,16.000 }
+        AnchorPointAbs: { 64.000,64.000 }
+        Size:           { 128.000,128.000 }
     
     List of all fixtures:
 
@@ -273,11 +273,11 @@ List of all bodies:
 
 
         Hull polygon:
-             (8, 8)  , (-8, 8)  , (-8, -8)  , (8, -8) 
+             (64, 64)  , (-64, 64)  , (-64, -64)  , (64, -64) 
 
         Convex sub polygons:
 
-             (-8, 8)  , (-8, -8)  , (8, -8)  , (8, 8) 
+             (-64, 64)  , (-64, -64)  , (64, -64)  , (64, 64) 
 
 
 
@@ -560,8 +560,8 @@ List of all bodies:
         FixedRotation:  NO
 
         AnchorPointRel: { 0.500,0.500 }
-        AnchorPointAbs: { 8.000,8.000 }
-        Size:           { 16.000,16.000 }
+        AnchorPointAbs: { 64.000,64.000 }
+        Size:           { 128.000,128.000 }
     
     List of all fixtures:
 
@@ -579,11 +579,11 @@ List of all bodies:
 
 
         Hull polygon:
-             (8, 8)  , (-8, 8)  , (-8, -8)  , (8, -8) 
+             (64, 64)  , (-64, 64)  , (-64, -64)  , (64, -64) 
 
         Convex sub polygons:
 
-             (-8, 8)  , (-8, -8)  , (8, -8)  , (8, 8) 
+             (-64, 64)  , (-64, -64)  , (64, -64)  , (64, 64) 
 
 
 
@@ -594,8 +594,8 @@ List of all bodies:
         FixedRotation:  NO
 
         AnchorPointRel: { 0.500,0.500 }
-        AnchorPointAbs: { 8.000,8.000 }
-        Size:           { 16.000,16.000 }
+        AnchorPointAbs: { 64.000,64.000 }
+        Size:           { 128.000,128.000 }
     
     List of all fixtures:
 
@@ -613,11 +613,11 @@ List of all bodies:
 
 
         Hull polygon:
-             (8, 8)  , (-8, 8)  , (-8, -8)  , (8, -8) 
+             (64, 64)  , (-64, 64)  , (-64, -64)  , (64, -64) 
 
         Convex sub polygons:
 
-             (-8, 8)  , (-8, -8)  , (8, -8)  , (8, 8) 
+             (-64, 64)  , (-64, -64)  , (64, -64)  , (64, 64) 
 
 
 
@@ -628,8 +628,8 @@ List of all bodies:
         FixedRotation:  NO
 
         AnchorPointRel: { 0.500,0.500 }
-        AnchorPointAbs: { 8.000,8.000 }
-        Size:           { 16.000,16.000 }
+        AnchorPointAbs: { 64.000,64.000 }
+        Size:           { 128.000,128.000 }
     
     List of all fixtures:
 
@@ -647,11 +647,11 @@ List of all bodies:
 
 
         Hull polygon:
-             (8, 8)  , (-8, 8)  , (-8, -8)  , (8, -8) 
+             (64, 64)  , (-64, 64)  , (-64, -64)  , (64, -64) 
 
         Convex sub polygons:
 
-             (-8, 8)  , (-8, -8)  , (8, -8)  , (8, 8) 
+             (-64, 64)  , (-64, -64)  , (64, -64)  , (64, 64) 
 
 
 

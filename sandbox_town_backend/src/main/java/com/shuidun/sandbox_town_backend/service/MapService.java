@@ -976,7 +976,7 @@ public class MapService {
         /** 递归生成道路 */
         private void generateRoad(EcosystemDo ecosystem, BuildingTypeDo roadType, double scale, double x, double y, byte[] direction, int depth) {
             // 基线条件：超过最大深度或超出生态系统边界
-            if (depth > 100)
+            if (depth > 400)
                 return;
             if (Math.abs(x - ecosystem.getCenterX()) > ecosystem.getWidth() / 2 ||
                     Math.abs(y - ecosystem.getCenterY()) > ecosystem.getHeight() / 2)
@@ -988,9 +988,10 @@ public class MapService {
                 return; // 如果创建失败（可能是碰到了其他建筑），就停止这个分支
 
             // 是否进行分叉
-            if (GameCache.random.nextDouble() > 0.2) { // 不分叉
+            double choice = GameCache.random.nextDouble();
+            if (choice > 0.2) { // 不分叉
                 generateRoad(ecosystem, roadType, scale, x + direction[0] * road.getWidth(), y + direction[1] * road.getHeight(), direction, depth + 1);
-            } else { // 分叉
+            } else if (choice > 0.05) { // 分叉
                 // 从当前方向中随机选择1-3个不同的方向作为分叉
                 List<byte[]> branchDirections = Arrays.stream(Constants.DIRECTIONS)
                     .collect(Collectors.collectingAndThen(
@@ -1002,7 +1003,7 @@ public class MapService {
                 for (byte[] branchDirection : branchDirections) {
                     generateRoad(ecosystem, roadType, scale, x + branchDirection[0] * road.getWidth(), y + branchDirection[1] * road.getHeight(), branchDirection, depth + 1);
                 }
-            }
+            } // 否则断掉
         }
     }
 }
