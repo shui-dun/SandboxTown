@@ -59,8 +59,8 @@ CREATE TABLE game_map
 );
 
 INSERT INTO game_map (id, name, width, height, seed)
-VALUES ('1', 'Ⅰ', 8000, 6000, 3284924),
-       ('2', 'Ⅱ', 8000, 6000, 23477802);
+VALUES ('1', 'Ⅰ', 10000, 10000, 3284924),
+       ('2', 'Ⅱ', 10000, 10000, 23477802);
 
 # 创建角色类型表
 CREATE TABLE sprite_type
@@ -495,7 +495,7 @@ VALUES ('STORE', '买卖商品的场所', 200, 'static/bitmap/STORE.png', 400, 4
        ('TOMBSTONE', '墓碑的周围有幽灵出没', 500,
         'static/bitmap/TOMBSTONE.png', 160, 160, 8),
        ('GREEK_TEMPLE', '希腊神庙，敌对生物无法靠近', 2000, 'static/bitmap/GREEK_TEMPLE.png', 400, 400, 4),
-	   ('FACTORY', '生产和制造商品的地方', 500, 'static/bitmap/FACTORY.png', 500, 500, 2),
+	   ('FACTORY', '生产和制造商品的地方', 500, 'static/bitmap/FACTORY.png', 500, 500, 8),
        ('WALL', '围墙', 5, 'static/bitmap/WALL.png', 16, 16, 20),
        ('ROAD', '道路', 5, 'static/bitmap/ROAD.png', 16, 16, 20);
 

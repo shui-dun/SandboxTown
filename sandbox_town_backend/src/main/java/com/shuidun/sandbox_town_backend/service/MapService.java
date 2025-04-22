@@ -12,6 +12,7 @@ import com.shuidun.sandbox_town_backend.mapper.GameMapMapper;
 import com.shuidun.sandbox_town_backend.mixin.Constants;
 import com.shuidun.sandbox_town_backend.mixin.GameCache;
 import com.shuidun.sandbox_town_backend.utils.DataCompressor;
+import com.shuidun.sandbox_town_backend.utils.MaxRects;
 import com.shuidun.sandbox_town_backend.utils.MyMath;
 import com.shuidun.sandbox_town_backend.utils.UUIDNameGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -121,47 +122,48 @@ public class MapService {
 
     /** 创建n个生态系统 */
     public void createNEcosystem(int n) {
-        // 读取生态系统类型
-        var ecosystemTypes = ecosystemTypeMapper.selectList(null);
-        // 根据稀有度使用轮盘赌算法选择n个生态系统
-        List<EcosystemTypeDo> selectedEcosystemTypes = MyMath.rouletteWheelSelect(
-                ecosystemTypes,
-                ecosystemTypes.stream().map(r -> (double) r.getRarity()).collect(Collectors.toList()),
-                n);
-        // 生成生态系统
-        for (EcosystemTypeDo ecosystemType : selectedEcosystemTypes) {
-            String name = UUIDNameGenerator.generateItemName(ecosystemType.getId().name());
-            double width = ecosystemType.getBasicWidth() * (GameCache.random.nextDouble() + 0.5);
-            double height = ecosystemType.getBasicHeight() * (GameCache.random.nextDouble() + 0.5);
+        // 读取所有类型并按稀有度轮盘赌选出 n 个
+        List<EcosystemTypeDo> types = ecosystemTypeMapper.selectList(null);
+        List<EcosystemTypeDo> selected = MyMath.rouletteWheelSelect(
+            types,
+            types.stream().map(t -> (double) t.getRarity()).collect(Collectors.toList()),
+            n
+        );
 
-            // 创建生态系统对象
-            EcosystemDo ecosystem = new EcosystemDo();
-            ecosystem.setId(name);
-            ecosystem.setType(ecosystemType.getId());
-            ecosystem.setWidth(width);
-            ecosystem.setHeight(height);
+        // 初始化装箱器（将地图尺寸转为整数）
+        int binW = (int) Math.floor(getGameMap().getWidth());
+        int binH = (int) Math.floor(getGameMap().getHeight());
+        MaxRects packer = new MaxRects(binW, binH);
 
-            // 尝试放置生态系统
-            boolean placed = false;
-            int maxTries = 10;
-            for (int i = 0; i < maxTries; i++) {
-                double x = GameCache.random.nextDouble() * getGameMap().getWidth();
-                double y = GameCache.random.nextDouble() * getGameMap().getHeight();
-                ecosystem.setCenterX(x);
-                ecosystem.setCenterY(y);
+        // 依次放置
+        for (EcosystemTypeDo type : selected) {
+            // 生成实际大小，并向上取整以适配装箱器
+            double w = type.getBasicWidth() * (GameCache.random.nextDouble() + 0.5);
+            double h = type.getBasicHeight() * (GameCache.random.nextDouble() + 0.5);
+            int iw = (int) Math.ceil(w);
+            int ih = (int) Math.ceil(h);
 
-                if (!isEcosystemOverlap(ecosystem)) {
-                    ecosystemMapper.insert(ecosystem);
-                    ecosystemTypeToCreator.get(ecosystemType.getId()).create(ecosystem);
-                    placed = true;
-                    break;
-                }
+            // 调用装箱算法
+            var r = packer.insert(iw, ih);
+            if (r.width == 0) {
+                // 放不下
+                log.warn("EcosystemType {} size {}x{} 无法放入地图", 
+                         type.getId(), iw, ih);
+                continue;
             }
 
-            if (!placed) {
-                log.warn("Failed to place ecosystem {}", name);
-            }
+            EcosystemDo eco = new EcosystemDo();
+            eco.setId(UUIDNameGenerator.generateItemName(type.getId().name()));
+            eco.setType(type.getId());
+            eco.setWidth(iw);
+            eco.setHeight(ih);
+            eco.setCenterX(r.centerX());
+            eco.setCenterY(r.centerY());
+
+            ecosystemMapper.insert(eco);
+            ecosystemTypeToCreator.get(type.getId()).create(eco);
         }
+
         // 生成精灵
         spriteService.refreshAllSprites();
 
@@ -352,6 +354,10 @@ public class MapService {
         // 遍历建筑的每一个格子
         for (int i = buildingLogicalX; i < buildingLogicalX + buildingLogicalWidth; ++i) {
             for (int j = buildingLogicalY; j < buildingLogicalY + buildingLogicalHeight; ++j) {
+                // 如果i或j不合法
+                if (i < 0 || j < 0 || i >= map.length || j >= map[0].length) {
+                    continue;
+                }
                 // 得到当前格中心的物理坐标
                 int pixelX = i * PIXELS_PER_GRID + PIXELS_PER_GRID / 2;
                 int pixelY = j * PIXELS_PER_GRID + PIXELS_PER_GRID / 2;
@@ -372,7 +378,6 @@ public class MapService {
                 // 如果当前格子中心是黑色
                 if (color == Color.BLACK.getRGB()) {
                     // 将当前格子设置为建筑物的id的哈希码
-                    // todo 这一行很偶尔出现 array index out of bounds，如果再次出现需要看看怎么回事
                     buildingsHashCodeMap[i][j] = building.getId().hashCode();
                     // 设置当前格子为建筑物
                     addBitToMap(map, i, j, mapbit);
@@ -941,7 +946,7 @@ public class MapService {
             BuildingTypeDo roadType = buildingTypeService.selectById(BuildingTypeEnum.ROAD);
             // 生成森林，一直生成直到累计到一定的碰撞次数
             int collisionCount = 0;
-            int maxCollisionCount = 50;
+            int maxCollisionCount = 20;
             while (collisionCount < maxCollisionCount) {
                 // 根据稀有度选择一个建筑物
                 BuildingTypeDo selectedType = MyMath.rouletteWheelSelect(
@@ -963,7 +968,7 @@ public class MapService {
                 }
             }
 
-            double scale = 8.0;
+            double scale = 5.0;
             double templeHeight = centerTemple.getHeight();
             double templeWidth = centerTemple.getWidth();
             // 从中心点开始生成道路
@@ -995,9 +1000,9 @@ public class MapService {
 
             // 是否进行分叉
             double choice = GameCache.random.nextDouble();
-            if (choice > 0.2) { // 不分叉
+            if (choice > 0.15) { // 不分叉
                 // 延展的同时，一定概率在道路旁放置各种建筑
-                if (GameCache.random.nextDouble() < 0.2) {
+                if (GameCache.random.nextDouble() < 0.15) {
                     // 选择某一侧伸展出一个道路，必须是当前方向的侧方
                     int val = GameCache.random.nextInt(2) == 0 ? -1 : 1;
                     double xRoadSide = x + (direction[0] == 0 ? val : 0) * road.getWidth();
