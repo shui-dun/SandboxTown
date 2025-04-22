@@ -84,10 +84,12 @@ public class EventHandler {
             if (!validate(data)) {
                 return;
             }
-            // 如果时间戳不对，直接返回
-            if (data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
-                return;
-            }
+            // fix: 客户端服务端时间不同步导致精灵坐标回滚的问题
+            // 因此暂不进行时间戳校验
+            // // 如果时间戳不对，直接返回
+            // if (data.getTime() > System.currentTimeMillis() || data.getTime() < System.currentTimeMillis() - 1500) {
+            //     return;
+            // }
             var sprite = spriteService.selectOnlineById(data.getId());
             // 如果该角色不在线，直接返回
             if (sprite == null) {
