@@ -112,25 +112,27 @@ public class MapService {
 
         // 如果没有生态系统，则创建生态系统
         if (!containsBuilding) {
-            createNEcosystem(gameMap.getWidth() * gameMap.getHeight() / 300000);
+            createNEcosystem(gameMap.getWidth() * gameMap.getHeight() / 10000000);
         }
     }
 
     /** 生态系统类型到创建者的映射 */
     private Map<EcosystemTypeEnum, EcosystemCreator> ecosystemTypeToCreator = Map.ofEntries(
-            Map.entry(EcosystemTypeEnum.TOWN, new TownCreator()));
+            Map.entry(EcosystemTypeEnum.TOWN, new TownCreator()),
+            Map.entry(EcosystemTypeEnum.MAZE, new MazeCreator()));
 
     /** 创建n个生态系统 */
     public void createNEcosystem(int n) {
         // 读取所有类型并按稀有度轮盘赌选出 n 个
         List<EcosystemTypeDo> types = ecosystemTypeMapper.selectList(null);
         List<EcosystemTypeDo> selected = MyMath.rouletteWheelSelect(
-            types,
-            types.stream().map(t -> (double) t.getRarity()).collect(Collectors.toList()),
-            n
-        );
+                types,
+                types.stream().map(t -> (double) t.getRarity()).collect(Collectors.toList()),
+                n);
 
         // 初始化装箱器（将地图尺寸转为整数）
+        // 已知MaxRects算法具有bug，会导致生态系统重叠
+        // 但我觉得重叠在一起也挺有趣的，因此暂不修复
         int binW = (int) Math.floor(getGameMap().getWidth());
         int binH = (int) Math.floor(getGameMap().getHeight());
         MaxRects packer = new MaxRects(binW, binH);
@@ -147,8 +149,8 @@ public class MapService {
             var r = packer.insert(iw, ih);
             if (r.width == 0) {
                 // 放不下
-                log.warn("EcosystemType {} size {}x{} 无法放入地图", 
-                         type.getId(), iw, ih);
+                log.warn("EcosystemType {} size {}x{} 无法放入地图",
+                        type.getId(), iw, ih);
                 continue;
             }
 
@@ -983,8 +985,9 @@ public class MapService {
             }
         }
 
-        /** 
+        /**
          * 递归生成道路
+         * 
          * @param roadSideCount 距离上次创建路边建筑过了几格
          */
         private void generateRoad(EcosystemDo ecosystem, BuildingTypeDo roadType, double scale, double x, double y,
@@ -1034,7 +1037,8 @@ public class MapService {
                         roadSideCount = 0; // 重置路边建筑计数器
                     }
                     generateRoad(ecosystem, roadType, scale, x + direction[0] * road.getWidth(),
-                            y + direction[1] * road.getHeight(), direction, depth + 1, straightCount, roadSideCount + 1);
+                            y + direction[1] * road.getHeight(), direction, depth + 1, straightCount,
+                            roadSideCount + 1);
                 } else { // 分叉
                     // 从当前方向中随机选择1-3个不同的方向作为分叉
                     List<byte[]> branchDirections = Arrays.stream(Constants.DIRECTIONS)
@@ -1046,7 +1050,8 @@ public class MapService {
                                     }));
                     for (byte[] branchDirection : branchDirections) {
                         generateRoad(ecosystem, roadType, scale, x + branchDirection[0] * road.getWidth(),
-                                y + branchDirection[1] * road.getHeight(), branchDirection, depth + 1, straightCount, roadSideCount + 1);
+                                y + branchDirection[1] * road.getHeight(), branchDirection, depth + 1, straightCount,
+                                roadSideCount + 1);
                     }
                 }
             } else {
@@ -1054,6 +1059,184 @@ public class MapService {
                 generateRoad(ecosystem, roadType, scale, x + direction[0] * road.getWidth(),
                         y + direction[1] * road.getHeight(), direction, depth + 1, straightCount, roadSideCount + 1);
             }
+        }
+    }
+
+    private class MazeCreator implements EcosystemCreator {
+
+        @Override
+        public void create(EcosystemDo ecosystem) {
+            // 生成一个虚拟地图来存储围墙
+            double scale = 4.0;
+            int wallLen = (int) (buildingTypeService.selectById(BuildingTypeEnum.WALL).getBasicWidth() * scale);
+            int vMapWidth = (int) Math.ceil(ecosystem.getWidth() / wallLen);
+            int vMapHeight = (int) Math.ceil(ecosystem.getHeight() / wallLen);
+            boolean[][] vMap = new boolean[vMapWidth][vMapHeight];
+            // 四个边是围墙
+            for (int i = 0; i < vMapWidth; i++) {
+                vMap[i][0] = true;
+                vMap[i][vMapHeight - 1] = true;
+            }
+            for (int i = 0; i < vMapHeight; i++) {
+                vMap[0][i] = true;
+                vMap[vMapWidth - 1][i] = true;
+            }
+            // 入口，入口长度需要大于等于阈值
+            int threshold = 3; // 入口宽度或高度的最小长度
+            int maxStart = vMapWidth - 2 - (threshold - 1);
+            int start = GameCache.random.nextInt(maxStart) + 1;
+            for (int i = start; i < start + threshold; i++) {
+                vMap[i][0] = false;
+            }
+            maxStart = vMapWidth - 2 - (threshold - 1);
+            start = GameCache.random.nextInt(maxStart) + 1;
+            for (int i = start; i < start + threshold; i++) {
+                vMap[i][vMapHeight - 1] = false;
+            }
+            maxStart = vMapHeight - 2 - (threshold - 1);
+            start = GameCache.random.nextInt(maxStart) + 1;
+            for (int j = start; j < start + threshold; j++) {
+                vMap[0][j] = false;
+            }
+            maxStart = vMapHeight - 2 - (threshold - 1);
+            start = GameCache.random.nextInt(maxStart) + 1;
+            for (int j = start; j < start + threshold; j++) {
+                vMap[vMapWidth - 1][j] = false;
+            }
+
+            // 生成迷宫
+            generateWall(vMap, 0, 0, vMap.length, vMap[0].length);
+            // 生成实际的墙的建筑
+            int ecosystemOriginX = (int) (ecosystem.getCenterX() - ecosystem.getWidth() / 2);
+            int ecosystemOriginY = (int) (ecosystem.getCenterY() - ecosystem.getHeight() / 2);
+            for (int i = 0; i < vMapWidth; i++) {
+                for (int j = 0; j < vMapHeight; j++) {
+                    if (vMap[i][j]) {
+                        // 计算建筑物的坐标
+                        double x = ecosystemOriginX + i * wallLen;
+                        double y = ecosystemOriginY + j * wallLen;
+                        // 创建围墙
+                        BuildingDo wall = createBuilding(
+                                buildingTypeService.selectById(BuildingTypeEnum.WALL),
+                                x,
+                                y,
+                                scale,
+                                true);
+                    }
+                }
+            }
+            // 随机生成建筑，直到碰撞一定次数
+            int collisionCount = 0;
+            int maxCollisionCount = 20;
+            List<BuildingTypeDo> buildingTypes = List.of(
+                    buildingTypeService.selectById(BuildingTypeEnum.TOMBSTONE),
+                    buildingTypeService.selectById(BuildingTypeEnum.TREE));
+            List<Double> buildingTypeWeights = buildingTypes.stream().map(BuildingTypeDo::getRarity)
+                    .map(Number::doubleValue).toList();
+            while (collisionCount < maxCollisionCount) {
+                // 随机选择一个位置
+                double x = ecosystemOriginX + GameCache.random.nextDouble() * ecosystem.getWidth();
+                double y = ecosystemOriginY + GameCache.random.nextDouble() * ecosystem.getHeight();
+                // 随机建筑类型
+                BuildingTypeDo buildingType = MyMath.rouletteWheelSelect(
+                        buildingTypes, buildingTypeWeights, 1).get(0);
+                // 创建
+                BuildingDo tombstone = createBuilding(
+                        buildingType,
+                        x,
+                        y,
+                        GameCache.random.nextDouble() * 0.25 + 0.75,
+                        false);
+                if (tombstone == null) {
+                    collisionCount++;
+                }
+            }
+        }
+
+        /** 生成迷宫 */
+        private void generateWall(boolean[][] vMap, int x, int y, int w, int h) {
+            if (w < 5 || h < 5) {
+                return;
+            } else if (w < 10 || h < 10) {
+                if (GameCache.random.nextDouble() < 0.5) {
+                    return;
+                }
+            }
+
+            int midX = x + w / 2;
+            int midY = y + h / 2;
+
+            // 画水平墙
+            for (int i = x; i < x + w; i++) {
+                vMap[i][midY] = true;
+            }
+
+            // 画竖直墙
+            for (int i = y; i < y + h; i++) {
+                vMap[midX][i] = true;
+            }
+
+            // 选择3个地方进行拆墙，洞的宽度需要大于等于阈值
+            int threshold = 3;
+            // 四个区域编号：0=水平墙左半段, 1=水平墙右半段, 2=竖直墙上半段, 3=竖直墙下半段
+            List<Integer> segments = new ArrayList<>(Arrays.asList(0, 1, 2, 3));
+            Collections.shuffle(segments);
+            int holesToMake = 3, made = 0;
+            for (int seg : segments) {
+                if (made >= holesToMake)
+                    break;
+                switch (seg) {
+                    case 0: { // 水平墙左半段
+                        int start = x, end = midX - 1;
+                        int len = end - start + 1;
+                        if (len >= threshold) {
+                            int holeStart = start + GameCache.random.nextInt(len - threshold + 1);
+                            for (int k = 0; k < threshold; k++)
+                                vMap[holeStart + k][midY] = false;
+                            made++;
+                        }
+                        break;
+                    }
+                    case 1: { // 水平墙右半段
+                        int start = midX + 1, end = x + w - 1;
+                        int len = end - start + 1;
+                        if (len >= threshold) {
+                            int holeStart = start + GameCache.random.nextInt(len - threshold + 1);
+                            for (int k = 0; k < threshold; k++)
+                                vMap[holeStart + k][midY] = false;
+                            made++;
+                        }
+                        break;
+                    }
+                    case 2: { // 竖直墙上半段
+                        int start = y, end = midY - 1;
+                        int len = end - start + 1;
+                        if (len >= threshold) {
+                            int holeStart = start + GameCache.random.nextInt(len - threshold + 1);
+                            for (int k = 0; k < threshold; k++)
+                                vMap[midX][holeStart + k] = false;
+                            made++;
+                        }
+                        break;
+                    }
+                    case 3: { // 竖直墙下半段
+                        int start = midY + 1, end = y + h - 1;
+                        int len = end - start + 1;
+                        if (len >= threshold) {
+                            int holeStart = start + GameCache.random.nextInt(len - threshold + 1);
+                            for (int k = 0; k < threshold; k++)
+                                vMap[midX][holeStart + k] = false;
+                            made++;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            generateWall(vMap, x, y, w / 2, h / 2);
+            generateWall(vMap, x + w / 2, y, w / 2, h / 2);
+            generateWall(vMap, x, y + h / 2, w / 2, h / 2);
+            generateWall(vMap, x + w / 2, y + h / 2, w / 2, h / 2);
         }
     }
 }

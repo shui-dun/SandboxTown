@@ -456,7 +456,8 @@ CREATE TABLE ecosystem_type
 );
 
 INSERT INTO ecosystem_type (id, name, basic_width, basic_height, rarity)
-VALUES ('TOWN', '城镇', 5000, 5000, 10);
+VALUES ('TOWN', '城镇', 5000, 5000, 10),
+        ('MAZE', '迷宫', 4000, 4000, 5);
 
 # 创建生态系统表
 CREATE TABLE ecosystem
