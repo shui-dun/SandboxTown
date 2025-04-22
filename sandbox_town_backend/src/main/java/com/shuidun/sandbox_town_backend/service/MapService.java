@@ -1082,27 +1082,11 @@ public class MapService {
                 vMap[vMapWidth - 1][i] = true;
             }
             // 入口，入口长度需要大于等于阈值
-            int threshold = 3; // 入口宽度或高度的最小长度
-            int maxStart = vMapWidth - 2 - (threshold - 1);
-            int start = GameCache.random.nextInt(maxStart) + 1;
-            for (int i = start; i < start + threshold; i++) {
-                vMap[i][0] = false;
-            }
-            maxStart = vMapWidth - 2 - (threshold - 1);
-            start = GameCache.random.nextInt(maxStart) + 1;
-            for (int i = start; i < start + threshold; i++) {
-                vMap[i][vMapHeight - 1] = false;
-            }
-            maxStart = vMapHeight - 2 - (threshold - 1);
-            start = GameCache.random.nextInt(maxStart) + 1;
-            for (int j = start; j < start + threshold; j++) {
-                vMap[0][j] = false;
-            }
-            maxStart = vMapHeight - 2 - (threshold - 1);
-            start = GameCache.random.nextInt(maxStart) + 1;
-            for (int j = start; j < start + threshold; j++) {
-                vMap[vMapWidth - 1][j] = false;
-            }
+            int entryLen = 3; // 入口宽度或高度的最小长度
+            digHole(vMap, 0, 0, 0, vMapHeight - 1, entryLen);
+            digHole(vMap, vMapWidth - 1, vMapWidth - 1, 0, vMapHeight - 1, entryLen);
+            digHole(vMap, 0, vMapWidth - 1, 0, 0, entryLen);
+            digHole(vMap, 0, vMapWidth - 1, vMapHeight - 1, vMapHeight - 1, entryLen);
 
             // 生成迷宫
             generateWall(vMap, 0, 0, vMap.length, vMap[0].length);
@@ -1127,7 +1111,7 @@ public class MapService {
             }
             // 随机生成建筑，直到碰撞一定次数
             int collisionCount = 0;
-            int maxCollisionCount = 20;
+            int maxCollisionCount = 50;
             List<BuildingTypeDo> buildingTypes = List.of(
                     buildingTypeService.selectById(BuildingTypeEnum.TOMBSTONE),
                     buildingTypeService.selectById(BuildingTypeEnum.TREE));
@@ -1153,11 +1137,45 @@ public class MapService {
             }
         }
 
+        /**
+         * 挖洞 在给定的范围
+         * [fromX,fromY]到[toX,toY]中，找到一个子线段满足线段长度等于holeLen，将vMap中这段线段的值设为false。
+         * fromX==toX 和 fromY==toY 有且只有一个成立
+         */
+        private void digHole(boolean[][] vMap, int fromX, int toX, int fromY, int toY, int holeLen) {
+            if (fromX == toX) {
+                // 竖直线段
+                int length = toY - fromY + 1;
+                holeLen = Math.min(holeLen, length);
+
+                // 随机选择子线段的起点
+                int maxStart = length - holeLen;
+                int start = (maxStart > 0) ? fromY + new Random().nextInt(maxStart) : fromY;
+                // 设置vMap对应位置为false
+                for (int y = start; y < start + holeLen; y++) {
+                    vMap[fromX][y] = false;
+                }
+            } else {
+                // 水平线段
+                int length = toX - fromX + 1;
+                holeLen = Math.min(holeLen, length);
+
+                // 随机选择子线段的起点
+                int maxStart = length - holeLen;
+                int start = (maxStart > 0) ? fromX + new Random().nextInt(maxStart) : fromX;
+
+                // 设置vMap对应位置为false
+                for (int x = start; x < start + holeLen; x++) {
+                    vMap[x][fromY] = false;
+                }
+            }
+        }
+
         /** 生成迷宫 */
         private void generateWall(boolean[][] vMap, int x, int y, int w, int h) {
-            if (w < 5 || h < 5) {
+            if (w < 6 || h < 6) {
                 return;
-            } else if (w < 10 || h < 10) {
+            } else if (w < 12 || h < 12) {
                 if (GameCache.random.nextDouble() < 0.5) {
                     return;
                 }
@@ -1177,7 +1195,6 @@ public class MapService {
             }
 
             // 选择3个地方进行拆墙，洞的宽度需要大于等于阈值
-            int threshold = 3;
             // 四个区域编号：0=水平墙左半段, 1=水平墙右半段, 2=竖直墙上半段, 3=竖直墙下半段
             List<Integer> segments = new ArrayList<>(Arrays.asList(0, 1, 2, 3));
             Collections.shuffle(segments);
@@ -1187,47 +1204,19 @@ public class MapService {
                     break;
                 switch (seg) {
                     case 0: { // 水平墙左半段
-                        int start = x, end = midX - 1;
-                        int len = end - start + 1;
-                        if (len >= threshold) {
-                            int holeStart = start + GameCache.random.nextInt(len - threshold + 1);
-                            for (int k = 0; k < threshold; k++)
-                                vMap[holeStart + k][midY] = false;
-                            made++;
-                        }
+                        digHole(vMap, x + 1, midX - 1, midY, midY, 3);
                         break;
                     }
                     case 1: { // 水平墙右半段
-                        int start = midX + 1, end = x + w - 1;
-                        int len = end - start + 1;
-                        if (len >= threshold) {
-                            int holeStart = start + GameCache.random.nextInt(len - threshold + 1);
-                            for (int k = 0; k < threshold; k++)
-                                vMap[holeStart + k][midY] = false;
-                            made++;
-                        }
+                        digHole(vMap, midX + 1, x + w - 1, midY, midY, 3);
                         break;
                     }
                     case 2: { // 竖直墙上半段
-                        int start = y, end = midY - 1;
-                        int len = end - start + 1;
-                        if (len >= threshold) {
-                            int holeStart = start + GameCache.random.nextInt(len - threshold + 1);
-                            for (int k = 0; k < threshold; k++)
-                                vMap[midX][holeStart + k] = false;
-                            made++;
-                        }
+                        digHole(vMap, midX, midX, y + 1, midY - 1, 3);
                         break;
                     }
                     case 3: { // 竖直墙下半段
-                        int start = midY + 1, end = y + h - 1;
-                        int len = end - start + 1;
-                        if (len >= threshold) {
-                            int holeStart = start + GameCache.random.nextInt(len - threshold + 1);
-                            for (int k = 0; k < threshold; k++)
-                                vMap[midX][holeStart + k] = false;
-                            made++;
-                        }
+                        digHole(vMap, midX, midX, midY + 1, y + h - 1, 3);
                         break;
                     }
                 }
