@@ -937,7 +937,7 @@ public class MapService {
                     templeType,
                     ecosystem.getCenterX(),
                     ecosystem.getCenterY(),
-                    GameCache.random.nextDouble() * 0.5 + 0.5,
+                    1,
                     true);
             // 选择一个象限作为森林
             int forestQuadrant = GameCache.random.nextInt(4) + 1;
@@ -961,7 +961,7 @@ public class MapService {
                         selectedType,
                         x,
                         y,
-                        GameCache.random.nextDouble() * 0.5 + 0.5,
+                        GameCache.random.nextDouble() * 0.25 + 0.75,
                         false);
                 if (building == null) {
                     collisionCount++;
@@ -975,17 +975,20 @@ public class MapService {
             for (byte[] direction : Constants.DIRECTIONS) {
                 generateRoad(ecosystem, roadType, scale,
                         ecosystem.getCenterX()
-                                + direction[0] * (templeWidth / 2 + scale * roadType.getBasicWidth() / 2),
+                                + direction[0] * (scale * roadType.getBasicWidth() / 2),
                         ecosystem.getCenterY()
-                                + direction[1] * (templeHeight / 2 + scale * roadType.getBasicHeight() / 2),
+                                + direction[1] * (scale * roadType.getBasicHeight() / 2),
                         direction,
-                        0);
+                        0, 0, 0);
             }
         }
 
-        /** 递归生成道路 */
+        /** 
+         * 递归生成道路
+         * @param roadSideCount 距离上次创建路边建筑过了几格
+         */
         private void generateRoad(EcosystemDo ecosystem, BuildingTypeDo roadType, double scale, double x, double y,
-                byte[] direction, int depth) {
+                byte[] direction, int depth, int straightCount, int roadSideCount) {
             // 基线条件：超过最大深度或超出生态系统边界
             if (depth > 400)
                 return;
@@ -994,50 +997,63 @@ public class MapService {
                 return;
 
             // 在当前位置创建道路
-            BuildingDo road = createBuilding(roadType, x, y, scale, false);
+            // depth低时强制创建，不然神庙周围的道路无法创建
+            BuildingDo road = createBuilding(roadType, x, y, scale, depth < 3);
             if (road == null)
                 return; // 如果创建失败（可能是碰到了其他建筑），就停止这个分支
 
-            // 是否进行分叉
-            double choice = GameCache.random.nextDouble();
-            if (choice > 0.15) { // 不分叉
-                // 延展的同时，一定概率在道路旁放置各种建筑
-                if (GameCache.random.nextDouble() < 0.15) {
-                    // 选择某一侧伸展出一个道路，必须是当前方向的侧方
-                    int val = GameCache.random.nextInt(2) == 0 ? -1 : 1;
-                    double xRoadSide = x + (direction[0] == 0 ? val : 0) * road.getWidth();
-                    double yRoadSide = y + (direction[1] == 0 ? val : 0) * road.getHeight();
-                    var roadSide = createBuilding(roadType, xRoadSide, yRoadSide, scale, true);
-                    // 建筑类型
-                    var storeType = buildingTypeService.selectById(BuildingTypeEnum.STORE);
-                    var factoryType = buildingTypeService.selectById(BuildingTypeEnum.FACTORY);
-                    BuildingTypeDo selectedType = MyMath.rouletteWheelSelect(
-                            List.of(storeType, factoryType),
-                            List.of(storeType.getRarity().doubleValue(),
-                                    factoryType.getRarity().doubleValue()),
-                            1).get(0);
-                    double xBuilding = x + (direction[0] == 0 ? val : 0) * road.getWidth() * 3;
-                    double yBuilding = y + (direction[1] == 0 ? val : 0) * road.getHeight() * 3;
-                    createBuilding(selectedType, xBuilding, yBuilding,
-                            GameCache.random.nextDouble() * 0.5 + 0.5,
-                            true);
+            straightCount++;
+
+            // 只有直行至少指定格后才允许改变方向
+            int straightCountThreshold = 10;
+            if (straightCount >= straightCountThreshold) {
+                double choice = GameCache.random.nextDouble();
+                if (choice > 0.15) { // 不分叉
+                    // 延展的同时，一定概率在道路旁放置各种建筑
+                    // 距离上次创建路边建筑过了几格之后才能再次创建路边建筑
+                    int roadSideCountThreshold = 15;
+                    if (roadSideCount > roadSideCountThreshold && GameCache.random.nextDouble() < 0.15) {
+                        // 选择某一侧伸展出一个道路，必须是当前方向的侧方
+                        int val = GameCache.random.nextInt(2) == 0 ? -1 : 1;
+                        double xRoadSide = x + (direction[0] == 0 ? val : 0) * road.getWidth();
+                        double yRoadSide = y + (direction[1] == 0 ? val : 0) * road.getHeight();
+                        var roadSide = createBuilding(roadType, xRoadSide, yRoadSide, scale, true);
+                        // 建筑类型
+                        var storeType = buildingTypeService.selectById(BuildingTypeEnum.STORE);
+                        var factoryType = buildingTypeService.selectById(BuildingTypeEnum.FACTORY);
+                        BuildingTypeDo selectedType = MyMath.rouletteWheelSelect(
+                                List.of(storeType, factoryType),
+                                List.of(storeType.getRarity().doubleValue(),
+                                        factoryType.getRarity().doubleValue()),
+                                1).get(0);
+                        double xBuilding = x + (direction[0] == 0 ? val : 0) * road.getWidth() * 2;
+                        double yBuilding = y + (direction[1] == 0 ? val : 0) * road.getHeight() * 2;
+                        createBuilding(selectedType, xBuilding, yBuilding,
+                                GameCache.random.nextDouble() * 0.25 + 0.75,
+                                true);
+                        roadSideCount = 0; // 重置路边建筑计数器
+                    }
+                    generateRoad(ecosystem, roadType, scale, x + direction[0] * road.getWidth(),
+                            y + direction[1] * road.getHeight(), direction, depth + 1, straightCount, roadSideCount + 1);
+                } else { // 分叉
+                    // 从当前方向中随机选择1-3个不同的方向作为分叉
+                    List<byte[]> branchDirections = Arrays.stream(Constants.DIRECTIONS)
+                            .collect(Collectors.collectingAndThen(
+                                    Collectors.toList(),
+                                    list -> {
+                                        Collections.shuffle(list);
+                                        return list.subList(0, 1 + GameCache.random.nextInt(3));
+                                    }));
+                    for (byte[] branchDirection : branchDirections) {
+                        generateRoad(ecosystem, roadType, scale, x + branchDirection[0] * road.getWidth(),
+                                y + branchDirection[1] * road.getHeight(), branchDirection, depth + 1, straightCount, roadSideCount + 1);
+                    }
                 }
+            } else {
+                // 未达到指定格时必须直行
                 generateRoad(ecosystem, roadType, scale, x + direction[0] * road.getWidth(),
-                        y + direction[1] * road.getHeight(), direction, depth + 1);
-            } else if (choice > 0.05) { // 分叉
-                // 从当前方向中随机选择1-3个不同的方向作为分叉
-                List<byte[]> branchDirections = Arrays.stream(Constants.DIRECTIONS)
-                        .collect(Collectors.collectingAndThen(
-                                Collectors.toList(),
-                                list -> {
-                                    Collections.shuffle(list);
-                                    return list.subList(0, 1 + GameCache.random.nextInt(3));
-                                }));
-                for (byte[] branchDirection : branchDirections) {
-                    generateRoad(ecosystem, roadType, scale, x + branchDirection[0] * road.getWidth(),
-                            y + branchDirection[1] * road.getHeight(), branchDirection, depth + 1);
-                }
-            } // 否则断掉
+                        y + direction[1] * road.getHeight(), direction, depth + 1, straightCount, roadSideCount + 1);
+            }
         }
     }
 }
