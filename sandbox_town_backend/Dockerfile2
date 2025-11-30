@@ -6,7 +6,7 @@
 # 当然，即使使用Dockerfile2，速度也不及idea直接构建的速度
 # 这是因为idea只编译已经修改过的源代码文件，而不是整个项目，这可以显著减少构建时间，而mvn clean package每次都要重新编译整个项目
 
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jdk-alpine
 
 # 设置工作目录
 WORKDIR /app
