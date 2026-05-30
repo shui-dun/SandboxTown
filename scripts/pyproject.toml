@@ -1,0 +1,9 @@
+[project]
+name = "scripts"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "dashscope>=1.25.19",
+    "pillow>=12.2.0",
+]
