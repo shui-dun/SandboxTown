@@ -1,0 +1,53 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vue-cli-service *)"
+    ]
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}\\.claude\\notify.ps1\" -Title 'Claude Code' -Message '你有新的通知'"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}\\.claude\\notify.ps1\" -Title 'Claude Code' -Message '需要你的权限确认，请点击允许或拒绝'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}\\.claude\\notify.ps1\" -Title 'Claude Code' -Message '正在等待你的回答'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}\\.claude\\notify.ps1\" -Title 'Claude Code' -Message '任务执行完毕'"
+          }
+        ]
+      }
+    ]
+  }
+}
