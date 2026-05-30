@@ -42,15 +42,14 @@ cp docker-compose.prod.template.yml docker-compose.prod.yml
 
 - 按需修改上述配置文件
 - 生产环境：`docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
-- 开发环境：
+- 开发环境（方法1，推荐）：开发环境不使用docker，直接在本地通过IDE运行前后端
+- 开发环境（方法2，使用docker，不推荐）：
    - 在 `sandbox_town_frontend` 目录下执行 `npm install`
    - 在 `sandbox_town_backend` 目录下执行 `mvn package`
    - `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d`
-
-开发环境和生产环境的主要区别：
-
-- 开发环境支持热部署
-- 开发环境暴露了MySQL(3306)和Redis(6379)等端口方便调试
+   - 开发环境和生产环境的主要区别：
+      - 开发环境支持热部署
+      - 开发环境暴露了MySQL(3306)和Redis(6379)等端口方便调试
 
 ## 文档
 
