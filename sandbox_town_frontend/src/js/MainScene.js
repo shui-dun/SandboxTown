@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import mixin from "@/js/mixin.js";
 import ws from "./websocket";
 import emitter from "./mitt";
+import { BoundarySoftener } from "@/js/BoundarySoftener.js";
 
 class MainScene extends Phaser.Scene {
     constructor() {
@@ -251,6 +252,12 @@ class MainScene extends Phaser.Scene {
             });
         }
 
+        const bgColor = 0xc1d275;
+        const bgColorStr = '#' + bgColor.toString(16);
+        // 进行边界柔化处理：将道路、墙壁、墓碑/神庙周围的矩形硬边转为平滑曲线轮廓
+        const softener = new BoundarySoftener(this, this.gameMap, buildingList, bgColor);
+        softener.process();
+
         // 获得登录奖励
         let loginReward = await mixin.myPOSTUrlEncoded('/rest/user/enterGameToReceiveReward');
         if (loginReward != 0) {
@@ -261,7 +268,7 @@ class MainScene extends Phaser.Scene {
         this.matter.world.setBounds(0, 0, this.gameMap.width, this.gameMap.height);
 
         // 相机设置
-        this.cameras.main.setBackgroundColor('#c1d275'); // 我不知道为啥浏览器渲染出的颜色、指定的颜色、图片文件中的颜色都不一样，不同浏览器渲染出的颜色也不一样，有色差
+        this.cameras.main.setBackgroundColor(bgColorStr); // 我不知道为啥浏览器渲染出的颜色、指定的颜色、图片文件中的颜色都不一样，不同浏览器渲染出的颜色也不一样，有色差
         this.cameras.main.setBounds(0, 0, this.gameMap.width, this.gameMap.height);
 
         // 遍历每个区域，创建背景纹理
@@ -278,22 +285,6 @@ class MainScene extends Phaser.Scene {
                 texture.setDisplaySize(textureLen, textureLen);
                 // 纹理的优先级应比道路等特殊建筑还要低
                 texture.setDepth(-1);
-            }
-        }
-        let pixelsPerGrid = 30;
-        // 将神庙周围、墓碑周围用特殊的颜色表示
-        for (let x = 0; x < this.gameMap.data.length; ++x) {
-            for (let y = 0; y < this.gameMap.data[0].length; ++y) {
-                // 神庙周围
-                if (this.gameMap.data[x][y] & 4) {
-                    const texture = this.add.rectangle(x * pixelsPerGrid + pixelsPerGrid / 2, y * pixelsPerGrid + pixelsPerGrid / 2, pixelsPerGrid, pixelsPerGrid, 0xffffff)
-                    texture.setAlpha(0.075)
-                }
-                // 墓碑周围
-                if (this.gameMap.data[x][y] & 8) {
-                    const texture = this.add.rectangle(x * pixelsPerGrid + pixelsPerGrid / 2, y * pixelsPerGrid + pixelsPerGrid / 2, pixelsPerGrid, pixelsPerGrid, 0x000000)
-                    texture.setAlpha(0.075)
-                }
             }
         }
 
