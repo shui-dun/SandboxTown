@@ -12,7 +12,7 @@ a.txt和a.json都是PhysicsEditor生成的
 
 def genCollapseShapes():
     """生成collapseShapes.json：只取下面一部分的凸多面体列表（用于碰撞检测，以及放置建筑时的碰撞检测）"""
-    with open("auto_gen/physics_editor_helper/data/a.json", encoding='utf8') as f:
+    with open("scripts/physics_editor_helper/data/a.json", encoding='utf8') as f:
         jsonData = json.load(f)
     needToModify = []
     for key in jsonData.keys():
@@ -29,7 +29,7 @@ def genCollapseShapes():
 
 def genClickShape():
     """生成clickShapes.json：完整凹多面体（用于点击） """
-    with open('auto_gen/physics_editor_helper/data/a.txt') as f:
+    with open('scripts/physics_editor_helper/data/a.txt') as f:
         s = f.read()
         nameList = re.findall(r'Name:\s+(\S+)', s)
         sizeList = re.findall(r'Size:\s+\{\s*(\S+),(\S+)\s*\}', s)
@@ -76,7 +76,7 @@ def genBitmap():
         # 将bitmap保存图片
         bitmapImg.save(path)
 
-    with open("auto_gen/physics_editor_helper/data/a.txt", encoding='utf8') as f:
+    with open("scripts/physics_editor_helper/data/a.txt", encoding='utf8') as f:
         s = f.read()
         nameList = re.findall(r'Name:\s+(\S+)', s)
         sizeList = re.findall(r'Size:\s+\{\s*(\S+),(\S+)\s*\}', s)
